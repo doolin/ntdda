@@ -108,7 +108,7 @@ if (gd->nLPoints > 0)
       fprintf(outfile,"<Point>");
       fprintf(outfile," %f %f ",
               gd->points[i][1],gd->points[i][2]);
-      fprintf(outfile,"</Point>");
+      fprintf(outfile,"</Point>\n");
    }
    fprintf(outfile,"</Loadpointlist>\n");
 }
@@ -122,7 +122,7 @@ if (gd->nMPoints > 0)
       fprintf(outfile,"<Point>");
       fprintf(outfile," %f %f ",
               gd->points[i][1],gd->points[i][2]);
-      fprintf(outfile,"</Point>");
+      fprintf(outfile,"</Point>\n");
    }
    fprintf(outfile,"</Measuredpointlist>\n");
 }

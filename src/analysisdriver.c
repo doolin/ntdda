@@ -7,9 +7,9 @@
  * written by GHS.
  * 
  * $Author: doolin $
- * $Date: 2001/06/15 20:11:20 $
+ * $Date: 2001/06/23 23:14:03 $
  * $Source: /cvsroot/dda/ntdda/src/analysisdriver.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 
@@ -325,7 +325,7 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
       * FIXME: Put a conditional in front of this.  No need to 
       * call it every time if there are no measured points.
       */
-      //writeMeasuredPoints(GData, AData);
+      writeMeasuredPoints(GData, AData);
       //writeFixedPoints(GData, AData);
       //writeSolutionVector(AData->F, kk, k1, n, GData->nBlocks);
       //writeBlockMasses(AData, GData);
