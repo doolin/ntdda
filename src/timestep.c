@@ -183,7 +183,7 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
   /* Stiffness matrix */
    double ** K = ad->K;
   /* We have to take care of Initial Conditions, too */
-   int currTimeStep = ad->currTimeStep;
+   int currTimeStep = ad->cts;
   /* Delta t time step */
    double ts = ad->delta_t;
   /* previous time step needed for updating, 
@@ -195,7 +195,7 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
   /* (Delta t)^2, time step squared */
    double tss;
   /* need to index the kinetic energy */
-   int tstep = ad->currTimeStep;
+   int cts = ad->cts;
   /* Viscosity coefficient, GHS 1988 pp.86-88. */
    double mu;  //ad->mu;
   /* Convenience value for collecting density, viscosity etc. */
@@ -364,10 +364,10 @@ double a7;
       */
       if (ad->k00 == 0) 
       {
-         DLog->energy[tstep].KEcentroid += rho*S0*( d1*d1 + d2*d2);
-         DLog->energy[tstep].KEdeform += rho*((E33*d3*d3) + (E44*d4*d4) + (E55*d5*d5)
-                                   + (E66*d6*d6) + (2*E34*d3*d4) + (2*E35*d3*d5)
-                                   + (2*E36*d3*d6) + (2*E46*d4*d6) + (2*E56*d5*d6));
+         DLog->energy[cts].KEcentroid += rho*S0*( d1*d1 + d2*d2);
+         DLog->energy[cts].KEdeform += rho*((E33*d3*d3) + (E44*d4*d4) + (E55*d5*d5)
+                                    + (E66*d6*d6) + (2*E34*d3*d4) + (2*E35*d3*d5)
+                                    + (2*E36*d3*d6) + (2*E46*d4*d6) + (2*E56*d5*d6));
       }
 
      /* (GHS: add mass matrix to a[][]) */
@@ -432,9 +432,9 @@ double a7;
 
   /* Total kinetic energy
    */   
-   if (ad->m9 == 0) 
-   {
-      DLog->energy[tstep].ke = 0.5*(DLog->energy[tstep].KEcentroid + DLog->energy[tstep].KEdeform);
+   if (ad->m9 == 0) {
+      DLog->energy[cts].ke = 0.5*(DLog->energy[cts].KEcentroid 
+                           + DLog->energy[cts].KEdeform);
    }
 
 
@@ -489,7 +489,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    double ** K = ad->K;
   /* Delta t time step */
    double ts = ad->delta_t;
-   int currTimeStep = ad->currTimeStep;
+   int cts = ad->cts;
   /* (Delta t)^2, time step squared */
    double tss;
 
@@ -521,7 +521,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    //print2DArray(__V0, __V0size1, __V0size2, fp.logfile, "__V0 from newmark");
 
    //if ( (currTimeStep > 1) )//  && (ad->k00 == 0) ) 
-   if ( (currTimeStep > 1)  && (ad->m9 == 0) ) 
+   if ( (cts > 1)  && (ad->m9 == 0) ) 
    {
       for (i=1; i<= nBlocks; i++)
       {      
@@ -545,7 +545,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       }  
       fprintf(fp.logfile,"Updated V and A (newmark)\n");
    }
-   fprintf(fp.logfile," newmark %d  %f\n",currTimeStep,ts);
+   fprintf(fp.logfile," newmark %d  %f\n",cts,ts);
    
   /*  inertia terms                                 */
   /* g5: only difference of statics and dynamics    */
@@ -716,7 +716,7 @@ computeTimeStep(Geometrydata *bd, Analysisdata *ad)
 
 
   /* a1=points: force/mass   a2: velocity  */
-   if (ad->currTimeStep == 1)
+   if (ad->cts == 1)
    {
      /* This kind of code really is somewhat incomprehensible.
       * avgArea is factored out and seems to work the same. 
@@ -828,7 +828,7 @@ computeTimeStep(Geometrydata *bd, Analysisdata *ad)
       if (a1 < a3) 
          a1=a3;
       
-      a2 = globalTime[ad->currTimeStep-1][1]*maxdisplacement*domainscale/(ad->delta_t);
+      a2 = globalTime[ad->cts-1][1]*maxdisplacement*domainscale/(ad->delta_t);
 
       if (analysisType == STATIC) /* analysisType == 0  is static type analysis, */
          a2=0;

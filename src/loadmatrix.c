@@ -155,7 +155,7 @@ void df09(Geometrydata *gd, Analysisdata *ad)
    */
   /* FIXME: Note where globaltime is updated.
    */
-   current_time = globalTime[ad->currTimeStep-1][0]+(ad->delta_t);
+   current_time = globalTime[ad->cts-1][0]+(ad->delta_t);
       
 
    for (i = 0; i < numloadpoints; i++) {
@@ -245,8 +245,8 @@ void df10(Geometrydata *bd, Analysisdata *ad, int **locks,
       locks[i][1]=0;  // was m0
    }  /*  i */
  
-   globalTime[ad->currTimeStep][0] = globalTime[ad->currTimeStep-1][0] + ad->delta_t;
-   globalTime[ad->currTimeStep][2] = ad->delta_t;
+   globalTime[ad->cts][0] = globalTime[ad->cts-1][0] + ad->delta_t;
+   globalTime[ad->cts][2] = ad->delta_t;
 
 }  /*  Close df10  */
 
@@ -577,7 +577,7 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    double T[7][7] = {0.0};
    double s[7] = {0.0};
 
-   if (ad->currTimeStep >= th_get_number_of_datapoints(ad->timehistory))
+   if (ad->cts >= th_get_number_of_datapoints(ad->timehistory))
       return;
 
    M_dl_traverse(ptr, gd->seispoints)
@@ -587,7 +587,7 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       x = ptmp->x;
       y = ptmp->y;
       computeDisplacement(moments,T,x,y,blocknumber);
-      accel = th_get_data_value(ad->timehistory, ad->currTimeStep);
+      accel = th_get_data_value(ad->timehistory, ad->cts);
       mass = moments[blocknumber][1]*matprops[blocknumber][1];
       force = accel*mass;
       for (j=1; j<= 6; j++)

@@ -23,9 +23,9 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:25 $
+ * $Date: 2002/06/23 16:57:18 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 //#include "compilecontrol.h"
 #include<math.h>
@@ -239,7 +239,7 @@ checkGravityConvergence(Gravity * grav, Geometrydata * gd, Analysisdata * ad)
       * for whatever reason.
       */
 
-      ad->currTimeStep = 0;
+      ad->cts = 0;
       //ad->currentTime = 0.0;
       ad->elapsedTime = 0.0;
       ad->gravityflag = 0;

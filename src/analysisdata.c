@@ -36,13 +36,13 @@ abortAnalysis(Analysisdata * ad) {
   /* Save the time step where the analysis was aborted.  This will 
    * be needed for writing data after the analysis ends.
    */
-   ad->abortedtimestep = ad->currTimeStep;
+   ad->abortedtimestep = ad->cts;
   /* When flow enters the top of the main analysis loop,
    * it will end directly, and all the normal stuff that happens
    * afterward, such as freeing memory and writing output files
    * happens automatically.
    */
-   ad->currTimeStep = ad->nTimeSteps;
+   ad->cts = ad->nTimeSteps;
   /* Reset so the function that writes the data to the 
    * log file does not write out a bunch of unnecessary 
    * zero values.

@@ -8,9 +8,8 @@
 #pragma warning( disable : 4115 )        
 #endif
 
-
+#include "ddatypes.h"
 #include "ddafile.h"
-#include "graphics.h"
 #include "gravity.h"
 #include "timehistory.h"
 #include "options.h"
@@ -381,7 +380,8 @@ struct _analysisdata_tag {
    double * avgArea;
    int avgareasize;
 
-   int currTimeStep;
+   //int currTimeStep;
+   int cts;
   /* curretTime will be changed to "elapsedTime", which should 
    * be easier to understand.
    */
@@ -423,7 +423,7 @@ struct _analysisdata_tag {
   /* Private functions accessed through function pointers. */
    void (*abort)(Analysisdata *);
    Analysisdata * (*newanalysis)(void);
-   void (*initialize)(void);
+//   void (*initialize)(void);
    void (*validate)(void);
    void (*run)(Analysisdata *);
    void (*dumptofile)(Analysisdata *);
@@ -445,26 +445,33 @@ struct _analysisdata_tag {
 };
 
 
-void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
-void freeStresses(GRAPHICS *);
-
 
 Analysisdata * adata_new                 (void);
+
 Analysisdata * adata_init                (void);
+
 void *         adata_delete              (Analysisdata *);
 
 
 Analysisdata * adata_clone               (Analysisdata *);
+
 void           adata_validate            (Analysisdata *);
 
 
-void           adata_set_output_flag     (Analysisdata *, int flag);
-void           adata_clear_output_flag   (Analysisdata *, int flag);
+void           adata_set_output_flag     (Analysisdata *, 
+                                          int flag);
 
-void           adata_set_contact_damping (Analysisdata *, double);
+void           adata_clear_output_flag   (Analysisdata *, 
+                                          int flag);
+
+void           adata_set_contact_damping (Analysisdata *, 
+                                          double);
+
 double         adata_get_contact_damping (Analysisdata *);
 
-void           adata_set_grav_accel      (Analysisdata *, double grav);
+void           adata_set_grav_accel      (Analysisdata *, 
+                                          double grav);
+
 double         adata_get_grav_accel      (Analysisdata *);
 
 
@@ -483,11 +490,11 @@ double         adata_get_grav_accel      (Analysisdata *);
  *
  * @return NULL Analysisdata * (with freed memory).
  */
-void           adata_read_input_file      (Analysisdata *, 
-                                           char * filename,
-                                           int numfixedpoints,
-                                           int pointcount,
-                                           int numloadpoints);
+void           adata_read_input_file     (Analysisdata *, 
+                                          char * filename,
+                                          int numfixedpoints,
+                                          int pointcount,
+                                          int numloadpoints);
 
 
 #ifdef __cplusplus

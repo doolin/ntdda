@@ -40,11 +40,6 @@ extern "C" {
 
 
 
-
-
-
-
-
 /* TODO: header file for functions that are common to 
  * both the Win32 code and the back end code.
  */

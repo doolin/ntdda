@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/06/23 16:57:17 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.25 $
+ * $Revision: 1.26 $
  *
  */
 /*################################################*/
@@ -17,6 +17,20 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.26  2002/06/23 16:57:17  doolin
+ *
+ * * Some API changes to move back towards passing primitives
+ *   as function arguments whenever possible.  This makes it
+ *   much easier to write test cases because the entire DDA
+ *   framework is not needed.
+ *
+ * * Restoring the stiffness and forcing matrices was moved
+ *   from df24() into the main analysis loop to create symmetry
+ *   with the saveState() function.  OCI works from the original
+ *   state of these matrices, which are both overwritten during
+ *   solution of the linear system.  There is probably a better
+ *   way to do this.
+ *
  * Revision 1.25  2002/05/26 23:47:24  doolin
  * Large amounts of cleanup and some redundant code
  * removed.
@@ -473,7 +487,7 @@ allocateK(Analysisdata * ad)
    * number of contacts in the block system.  
    */ 
    //if ( (ad->gravity->gravTimeStep != 1) || (ad->currTimeStep != 1) )
-   if ( (ad->currTimeStep != 1) )
+   if ( (ad->cts != 1) )
    {
      /* (GHS: fprintf(logFile,"@@@@@ o e m  %d %d %d \n", j9, n3, ad->nn00); */
      /* If there are more contacts now than there were 
@@ -813,7 +827,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    if (ad->options & FRICTIONFORCES)
    {
       char mess[80];
-      sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,frictionforce);
+      sprintf(mess,"%d %f %f\n",ad->cts,normalforce,frictionforce);
       fprintf(fp.fforce,mess);
       //iface->displaymessage(mess);
    }
@@ -1729,7 +1743,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             if (ad->options & PENALTYFORCES) {
                normalforce = -lockstate[1][1]*(p*pen_dist);
                shearforce = -lockstate[1][2]*(p*sheardisp/s2n_ratio);  // T in docs
-               fprintf(fp.cforce,"%d  %f  %f\n",ad->currTimeStep, normalforce,shearforce);
+               fprintf(fp.cforce,"%d  %f  %f\n",ad->cts, normalforce,shearforce);
             }
 
          } /* end if penalty terms (b809): */
@@ -2531,7 +2545,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    * flagged, then the number of open-close counts can 
    * be set elsewhere as well as recorded.
    */
-   DLog->openclosecount[ad->currTimeStep] = ad->m9;
+   DLog->openclosecount[ad->cts] = ad->m9;
    ad->m9= -1;
    
 #if COUNTCLOSEDCONTACTS
@@ -2591,6 +2605,33 @@ freeIntTempArrays()
 } /* close freeIntTempArrays() */
 
 
+
+void 
+restoreState(double ** K, double ** Kcopy, int n3,
+             double ** F, double ** Fcopy, int numblocks) {
+
+   int i,j;
+
+   for (i=1; i<= n3; i++) {
+      for (j=1; j<= 36; j++) {
+        /* FIXME: Use an array copy 
+         * function or a memset 
+         */
+         K[i][j] = Kcopy[i][j];
+      }  
+   } 
+   
+   for (i=1; i<= numblocks; i++) {
+      for (j=1; j<=  6; j++) {
+        /* FIXME: Use an array copy 
+         * function or a memset. 
+         */
+         F[i][j] = Fcopy[i][j];
+      }  
+   }
+}
+
+
 /**************************************************/
 /* df24: displacement ratio and iteration drawing */
 /**************************************************/
@@ -2607,12 +2648,12 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
 
    int nBlocks = gd->nBlocks;
    int nContacts = gd->nContacts;
-   int n3 = ad->n3;  /* Not changed here.  */
+   const int n3 = ad->n3;  /* Not changed here.  */
    double ** K = ad->K;
    double ** Kcopy = ad->Kcopy;
    double T[7][7];
    
-   double ** vertices = gd->vertices;
+   const double ** vertices = gd->vertices;
    int ** vindex = gd->vindex;
    double ** moments = gd->moments;
    double ** globalTime = ad->globalTime;
@@ -2625,10 +2666,14 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
 	  	i1 = vindex[i][1];
 	  	i2 = vindex[i][2];
       
-	  	for (j=i1-1; j<=i2+1; j++)
-      {
+	  	for (j=i1-1; j<=i2+1; j++) {
+
+        /** Get the vertex position in the reference configuration.
+         * This is used to compute T thus current configuration.
+         */
 	     	x  = vertices[j][1];
 	      y  = vertices[j][2];
+
         /* I should get rid of i0 if possble and just use
          * i to pass into getDisplacement.  i0 might be used elsewhere 
          * though.
@@ -2687,38 +2732,47 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
       }  /*  j  */
    }  /*  i  */
 
-   globalTime[ad->currTimeStep][1] = (a1/domainscale)/maxdisplacement;
+   globalTime[ad->cts][1] = (a1/domainscale)/maxdisplacement;
    
-  /* recover  a[][]  f[][] after equation solving   */
+  /* (GHS: recover  a[][]  f[][] after equation solving) */
   /* m9 = -1 means iteration finished               */
-   if ((ad->m9) != -1) 
-   {   
-      for (i=1; i<= n3; i++)
-      {
-         for (j=1; j<= 36; j++)
-         {
+#if 0
+   if ((ad->m9) != -1) { 
+
+      /** @todo Split this into 2 calls to an array copy 
+       * function.
+       */
+      restoreState(K,Kcopy,n3,F,Fcopy,nBlocks);
+      
+      for (i=1; i<= n3; i++) {
+         for (j=1; j<= 36; j++) {
            /* FIXME: Use an array copy function or a memset */
             K[i][j] = Kcopy[i][j];
-         }  /*  j  */
-      }  /*  i  */
+         }  
+      } 
    
-      for (i=1; i<= nBlocks; i++)
-      {
-         for (j=1; j<=  6; j++)
-         {
+      for (i=1; i<= nBlocks; i++) {
+         for (j=1; j<=  6; j++) {
            /* FIXME: Use an array copy function or a memset. */
             F[i][j] = Fcopy[i][j];
-         }  /*  j  */
-      }  /*  i  */
+         }  
+      }
    }  
+#endif
    
-  /* draw deformed blocks, change u[][]  */
-   for (i= 1;   i<=  nBlocks; i++)
-   {
+  /* (GHS: draw deformed blocks, change u[][])  */
+  /** Now, instead of being just the vertex displacements,
+   * vtxcopy contains the current configuration of the 
+   * vertices.  If this is the last open-close iteration,
+   * vtxcopy will fall through to df25 and be copied into 
+   * the vertices array.
+   */
+   for (i= 1;   i<=  nBlocks; i++) {
+
       i1 = vindex[i][1];
       i2 = vindex[i][2];
-      for (j=i1-1; j<=i2+1; j++)
-      {
+      for (j=i1-1; j<=i2+1; j++) {
+
          vtxcopy[j][1] += vertices[j][1];
          vtxcopy[j][2] += vertices[j][2];
       }  
@@ -2734,7 +2788,7 @@ updateStresses(Geometrydata * gd, Analysisdata * ad,
    int nBlocks = gd->nBlocks;
    double ** D = ad->F;
    double ** moments = gd->moments;
-   int timestep = ad->currTimeStep;
+   int cts = ad->cts;
 
    int i, i1;
    double a1;
@@ -2814,7 +2868,7 @@ updateStresses(Geometrydata * gd, Analysisdata * ad,
       * to `i' to see the stress for each block.
       */
       
-      DLog->energy[timestep].istress += moments[i][1]*(D[i1][4]*e0[i][4] 
+      DLog->energy[cts].istress += moments[i][1]*(D[i1][4]*e0[i][4] 
                                  + D[i1][5]*e0[i][5] + D[i1][6]*e0[i][6]);
    }  
 
@@ -3057,7 +3111,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       //iface->displaymessage("Zero block area");
       dda_display_error("Zero block area");
    }
-   ad->avgArea[ad->currTimeStep] = avgarea;
+   ad->avgArea[ad->cts] = avgarea;
    computeMass(gd, ad, e0);
 }
 
@@ -3104,7 +3158,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 
   /* FIXME: This looks stupid.  There has to be a better way...
    */
-   ad->elapsedTime = ad->globalTime[ad->currTimeStep][0];
+   ad->elapsedTime = ad->globalTime[ad->cts][0];
 
    stop = clock();
 

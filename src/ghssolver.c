@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:42 $
+ * $Date: 2002/06/23 16:57:18 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  *
  */
 #include <assert.h>
@@ -153,40 +153,38 @@ freeSolverTempArrays()
 } /* close freeSolverTempArrays() */
 
 
-
-void
-saveState(Analysisdata * ad, double ** c0, int nBlocks)
+void saveState(double ** K, double ** Kcopy, int n3,
+               double ** F, double ** Fcopy, int numblocks,
+               double ** c0)
+//void
+//saveState(Analysisdata * ad, double ** c0, int nBlocks)
 {
    int i,j;
-   double ** K = ad->K;
-   double ** Kcopy = ad->Kcopy;
-   double ** F = ad->F;
-   double ** Fcopy = ad->Fcopy;
-   int nBlockContacts = ad->n3;
+   //double ** K = ad->K;
+   //double ** Kcopy = ad->Kcopy;
+   //double ** F = ad->F;
+   //double ** Fcopy = ad->Fcopy;
+   //int nBlockContacts = ad->n3;
     
-  /* save equation coefficient matrix before change */
+  /* (GHS: save equation coefficient matrix before change) */
   /* FIXME: Why do we need to do this?  Also, this 
    * could be turned into a macro.
    */
-   for (i=1; i<= nBlockContacts; i++)
-   {
-      for (j=1; j<= 36; j++)
-      {
+   for (i=1; i<= n3; i++) {
+      for (j=1; j<= 36; j++) {
          Kcopy[i][j] = K[i][j];
-      }  /*  j  */
-   }  /*  i  */
+      }  
+   }
 
-  /* save f[]          add friction loading to f[] */
+  /* (GHS: save f[]          add friction loading to f[]) */
   /* There is some very strange stuff going on in this 
    * next block of code.  The Fcopy array has to be set 
    * exactly where it is right now, or the analyses will 
    * not work correctly.  This was changed in either in 
    * 1.5.117 or 1.5.118.  
    */
-   for (i=1; i<= nBlocks; i++)
-   {
-      for (j=1; j<=  6; j++)
-      { 
+   for (i=1; i<= numblocks; i++) {
+      for (j=1; j<=  6; j++) { 
         /* If the time step has to be cut during an analysis,
          * we will need the original values again. 
          * FIXME: Take out the dependency in the time step cutting
@@ -204,8 +202,8 @@ saveState(Analysisdata * ad, double ** c0, int nBlocks)
          * should be moved into df18().
          */
          F[i][j] += c0[i][j];
-      }  /*  j  */
-   }  /*  i  */
+      }
+   }  
 
 }  /* close saveState() */
 

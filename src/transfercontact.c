@@ -121,7 +121,7 @@ void df06(Geometrydata *bd, Analysisdata *ad, int **contacts, int **locks,
   /* Now build ???
    */
    //if ((ad->gravity->gravTimeStep==1) || (ad->currTimeStep == 1  && ad->analysistype >= 0)) 
-   if (ad->currTimeStep == 1)
+   if (ad->cts == 1)
       //goto a601;
    {
      /* FIXME: This loop repeats at end of df06().

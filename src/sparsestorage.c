@@ -181,7 +181,7 @@ sparsestorage(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts,
    ad->n3 = n[nBlocks][1]+n[nBlocks][2]-1;
 
   /* total storage needed for LDL^T. */
-   DLog->memallocsize[ad->currTimeStep] = ad->n3;
+   DLog->memallocsize[ad->cts] = ad->n3;
 
 }  /* close df08()  */
    

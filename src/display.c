@@ -37,26 +37,27 @@ display(Geometrydata * gd, Analysisdata * ad) {
    //extern void writeReplayFile(Geometrydata * gd, Analysisdata * ad);
 
 
-   if (!(ad->currTimeStep%ad->tsSaveInterval))
+   if (!(ad->cts%ad->tsSaveInterval)) {
       writeReplayFile(gd,ad);  
+   }
 
 
 #ifdef WIN32
 
-   if (ad->currTimeStep == 1 && ad->gravityflag == 0) {
+   if (ad->cts == 1 && ad->gravityflag == 0) {
       //SendMessage(hprogbar,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,ad->nTimeSteps));
       statusbar_set_progbar_range((unsigned short)ad->nTimeSteps);
    }
    
-   if (ad->currTimeStep > 1 && ad->gravityflag == 0) {
+   if (ad->cts > 1 && ad->gravityflag == 0) {
       //SendMessage(hprogbar,PBM_SETPOS,(WPARAM)ad->currTimeStep,(LPARAM)0);
-      statusbar_update_progbar((unsigned int)ad->currTimeStep);
+      statusbar_update_progbar((unsigned int)ad->cts);
    }
 
 
    statusbar_update_analysis(gd->nBlocks,
                              ad->elapsedTime,
-                             ad->currTimeStep,
+                             ad->cts,
                              ad->nTimeSteps,
                              ad->m9);
 

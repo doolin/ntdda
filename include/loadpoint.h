@@ -11,6 +11,10 @@ extern "C" {
 }
 #endif
 
+#ifndef PRINTFUNC
+#define PRINTFUNC
+typedef (*PrintFunc)(void * stream, const char * format, ...);
+#endif
 
 typedef struct _loadpoint Loadpoint;
 
@@ -33,6 +37,11 @@ void        loadpoint_delete    (Loadpoint * lp);
 
 
 int         loadpoint_test      (void);
+
+void        loadpoint_print     (Loadpoint *,
+                                 int numloadpoints,
+                                 PrintFunc printer,
+                                 void * stream);
 
 #ifdef __cplusplus
 }

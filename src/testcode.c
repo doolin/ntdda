@@ -186,7 +186,7 @@ printBlockAreas(Geometrydata * gd, Analysisdata * ad, double ** moments,
    * at the moment, but it will be used in the future when 
    * the output file handling gets a little more sophisticated.
    */
-   if (ad->currTimeStep == 1)
+   if (ad->cts == 1)
    {
       headersize = strcspn(headerstring, "\0");
       trailersize = strcspn(trailerstring, "\0");
@@ -259,7 +259,7 @@ printGravNormForce(Analysisdata * ad, char * location)
 
    fprintf(fp.gravfile, "\nBegin gravity normal force verification" 
            " (from %s, timestep %d, iteration %d)\n",
-            location, ad->currTimeStep, ad->m9);
+            location, ad->cts, ad->m9);
    for (i=0; i<=n2; i++)
    {
       fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
@@ -279,7 +279,7 @@ printGravShearForce(Analysisdata * ad, char * location)
 
    fprintf(fp.gravfile, "\nBegin gravity shear force verification" 
            " (from %s, timestep %d, iteration %d)\n",
-            location, ad->currTimeStep, ad->m9);
+            location, ad->cts, ad->m9);
 
    for (i=0; i<=n2; i++)
    {
@@ -395,7 +395,7 @@ void printParameters(Analysisdata * ad, char * location)
 
    CONSTANTS * c = ad->constants;
 
-   if(ad->currTimeStep == 1)
+   if(ad->cts == 1)
    {
          fprintf(fp.parfile,"# Analysis parameters\n");
          fprintf(fp.parfile,"# openclose opencriteria    w0     norm_spring_pen"

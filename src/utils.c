@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:43 $
+ * $Date: 2002/06/23 16:57:18 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  */
 
 
@@ -67,7 +67,7 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
          if(ad->delta_t < ad->maxtimestep/1000.0)
             ad->delta_t = ad->maxtimestep/1000.0;
 */
-         DLog->timestepcut[ad->currTimeStep]++;
+         DLog->timestepcut[ad->cts]++;
       }  
       else
       {  
@@ -90,14 +90,15 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
    * This parameter is set in df24(). 
    */
   /* FIXME: What inna world is this for? */
-   if (ad->globalTime[ad->currTimeStep][1]>3.0) 
+   if (ad->globalTime[ad->cts][1]>3.0) 
    {
-      fprintf(fp.logfile,"Max displacement passed on timestep %d, cutting time step size from %f ", ad->currTimeStep, ad->delta_t);
-      (ad->delta_t)/=sqrt(ad->globalTime[(ad->currTimeStep)][1]);
+      fprintf(fp.logfile,"Max displacement passed on timestep %d, cutting time step size from %f ", 
+              ad->cts, ad->delta_t);
+      (ad->delta_t)/=sqrt(ad->globalTime[(ad->cts)][1]);
       fprintf(fp.logfile,"to %f\n",ad->delta_t);
       fflush(fp.logfile);
 
-      DLog->timestepcut[ad->currTimeStep]++;
+      DLog->timestepcut[ad->cts]++;
 
      /* Compute a minimum time step. */
       if(ad->delta_t < ad->maxtimestep/100.0)
@@ -134,7 +135,7 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
       */
       //ad->springstiffness[ad->currTimeStep] = ad->w6;
       //ad->springstiffness[ad->currTimeStep] = ad->g0;
-      ad->springstiffness[ad->currTimeStep] = ad->contactpenalty;
+      ad->springstiffness[ad->cts] = ad->contactpenalty;
      /* When this goto is eliminated, check to 
       * make sure the time step value is not incremented.
       */
@@ -144,7 +145,7 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
    }         
 
    //ad->springstiffness[ad->currTimeStep] = ad->g0;
-   ad->springstiffness[ad->currTimeStep] = ad->contactpenalty;
+   ad->springstiffness[ad->cts] = ad->contactpenalty;
 
    return FALSE;  /* Passed, on to new time step */
 

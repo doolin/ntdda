@@ -1090,7 +1090,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
    {
       //if (ad->gravity->gravTimeStep == 1 || (ad->currTimeStep==1 && ad->analysistype >= 0)) // || (ad->gravTimeStep==1)) 
      /* FIXME: Check to see if this is redundant */      
-      if (ad->currTimeStep==1) // && ad->analysistype >= 0) // || (ad->gravTimeStep==1)) 
+      if (ad->cts==1) // && ad->analysistype >= 0) // || (ad->gravTimeStep==1)) 
          locks[contact][0] = 0;   // Tension flag?
 
       if (contacts[contact][TYPE] ==  VV) 
@@ -1122,7 +1122,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
             i4 = contacts[contact][5];
 
             //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-            if (ad->currTimeStep==1) // && ad->analysistype >= 0))      
+            if (ad->cts==1) // && ad->analysistype >= 0))      
                locks[contact][0] = 1;  // Tension?
 
             proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1135,7 +1135,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          i4 = contacts[contact][4];
 
          //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-         if (ad->currTimeStep==1)// && ad->analysistype >= 0)      
+         if (ad->cts==1)// && ad->analysistype >= 0)      
             locks[contact][0] = 1;
 
          proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1159,7 +1159,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          * computed.
          */
          //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-         if (ad->currTimeStep==1) // && ad->analysistype >= 0)      
+         if (ad->cts==1) // && ad->analysistype >= 0)      
             locks[contact][0] = 1;
 
          proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1176,7 +1176,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          i4 = contacts[contact][4];
 
          //if (ad->gravity->gravTimeStep == 1 || (ad->currTimeStep==1)) //  && ad->analysistype == 1))
-         if (ad->currTimeStep==1) //  && ad->analysistype == 1))
+         if (ad->cts==1) //  && ad->analysistype == 1))
             locks[contact][0] = 1;
 
          proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1202,7 +1202,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          i4 = contacts[contact][5];
 
         /* FIXME: Explain why the first time step sets this value. */
-         if (ad->currTimeStep==1)      
+         if (ad->cts==1)      
             locks[contact][0] = 1;
 
          proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1223,7 +1223,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
 
      /* FIXME: Explain why first time step sets this value.  */
       //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-      if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
+      if (ad->gravity->gravTimeStep==1 || (ad->cts==1 && ad->analysistype >= 0))      
          locks[contact][0] = 1;
 
       proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1281,7 +1281,7 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **lock
          ad->analysistype<=0) 
       )
    */
-   if ( ad->currTimeStep > 1 || (ad->currTimeStep==1  && ad->analysistype == 0) )
+   if ( ad->cts > 1 || (ad->cts==1  && ad->analysistype == 0) )
       return;  /* goto a706;  */
 
    for (contact=1; contact<= nContacts; contact++)

@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:42 $
+ * $Date: 2002/06/23 16:57:13 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  */
 
 #include "dda.h"
@@ -130,7 +130,15 @@ void df18(Geometrydata *, Analysisdata *, Contacts *,
 
 /******************  Solver *********************/
 /* FIXME:  All this needs to go into its own header file. */
-void saveState(Analysisdata *, double ** c0, int numblocks);
+//void saveState(Analysisdata *, double ** c0, int numblocks);
+void saveState(double ** K, double ** Kcopy, int n3,
+                  double ** F, double ** Fcopy, int numblocks,
+                  double ** c0);
+
+void restoreState(double ** K, double ** Kcopy, int n3,
+                  double ** F, double ** Fcopy, int numblocks);
+
+
 void solve(Analysisdata *, double ** K, double ** F,
       int * kk, int * k1, int ** n, int numblocks);
 

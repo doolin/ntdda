@@ -7,6 +7,20 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.21  2002/06/23 16:57:17  doolin
+ *
+ * * Some API changes to move back towards passing primitives
+ *   as function arguments whenever possible.  This makes it
+ *   much easier to write test cases because the entire DDA
+ *   framework is not needed.
+ *
+ * * Restoring the stiffness and forcing matrices was moved
+ *   from df24() into the main analysis loop to create symmetry
+ *   with the saveState() function.  OCI works from the original
+ *   state of these matrices, which are both overwritten during
+ *   solution of the linear system.  There is probably a better
+ *   way to do this.
+ *
  * Revision 1.20  2002/06/07 15:09:42  doolin
  * Moved loadpoints into a module, started unit
  * tests for loadpoints.
@@ -243,7 +257,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       writeBlockVertices(GData, 1);      
    
    if (AData->options & MOMENTS)
-      writeMoments(GData, AData->currTimeStep, AData->nTimeSteps);
+      writeMoments(GData, AData->cts, AData->nTimeSteps);
 
    //writeBlockMasses(AData,GData);
   /* If arg 2 is greater than the number of blocks, 
@@ -251,8 +265,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */
    //writeBlockStresses(e0,4);
 
-  /* START THE MAIN ANALYSIS LOOP  */
-   for (AData->currTimeStep=1; AData->currTimeStep<=AData->nTimeSteps; AData->currTimeStep++)
+  /* START THE MAIN ANALYSIS LOOP STEPPING OVER TIME */
+   for (AData->cts=1; AData->cts<=AData->nTimeSteps; AData->cts++)
    {
      /* Compute the size of the next time step.
       * FIXME :Give a precis how it it works.
@@ -290,7 +304,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       allocateK(AData); 
 
 
-         /**************  TEST FROM ABOVE THE DO LOOP  ************/
+     /**************  TEST FROM ABOVE THE DO LOOP  ************/
      /* k00 controls open/close iteration.  Appears to 
       * be a flag instead of an incremented value.  k00
       * is reset when the time step is incremented. This 
@@ -310,8 +324,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       * and the same time step number, but for a different time
       * difference between the current and last time value.
       */
-      do 
-      {
+      do {
 
          start = clock();
    	  /* FIXME: m9 appears to be the iteration
@@ -334,18 +347,30 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          start = clock();
 
         /* OPEN-CLOSE ITERATION */
-         do  //openclose:  /* the label formerly known as a002: */
-         {
-           /* Add and subtract contact matrix(ces?) */
+         do {       /* the label formerly known as a002: */
+         
+           /* Add and subtract contact matrices */
             df18(GData, AData, CTacts, kk,k1,c0,n);
             //printKForIthBlock(AData, 2, 1, kk, n, "After sparsestorage");
             //printKK(kk,n,GData->nBlocks,"Analysis driver");
 
-           /* saveState() handles copying loops from df20(). 
-            * This function saves a copy of K and F because the 
-            * solver overwrites both.
+           /** @brief The saveState() function saves a copy of K and F 
+            * because the solver overwrites both, and the OCI needs 
+            * uses the original stiffness and forcing vectors each 
+            * OCI trial.  saveState() was moved out of df20().
+            *
+            * @todo Move the friction vector elsewhere.
+            * The friction vector is added into the forcing 
+            * vector in this function, which is an 
+            * optimization, but obscures the algorithm.
+            * Friction is added to the original forcing vector
+            * after the copy is made, which also needs to be 
+            * fully explained.
             */
-            saveState(AData, c0, GData->nBlocks);
+            saveState(AData->K,AData->Kcopy,AData->n3,AData->F,
+                      AData->Fcopy,GData->nBlocks,c0);
+            //saveState(AData, c0, GData->nBlocks);
+
            /* U = K^{-1}F  df20() and df21() are still called from solve(). 
             * U is overwritten into F as a result of the LU solver.
             */
@@ -370,12 +395,19 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             df22(GData, AData, CTacts, k1);
    
            /* displacement ratio and iteration drawing.
-            * This function also restores K and F by copying
-            * the saved value (from saveState) back into 
-            * K and F.
             */
             df24(GData, AData, k1);
-
+           
+           /** @brief m9 = -1 means the OCI has converged, so if
+            * it hasn't converged, the state of the stiffness and
+            * forcing vector needs to be restored for the next 
+            * OCI trial.  restoreState was factored out of df24().
+            */
+            if (AData->m9 != -1) {
+               restoreState(AData->K,AData->Kcopy,AData->n3,
+                            AData->F,AData->Fcopy,GData->nBlocks);
+            }
+            
         /* close do-while loop for open-close iteration */
         /* while ( HAVETENPEN && ( AData->iterationcount < MaxOpenCloseCount) ) */
          }  while (0<(AData->m9)  && (AData->m9)< (6+2) );          
@@ -424,7 +456,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          writeBlockStresses(e0,4);
 
       if (AData->options & MOMENTS)
-         writeMoments(GData, AData->currTimeStep, AData->nTimeSteps);
+         writeMoments(GData, AData->cts, AData->nTimeSteps);
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1)

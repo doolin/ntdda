@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:25 $
+ * $Date: 2002/06/23 16:57:18 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 #include <malloc.h>
@@ -227,7 +227,7 @@ writeBlockMasses(Analysisdata *ad, Geometrydata * gd)
    int i;
    double * mass = gd->mass;
 
-   if (ad->currTimeStep == 0)
+   if (ad->cts == 0)
    {
       fprintf(fp.massfile,"%% Block areas for each time step\n");
       fprintf(fp.massfile,"%% Starts at the zeroth time step\n\n");
@@ -241,7 +241,7 @@ writeBlockMasses(Analysisdata *ad, Geometrydata * gd)
    }
    fprintf(fp.massfile,"\n");
 
-   if (ad->currTimeStep == ad->nTimeSteps)
+   if (ad->cts == ad->nTimeSteps)
       fprintf(fp.massfile,"];\n");
 
 }  /* close writeBlockMasses() */
@@ -544,7 +544,7 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
    * point data and set the positions of the end of
    * blocks.
    */ 
-   if (ad->currTimeStep == 1)
+   if (ad->cts == 1)
    {
      /* Get memory for an array of pointers to the current end 
       * of each block.  Array size is the number of measured
@@ -623,7 +623,7 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
      /* Do what we came to do, viz. write data to file.
       * Note that repeated values are just place holders.
       */ 
-      fprintf(fp.measfile, formatstring, ad->currTimeStep, 
+      fprintf(fp.measfile, formatstring, ad->cts, 
                ad->elapsedTime, ad->delta_t, 
                 xpos, ypos, dcum,
                vx, vy, v);
@@ -634,7 +634,7 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
   /* After the data for the last time step is written to 
    * the file, we need to close the matlab braces.
    */
-   if (ad->currTimeStep == ad->nTimeSteps)
+   if (ad->cts == ad->nTimeSteps)
    {
      /* Now close each block of numbers with the 
       * matlab matrix delimiters.
@@ -678,7 +678,7 @@ writeFixedPoints(Geometrydata * gd, Analysisdata * ad)
    if(ad->gravityflag == 1)
       return;
 
-   if(ad->currTimeStep == 1)
+   if(ad->cts == 1)
       fprintf(fp.fpointfile, headerstring);
 
    for (i=1; i<=gd->nFPoints; i++)
@@ -689,7 +689,7 @@ writeFixedPoints(Geometrydata * gd, Analysisdata * ad)
    }
    fprintf(fp.fpointfile,"\n");
 
-   if (ad->currTimeStep == ad->nTimeSteps)
+   if (ad->cts == ad->nTimeSteps)
    {
       fprintf(fp.fpointfile, trailerstring);
    }
