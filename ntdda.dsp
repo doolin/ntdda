@@ -262,6 +262,10 @@ SOURCE=.\src\win32gui\winmain.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\src\bolt.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\datalog.c
 # End Source File
 # Begin Source File

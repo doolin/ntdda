@@ -52,7 +52,6 @@ typedef void  (*DisplayFunc)(const char * message);
  */
 typedef struct _jointmat JointMat;
 typedef struct _blockmat BlockMat;
-typedef struct _boltmat BoltMat;
 typedef struct _pstress PStress;
 typedef struct _joint Joint;
 typedef struct _ddapoint DDAPoint;
@@ -144,21 +143,6 @@ struct _blockmat{
   	double iss[3];
   	double ist[3];
   	double ivel[3];
-};
-
-typedef struct bolt_tag {
-  	DPoint d1;
-  	DPoint d2;
-   double x1,y1,x2,y2;
-   double epx1,epy1,epx2,epy2;
-   double strength;
-   double pretension;
-} BOLT;
-
-struct _boltmat{
-   double e00;
-   double t0;
-   double f0;
 };
 
 

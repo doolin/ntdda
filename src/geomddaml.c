@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2002/06/01 15:07:47 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 
@@ -26,6 +26,7 @@
 #include "ddamemory.h"
 #include "geometrydata.h"
 
+#include "bolt.h"
 
 
 typedef DList JOINTLIST;
@@ -33,7 +34,6 @@ typedef DList POINTLIST;
 typedef DList FPOINTLIST; 
 typedef DList LPOINTLIST;
 typedef DList SPOINTLIST;
-typedef DList BOLTLIST; 
 typedef DList MATLINELIST; 
 typedef DList BOUNDLIST; 
 
@@ -42,7 +42,9 @@ static POINTLIST * pointlist = NULL;
 static FPOINTLIST * fpointlist = NULL;
 static LPOINTLIST * lpointlist = NULL;
 static SPOINTLIST * spointlist = NULL;
-static BOLTLIST * boltlist = NULL;
+
+static Boltlist * boltlist = NULL;
+
 static MATLINELIST * matlinelist = NULL;
 static BOUNDLIST * boundlist = NULL;
 
@@ -55,12 +57,12 @@ static void  parseGeometry(Geometrydata *, xmlDocPtr doc, xmlNsPtr ns, xmlNodePt
 static Joint * getNewJoint(void);
 static DDAPoint * getNewPoint(void);
 static DDALine * getNewLine(void);
-static BOLT * getNewBolt(void);
+
 
 static void transferGData(void);
 static void transferJointlistToGeomStruct(Geometrydata *, JOINTLIST *);
 static void transferPointlistToGeomStruct(Geometrydata *, POINTLIST *);
-static void transferBoltlistToGeomStruct(Geometrydata *, BOLTLIST *);
+static void transferBoltlistToGeomStruct(Geometrydata *, Boltlist *);
 static void transferMatlinelistToGeomStruct(Geometrydata *, MATLINELIST *);
 static double ** DoubMat2DGetMem(int n, int m);
 
@@ -197,7 +199,10 @@ initializeGLists() {
    pointlist = make_dl();
    fpointlist = make_dl();
    spointlist = make_dl();
-   boltlist = make_dl();
+
+   /* boltlist = make_dl(); */
+   boltlist = boltlist_new();
+
    matlinelist = make_dl();
 } 
 
@@ -604,16 +609,19 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*  close parseHolepointlist() */
 
 
-/* FIXME: The bolt properties used to be handled in the geometry 
+/** @todo The bolt properties used to be handled in the geometry 
  * file.  To make the file input system more uniform, bolt properties
  * are now handled in the analysis input file.  There needs to be
  * a function written that will transfer the bolt properties
  * from the analysis side to the geometry side.
+ *
+ * @todo New bolts are allocated, but if there is an error 
+ * they are not deallocated, which needs to be fixed.
  */ 
 static void 
 parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
-   BOLT * bolt;
+   Bolt * bolt;
   /* Make the compiler link the floating point libraries. */
    double temp[4] = {0.0};
    char * tempstring;
@@ -631,7 +639,8 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       if ((!strcmp(cur->name, "Bolt")) )//&& (cur->ns == ns))
       {
 
-         bolt = getNewBolt();
+         bolt = bolt_new();
+
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          if (tempstring == NULL)
          {  
@@ -645,11 +654,15 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             if (checkval == 4)
             { 
                fprintf(stdout,"%f %f\n",temp[0],temp[1],temp[2],temp[3]);  
+               /*
                bolt->epx1 = temp[0];
                bolt->epy1 = temp[1];
                bolt->epx2 = temp[2];
                bolt->epy2 = temp[3];
-               dl_insert_b(boltlist,bolt);
+               */
+               bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
+               //dl_insert_b(boltlist,bolt);
+               boltlist_append(boltlist,bolt);
                gdata->nBolts++;
             }
             else  /* Throw an error or warning */
@@ -853,16 +866,7 @@ getNewLine(void)
 }  /*  close getNewLine() */
 
 
-BOLT *
-getNewBolt(void)
-{
-   BOLT * b;
-   //fprintf(stdout,"Getting new bolt\n");
-   b = (BOLT *)calloc(1,sizeof(BOLT));
-   memset((void *)b,0xDA,sizeof(BOLT));
-   return b;
 
-}  /*  close getNewBolt() */
 
 void
 transferGData(void)
@@ -1046,17 +1050,22 @@ transferPointlistToGeomStruct(Geometrydata * gd,
 }  /* close transferPointlistToGeomStruct()  */
 
 
+
+
 void
 transferBoltlistToGeomStruct(Geometrydata * gd, 
-                             BOLTLIST * boltlist)
+                             Boltlist * boltlist)
 {
    int i = 0;
    int numbolts;
-   BOLTLIST * ptr;
-   BOLT * btmp;
+   //Boltlist * ptr;
+   //Bolt * btmp;
+   //double x1,x2,y1,y2;
 
 
-   numbolts = dlist_length(boltlist);
+   //numbolts = dlist_length(boltlist);
+   numbolts = boltlist_length(boltlist);
+
    //if (numbolts == 0)
    //   return;
 
@@ -1066,19 +1075,31 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
    gd->rockboltsize1 = numbolts+1;
    gd->rockboltsize2 = 14;
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
+   boltlist_get_array(boltlist,gd->rockbolts);
 
+#if 0
+   M_dl_traverse(ptr, boltlist) {
 
-   M_dl_traverse(ptr, boltlist)
-   {
       btmp = ptr->val;
 
+      /*
       gd->rockbolts[i][1] = btmp->epx1;
       gd->rockbolts[i][2] = btmp->epy1; 
       gd->rockbolts[i][3] = btmp->epx2;
       gd->rockbolts[i][4] = btmp->epy2;
       //gd->rockbolts[i+1][5] = btmp->type;
+      */
+
+      bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
+      gd->rockbolts[i+1][1] = x1;
+      gd->rockbolts[i+1][2] = y1; 
+      gd->rockbolts[i+1][3] = x2;
+      gd->rockbolts[i+1][4] = y2;
+      //gd->rockbolts[i+1][5] = btmp->type;
       i++;
    } 
+#endif
+
 
    //if (gid->nBolts > 0)
    gd->origbolts = clone2DMatDoub(gd->rockbolts, gd->rockboltsize1, gd->rockboltsize2);

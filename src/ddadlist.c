@@ -1,7 +1,7 @@
 /* 
  * $Source: /cvsroot/dda/ntdda/src/ddadlist.c,v $
- * $Revision: 1.2 $
- * $Date: 2002/05/28 12:18:32 $
+ * $Revision: 1.3 $
+ * $Date: 2002/06/01 15:07:47 $
  * $Author: doolin $
  */
 
@@ -130,13 +130,13 @@ DList *
 dlist_copy(DList * d1)
 {
    DList * f, * d2;
-   int             i = 0;	/* Debug. */
+   //int             i = 0;	/* Debug. */
    d2 = make_dl();
 
    f = d1->blink;
    while (f != d1) {
       dl_insert_b(d2, (void *) d1->flink->val);
-/*      printf("i = %d\n", ++i);	/* Debug.  */
+/*      printf("i = %d\n", ++i);	Debug.  */
       d1 = d1->flink;
    }
    return d2;

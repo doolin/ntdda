@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:55 $
+ * $Date: 2002/06/01 15:07:47 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  */
 
 #include <stdio.h>
@@ -29,6 +29,7 @@
  * to the dda_display_* functions.
  */
 #include "dda.h"
+#include "bolt.h"
 
 /* Mostly for debugging windows. */
 static char mess[180];

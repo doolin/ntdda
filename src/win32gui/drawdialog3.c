@@ -2,12 +2,15 @@
  * of geometry files for DDA.  
  */
 
+#include <math.h>
+
 #include "drawdialog.h"
 #include "winmain.h"
-#include <math.h>
 #if OPENGL
 #include <gl/glut.h>
 #endif  
+
+#include "bolt.h"
 
 #ifdef WIN32
 #pragma warning( disable : 4115 )        
@@ -586,18 +589,24 @@ addJoint(HWND hDlg)
 static void
 addBolt(HWND hDlg)
 {
-   BOLT * newbolt;
+   Bolt * newbolt;
 
    if( (ptBegin.x != ptNew.x) ||  
        (ptBegin.y != ptNew.y)  )
    {
      /* Grab a new bolt.. */
-      newbolt = (BOLT *)calloc(1,sizeof(BOLT));
+      //newbolt = (Bolt *)calloc(1,sizeof(Bolt));
+      newbolt = bolt_new();
+
      /* Set the endpoints */
+      /*
 		newbolt->d1.x = ptBegin.x;
 		newbolt->d1.y = ptBegin.y;
 		newbolt->d2.x = ptNew.x;
 	  	newbolt->d2.y = ptNew.y;
+*/
+      bolt_set_endpoints(newbolt,ptBegin.x, ptBegin.y,ptNew.x,ptNew.y);
+
       dl_insert_b(boltlist, (void *)newbolt);
    }
 
@@ -989,7 +998,7 @@ freeBoltList()
 {
 
    DList * ptr;
-   BOLT * btmp;
+   Bolt * btmp;
 
    M_dl_traverse(ptr, boltlist)
    {
@@ -1246,7 +1255,8 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
    int i = 0;
    int numbolts;
    BOLTLIST * ptr;
-   BOLT * btmp;
+   Bolt * btmp;
+   double x1,y1,x2,y2;
 
    numbolts = dlist_length(boltlist);
    if (numbolts == 0)
@@ -1257,15 +1267,25 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
    gd->rockboltsize2 = 14;
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
 
-   M_dl_traverse(ptr, boltlist)
-   {
-      btmp = ptr->val;
+   M_dl_traverse(ptr, boltlist) {
 
+      btmp = ptr->val;
+      bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
+
+      /*
       gd->rockbolts[i+1][1] = btmp->d1.x;
       gd->rockbolts[i+1][2] = btmp->d1.y; 
       gd->rockbolts[i+1][3] = btmp->d2.x;
       gd->rockbolts[i+1][4] = btmp->d2.y;
       //gd->rockbolts[i+1][5] = btmp->type;
+      */
+
+      gd->rockbolts[i+1][1] = x1;
+      gd->rockbolts[i+1][2] = y1; 
+      gd->rockbolts[i+1][3] = x2;
+      gd->rockbolts[i+1][4] = y2;
+      //gd->rockbolts[i+1][5] = btmp->type;
+
       i++;
    } 
 
