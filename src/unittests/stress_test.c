@@ -8,6 +8,7 @@
 
 
 
+
 void 
 print_header_string(FILE * fp, const char * tag) {
 
@@ -17,6 +18,19 @@ print_header_string(FILE * fp, const char * tag) {
 }
 
 
+
+int
+array_equals_double(double * d1, double * d2, int index, size_t size) {
+
+  int i;
+
+  for (i=index; i<(index+size); i++) {
+    if (fabs(d1[i]-d2[i]) > 0.0000001) {
+      return 0;
+    }
+  } 
+  return 1;
+}
 
 
 static double stress[] = {
@@ -35,16 +49,17 @@ static double stress[] = {
 	                  0.0
                          };
 
-/**  Start with an identity strain.
- */
+/**  7 slots, index from 1, not 0. */
 static double D1[] = {
+                      0.0,
 	              0.0,
 	      	      0.0,
 		      0.0,
-		      1.0,
-		      1.0,
+		      0.001,
+		      0.001,
 		      0.0
                      };
+
 
 int 
 test_stress_update(void) {
@@ -53,9 +68,9 @@ test_stress_update(void) {
 
    stress_print(stress,(PrintFunc)fprintf,stdout);
 
-
    return 0;
 }
+
 
 
 int
