@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 03:18:10 $
+ * $Date: 2002/10/21 14:53:53 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -165,15 +165,12 @@ void df22(Geometrydata *, Analysisdata *, Contacts *,
             /*double **,*/ int * /*, double ** moments */,
             TransMap);
 
-
-
-void df24(Geometrydata *, Analysisdata *, 
-          int * /*,double ** moments */,
-          TransMap transmap);
+double df24(Geometrydata *, Analysisdata *, double ** F,
+          int * k1, TransMap transmap, TransApply transapply);
 
 void df25(Geometrydata *, Analysisdata *, int *, 
             double **, /* double ** moments,*/ double **,
-            TransMap transmap);
+            TransMap transmap, TransApply transapply);
 
 
 
@@ -186,8 +183,22 @@ void invr(double [][7], double [][7]);
 void mult(double [][7], double [][7], double [][7]);
 void multnew(double [][7], double [][7]);
 
+
+
+
 /* This needs to go into the geometrydata part. */
-void transplacement_linear(double **, double [7][7], double, double, int);
+void transplacement_linear(double **, double [7][7], const double, const double, const int);
+void transplacement_finite(double **, double [7][7], const double, const double, const int);
+
+void transplacement_apply_linear(double T[][7], double * D, 
+                                  double * u1, double * u2);
+
+void transplacement_apply_2dorder(double T[][7], double * D, 
+                                  double * u1, double * u2);
+
+void transplacement_apply_exact(double T[][7], double * D, 
+                                  double * u1, double * u2);
+
 
 void findContacts(Geometrydata * GData, Analysisdata * AData, 
                   Contacts * Ctacts,

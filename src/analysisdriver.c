@@ -7,6 +7,12 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.30  2002/10/21 14:53:55  doolin
+ * Updating callbacks now implemented.  No more
+ * switching on rotation types every time somethings position
+ * is updated.  Update function chosen once, then passed around.
+ * This commit should still be usable by everyone.
+ *
  * Revision 1.29  2002/10/21 03:18:10  doolin
  * All the computeDisplacement calls have been changed
  * so that the T map is now built using whatever callback is passed
@@ -197,6 +203,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
 
    TransMap transmap = transplacement_linear;
+   TransApply transapply = NULL;
 
    Contacts * CTacts;
 
@@ -264,6 +271,14 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    int **n;
 
 
+   /** This will of course need to be moved into a more 
+    * appropriate place.
+    */
+   if (AData->rotationflag == 1) {
+      transapply = transplacement_apply_exact;
+   } else {
+      transapply = transplacement_apply_linear;
+   }
 
 /* The invoking program, whether windows or not, is going to 
  * have to grab an AData and send it various signals.  Here,
@@ -464,7 +479,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    
            /* displacement ratio and iteration drawing.
             */
-            df24(GData, AData, k1, transmap);
+            df24(GData, AData, AData->F, k1, transmap, transapply);
            
            /** @brief m9 = -1 means the OCI has converged, so if
             * it hasn't converged, the state of the stiffness and
@@ -499,7 +514,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
      /* Compute step displacements.  FIXME: See if this function 
       * can be renamed "updateGeometry()".
       */
-      df25(GData, AData,k1,e0,U, transmap);
+      df25(GData, AData,k1,e0,U, transmap, transapply);
 
      /* writeMeasuredPoints must be called after df25().
       * We could remainder arithmetic to save this every

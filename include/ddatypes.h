@@ -55,6 +55,20 @@ typedef void (*TransMap)(double ** moments, double T[7][7], double x,
 #define TRANSMAPFUNC
 #endif
 
+
+#ifndef TRANS_APPLY_FUNC
+#define TRANS_APPLY_FUNC
+typedef void (*TransApply)(double T[][7], double * D, 
+                           double * u1, double * u2);
+#endif
+
+
+
+
+#undef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
+
 /* TODO: collect all the enums for the program to right here
  * for the time being.  Later, a more rational plan can be 
  * established for restricting scope.

@@ -447,17 +447,18 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
    * rotation correction is supplied here.
    */
   /** @todo Supply a callback or something for the 
-   * transplacement map function.
+   * transplacement updating function.
    */
 void
 bolt_update_a(double ** bolts, int numbolts, double ** F, 
-              double ** moments, TransMap transmap) {
+              double ** moments, TransMap transmap,
+              TransApply transapply) {
 
-   int i,j;
+   int i;
    int ep1,ep2;
    double x,y;
    double u1,v1,u2,v2;
-   double T[7][7];
+   double T[7][7] = {{0.0}};
 
    for (i=0; i<numbolts; i++) {
 
@@ -471,14 +472,10 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
       ep1 = (int)bolts[i][5];
       x = bolts[i][1];
       y = bolts[i][2];
-      u1=0;  // need to reset to zero each time due to += inside loops
-	   v1=0;
 	   transmap(moments,T,x,y,ep1);
 
-      for (j=1; j<= 6; j++) {
-         u1 += T[1][j]*F[ep1][j];
-         v1 += T[2][j]*F[ep1][j];
-      }  
+      transapply(T,F[ep1],&u1,&v1);
+
       bolts[i][10] = u1;
       bolts[i][11] = v1;
       //replace
@@ -495,10 +492,8 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
 	   v2=0;
 	   transmap(moments,T,x,y,ep1);
 
-      for (j=1; j<= 6; j++) {
-         u2 += T[1][j]*F[ep2][j];
-         v2 += T[2][j]*F[ep2][j];
-      }
+      transapply(T,F[ep2],&u2,&v2);
+
       bolts[i][12] = u2;
       bolts[i][13] = v2;
       //replace

@@ -118,7 +118,6 @@ handleInit(HWND hDlg)
    //gdata = initGeometrydata();
    gdata = gdata_new();
 
-   adata->rotationflag = 0;
    adata->gravityflag = 0;
    adata->autotimestepflag = 1;
    adata->autopenaltyflag = 1;

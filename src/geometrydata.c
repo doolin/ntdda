@@ -783,7 +783,7 @@ computeMoments(Geometrydata * gd) {
    int vertex;
    double x2, y2, x3, y3, f1;
 
- 		for (block=1; block<= nBlocks; block++) {
+ 		for (block=1; block<=nBlocks; block++) {
 
         /* This loop to zero the moments matrix may or may not be 
          * necessary.  Leave it in for now, as it is not the 

@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 03:18:11 $
+ * $Date: 2002/10/21 14:53:55 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  */
 
 
@@ -317,7 +317,7 @@ void dist(void)
  */
 void 
 transplacement_linear(double **moments, double T[][7], 
-                      double x, double y, int i0) {
+                      const double x, const double y, const int i0) {
 
    double x0, y0;
    double u2, v2;
@@ -355,7 +355,7 @@ transplacement_linear(double **moments, double T[][7],
 
 void 
 transplacement_finite(double **moments, double T[][7], 
-                      double x, double y, int i0) {
+                      const double x, const double y, const int i0) {
 
    double x0, y0;
    //double u2, v2;
@@ -385,7 +385,70 @@ transplacement_finite(double **moments, double T[][7],
 }   
 
 
+void 
+transplacement_apply_linear(double T[][7], double * D, 
+                             double * u1, double * u2) {
 
+   int j;
+
+   *u1 = 0;
+   *u2 = 0;
+
+   for (j=1; j<= 6; j++) {
+     *u1 += T[1][j]*D[j];
+     *u2 += T[2][j]*D[j];
+   }  
+}
+
+
+
+void 
+transplacement_apply_2dorder(double T[][7], double * D, 
+                             double * u1, double * u2) {
+
+   int j;
+
+  *u1 = 0;
+  *u2 = 0;
+
+   for (j=1; j<= 6; j++) {
+
+      if (j==3) {
+         j++;
+      }
+           
+     *u1 += T[1][j]*D[j];
+     *u2 += T[2][j]*D[j];
+   }  
+      
+  *u1 += (-T[2][3]*D[3]*D[3]/2.0) + (T[1][3]*D[3]);
+  *u2 += (T[2][3]*D[3]) + (T[1][3]*D[3]*D[3]/2.0);
+
+}
+
+
+void 
+transplacement_apply_exact(double T[][7], double * D, 
+                             double * u1, double * u2) {
+
+   int j;
+
+  *u1 = 0;
+  *u2 = 0;
+
+   for (j=1; j<= 6; j++) {
+
+      if (j==3) {
+         j++;
+      }
+           
+     *u1 += T[1][j]*D[j];
+     *u2 += T[2][j]*D[j];
+   }  
+      
+  *u1 += (T[2][3] * (cos(D[3])-1) + T[1][3]*sin(D[3]));
+  *u2 += (T[2][3] * sin(D[3]) - T[1][3]*(cos(D[3])-1)); 
+}
 
 
 
@@ -869,7 +932,7 @@ void deallocateAnalysisArrays(int *kk, int *k1,
 
 
 
-
+/** Needs to be fixed to not depend on e0. */
 void
 computeMass(double * mass, double ** moments, double ** e0, int numblocks) {
 

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 03:18:11 $
+ * $Date: 2002/10/21 14:53:55 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.37 $
+ * $Revision: 1.38 $
  *
  */
 /*################################################*/
@@ -17,6 +17,12 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.38  2002/10/21 14:53:55  doolin
+ * Updating callbacks now implemented.  No more
+ * switching on rotation types every time somethings position
+ * is updated.  Update function chosen once, then passed around.
+ * This commit should still be usable by everyone.
+ *
  * Revision 1.37  2002/10/21 03:18:11  doolin
  * All the computeDisplacement calls have been changed
  * so that the T map is now built using whatever callback is passed
@@ -417,12 +423,6 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
 
    /* FIXME:  Why isn't initVelocity working? */
    //initVelocity(gd, ad, v0);
-
-  /* Conservation of energy requires constant mass. Compute
-   * the masses up front, use these instead of density*area
-   * for inertial and energy terms.
-   */
-   computeMass(gd->mass, gd->moments, e0, gd->nBlocks);
 
 
    /*------------------------------------------------*/
@@ -2403,128 +2403,81 @@ restoreState(double ** K, double ** Kcopy, int n3,
 /**************************************************/
 /* df24: displacement ratio and iteration drawing */
 /**************************************************/
-void df24(Geometrydata *gd, Analysisdata *ad, int *k1,
-          TransMap transmap) {
+double
+df24(Geometrydata *gd, Analysisdata *ad, double ** F, int *k1,
+          TransMap transmap, TransApply transapply) {
 
-   int i, i0, i1, i2, i3;
+   int i, i1, i2, i3;
    int j;
-   int l;
-   double a1, a2;
+
+   double a1 = 0; 
+   double a2 = 0;
    double x, y;
+   double u1, u2;
 
-   double ** F = ad->F;
-   double ** Fcopy = ad->Fcopy;
+   //double ** F = ad->F;
 
-   int nBlocks = gd->nBlocks;
-   int nContacts = gd->nContacts;
-   const int n3 = ad->n3;  /* Not changed here.  */
-   double ** K = ad->K;
-   double ** Kcopy = ad->Kcopy;
-   double T[7][7];
+   double T[7][7] = {{0.0}};
    
+   int nBlocks = gd->nBlocks;
    const double ** vertices = gd->vertices;
    int ** vindex = gd->vindex;
    double ** moments = gd->moments;
+
+
+   /** These all need to be moved out of here. */
    double ** globalTime = ad->globalTime;
    double maxdisplacement = ad->maxdisplacement;  // was g2
    double domainscale = constants_get_w0(ad->constants);
 
-  /* (GHS: vertex displacements    i0 old block number) */
-	for (i=1; i <= nBlocks; i++)
+
+  /* (GHS: vertex displacements) */
+	for (i=1; i<=nBlocks; i++)
    {
 	  	i1 = vindex[i][1];
 	  	i2 = vindex[i][2];
       
 	  	for (j=i1-1; j<=i2+1; j++) {
 
-        /** Get the vertex position in the reference configuration.
-         * This is used to compute T thus current configuration.
-         */
 	     	x  = vertices[j][1];
 	      y  = vertices[j][2];
-
-        /* I should get rid of i0 if possble and just use
-         * i to pass into getDisplacement.  i0 might be used elsewhere 
-         * though.
-         */
-	      i0 = i;
-
-         transmap(moments,T,x,y,i0);
+         transmap(moments,T,x,y,i);
          
          i3 = k1[i];
-         
-	       vtxcopy[j][1]  = 0;
-	       vtxcopy[j][2]  = 0;
+         transapply(T,F[i3],&u1,&u2);
+	      vtxcopy[j][1]  = u1;
+	      vtxcopy[j][2]  = u2;
 
-         for (l=1; l<= 6; l++) {
+        /* (GHS: relative maximum displacement ratio) */
+        /* This appears to compute the maximum displacement suffered
+         * by any single vertex.  FIXME: Check whether replacing this 
+         * with max centroid displacement and max angle is better.  This
+         * will require TCK rotation results.
+         */              
+         a2 = sqrt((u1*u1) + (u2*u2));
+         a1 = MAX(a1,a2);
 
-           /* Skip the 3 entry, add the rotation correction 
-            * after the loop.
-            */
-            if (ad->rotationflag == 1) {
-               if(l==3) {
-                  l++;
-               }
-            }
-		      vtxcopy[j][1] += T[1][l]*F[i3][l];
-            vtxcopy[j][2] += T[2][l]*F[i3][l];
-         }  /*  l  */
-
-         if (ad->rotationflag == 1) {
-
-            //u[j][1] += (-T[2][3]*F[i3][3]*F[i3][3]/2.0) + (T[1][3]*F[i3][3]);
-            //u[j][2] += (T[2][3]*F[i3][3]) + (T[1][3]*F[i3][3]*F[i3][3]/2.0);
-            vtxcopy[j][1] += T[2][3]* (cos(F[i3][3]) - 1) + T[1][3]*sin(F[i3][3]);
-            vtxcopy[j][2] += T[2][3]*sin(F[i3][3]) - T[1][3]*(cos(F[i3][3])-1);
-         }
-
+        /* (GHS: draw deformed blocks, change u[][])  */
+        /** Now, instead of being just the vertex displacements,
+         * vtxcopy contains the current configuration of the 
+         * vertices.  If this is the last open-close iteration,
+         * vtxcopy will fall through to df25 and be copied into 
+         * the vertices array.
+         */
+         vtxcopy[j][1] += vertices[j][1];
+         vtxcopy[j][2] += vertices[j][2];
       }  
 	}  
 
 
-  /* (GHS: relative maximum displacement ratio) */
-  /* This appears to compute the maximum displacement suffered
-   * by any single vertex.  FIXME: Check whether replacing this 
-   * with max centroid displacement and max angle is better.  This
-   * will require TCK rotation results.
-   */
-	a1=0;
-   for (i= 1; i<=  nBlocks; i++) {
-
-      i1 = vindex[i][1];
-      i2 = vindex[i][2];
-
-      for (j=i1; j<=i2+1; j++) {
-
-         a2 = sqrt(vtxcopy[j][1]*vtxcopy[j][1] + vtxcopy[j][2]*vtxcopy[j][2]);
-         if (a1<=a2) {
-            a1 = a2;
-         }
-      } 
-   } 
-
+   /** This needs to be moved out of here.  I think it is mostly 
+    * for the automatic time stepping and automatic penalty 
+    * functions.
+    */
    globalTime[ad->cts][1] = (a1/domainscale)/maxdisplacement;
-   
-   
-  /* (GHS: draw deformed blocks, change u[][])  */
-  /** Now, instead of being just the vertex displacements,
-   * vtxcopy contains the current configuration of the 
-   * vertices.  If this is the last open-close iteration,
-   * vtxcopy will fall through to df25 and be copied into 
-   * the vertices array.
-   */
-   for (i= 1;   i<=  nBlocks; i++) {
 
-      i1 = vindex[i][1];
-      i2 = vindex[i][2];
-      for (j=i1-1; j<=i2+1; j++) {
-
-         vtxcopy[j][1] += vertices[j][1];
-         vtxcopy[j][2] += vertices[j][2];
-      }  
-   } 
-   
-}  /*  Close df24()  */
+   return a1;
+}  
 
 
 
@@ -2535,8 +2488,9 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1,
  */
 void 
 df25(Geometrydata *gd, Analysisdata *ad, int *k1,
-          double **e0, double **U, TransMap transmap)
-{
+          double **e0, double **U, TransMap transmap,
+          TransApply transapply) {
+
    int i, i0, i1, i2;
    int j; 
    //double a1; 
@@ -2578,17 +2532,15 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    * we copy the vertex locations back to the appropriate 
    * array.  We need U afterwards for displacements.
    */
-   for (i=1; i<=  nBlocks; i++)
-   {
+   for (i=1; i<=  nBlocks; i++) {
+
       i1=vindex[i][1];
       i2=vindex[i][2];
-      
-      for (j=i1-1; j<=i2+1; j++)
-      {
+      for (j=i1-1; j<=i2+1; j++) {
          vertices[j][1]=vtxcopy[j][1];
          vertices[j][2]=vtxcopy[j][2];
-      }  /*  j  */
-   }  /*  i  */
+      }  
+   }  
 
 
   /* F has been overwritten with the solution vector.  Since 
@@ -2633,31 +2585,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       transmap(moments,T,x,y,i0);
       
       i1 = k1[i0];
-      x1 = 0;
-      y1 = 0;
-      
-     /* displacements of fixed measured load points    */
-      for (j=1; j<= 6; j++)
-      {
-        /* skip 3, add the rotation correction 
-         * after the loop.
-         */       
-         if (ad->rotationflag == 1)
-         {
-            if (j==3)
-               j++;
-         }
-         x1 += T[1][j]*F[i1][j];
-         y1 += T[2][j]*F[i1][j];
-      }  /*  j  */
-      
-      if (ad->rotationflag == 1)
-      {  /* 2d order */
-         //x1 += (-T[2][3]*F[i1][3]*F[i1][3]/2.0) + (T[1][3]*F[i1][3]);
-         //y1 += (T[2][3]*F[i1][3]) + (T[1][3]*F[i1][3]*F[i1][3]/2.0);
-         x1 += (T[2][3] * (cos(F[i1][3])-1) + T[1][3]*sin(F[i1][3]));
-         y1 += (T[2][3] * sin(F[i1][3]) - T[1][3]*(cos(F[i1][3])-1)); 
-      }
+
+      transapply(T,F[i1],&x1,&y1);
 
      /* Compute work of load points here, before the point
       * location is updated.
@@ -2686,40 +2615,17 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       DDAPoint * ptmp;
       dlist_traverse(ptr, gd->seispoints) {
 
-         //Extract the point struct from the DList.
          ptmp = ptr->val;
          i0 = ptmp->blocknum;
          x  = ptmp->x;
          y  = ptmp->y;
          transmap(moments,T,x,y,i0);
+
          i1 = k1[i0];
-         x1 = 0;
-         y1 = 0;
-        /* displacements of fixed measured load points    */
-         for (j=1; j<= 6; j++)
-         {
-           /* skip 3, add the rotation correction 
-            * after the loop.
-            */       
-            if (ad->rotationflag == 1)
-            {
-               if (j==3)
-                  j++;
-            }
-            x1 += T[1][j]*F[i1][j];
-            y1 += T[2][j]*F[i1][j];
-         }  
-      
-         if (ad->rotationflag == 1)
-         {  /* 2d order */
-            //x1 += (-T[2][3]*F[i1][3]*F[i1][3]/2.0) + (T[1][3]*F[i1][3]);
-            //y1 += (T[2][3]*F[i1][3]) + (T[1][3]*F[i1][3]*F[i1][3]/2.0);
-            x1 += (T[2][3] * (cos(F[i1][3])-1) + T[1][3]*sin(F[i1][3]));
-            y1 += (T[2][3] * sin(F[i1][3]) - T[1][3]*(cos(F[i1][3])-1)); 
-         }
+         transapply(T,F[i1],&x1,&y1);       
+
          ptmp->x += x1;
          ptmp->y += y1;
-
       }
    }
 
@@ -2754,9 +2660,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    }  /* close cloning loop */
    
 
-   //updateStresses(gd, ad, e0, k1);
-   //updateStresses(e0, ad->F, k1, gd->nBlocks, ad->planestrainflag);
-
   /** @todo instead of switching on the flag, have it dereferenced
    * from ad, which turns this into a single call.
    */
@@ -2775,17 +2678,12 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /*------------------------------------------------*/
   /* compute s sx sy sxx syy sxy    g0 of this step */
    avgarea = computeMoments(gd); //, moments);
-   if (avgarea == 0) {
-      ad->abort(ad);
-      dda_display_error("Zero block area");
-   } 
-
    ad->avgArea[ad->cts] = avgarea;
-   computeMass(gd->mass,gd->moments, e0, gd->nBlocks);
 }
 
    
-   bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,transmap);
+   bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,
+                 transmap, transapply);
 
 
 

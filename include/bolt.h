@@ -26,12 +26,19 @@ extern "C" {
 typedef int (*PrintFunc)(void * stream,const char * format,...);
 #endif
 
+
 #ifndef TRANSMAPFUNC
 typedef void (*TransMap)(double ** moments, double T[7][7], double x, 
                          double y, int i0);
 #define TRANSMAPFUNC
 #endif
 
+
+#ifndef TRANS_APPLY_FUNC
+#define TRANS_APPLY_FUNC
+typedef void (*TransApply)(double T[][7], double * D, 
+                            double * u1, double * u2);
+#endif
 typedef struct _bolt Bolt;
 typedef struct _boltlist Boltlist; 
 typedef struct _boltmat Boltmat;
@@ -185,7 +192,8 @@ void       bolt_update_a         (double ** bolts,
                                   int numbolts, 
                                   double ** F,
                                   double ** moments, 
-                                  TransMap transmap);
+                                  TransMap transmap,
+                                  TransApply transapply);
 
 void       bolt_stiffness_a      (double ** bolts, 
                                   int numbolts, 

@@ -512,27 +512,12 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       * having a point load located outside of the
       * rock mass.
       */
-      for (j=1; j<= 6; j++)
-      {
+      for (j=1; j<= 6; j++) {
          F[i2][j] += s[j];
-      }  /*  j  */
+      }  
+   }  
 
-     /* This correction is presented on p. 37 of Maclaughlin 1997.
-      * For point loads, just add a single term to the stiffness
-      * matrix.
-      */
-     /* The following is part of MMM rigid body 2d order 
-      * rotation code.
-      */
-     /*
-      if (ad->rotationflag == 1)
-      {
-         a[i2][15] += (points[i][4]*T[2][3]) - (points[i][5]*T[1][3]);
-      }
-      */
-   }  /*  i  */
-
-}  /*  Close df15() .*/
+}  
 
 
 void
