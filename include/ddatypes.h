@@ -50,7 +50,6 @@ typedef void  (*DisplayFunc)(const char * message);
 /* TODO: Get rid of all this stuff.  Put it into a common
  * header file for the dialogs boxes and I/O functions.
  */
-typedef struct _jointmat JointMat;
 typedef struct _blockmat BlockMat;
 typedef struct _pstress PStress;
 typedef struct _ddapoint DDAPoint;
@@ -69,7 +68,7 @@ typedef struct {
 
 
 
-
+#if 0
 struct _jointmat {
 
   /* Need a union of structs and an 
@@ -81,10 +80,8 @@ struct _jointmat {
 	double tens;
 
   	int type;
-	//StrengthParam *strength;
-	//JointMat *next;
 };
-
+#endif
 
 
 struct _ddapoint{

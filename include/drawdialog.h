@@ -10,6 +10,8 @@
 #include "ddatypes.h"
 #include "geometrydata.h"
 
+#include "bolt.h"
+
 
 typedef enum TOOLTYPE {joint = 0, fixedpoint, measpoint, loadpoint, 
                        holepoint, bolt};
@@ -17,7 +19,7 @@ typedef enum TOOLTYPE {joint = 0, fixedpoint, measpoint, loadpoint,
 
 typedef DList JOINTLIST;
 typedef DList POINTLIST; 
-typedef DList BOLTLIST; 
+//typedef DList BOLTLIST; 
 
 void handleInit(HWND, WPARAM wParam, LPARAM lParam);
 void handleRockBolts(HWND);
@@ -33,10 +35,3 @@ void handleCancel(HWND);
 int handleSave(HWND);
 
 
-/* These will probably mutate into general purpose functions.
- * They should probably be moved into a different header file,
- * and have a return value.
- */
-void transferJointlistToGeomStruct(Geometrydata *, JOINTLIST *);   
-void transferPointlistToGeomStruct(Geometrydata *, POINTLIST *); 
-void transferBoltlistToGeomStruct(Geometrydata *, BOLTLIST *);   

@@ -4,16 +4,23 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:57 $
+ * $Date: 2002/06/05 13:19:58 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
+
+#include <stdio.h>
 
 #include "analysisdlg.h"
 #include "ddamemory.h"
 #include "ddaml.h"
-
+#include "joint.h"
  
+/* ugh */
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
 /* Static variables declared outside of function calls
  * are file specific, that is, these following variables
  * are local to this file, but global to the functions
@@ -30,7 +37,7 @@ static int loadindex = 0;
  */
 static int lpscrollpos = 0;  
 static int njmatOld = 0, nbmatOld = 0;
-static JointMat *jmat, *jmatOld = NULL;
+static Jointmat *jmat, *jmatOld = NULL;
 static BlockMat *bmat, *bmatOld = NULL;
 static double maxdisp = .01;
 static char temp[20];
@@ -265,13 +272,18 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
    case AD_JMAT:
       i = (int) SendDlgItemMessage(hDlg, AD_JMAT, CB_GETCURSEL, 0, 0L);
-      gcvt(jmat[i].fric, 4, temp);
+
+      //gcvt(jmat[i].fric, 4, temp);
+      snprintf(temp,4,"%f",jointmat_get_friction(&jmat[i]));
       SetDlgItemText(hDlg, AD_FRIC, temp);
-      gcvt(jmat[i].coh, 4, temp);
+      //gcvt(jmat[i].coh, 4, temp);
+      snprintf(temp,4,"%f",jointmat_get_cohesion(&jmat[i]));
       SetDlgItemText(hDlg, AD_COH, temp);
-      gcvt(jmat[i].tens, 4, temp);
+      //gcvt(jmat[i].tens, 4, temp);
+      snprintf(temp,4,"%f",jointmat_get_tension(&jmat[i]));
       SetDlgItemText(hDlg, AD_TENS, temp);
       jindex = i;
+
       break;
 
    case AD_TIMEDEPS:
@@ -468,20 +480,22 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
    case AD_FRIC: 
    case AD_COH: 
    case AD_TENS:
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
-   {
-      // MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", NULL);
-      if (SendMessage((HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
-      {
+   if(HIWORD(wParam) == EN_KILLFOCUS) {
+
+      if (SendMessage((HWND) lParam,  EM_GETMODIFY, 0, 0L)) {
+
          SendMessage((HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, AD_FRIC, temp, 20);
-         jmat[jindex].fric = strtod(temp, NULL);
+         //jmat[jindex].fric = strtod(temp, NULL);
+         jointmat_set_friction(&jmat[jindex],strtod(temp,NULL));
          GetDlgItemText(hDlg, AD_COH, temp, 20);
-         jmat[jindex].coh = strtod(temp, NULL);
+         //jmat[jindex].coh = strtod(temp, NULL);
+         jointmat_set_cohesion(&jmat[jindex],strtod(temp,NULL));
          GetDlgItemText(hDlg, AD_TENS, temp, 20);
-         jmat[jindex].tens = strtod(temp, NULL);
-      } // end if
-   } // end if
+         //jmat[jindex].tens = strtod(temp, NULL);
+         jointmat_set_tension(&jmat[jindex],strtod(temp,NULL));
+      } 
+   } 
    break;
 
   /*  Mass density, weight, Poisson's ratio, etc.  saving 
@@ -696,13 +710,17 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
    }
 
   /* Get all of the joint materials for each type.  */
-   jmat = (JointMat *) malloc(sizeof(JointMat) * njmat);
+   //jmat = (JointMat *) malloc(sizeof(JointMat) * njmat);
+   jmat = jointmat_array_new(njmat);
 
-   for(i=0; i<njmat; i++) 
-   {
-      jmat[i].fric = ad->phiCohesion[i+1][0];
-      jmat[i].coh = ad->phiCohesion[i+1][1];
-      jmat[i].tens = ad->phiCohesion[i+1][2];
+   for(i=0; i<njmat; i++) {
+
+      //jmat[i].fric = ad->phiCohesion[i+1][0];
+      jointmat_set_friction(&jmat[i], ad->phiCohesion[i+1][0]);
+      //jmat[i].coh = ad->phiCohesion[i+1][1];
+      jointmat_set_cohesion(&jmat[i], ad->phiCohesion[i+1][1]);
+      //jmat[i].tens = ad->phiCohesion[i+1][2];
+      jointmat_set_tension(&jmat[i], ad->phiCohesion[i+1][2]);
    }
       
   /* This is a really bad business here. 
@@ -742,13 +760,16 @@ loadDefaults()
 
   /* use default values */
    sprintf(subWinTitle, "Analysis Data: New File");
-   jmat = (JointMat *) malloc(sizeof(JointMat) * njmat);
-   for(i = 0; i<njmat; i++) 
-   {
+   //jmat = (JointMat *) malloc(sizeof(JointMat) * njmat);
+   jmat = jointmat_array_new(njmat);
+
+/*
+   for(i = 0; i<njmat; i++) {
       jmat[i].fric = 0;
       jmat[i].coh = 0;
       jmat[i].tens = 0;
    }
+*/
     
    bmat = (BlockMat *) malloc(sizeof(BlockMat) * nbmat);
    for (i = 0; i<nbmat; i++) 
@@ -814,12 +835,18 @@ setDialogValues(HWND hDlg, LPARAM lParam, WPARAM wParam)
    SetDlgItemText(hDlg, AD_MAXDISP, temp);
 
   /* Joints */
-   gcvt(jmat[0].fric, 14, temp);
+   //gcvt(jmat[0].fric, 14, temp);
+   snprintf(temp,14,"%f",jointmat_get_friction(&jmat[0]));
    SetDlgItemText(hDlg, AD_FRIC, temp);
-   gcvt(jmat[0].coh, 14, temp);
+
+   //gcvt(jmat[0].coh, 14, temp);
+   snprintf(temp,14,"%f",jointmat_get_cohesion(&jmat[0]));
    SetDlgItemText(hDlg, AD_COH, temp);
-   gcvt(jmat[0].tens, 14, temp);
+
+   //gcvt(jmat[0].tens, 14, temp);
+   snprintf(temp,14,"%f",jointmat_get_tension(&jmat[0]));
    SetDlgItemText(hDlg, AD_TENS, temp);
+
 
   /* Material properties */
    gcvt(bmat[0].dens, 14, temp);
@@ -962,11 +989,11 @@ saveData()
       ad->materialProps[i+1][12] = bmat[i].ivel[2];
    }
 
-   for(i=0; i<njmat; i++) 
-   {
-      ad->phiCohesion[i+1][0] = jmat[i].fric;
-      ad->phiCohesion[i+1][1] = jmat[i].coh;
-      ad->phiCohesion[i+1][2] = jmat[i].tens;
+   for(i=0; i<njmat; i++) {
+
+      ad->phiCohesion[i+1][0] = jointmat_get_friction(&jmat[i]);
+      ad->phiCohesion[i+1][1] = jointmat_get_cohesion(&jmat[i]);
+      ad->phiCohesion[i+1][2] = jointmat_get_tension(&jmat[i]);
    }
       
   /* This is a really bad business here. 
@@ -1130,26 +1157,35 @@ handleJointPlus(HWND hDlg)
 {
    int i;
 
-   if(njmat < 20) 
-   {
-      if(jmatOld && jmatOld != jmat) 
-         free(jmatOld);
+   if(njmat < 20) {
+
+      if(jmatOld && jmatOld != jmat) {
+         //free(jmatOld);
+         jointmat_delete(jmatOld);
+      }
+
       jmatOld = jmat;
       njmatOld = njmat;
       njmat++;
-      jmat = (JointMat *) malloc(sizeof(JointMat) * njmat);
-      for(i = 0; i<njmatOld; i++) 
-      {
-         jmat[i].fric = jmatOld[i].fric;
-         jmat[i].coh = jmatOld[i].coh;
-         jmat[i].tens = jmatOld[i].tens;
+      //jmat = (JointMat *) malloc(sizeof(JointMat) * njmat);
+      jmat = jointmat_array_new(njmat);
+
+      for(i = 0; i<njmatOld; i++) {
+         //jmat[i].fric = jmatOld[i].fric;
+         jointmat_set_friction(&jmat[i],jointmat_get_friction(&jmatOld[i]));
+         //[i].coh = jmatOld[i].coh;
+         jointmat_set_cohesion(&jmat[i],jointmat_get_cohesion(&jmatOld[i]));
+         //jmat[i].tens = jmatOld[i].tens;
+         jointmat_set_tension(&jmat[i],jointmat_get_tension(&jmatOld[i]));
       }
         
-      for(i = njmatOld; i<njmat; i++) 
-      {
-         jmat[i].fric = 0;
-         jmat[i].coh = 0;
-         jmat[i].tens = 0;
+      for(i = njmatOld; i<njmat; i++) {
+         //jmat[i].fric = 0;
+         jointmat_set_friction(&jmat[i],0);
+         //jmat[i].coh = 0;
+         jointmat_set_cohesion(&jmat[i],0);
+         //jmat[i].tens = 0;
+         jointmat_set_tension(&jmat[i],0);
       }
 
       SetDlgItemInt(hDlg, AD_NJMAT, njmat, FALSE);
@@ -1161,14 +1197,21 @@ handleJointPlus(HWND hDlg)
       }
 
       SendDlgItemMessage(hDlg, AD_JMAT, CB_SETCURSEL, 0, 0);
-      gcvt(jmat[0].fric, 4, temp);
+
+      //gcvt(jmat[0].fric, 4, temp);
+      snprintf(temp, 4, "%f", jointmat_get_friction(&jmat[0]));
       SetDlgItemText(hDlg, AD_FRIC, temp);
-      gcvt(jmat[0].coh, 4, temp);
+
+      //gcvt(jmat[0].coh, 4, temp);
+      snprintf(temp, 4, "%f", jointmat_get_cohesion(&jmat[0]));
       SetDlgItemText(hDlg, AD_COH, temp);
-      gcvt(jmat[0].tens, 4, temp);
+
+      //gcvt(jmat[0].tens, 4, temp);
+      snprintf(temp, 4, "%f", jointmat_get_tension(&jmat[0]));
       SetDlgItemText(hDlg, AD_TENS, temp);
       jindex = 0;
-   }  // end if
+   }
+
 }  /* close handleJointPlus() */
 
 
@@ -1197,11 +1240,14 @@ handleJointMinus(HWND hDlg)
       }
 
       SendDlgItemMessage(hDlg, AD_JMAT, CB_SETCURSEL, 0, 0);
-      gcvt(jmat[0].fric, 4, temp);
+      //gcvt(jmat[0].fric, 4, temp);
+      snprintf(temp,4,"%f",jointmat_get_friction(&jmat[0]));
       SetDlgItemText(hDlg, AD_FRIC, temp);
-      gcvt(jmat[0].coh, 4, temp);
+      //gcvt(jmat[0].coh, 4, temp);
+      snprintf(temp,4,"%f",jointmat_get_cohesion(&jmat[0]));
       SetDlgItemText(hDlg, AD_COH, temp);
-      gcvt(jmat[0].tens, 4, temp);
+      //gcvt(jmat[0].tens, 4, temp);
+      snprintf(temp,4,"%f",jointmat_get_tension(&jmat[0]));
       SetDlgItemText(hDlg, AD_TENS, temp);
       jindex = 0;
    }  //end if

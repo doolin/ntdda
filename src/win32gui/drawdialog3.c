@@ -17,6 +17,16 @@
 #pragma warning( disable : 4115 )        
 #endif
 
+
+/* These will probably mutate into general purpose functions.
+ * They should probably be moved into a different header file,
+ * and have a return value.
+ */
+static void transferJointlistToGeomStruct(Geometrydata *, JOINTLIST *);   
+static void transferPointlistToGeomStruct(Geometrydata *, POINTLIST *); 
+static void transferBoltlistToGeomStruct(Geometrydata *, Boltlist *);   
+
+
 static int gridSp=10;
 
 //static int newgridSp;
@@ -48,7 +58,7 @@ static int ScaledX,ScaledY;
  */
 static JOINTLIST * jointlist;
 static POINTLIST * pointlist;
-static BOLTLIST * boltlist;
+static Boltlist * boltlist;
 
 static POINT  ptBegin, ptNew, ptOld;
 
@@ -592,29 +602,18 @@ addBolt(HWND hDlg)
    Bolt * newbolt;
 
    if( (ptBegin.x != ptNew.x) ||  
-       (ptBegin.y != ptNew.y)  )
-   {
-     /* Grab a new bolt.. */
-      //newbolt = (Bolt *)calloc(1,sizeof(Bolt));
+       (ptBegin.y != ptNew.y)  ) {
+
       newbolt = bolt_new();
-
-     /* Set the endpoints */
-      /*
-		newbolt->d1.x = ptBegin.x;
-		newbolt->d1.y = ptBegin.y;
-		newbolt->d2.x = ptNew.x;
-	  	newbolt->d2.y = ptNew.y;
-*/
       bolt_set_endpoints(newbolt,ptBegin.x, ptBegin.y,ptNew.x,ptNew.y);
-
-      dl_insert_b(boltlist, (void *)newbolt);
+      boltlist_append(boltlist,newbolt);
    }
 
   /* Now draw to screen */
- 		MoveToEx(hdc, ptBegin.x, ptBegin.y, NULL);
- 		LineTo(hdc, ptNew.x, ptNew.y);
+ 	MoveToEx(hdc, ptBegin.x, ptBegin.y, NULL);
+ 	LineTo(hdc, ptNew.x, ptNew.y);
 
-}  /* close addBolt() */
+}
 
 
 
@@ -655,7 +654,8 @@ handleInit(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
    jointlist = make_dl();
    pointlist = make_dl();
-   boltlist = make_dl();
+   //boltlist = make_dl();
+   boltlist = boltlist_new();
 
 	GetWindowRect(hDlg, &winSize);
 	GetWindowRect(GetDlgItem(hDlg,IDC_DRAWSPACE), &drawSize);
@@ -993,21 +993,6 @@ freePointList()
 
 }  /* close freePointList() */
 
-static void 
-freeBoltList()
-{
-
-   DList * ptr;
-   Bolt * btmp;
-
-   M_dl_traverse(ptr, boltlist)
-   {
-      btmp = ptr->val;
-      free(btmp);
-   }
-   dl_delete_list(boltlist);
-
-}  /* close freeBoltList() */
 
 
 static void
@@ -1250,46 +1235,27 @@ transferPointlistToGeomStruct(Geometrydata * gd,
 
 void
 transferBoltlistToGeomStruct(Geometrydata * gd, 
-                             BOLTLIST * boltlist)
-{
+                             Boltlist * boltlist) {
+
    int i = 0;
    int numbolts;
-   BOLTLIST * ptr;
-   Bolt * btmp;
-   double x1,y1,x2,y2;
 
-   numbolts = dlist_length(boltlist);
-   if (numbolts == 0)
+   numbolts = boltlist_length(boltlist);
+
+   if (numbolts == 0) {
       return;
+   }
 
    gd->nBolts = numbolts;
    gd->rockboltsize1 = numbolts+1;
    gd->rockboltsize2 = 14;
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
+   boltlist_get_array(boltlist,gd->rockbolts);
 
-   M_dl_traverse(ptr, boltlist) {
 
-      btmp = ptr->val;
-      bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
+} 
 
-      /*
-      gd->rockbolts[i+1][1] = btmp->d1.x;
-      gd->rockbolts[i+1][2] = btmp->d1.y; 
-      gd->rockbolts[i+1][3] = btmp->d2.x;
-      gd->rockbolts[i+1][4] = btmp->d2.y;
-      //gd->rockbolts[i+1][5] = btmp->type;
-      */
 
-      gd->rockbolts[i+1][1] = x1;
-      gd->rockbolts[i+1][2] = y1; 
-      gd->rockbolts[i+1][3] = x2;
-      gd->rockbolts[i+1][4] = y2;
-      //gd->rockbolts[i+1][5] = btmp->type;
-
-      i++;
-   } 
-
-}  /* close transferBoltlistToGeomStruct()  */
 
 /* We really need to get the physical coordinates from the 
  * device coordinates.

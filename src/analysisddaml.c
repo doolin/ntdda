@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/01 15:07:47 $
+ * $Date: 2002/06/05 13:19:58 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 #include <stdio.h>
@@ -30,6 +30,8 @@
  */
 #include "dda.h"
 #include "bolt.h"
+#include "joint.h"
+
 
 /* Mostly for debugging windows. */
 static char mess[180];
@@ -49,7 +51,8 @@ static BOLTMATLIST * boltmatlist;
 static xmlNsPtr nspace;
 
 
-static JointMat * getNewJointMat(void);
+static Jointmat * getNewJointMat(void);
+
 static BlockMat * getNewBlockMat(void);
 static BoltMat * getNewBoltMat(void);
 static LOADPOINT * getNewLoadpoint(void);
@@ -183,7 +186,7 @@ transferJointMatlistToAStruct(Analysisdata * ad, JOINTMATLIST * jointmatlist)
    int i = 0;
    int njmat;
    JOINTMATLIST * ptr;
-   JointMat * jmtmp;
+   Jointmat * jmtmp;
 
   /* WARNING: Type attribute of xml tag is ignored for now.
    * Joint materials should be listed in order of occurrence
@@ -202,9 +205,9 @@ transferJointMatlistToAStruct(Analysisdata * ad, JOINTMATLIST * jointmatlist)
    M_dl_traverse(ptr, jointmatlist)
    {
       jmtmp = ptr->val;
-      ad->phiCohesion[i+1][0] = jmtmp->fric;
-      ad->phiCohesion[i+1][1] = jmtmp->coh; 
-      ad->phiCohesion[i+1][2] = jmtmp->tens;
+      ad->phiCohesion[i+1][0] = jointmat_get_friction(jmtmp);//->fric;
+      ad->phiCohesion[i+1][1] = jointmat_get_cohesion(jmtmp);//->coh; 
+      ad->phiCohesion[i+1][2] = jointmat_get_tension(jmtmp);//->tens;
       i++;
    }
     
@@ -718,26 +721,33 @@ parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 void *
 parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
-   JointMat * jmat;
-
+   Jointmat * jmat;
+   double temp;
    cur = cur->childs;
-  /* Grab a struct for joint properties */
-   jmat = getNewJointMat();
+   jmat = jointmat_new();
 
-  /* FIXME: Reimplement namespace checking.
+  /** @todo Reimplement namespace checking.
    */
-   while (cur != NULL) 
-   {
-      //fprintf(stderr,"In joint properties loop\n");
-      if ((!strcmp(cur->name, "Friction")) ) // && (cur->ns == ns))
-         jmat->fric = atof(xmlNodeListGetString(doc, cur->childs, 1));
-      if ((!strcmp(cur->name, "Cohesion")) ) //&& (cur->ns == ns))
-         jmat->coh = atof(xmlNodeListGetString(doc, cur->childs, 1));
-      if ((!strcmp(cur->name, "Tensile")) ) //&& (cur->ns == ns))
-         jmat->tens = atof(xmlNodeListGetString(doc, cur->childs, 1));
+   while (cur != NULL) {
+
+      if ((!strcmp(cur->name, "Friction")) ) {
+         temp = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         jointmat_set_friction(jmat,temp);
+      }
+
+      if ((!strcmp(cur->name, "Cohesion")) ) {
+         temp = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         jointmat_set_cohesion(jmat,temp);
+      }
+
+      if ((!strcmp(cur->name, "Tensile")) ) {
+         temp = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         jointmat_set_tension(jmat,temp);
+      }
+
       cur = cur->next;
    }
-  /* Append */
+
    dl_insert_b(jointmatlist,(void*)jmat);
 
   /* Grab a node for the block materials list, 
@@ -980,9 +990,11 @@ DoubMat2DGetMem(int n, int m)
 
    return x;
 
-}  /* Close DoubMat2DGetMem().  */
+}  
 
 
+
+#if 0
 static JointMat *
 getNewJointMat(void)
 {
@@ -992,6 +1004,8 @@ getNewJointMat(void)
    return jm;
 
 }  /*  close getNewJointMat() */
+#endif
+
 
 static BlockMat *
 getNewBlockMat(void)

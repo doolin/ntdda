@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/04 03:41:17 $
+ * $Date: 2002/06/05 13:19:58 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 
@@ -55,14 +55,15 @@ static xmlNsPtr nspace;
 static void  parseGeometry(Geometrydata *, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 
-static Joint * getNewJoint(void);
+static Joint    * getNewJoint(void);
 static DDAPoint * getNewPoint(void);
-static DDALine * getNewLine(void);
+static DDALine  * getNewLine(void);
 
 
 static void transferGData(void);
 static void transferJointlistToGeomStruct(Geometrydata *, JOINTLIST *);
 static void transferPointlistToGeomStruct(Geometrydata *, POINTLIST *);
+/** @todo  Move transferBoltlist function into bolt.c */
 static void transferBoltlistToGeomStruct(Geometrydata *, Boltlist *);
 static void transferMatlinelistToGeomStruct(Geometrydata *, MATLINELIST *);
 static double ** DoubMat2DGetMem(int n, int m);
@@ -228,6 +229,7 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    char * tempstring;
    Joint * joint;
    //xmlNodePtr jscur;
+   int checkval = 0;
 
    fprintf(stdout, "Parsing Joint list\n");
 
@@ -268,15 +270,18 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          * pick this up.  Piece of crap.
          */
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
-         //fprintf(stdout,"%s\n", tempstring);
-         sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);  
-         //fprintf(stdout,"%f %f %f %f\n",temp[0],temp[1],temp[2],temp[3]);  
-         joint->epx1 = temp[0];
-         joint->epy1 = temp[1];
-         joint->epx2 = temp[2];
-         joint->epy2 = temp[3];
+         checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);  
+         if (checkval == 4) {
+            joint->epx1 = temp[0];
+            joint->epy1 = temp[1];
+            joint->epx2 = temp[2];
+            joint->epy2 = temp[3];
+         } else {
+            ddaml_display_warning("Need 4 values for Joint element");
+            exit(0);
+         }
 
-        /* Here, add the joint struct to the dlidt node, then 
+        /* Here, add the joint struct to the dlist node, then 
          * add the node to the end of the dlist.
          */
          dl_insert_b(jointlist, (void*)joint);
@@ -1042,8 +1047,9 @@ transferPointlistToGeomStruct(Geometrydata * gd,
   /* The seismic points are independent, so we can try to 
    * do those correctly.
    */
-   if (gd->nSPoints > 0)
+   if (gd->nSPoints > 0) {
       gd->seispoints = spointlist;
+   }
 
    gd->origpoints = clone2DMatDoub(gd->points,gd->pointsize1,gd->pointsize2);
 
@@ -1053,22 +1059,15 @@ transferPointlistToGeomStruct(Geometrydata * gd,
 
 
 
+
 void
 transferBoltlistToGeomStruct(Geometrydata * gd, 
-                             Boltlist * boltlist)
-{
+                             Boltlist * boltlist) {
+
    int i = 0;
    int numbolts;
-   //Boltlist * ptr;
-   //Bolt * btmp;
-   //double x1,x2,y1,y2;
 
-
-   //numbolts = dlist_length(boltlist);
    numbolts = boltlist_length(boltlist);
-
-   //if (numbolts == 0)
-   //   return;
 
    fprintf(stdout,"Number of bolts: %d\n",numbolts);
 
@@ -1078,36 +1077,12 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
    boltlist_get_array(boltlist,gd->rockbolts);
 
-#if 0
-   M_dl_traverse(ptr, boltlist) {
-
-      btmp = ptr->val;
-
-      /*
-      gd->rockbolts[i][1] = btmp->epx1;
-      gd->rockbolts[i][2] = btmp->epy1; 
-      gd->rockbolts[i][3] = btmp->epx2;
-      gd->rockbolts[i][4] = btmp->epy2;
-      //gd->rockbolts[i+1][5] = btmp->type;
-      */
-
-      bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
-      gd->rockbolts[i+1][1] = x1;
-      gd->rockbolts[i+1][2] = y1; 
-      gd->rockbolts[i+1][3] = x2;
-      gd->rockbolts[i+1][4] = y2;
-      //gd->rockbolts[i+1][5] = btmp->type;
-      i++;
-   } 
-#endif
-
-
-   //if (gid->nBolts > 0)
    gd->origbolts = clone2DMatDoub(gd->rockbolts, gd->rockboltsize1, gd->rockboltsize2);
 
-}  /* close transferBoltlistToGeomStruct()  */
+}  
 
-//#if JKHJKHL
+
+
 static double **
 DoubMat2DGetMem(int n, int m)
 {
@@ -1133,8 +1108,9 @@ DoubMat2DGetMem(int n, int m)
 
    return x;
 
-}  /* Close DoubMat2DGetMem().  */
-//#endif
+} 
+
+
 
 static void 
 transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
