@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2003/06/11 02:25:47 $
+ * $Date: 2003/06/12 19:22:59 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.20 $
+ * $Revision: 1.21 $
  */
 
 /**
@@ -537,15 +537,18 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
       if ((!strcmp(cur->name, "Bolt"))) {
 
+
          // mmm: modified/added code to recognize bolt type in geom file
-		   bolt = bolt_new();
 		   tempstring = xmlGetProp(cur, "type");
 
+
 		   if (tempstring == NULL) {
+
 
             ddaml_display_warning("Warning: No bolt type specified, using default");
 			   bolt_type = 1;  // defaults to bolt type 1 (GHS bolt)
          } else {
+
 
 			   bolt_type = atoi(tempstring);
 			   // should probably check for a valid type number before assigning...
@@ -556,7 +559,6 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
             }		
          }
 
-		   bolt_set_type(bolt, bolt_type);
 
 		   tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          if (tempstring == NULL) {
@@ -570,7 +572,9 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
              
                // mmm: needed to move this several lines up
 			      // bolt = bolt_new();
-               bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
+               bolt = bolt_new();
+			   bolt_set_type(bolt, bolt_type);
+			   bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
                boltlist_append(boltlist,bolt);
                /** @todo Postpone setting gdata until list transfer. */
                gdata->nBolts++;
