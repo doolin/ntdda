@@ -359,8 +359,8 @@ openAnalysisFiles(FILEPATHS * filepath)
    strcpy(filepath->parfile, temp);
 
    strcpy(temp, filepath->rootname);
-   strcat(temp, "_area.m");
-   strcpy(filepath->areafile, temp);
+   strcat(temp, "_moments.m");
+   strcpy(filepath->momentfile, temp);
 
    strcpy(temp, filepath->rootname);
    strcat(temp, "_mass.m");
@@ -427,7 +427,7 @@ openAnalysisFiles(FILEPATHS * filepath)
   /* parameter file */
    fp.parfile = fopen(filepath->parfile, "w");
   /* block area file */
-   fp.areafile = fopen(filepath->areafile, "w");
+   fp.momentfile = fopen(filepath->momentfile, "w");
    fp.massfile = fopen(filepath->massfile, "w");
    fp.gravfile = fopen(filepath->gravfile, "w");
    fp.htmlfile = fopen(filepath->htmlfile, "w");
@@ -473,7 +473,7 @@ closeAnalysisFiles()
    fclose(fp.porefile);
    fclose(fp.timefile);
    fclose(fp.parfile);
-   fclose(fp.areafile);
+   fclose(fp.momentfile);
    fclose(fp.massfile);
    fclose(fp.gravfile);
    fclose(fp.htmlfile);
@@ -594,6 +594,18 @@ freeLoadpoints(LOADPOINT * lp)
 }  /* close freeLoadPoints() */
 
 
+
+void 
+adata_set_output_flag(Analysisdata * ad, int flag)
+{
+   ad->options |= flag;
+}
+
+void 
+adata_clear_output_flag(Analysisdata * ad, int flag)
+{
+   ad->options ^= flag;
+}
 
 /* 
  * Is mathematical analysis...only a vain play of the mind?

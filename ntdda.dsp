@@ -143,10 +143,6 @@ SOURCE=.\src\timestep.c
 
 SOURCE=.\src\transfercontact.c
 # End Source File
-# Begin Source File
-
-SOURCE=.\src\utils.c
-# End Source File
 # End Group
 # Begin Group "geometry"
 
@@ -168,6 +164,10 @@ SOURCE=.\src\geometrydata.c
 SOURCE=.\src\lns.c
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\src\utils.c
+# End Source File
 # End Group
 # Begin Group "gui"
 
@@ -464,6 +464,10 @@ SOURCE=.\include\postprocess.h
 # Begin Source File
 
 SOURCE=.\include\timehistory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utils.h
 # End Source File
 # End Target
 # End Project

@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2001/08/25 02:51:22 $
+ * $Date: 2001/08/26 00:21:18 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 #include"dda.h"
@@ -265,9 +265,7 @@ double getBlockMass(Geometrydata *, double ** moments, double ** e0, int blocknu
 /* Spring stiffness */
 double computeSpringStiffness(Geometrydata *, Analysisdata *, int **, double **);
       
-int checkParameters(Geometrydata * GData, Analysisdata * AData, 
-                    Contacts * /*int ** locks,*/ 
-                    /*double ** contactlength*/);  
+int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *);  
 
 
 //void display(HWND hwMain, HDC hdc, Geometrydata * GData, 

@@ -197,15 +197,15 @@ printBlockAreas(Geometrydata * gd, Analysisdata * ad, double ** moments,
 
    //fprintf(fp.areafile, "\nBegin block area verify output:\n");
    //fprintf(fp.areafile,"%10.5f ", ad->currentTime);
-   fprintf(fp.areafile,"%10.5f ", ad->elapsedTime);
+   fprintf(fp.momentfile,"%10.5f ", ad->elapsedTime);
   /* Handling a user-specified separator (i.e., comma, tab
    * space) will require using a while loop here.
    */
    for (i=1; i<=gd->nBlocks; i++)
    {
-      fprintf(fp.areafile, "%10.4f ", moments[i][1]);
+      fprintf(fp.momentfile, "%10.4f ", moments[i][1]);
    }
-   fprintf(fp.areafile, "\n");
+   fprintf(fp.momentfile, "\n");
 
 } /* close printBlockArea() */
 

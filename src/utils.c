@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/08/25 01:33:43 $
+ * $Date: 2001/08/26 00:21:22 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 
@@ -20,6 +20,7 @@
 #include <string.h>
 #include "interface.h"
 #include "contacts.h"
+#include "utils.h"
 
 
 extern FILEPOINTERS fp;

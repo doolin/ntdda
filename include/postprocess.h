@@ -14,7 +14,8 @@
 #define SOLUTIONVECTOR  1 << 2
 #define BLOCKMASSES     1 << 3
 #define BLOCKSTRESSES   1 << 4  
-#define CONTACTFORCES   1 << 5    
+#define CONTACTFORCES   1 << 5
+#define MOMENTS         1 << 6    
 
 
 /******************** Post-processing code ******************/
@@ -27,8 +28,7 @@ void writeAvgArea(Analysisdata * ad);
 void writeTimeInfo(Analysisdata *);
 void writeMeasuredPoints(Geometrydata *, Analysisdata *);
 void writeFixedPoints(Geometrydata *, Analysisdata *);
-void writeMoments(Geometrydata *, double ** moments, int timestep);
-void writeBlockareas(Analysisdata *,Geometrydata *);
+void writeMoments(Geometrydata *, int timestep, int numtimesteps);
 void writeBlockMasses(Analysisdata *,Geometrydata *);
 void writeMasses(Analysisdata *,Geometrydata *);
 void writeSpyfile(int ** n, int * kk, int numblocks, FILE * spyfile1);
@@ -44,6 +44,8 @@ void writeMFile(double ** K, double ** F, double ** D,
                 int * kk, int * k1, int ** n, int numblocks);
 void writeSolutionVector(double ** D, int * kk, 
                          int * k1, int ** n, int nBlocks);
+
+void writeSX0();
 
 
 #endif /* _POSTPROCESS_H_ */

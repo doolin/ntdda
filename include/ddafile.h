@@ -27,7 +27,7 @@ char measfile[FNAME_BUFSIZE];
 char porefile[FNAME_BUFSIZE];
 char timefile[FNAME_BUFSIZE];
 char parfile[FNAME_BUFSIZE];
-char areafile[FNAME_BUFSIZE];
+char momentfile[FNAME_BUFSIZE];
 char massfile[FNAME_BUFSIZE];
 char gravfile[FNAME_BUFSIZE];
 char htmlfile[FNAME_BUFSIZE];
@@ -56,7 +56,7 @@ typedef struct file_pointers {
    FILE * porefile;
    FILE * timefile;
    FILE * parfile; /* parameters */
-   FILE * areafile; /* block areas */
+   FILE * momentfile; /* block moments */
    FILE * massfile;
    FILE * gravfile;
    FILE * htmlfile;

@@ -2,6 +2,7 @@
 #include <math.h>
 #include "ddamemory.h"
 #include "contacts.h"
+#include "utils.h"  // Remove if updateLockState gets removed.
 
 
 struct _contacts {

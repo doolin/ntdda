@@ -475,6 +475,9 @@ void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
 void freeStresses(GRAPHICS *);
 Analysisdata * initAnalysisData(void);
 
+void adata_set_output_flag(Analysisdata *, int flag);
+void adata_clear_output_flag(Analysisdata *, int flag);
+
 
 
 #endif /* _ANALYSISDATA_H_ */

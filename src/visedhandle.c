@@ -1,6 +1,6 @@
 
 
-#include "compilecontrol.h"
+//#include "compilecontrol.h"
 #include "dda.h"
 #include "resource.h"
 #include "winmain.h"

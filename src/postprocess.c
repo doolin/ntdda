@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2001/08/17 03:29:19 $
+ * $Date: 2001/08/26 00:21:22 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 #include <malloc.h>
@@ -169,12 +169,12 @@ writeAvgArea(Analysisdata * AData)
 {
    int i;
    
-   fprintf(fp.areafile, "\naveragearea = [\n");
+   fprintf(fp.momentfile, "\naveragearea = [\n");
    for (i = 1; i <= AData->nTimeSteps; i++)
    {
-      fprintf(fp.areafile, "avgArea %d: %f\n", i, AData->avgArea[i]);
+      fprintf(fp.momentfile, "avgArea %d: %f\n", i, AData->avgArea[i]);
    }
-   fprintf(fp.areafile, "];\n");
+   fprintf(fp.momentfile, "];\n");
 
 }   /*  Close writeAvgArea  */
 
@@ -182,52 +182,49 @@ writeAvgArea(Analysisdata * AData)
 /* For now just write out the area for each block 
  */
 void 
-writeMoments(Geometrydata * gd, double ** moments, int timestep)
+writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
 {
    int i;
-
-   if (timestep == 0)
-      fprintf(fp.areafile,"blockareas = [\n");
-
-   for (i=0;i<=gd->nBlocks;i++)
-   {
-      fprintf(fp.areafile, "%.7f ",moments[i][1]);
-   }
-   fprintf(fp.areafile,"\n");
-
-}  /* close writeMoments() */
-
-
-/* FIXME: Find a way to handle writing a matlab input 
- * file without checking to see that we are on the last 
- * iteration to close the array.  
- */
-void 
-writeBlockareas(Analysisdata *ad,
-                Geometrydata * gd)
-{
-   int i;
+   double x0, y0;
+   double S0, S1, S2, S3;
    double ** moments = gd->moments;
 
-   if (ad->currTimeStep == 0)
+   if (currtimestep == 0)
    {
-      fprintf(fp.areafile,"%% Block areas for each time step\n");
-      fprintf(fp.areafile,"%% Starts at the zeroth time step\n\n");
-      fprintf(fp.areafile,"blockareas = [\n");
+     /* Might want to add the time step to the front also. */
+      fprintf(fp.momentfile,"%% Block moments for each time step\n");
+//      fprintf(fp.areafile,"%% Starts at the zeroth time step\n\n");
+      fprintf(fp.momentfile,"%% Block_number S0 S1 S2 S3\n");
+      fprintf(fp.momentfile,"blockmoments = [\n");
    }
 
-  /* WARNING: indexed from 1 instead of 0 */
    for (i=1;i<=gd->nBlocks;i++)
    {
-      fprintf(fp.areafile, "%20.16f ",moments[i][1]);
+     /* (GHS: non-zero terms of mass matrix)  */
+     /* Compute centroids.   These are also computed in 
+      * the time step function. 
+      */
+      x0=moments[i][2]/moments[i][1];  // x0 := x centroid
+      y0=moments[i][3]/moments[i][1];  // y0 := y centroid
+
+     /* S1, S2, S3 result from integrals derived on 
+      * pp. 83-84, Chapter 2, Shi 1988.
+      */
+      S0=moments[i][1];  // block area/volume
+      //S0=e0[i][9]; //moments[i][1];  // block area/volume
+      S1=moments[i][4]-x0*moments[i][2];
+      S2=moments[i][5]-y0*moments[i][3];
+      S3=moments[i][6]-x0*moments[i][3];
+
+      fprintf(fp.momentfile, "%d  %21.16f   %21.16f   %21.16f   %21.16f\n",
+                            i,S0, S1, S2, S3);
    }
-   fprintf(fp.areafile,"\n");
+   //fprintf(fp.areafile,"\n");
 
-   if (ad->currTimeStep == ad->nTimeSteps)
-      fprintf(fp.areafile,"];\n");
+   if (currtimestep == numtimesteps)
+      fprintf(fp.momentfile,"];\n");
 
-}  /* close writeBlockareas() */
-
+}  
 
 
 void 

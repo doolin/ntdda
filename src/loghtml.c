@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:09 $
- * $Revision: 1.1 $
+ * $Date: 2001/08/26 00:21:21 $
+ * $Revision: 1.2 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -20,7 +20,7 @@
  */
 
 
-#include "compilecontrol.h"
+//#include "compilecontrol.h"
 #include <stdio.h>
 #include <string.h>
 #include "dda.h"

@@ -6,7 +6,7 @@
  */
 #define WINGRAPHICS 1
 
-#include "compilecontrol.h"
+//#include "compilecontrol.h"
 
 #include "analysis.h"
 #include "graphics.h"

@@ -10,16 +10,16 @@
  * geometry routine in the DDA for Windows code.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:01:06 $
+ * $Date: 2001/08/26 00:21:21 $
  * $Source: /cvsroot/dda/ntdda/src/blockhandler.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 //#include"analysis.h"
 #include<stdlib.h>
 #include<assert.h>
 #include "ddamemory.h"
-#include "compilecontrol.h"
+//#include "compilecontrol.h"
 #include "geometrydata.h"
 
 

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/08/24 22:56:23 $
+ * $Date: 2001/08/26 00:21:21 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  *
  */
 /*################################################*/
@@ -17,6 +17,12 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.14  2001/08/26 00:21:21  doolin
+ * Major output format change for block areas to handle all
+ * the moments for each block at each time step.  The downside of this is
+ * that the output file will require more postprocessing, which can be
+ * trivially handled in matlab, octave or a simple perl script, etc.
+ *
  * Revision 1.13  2001/08/24 22:56:23  doolin
  * Started work on abstracting data output code to
  * make it easier to handle different types of output data
@@ -68,6 +74,7 @@
 #include "printdebug.h"
 #include "gravity.h"
 #include "contacts.h"
+#include "utils.h"
 #include "postprocess.h"
 
 
@@ -401,8 +408,6 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    openAnalysisFiles(filepath);
 
    //writeMasses(ad,gd);
-
-   writeBlockareas(ad, gd);
 
    initReplayFile(gd,ad);
 
@@ -832,7 +837,6 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       c0[j2][j] +=  shearforce*s[j+24];  // was s4
    }  
 
-   //if (1)  //writecontacts == TRUE
    if (ad->options & CONTACTFORCES)
    {
       char mess[80];
@@ -2690,11 +2694,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    }
    ad->avgArea[ad->currTimeStep] = avgarea;
    computeMass(gd, ad, e0);
-  /* This should go into the geometrydata.c file.  In the 
-   * future we will ask the blocks to write out there areas.
-   */
-   writeBlockareas(ad,gd);
-
 }
 
    

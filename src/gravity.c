@@ -23,11 +23,11 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:01 $
+ * $Date: 2001/08/26 00:21:21 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
-#include "compilecontrol.h"
+//#include "compilecontrol.h"
 #include<math.h>
 #include<assert.h>
 #include"analysis.h"

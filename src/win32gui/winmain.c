@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/08/18 02:54:37 $
+ * $Date: 2001/08/26 00:21:24 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 
@@ -1404,10 +1404,12 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    blocknum = geomdata->getblocknumber(geomdata->this, p.x, p.y);
 
-   geomdata->deleteblock(geomdata->this, blocknum);
-
+   /* FIXME: Confirmation code does not work. */
    sprintf(mess,"Confirm delete block number %d", blocknum);
    MessageBox(hwMain, mess, "Delete block", MB_OK);
+
+   geomdata->deleteblock(geomdata->this, blocknum);
+
 
    updateGeometryStatusBar(hwMain);
 

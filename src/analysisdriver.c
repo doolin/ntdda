@@ -7,6 +7,12 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.8  2001/08/26 00:21:20  doolin
+ * Major output format change for block areas to handle all
+ * the moments for each block at each time step.  The downside of this is
+ * that the output file will require more postprocessing, which can be
+ * trivially handled in matlab, octave or a simple perl script, etc.
+ *
  * Revision 1.7  2001/08/24 22:56:22  doolin
  * Started work on abstracting data output code to
  * make it easier to handle different types of output data
@@ -58,7 +64,6 @@ extern FILEPOINTERS fp;
 DATALOG * DLog;
 DDAError ddaerror;
 
-void compilecontrol(Analysisdata * AData);
 
 
 /* TODO: Change parameter list to take a geometry data 
@@ -159,18 +164,18 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
  * compile control because I want to deal with it asap.  And 
  * I want to get rid of compilecontrol asap.
  */
-AData->options |= VERTICES;
-AData->options |= FIXEDPOINTS;
-AData->options |= SOLUTIONVECTOR;
-AData->options |= BLOCKMASSES;
-//AData->options |= BLOCKSTRESSES;
-AData->options |= CONTACTFORCES;
-
-
-  /* Hardwired parameters that need to go into 
-   * user input files in the future.
+   adata_set_output_flag(AData, VERTICES);
+   adata_set_output_flag(AData, FIXEDPOINTS);
+   adata_set_output_flag(AData, SOLUTIONVECTOR);
+   adata_set_output_flag(AData, BLOCKMASSES);
+   //adata_set_output_flag(AData, BLOCKSTRESSES);
+   adata_set_output_flag(AData, CONTACTFORCES);
+  /* FIXME: This is a horrible bogosity: moments need to 
+   * be written from the geometry data, not the analysis
+   * data.  
    */
-   //compilecontrol(AData);
+   adata_set_output_flag(AData, MOMENTS);
+
 
   /* Copy this pointer to extern so that we can access the 
    * analysis data from the analysis dialog box.
@@ -197,11 +202,16 @@ AData->options |= CONTACTFORCES;
       
    //{FILE*fp=NULL;printLoadPointStruct(AData,fp);}
 
+
 /* All this stuff gets put elsewhere at some point in the 
  * future.
  */
    if (AData->options & VERTICES)
-      writeBlockVertices(GData, 1);
+      writeBlockVertices(GData, 1);      
+   
+   if (AData->options & MOMENTS)
+      writeMoments(GData, ad->currTimeStep, ad->nTimeSteps);
+
    //writeBlockMasses(AData,GData);
   /* If arg 2 is greater than the number of blocks, 
    * we get a crash.
@@ -374,6 +384,9 @@ AData->options |= CONTACTFORCES;
 
       if (AData->options & BLOCKSTRESSES)
          writeBlockStresses(e0,4);
+
+      if (AData->options & MOMENTS)
+         writeMoments(GData, ad->currTimeStep, ad->nTimeSteps);
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1)
