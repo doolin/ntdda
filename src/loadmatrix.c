@@ -219,7 +219,8 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    double ** a = ad->K;
    double x, y;
    double T[7][7];
-
+   double xload;
+   double yload;
 
    for (i=nFPoints+1; i<= nFPoints+nLPoints; i++) {
 
@@ -233,7 +234,17 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       x=points[i][1];
       y=points[i][2];
 
+      xload = points[i][4];
+	  yload = points[i][5];
       transmap(blockArea[0],T,x,y);
+
+      y=points[i][2];
+
+      xload = points[i][4];
+      yload = points[i][5];
+
+      transmap(blockArea[i0],T,x,y);
+
    
      /* points[i][4] points[i][5] 
       * is time dependent loads initialized 

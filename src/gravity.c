@@ -23,9 +23,9 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:19 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 #include<math.h>

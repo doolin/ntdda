@@ -17,9 +17,9 @@
  * http://www.cyclic.com.
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/geomreader.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -111,7 +111,10 @@ geometryReader1(Geometrydata * gid,char *infilename) {
 		/* g : +nMPoints  x   y   of measured points        */
 		/* g : +nHPoints  x   y   of hole     points        */
  		// n5=nFPoints*(150+1)+nLPoints+nMPoints+nHPoints+1;
-	 	n5 =  gid->nFPoints*(15+1)+gid->nLPoints+gid->nMPoints+gid->nHPoints+1;
+
+		gid->maxFixedPointsPerFixedLine = 100; //hardwired
+	 	n5 =  gid->nFPoints*(gid->maxFixedPointsPerFixedLine+1)+gid->nLPoints+gid->nMPoints+gid->nHPoints+1;
+
 	 	gid->pointsize1=n5+1;
 	 /*	gid->pointsize2=7; */ /* was 5, changed to handle point disp and cum disp */
    gid->pointsize2 = 9;  /* add cum disp in [][7] and [][8]  */

@@ -20,7 +20,7 @@ extern "C" {
 
 
 #include "ddafile.h"
-
+#include "bolt.h"
 
 typedef struct _geo_data_tag Geometrydata;
 
@@ -52,6 +52,7 @@ struct _geo_data_tag {
    int nMatLines;
    int nBolts;
    int nFPoints;
+   int maxFixedPointsPerFixedLine;
    int nLPoints;
    int nMPoints;
    int nHPoints; 
@@ -129,6 +130,9 @@ struct _geo_data_tag {
    int rockboltsize2;
    double ** rockbolts;
    double ** origbolts;
+   // mmm: added for segmenting
+   int maxSegmentsPerBolt;
+
 
   /* Copied from d in geometryToReturn(). */
    int vertexsize1;

@@ -2,9 +2,9 @@
 /** Handle different file formats, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:19 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/inputfiles.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  *
  */
 

@@ -146,7 +146,12 @@ handleInit(HWND hDlg)
   /* Fixedpoints and measured points are really messy.  This code 
    * uses geometry reading code for prototype.
    */
-   gdata->pointsize1=gdata->nFPoints+gdata->nLPoints+gdata->nMPoints+gdata->nHPoints+1;
+
+   // mmm: this should probably be set somewhere else, but I don't know where
+   // is there a file that contains hardwired parameters?
+   gdata->maxFixedPointsPerFixedLine = 100; // hardwired
+   gdata->pointsize1 = (gdata->nFPoints*(gdata->maxFixedPointsPerFixedLine+1))+gdata->nLPoints+gdata->nMPoints+gdata->nHPoints+1;
+
    gdata->pointsize2 = 9;  /* add cum disp in [][7] and [][8]  */
    gdata->points = DoubMat2DGetMem(gdata->pointsize1, gdata->pointsize2);
   
@@ -213,7 +218,9 @@ handleSave(HWND hDlg)
    fclose(ofp);
 
   /* write an analysis file */
+
   /* Won't link, don't know why. */
+
 
    ofp = fopen("apwedge.ana","w");
    adata_write_ddaml(adata,(PrintFunc)fprintf,ofp);

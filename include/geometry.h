@@ -5,9 +5,8 @@
  * General header file for the numerical geometry routines.
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:55 $
- * $Source: /cvsroot/dda/ntdda/include/geometry.h,v $
- * $Revision: 1.4 $
+ * $Date: 2003/12/17 23:36:36 $
+ * $Revision: 1.5 $
  */
 
 #include "geometrydata.h"

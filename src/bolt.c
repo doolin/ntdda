@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> /* memset */ 
@@ -43,18 +42,17 @@ struct _bolt {
 };
 
 
+struct _boltlist {
+   DList * list;
+};
+
+
 
 struct _boltmat{
    double e00;  // stiffness
    double t0;   // strength
    double f0;   // pretension
 };
-
-
-struct _boltlist {
-   DList * list;
-};
-
 
 
 Bolt * 
@@ -604,6 +602,10 @@ boltlist_get_array(Boltlist * boltlist, double ** array) {
       btmp = ptr->val;
 
       bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
+      // mmm: added index 0 for bolt type
+      // Take a look at stress.[c,h] for a slightly 
+      // more maintainable way to do this.
+	  array[i][0] = bolt_get_type(btmp);
       array[i][1] = x1;
       array[i][2] = y1; 
       array[i][3] = x2;

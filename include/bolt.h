@@ -33,13 +33,11 @@ typedef struct _boltmat Boltmat;
 
 
 
-
-
 Bolt *     bolt_new                (void);
-Bolt *     bolt_new_1              (double x1,
-                                    double y1,
-                                    double x2,
-				                        double y2);
+Bolt *     bolt_new_1           (double x1,
+                                           double y1,
+                                           double x2,
+                                           double y2);
 
 /**
  * This is primarily used for unit testing to ensure that 

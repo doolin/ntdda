@@ -6,9 +6,8 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/12/20 05:20:01 $
- * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.23 $
+ * $Date: 2003/12/17 23:36:36 $
+ * $Revision: 1.24 $
  */
 
 #ifndef __ANALYSIS_H__

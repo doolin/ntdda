@@ -3,6 +3,7 @@
 #ifndef __LOADPOINT_H__
 #define __LOADPOINT_H__
 
+#include "ddatypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,10 +21,18 @@ typedef struct _loadpoint Loadpoint;
 
 
 struct _loadpoint {
+
+   double xload,yload;
+   double time;
+
+   DisplayFunc display_warning;
+   DisplayFunc display_error;
+
    int loadpointsize1;
    int loadpointsize2;  /* = 3 */
    double ** vals;
 };
+
 
 
 Loadpoint * loadpoint_new       (void);
@@ -44,7 +53,12 @@ void        loadpoint_print     (Loadpoint *,
                                  void * stream);
 
 
-void df09(Loadpoint * loadpoints,
+void        loadpoint_print_current (Loadpoint * lp,
+                                     PrintFunc printer,
+                                     void * stream);
+
+
+void        df09                    (Loadpoint * loadpoints,
           double ** points,
           double ** globalTime,
           double ** timeDeps,

@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2003/06/12 19:22:59 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.21 $
+ * $Revision: 1.22 $
  */
 
 /**
@@ -844,11 +844,19 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    */
    //gd->e00 = 0.01;
    
+   // mmm: this should probably be set somewhere else, but I don't know where
+   // is there a file that contains hardwired parameters?
+   // We can make a file for that, or use ddatypes.h in the 
+   // meantime.  I am planning on turning all of this in linked
+   // list code at some point.
+   gd->maxFixedPointsPerFixedLine = 100; // hardwired
+
    gd->pointCount = (gd->nFPoints) + (gd->nLPoints) + (gd->nMPoints);
    gd->nPoints = gd->nFPoints + gd->nMPoints + gd->nLPoints + gd->nHPoints;
 
   /* Horrible horrible kludge. */
-	 	n5 =  (gd->nFPoints*(15+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;
+	 	n5 =  (gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;
+
 	 	gd->pointsize1=n5+1;
 	 	/* gid->pointsize2=5; */
    /* gid->pointsize2 = 7; */ /* Add x, y displacement values per ts. */

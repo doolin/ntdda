@@ -5,9 +5,9 @@
  * intersect.
  *
  * $Author: doolin $
- * $Date: 2002/10/26 23:23:06 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/lns.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 

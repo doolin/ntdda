@@ -2,9 +2,9 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2002/11/01 15:18:07 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  *
  */
 

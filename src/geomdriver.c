@@ -5,9 +5,9 @@
  * from a set of lines (fracture traces).
  * 
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:38 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/geomdriver.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 #include <stdio.h>
@@ -36,6 +36,7 @@ void dc08(Geometrydata *, int **, int **, int **, int **, int **,
 
 void dc09(Geometrydata *, int **, int *, double **);
 void dc10(Geometrydata *, int **, double **);
+
 void dc11(Geometrydata *, int **, double **, double **);
 void dc12(Geometrydata *, int **, double **);
 void dc13(Geometrydata *, int **, double **, double **);
@@ -43,6 +44,7 @@ void dc14(Geometrydata *, int **, double **, double **);
 void dc16(Geometrydata *, int **, double **, double **);
 void dc17(Geometrydata *, int **, double **);
 void dc19(Geometrydata *, int **, double **);
+int produce_boltsegments(Geometrydata *gd, int ** vindex, double ** vertices, int num_bolts, double ** points);
 
 
 /* 
@@ -82,6 +84,8 @@ ddacut(Geometrydata *geomdata) {
 
    geomdata->blocksize = 6;
    geomdata->index = 1;
+   geomdata->maxFixedPointsPerFixedLine = 100;
+   geomdata->maxSegmentsPerBolt = 24;
 
   /* FIXME: Grab the seed from the input file.
    * FIXME: Initializing the generator here breaks
@@ -123,6 +127,7 @@ ddacut(Geometrydata *geomdata) {
    dc09(geomdata, vindexdc, h, verticesdc);     
    
   /* forming fixed points from lines */
+   // mmm: removed dc10 and replaced with almost identical function
    dc10(geomdata, vindexdc, verticesdc);     
 
   /* block of fixed measured load hole pnt */
@@ -138,6 +143,9 @@ ddacut(Geometrydata *geomdata) {
   /* assign material number to blocks      */
   /* Calls crr for point-in-poly */
    dc13(geomdata, vindexdc, q, verticesdc);
+
+   // mmm: added this function to segment bolts before assigning endpoints
+   geomdata->nBolts = produce_boltsegments(geomdata, vindexdc, verticesdc, geomdata->nBolts, geomdata->rockbolts);
 
   /*  Might be able to resurrect the rock bolting stuff.  */
   /* assign block number to 2 bolt ends    
@@ -166,7 +174,9 @@ ddacut(Geometrydata *geomdata) {
    */
    returnGeom = geometryToReturn(geomdata, vindexdc, verticesdc);
 
+
    gdata_compute_moments(returnGeom);
+
 
   /* A better idea would be to free geomdata here.  It is 
    * simple struct.  

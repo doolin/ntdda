@@ -9,9 +9,9 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:17 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 
@@ -24,6 +24,7 @@
 
 #include "ddamemory.h"
 #include "geometry.h"
+#include "dda.h" // for dda_display_warning
 
 
 
@@ -1236,6 +1237,231 @@ void dc09(Geometrydata *gd, int **k0, int *h, double **d)
 }
 
 
+// mmm: segments segbolts (type 2) into multiple GHS bolts
+// most of this algorithm was taken from dc10 (produce fixed points from line)
+// returns the total number of bolts
+int 
+produce_boltsegments(Geometrydata *gd, int ** vindex, double ** vertices, 
+                     int num_bolts, double ** points) {
+
+   int i, j, l, counter; 
+
+   /* Can these be renamed to something more descriptive? */
+   // i1 is total_segments? 
+   int i1, i2=0, i3;
+
+   double x0[26], x1[26]; 
+   double y0[26], y1[26]; 
+   
+   /* Coordinates where segments are cut? */
+   double xhalf, yhalf;
+
+   /* Should be renamed to length */
+   double a1;
+
+   double temp;
+
+   int n0 = gd->nBlocks;
+   double domainscale = gd->w0;
+   int maxsegments = gd->maxSegmentsPerBolt;
+
+   /* Line intersection parameters x,y */
+   double t1, t2;
+   int INTERSECTION;
+
+   /** What is t for? */
+   double t[26];
+
+   double x21, y21, x34, y34, x31, y31, x41, y41;
+  
+   /** what is i2? */
+   if (num_bolts < 1) {
+      return i2;
+   }
+
+   if (maxsegments > 24) {
+      dda_display_warning("warning: max bolts per segment > hardwired array size in produce_boltsegments");
+   }
+
+   // move data forward to create space for possible intermediate points
+   // max is currently arbitrary and hardwired
+   if (maxsegments < 1) {
+	   maxsegments = 1;
+	   dda_display_warning("max bolt segments not set, using default 1");
+   }
+
+   i1 = (maxsegments-1) * num_bolts;
+   
+   /* What is the intent of this loop? */
+   for ( i= num_bolts; i > 0; i-- ) {
+
+      points[i+i1][0] = points[i-1][0];
+	   points[i+i1][1] = points[i-1][1];
+      points[i+i1][2] = points[i-1][2];
+      points[i+i1][3] = points[i-1][3];
+      points[i+i1][4] = points[i-1][4];
+   } 
+      
+  /**************************************************/
+  /* produce and register bolts            */
+   i2 = 0;   /* bolt counter: counts total number of bolt segments  */
+   for (i=i1+1;i<= i1+num_bolts;  i++) {
+      
+		  points[i2][0] = points[i][0];
+		  points[i2][1] = points[i][1];
+		  points[i2][2] = points[i][2];
+		  points[i2][3] = points[i][3];
+		  points[i2][4] = points[i][4];
+
+
+	 /*------------------------------------------------*/
+     /* case bolt does not need to be segmented                          */
+		a1 = fabs(points[i][0] - 2.0); //mmm type (integer) is saved in array of floating pts!! (ugh)
+	  if ( a1 > 0.000000001*domainscale ) {
+			i2++;
+			continue;
+	  } else {
+        
+	   i3=0;  /* counter for number of block edges crossed by this bolt */
+
+		for (j=1; j<= n0; j++)  // for each block
+		{
+			for (l=vindex[j][1]; l<= vindex[j][2]; l++)  // for each edge
+			{
+				x21 = points[i][3] - points[i][1]; /* coefficient a11 */
+				y21 = points[i][4] - points[i][2]; /* coefficient a21 */
+
+				x34 = vertices[l][1] - vertices[l+1][1]; /* coefficient a12 */
+				y34 = vertices[l][2] - vertices[l+1][2]; /* coefficient a22 */
+
+				x31 = vertices[l][1] - points[i][1]; /* free terms  f1  */
+				y31 = vertices[l][2] - points[i][2]; /* free terms  f2  */
+				x41 = vertices[l+1][1] - points[i][1]; /* co-line case    */
+				y41 = vertices[l+1][2] - points[i][2];
+
+				INTERSECTION = lns(domainscale, x21, x31, x34, x41, y21, y31, y34, y41, &t1, &t2);
+
+				if (INTERSECTION == FALSE) 
+					continue;  // next edge
+
+				i3++; // increment number of block edges crossed by this bolt
+				t[i3] = t1;
+				x0[i3] = points[i][1] + x21*t1; /* intersection    */
+				y0[i3] = points[i][2] + y21*t1;
+				x1[i3] = fabs(x34);
+				y1[i3] = fabs(y34);
+				
+				// will cross many interfaces twice
+				// need to ignore duplicate crossings
+            // a1 is also used for length... maybe this 
+            // value could renamed?
+				a1 = 1000000000;
+				for (counter=1; counter <i3; counter++) {
+
+               temp = fabs(t[i3]-t[counter]);
+               if (temp < a1) {
+                  a1 = temp;
+               }
+				} // end for each previous contact
+				
+            if ( a1 < 0.000000001*domainscale ) {
+               i3--; // already crossed this interface
+            }
+
+            if (i3>maxsegments) {
+               dda_display_warning("warning: bolt exceeds max allowable segments");
+            }
+
+			} // end for each edge
+		} // end for each block
+
+		// reorder intersections based on t values -> cut bolt in sequential order
+		for (j=1; j<i3; j++) { // for each intersection in the list
+			temp = t[j];
+			counter = 0;
+			for (l = j+1; l<=i3; l++) {
+				if (t[l] < temp) {
+					counter = l;
+					temp = t[l];
+				}
+			} // end for all other intersections in the list
+			if (counter) {  // need to switch
+				t[25] = t[j];
+				x0[25] = x0[j];
+				y0[25] = y0[j];
+				x1[25] = x1[j];
+				y1[25] = y1[j];
+				t[j] = t[counter];
+				x0[j] = x0[counter];
+				y0[j] = y0[counter];
+				x1[j] = x1[counter];
+				y1[j] = y1[counter];
+				t[counter] = t[25];
+				x0[counter] = x0[25];
+				y0[counter] = y0[25];
+				x1[counter] = x1[25];
+				y1[counter] = y1[25];
+			}		
+		} // end reordering
+
+
+		// split into segments
+		for (j=1; j<=i3; j++) {
+
+			/* Reference this length against dissertation */
+         // a1 is used above for a completely different purpose.
+         a1 = sqrt(x1[j]*x1[j] + y1[j]*y1[j]);  // maybe use bolt length instead of this?
+			// if j is > 1, split bolt into two pieces before adding new segment
+			if (j>1) { //split first
+				i2++;
+				// find point halfway between old endpoint and block intersection
+				// this halfway point is a little off center, but close enough
+				xhalf = (points[i2-1][1] + x0[j])/2;
+				yhalf = (points[i2-1][2] + y0[j])/2;
+				points[i2][1] = xhalf; // newly created bolt
+				points[i2][2] = yhalf; // gets new first end @ halfway point
+				points[i2][3] = points[i2-1][3]; // and old second end
+				points[i2][4] = points[i2-1][4];
+				points[i2][0] = points[i2-1][0];
+				points[i2-1][3] = xhalf; // old bolt gets new
+				points[i2-1][4] = yhalf; // second end @ halfway point
+			} // end if i1 is odd
+			i2++;  // increment number of bolts  
+
+			// flip sign if necessary to make sure segment extends into next block
+         if (points[i2-1][1] < x0[j]) {
+            y1[j] = -y1[j];
+         }
+
+         if (points[i2-1][2] < y0[j]) {
+            x1[j] = -x1[j];
+         }
+
+			points[i2][1] = x0[j] + y1[j]/a1*0.000005*domainscale; // newly created bolt
+			points[i2][2] = y0[j] + x1[j]/a1*0.000005*domainscale; // gets new first end
+			points[i2][3] = points[i2-1][3]; // and old second end
+			points[i2][4] = points[i2-1][4];
+			points[i2][0] = points[i2-1][0];
+			points[i2-1][3] = x0[j] - y1[j]/a1*0.000005*domainscale; // old bolt gets new
+			points[i2-1][4] = y0[j] - x1[j]/a1*0.000005*domainscale; // second end
+		} // end split into segments
+
+	  } // end else bolt is segmented or not
+
+	  i2++;  // increment after saving data since bolts are indexed from zero
+
+	  /* (GHS: case whole bolt inside a block)  */
+     if ( i3 < 1) {
+        dda_display_warning("Segbolt inside a single block, no segments formed.");
+     }
+
+   } // end for each bolt
+      
+  return i2;
+ 
+} // end produce_boltsegments
+
+
 /**************************************************/
 /* dc10: forming fixed points from lines          */
 /**************************************************/
@@ -1244,6 +1470,7 @@ void dc09(Geometrydata *gd, int **k0, int *h, double **d)
  */
 void dc10(Geometrydata *gd, int ** vindex, double ** vertices)
 {
+
    int i; 
    int j;
    int l;
@@ -1252,10 +1479,12 @@ void dc10(Geometrydata *gd, int ** vindex, double ** vertices)
    double y0, y1;
    double a1;
    int n0 = gd->nBlocks;
+   int max = gd->maxFixedPointsPerFixedLine;
    double domainscale = gd->w0;
    double ** points = gd->points;
   /*  Change name of kk3 asap.
    */
+
    //int local_kk3;
    double t1, t2;
    int INTERSECTION;
@@ -1272,7 +1501,7 @@ void dc10(Geometrydata *gd, int ** vindex, double ** vertices)
    /* move g[][] forward 150*nFPoints                    */
 		 // i1 = 150*nFPoints;
   
-   i1 = 15*(gd->nFPoints);
+   i1 = max*(gd->nFPoints);
    
    for ( i=(gd->nFPoints+gd->nLPoints+gd->nMPoints+gd->nHPoints); i >= 1; i-- )
    {
@@ -1286,7 +1515,7 @@ void dc10(Geometrydata *gd, int ** vindex, double ** vertices)
   /**************************************************/
   /* produce and registrate fixed points            */
 		// i1 = 150*nFPoints;
-	 	i1 = 15*gd->nFPoints;
+	 	i1 = max*gd->nFPoints;
    i2 = 0;   /* point counter   */
    for (i=i1+1;i<= i1+gd->nFPoints;  i++)
    {
@@ -1357,7 +1586,7 @@ b004:;
   /**************************************************/
   /* move g[][] back and set nFPoints as fixed points   */
 		// i1 = 150*nFPoints;
-		i1 = 15*gd->nFPoints;
+		i1 = max*gd->nFPoints;
 		i3 = i1+gd->nFPoints;
 
 		for (i= 1; i<= gd->nLPoints+gd->nMPoints+gd->nHPoints; i++)
@@ -1371,7 +1600,10 @@ b004:;
   gd->nFPoints = i2;
  
 //b003:;
-}
+} // dc10
+
+
+
 
 
 

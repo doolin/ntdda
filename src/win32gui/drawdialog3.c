@@ -1161,10 +1161,12 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    * be set as a part of the CAD scaling.
    */
    gd->e00 = 0.01;
-
+   // mmm: this should probably be set somewhere else, but I don't know where
+   // is there a file that contains hardwired parameters?
+   gd->maxFixedPointsPerFixedLine = 100; // hardwired
    numpoints = dlist_length(pointlist);
    gd->nPoints = numpoints;
-   gd->pointsize1 = numpoints+1;
+   gd->pointsize1 = (gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;
    gd->pointsize2 = 9;
    gd->points = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
 

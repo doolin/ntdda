@@ -204,7 +204,16 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
 
   /* malloc enough memory to read in all the data. */
    gd->pointCount = gd->nFPoints + gd->nMPoints + gd->nLPoints;
-   gd->pointsize1 = gd->pointCount + 1;
+
+   // mmm: this should probably be set somewhere else, but I don't know where
+   // is there a file that contains hardwired parameters?
+   // Right, this was 150, then changed to 15.  If you do a search over
+   // the whole source on 15, there are about half dozen places it 
+   // shows up.  It is a problem, and it is why all of the point 
+   // handling stuff needs to go into linked list instead of array.
+   gd->maxFixedPointsPerFixedLine = 100; // hardwired
+   gd->pointsize1 = (gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;  
+
    gd->pointsize2 = 6;
    points = DoubMat2DGetMem(gd->pointsize1,gd->pointsize2);
    gd->points = points;

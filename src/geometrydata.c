@@ -911,8 +911,13 @@ gdata_get_block_area(Geometrydata * gd, int block) {
 void
 gdata_rockbolt_init(Geometrydata * gd, int numbolts) {
 
+   gd->maxSegmentsPerBolt = 24;  // hardwired
    gd->nBolts = numbolts;
-   gd->rockboltsize1 = numbolts+1;
+   
+   // mmm: make the array extra huge for potential segments
+   // similar to what's done for the fixed lines (even if it's bad coding)
+   gd->rockboltsize1 = gd->maxSegmentsPerBolt * numbolts+1;
+
    gd->rockboltsize2 = 17;
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
 }

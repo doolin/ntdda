@@ -17,9 +17,9 @@
  * printer.  This can be done by passing in the device context.
  * 
  * $Author: doolin $
- * $Date: 2002/07/22 19:02:34 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/print.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 

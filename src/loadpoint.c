@@ -97,6 +97,14 @@ loadpoint_print (Loadpoint * lp, int numloadpoints,
 }
 
 
+void
+loadpoint_print_current(Loadpoint * lp, PrintFunc printer, void * stream) {
+
+   printer(stream, "%f %f %f\n", lp->time, lp->xload, lp->yload);
+}
+
+
+
 #if 0
 void
 loadpoint_print_xml(Loadpoint * lp, int numloadpoints, 
@@ -139,7 +147,7 @@ loadpoint_print_xml(Loadpoint * lp, int numloadpoints,
 /** @todo The whole loading point scheme needs to be rewritten.
  * It is still too confusing to maintain.
  */
-void df09(Loadpoint * loadpoints,
+void df09(Loadpoint * lp,
           double ** points,
           double ** globalTime,
           double ** timeDeps,
@@ -147,9 +155,8 @@ void df09(Loadpoint * loadpoints,
           int nfp,
           int numloadpoints,
           int cts,
-          double delta_t)
+          double delta_t) {
 
-{
    int i;
    int j;
    int n;
@@ -172,8 +179,8 @@ void df09(Loadpoint * loadpoints,
 
    for (i = 0; i < numloadpoints; i++) {
 
-     	n = loadpoints[i].loadpointsize1;
-     	lpoints = loadpoints[i].vals;
+     	n = lp[i].loadpointsize1;
+     	lpoints = lp[i].vals;
      	for (j = 0; j < n-2; j++) {
          if ( (lpoints[j][TIME] <= current_time) && 
               (current_time  <= lpoints[j+1][TIME]) ) {
@@ -183,14 +190,17 @@ void df09(Loadpoint * loadpoints,
 
       dt = (lpoints[j+1][TIME] - lpoints[j][TIME]);
       
-      /*
+      
       if (dt <= 0) {
-         ad->display_error("Loadpoint error: Adjacent time step values must be different.\n");
+         lp->display_error("Loadpoint error: Adjacent time step values must be different.\n");
       }
-      */
+      
 		a1 = (current_time - lpoints[j][TIME]) / dt;
-      points[i+nfp+1][4] = lpoints[j][1] + a1*(lpoints[j+1][1] - lpoints[j][1]);
-      points[i+nfp+1][5] = lpoints[j][2] + a1*(lpoints[j+1][2] - lpoints[j][2]);
+      lp->time = current_time;
+      lp->xload = lpoints[j][1] + a1*(lpoints[j+1][1] - lpoints[j][1]);
+      lp->yload = lpoints[j][2] + a1*(lpoints[j+1][2] - lpoints[j][2]);
+      points[i+nfp+1][4] = lp->xload;
+      points[i+nfp+1][5] = lp->yload;
    }
 
 }  

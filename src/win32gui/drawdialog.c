@@ -853,9 +853,11 @@ handleSave(HWND hDlg)
       transferPointlistToGeomStruct(geomstruct, pointlist);  
       transferBoltlistToGeomStruct(geomstruct, boltlist);  
 
+
       fp = fopen(filepath.gpath, "w+");
       geomstruct->dumptofile(geomstruct->this, filepath.gpath);
       fclose(fp);
+
       gdata_delete(geomstruct);
 
      /* FIXME: These functions are segfaulting. */
@@ -1024,10 +1026,12 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    * be set as a part of the CAD scaling.
    */
    gd->e00 = 0.01;
-
+   // mmm: this should probably be set somewhere else, but I don't know where
+   // is there a file that contains hardwired parameters?
+   gd->maxPointsPerLine = 100; // hardwired
    numpoints = dlist_length(pointlist);
    gd->nPoints = numpoints;
-   gd->pointsize1 = numpoints+1;
+   gd->pointsize1 = (gd->nFPoints*(gd->maxPointsPerLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;
    gd->pointsize2 = 9;
    gd->points = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
 

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/12/20 05:20:02 $
+ * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.48 $
+ * $Revision: 1.49 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.49  2003/12/17 23:36:36  doolin
+ * Merged in my changes from final mil-4 checkout.
+ *
  * Revision 1.48  2002/12/20 05:20:02  doolin
  * Catch up commit.
  *
