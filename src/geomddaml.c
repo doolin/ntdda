@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/05 22:36:25 $
+ * $Date: 2002/10/09 01:46:40 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  */
 
 /**
@@ -778,7 +778,7 @@ transferJointlistToGeomStruct(Geometrydata * gd,
 
   /* Draw joints stored in jointlist.
    */
-   M_dl_traverse(ptr, jointlist)
+   dlist_traverse(ptr, jointlist)
    {
       jtmp = ptr->val;
 
@@ -848,7 +848,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    * data structure is different.
    */
   /* FIXME: Move this to an fpointlist */
-   M_dl_traverse(ptr, fpointlist)
+   dlist_traverse(ptr, fpointlist)
    {
       ltmp = ptr->val;
       if (ltmp->type == fixed)
@@ -868,7 +868,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    } 
 
   /* Now store LOAD points, i carries forward */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == load)
@@ -885,7 +885,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    }
    
   /* MEASURED points */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == measured)
@@ -902,7 +902,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    }   
 
   /* HOLE points */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == hole)
@@ -1003,7 +1003,7 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
 
   /* Draw joints stored in jointlist.
    */
-   M_dl_traverse(ptr, matlinelist)
+   dlist_traverse(ptr, matlinelist)
    {
       ltmp = ptr->val;
 

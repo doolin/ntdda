@@ -87,8 +87,10 @@ assemble(Geometrydata * GData, Analysisdata * AData,
 	   df15(GData,AData, k1,f,moments);
 
      /* seismic loading */
-      if (AData->timehistory != NULL)
+      if (AData->timehistory != NULL) {
+
          seismicload(GData, AData, k1, f, moments, matprops);
+      }
 
      /* submatrix of volume force */
 	   df16(GData,k1,f,matprops,moments);
@@ -580,8 +582,8 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    if (ad->cts >= th_get_number_of_datapoints(ad->timehistory))
       return;
 
-   M_dl_traverse(ptr, gd->seispoints)
-   {
+   dlist_traverse(ptr, gd->seispoints) {
+
       ptmp = (DDAPoint *)ptr->val;
       blocknumber = ptmp->blocknum;
       x = ptmp->x;

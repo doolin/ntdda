@@ -2,15 +2,19 @@
  *  ddamemory.h
  * 
  *  $Author: doolin $
- *  $Date: 2001/05/20 21:03:43 $
+ *  $Date: 2002/10/09 01:46:38 $
  *  $Log: ddamemory.h,v $
- *  Revision 1.1  2001/05/20 21:03:43  doolin
- *  Initial revision
+ *  Revision 1.2  2002/10/09 01:46:38  doolin
+ *  Lots of clean up and fix it work on this commit.
+ *  Details are in the diffs  ;)
+ *
+ *  Revision 1.1.1.1  2001/05/20 21:03:43  doolin
+ *  This import corresponds to development version 1.5.124
  *
  */
 
-#ifndef _DDAMEMORY_H_
-#define _DDAMEMORY_H_
+#ifndef __DDAMEMORY_H__
+#define __DDAMEMORY_H__
 
 #include <stdlib.h>
 #include <memory.h>

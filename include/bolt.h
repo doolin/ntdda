@@ -35,34 +35,130 @@ Bolt *     bolt_new_1          (double x1,
  *
  * @return int a for passing, 0 for failing.
  */
-int        bolt_equals         (Bolt * b1,
-                           	  Bolt * b2);
+int        bolt_equals           (Bolt * b1,
+                             	    Bolt * b2);
 
-void       bolt_delete         (Bolt *);
+void       bolt_delete           (Bolt *);
 
-int        bolt_test           (void);
+int        bolt_test             (void);
 
 /**
  * @todo  Write the API documentation for this function.
  */
-int        bolt_get_type       (Bolt *);
+int        bolt_get_type         (Bolt *);
 
-void       bolt_set_type       (Bolt *,
-                                int type);
+void       bolt_set_type         (Bolt *,
+                                  int type);
 
-void       bolt_set_endpoints  (Bolt * b, 
-                                double x1,
-                                double y1,
-                                double x2,
-                                double y2);
+void       bolt_set_endpoints    (Bolt * b, 
+                                  double x1,
+                                  double y1,
+                                  double x2,
+                                  double y2);
 
-void       bolt_get_endpoints  (Bolt * b, 
-                                double * x1,
-                                double * y1,
-                                double * x2,
-                                double * y2);
+void       bolt_get_endpoints    (Bolt * b, 
+                                  double * x1,
+                                  double * y1,
+                                  double * x2,
+                                  double * y2);
 
-double     bolt_length         (Bolt * b);
+double     bolt_get_length       (Bolt * b);
+
+
+/** All of the function with an appended "_a" indicate that 
+ * they operate on the traditional array style structure.
+ * In the future, the incomplete type that is defined as 
+ * a bolt struct should be able to be implemented fairly
+ * easily.  The API should be really similar between the 
+ * bolt array and bolt struct methods, and if there are any 
+ * problems that appear with the array based API, they can be 
+ * rectified when the struct is implemented.
+ *
+ * The API presented below for arrays will probably change as 
+ * well.  Checking and saving state on primitives is difficult.
+ * Therefore, methods in the API must be invoked in the appropriate
+ * order.  This is inconvenient from a programming point of view,
+ * but fast to implement.  More work needs to be done here.
+ */
+
+/** How to simulate a constructor when the object is an 
+ * array?  One way is to split the memory allocation
+ * for the double **.  Then each bolt can be allocated
+ * as a "bolt".  This leaves the problem of allocating
+ * the pointer array.  Arrays suck.
+ */
+// Not implemented
+double *   bolt_new_a            (double size);
+
+// Not implemented
+double *   bolt_new_a_1          (double size,
+                                  double x1,
+                                  double y1,
+                                  double x2,
+                                  double y2);
+
+// Not implemented
+void       bolt_set_endpoints_a  (double * b, 
+                                  double x1,
+                                  double y1,
+                                  double x2,
+                                  double y2);
+
+// Not implemented
+void       bolt_get_endpoints_a  (double * b, 
+                                  double * x1,
+                                  double * y1,
+                                  double * x2,
+                                  double * y2);
+
+/** bolt_set_length_a should probably go away,
+ * and have the bolt length be private.  Then 
+ * just have an accessor method for retrieving 
+ * length for unit testing.
+ */
+void       bolt_set_length_a     (double * bolt);
+double     bolt_get_length_a     (double * bolt);
+
+
+/**
+ * When a bolt is given an initial pretension force,
+ * an unstrained length of the bolt must be computed 
+ * before the analysis proceeds, so that subsequent 
+ * deformation will induce the correct forces.
+ * Since we can't rewrite, use the array in lieu of 
+ * bolt struct.
+ *
+ * @todo This method needs to idempotent 
+ *  per each bolt.
+ *
+ * @param double * an array to various values 
+ *  needed for a bolt.
+ *
+ * @return double dl the length differential
+ *  computed by dl = f/k;       
+ */
+double     bolt_set_ref_length_a (double * bolt);
+
+
+/** This method assumes that the reference length is 
+ * already computed.
+ *
+ * @param double * to an array of properties for a bolt.
+ *
+ * @return double unstrained length of bolt.
+ */
+double     bolt_get_ref_length_a (double * bolt);
+
+
+void       bolt_set_pretension_a (double * bolt);
+
+double     bolt_get_pretension_a (double * bolt);
+
+
+void       bolt_get_dir_cosine_a (double * bolt, 
+                                  double * lx, 
+                                  double * ly);
+
 
 
 
@@ -130,7 +226,7 @@ void       boltlist_print      (Boltlist *,
 /***********************************************************/
 /*  Old, nasty stuff that needs to be changed. */
 
-int        rockbolts           (double ** bolts,
+void       rockbolts           (double ** bolts,
                                 int numbolts, 
                                 double ** K, 
                                 int *, 

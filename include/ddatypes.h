@@ -6,6 +6,14 @@
 
 #include <sys/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
+
 /** The reason for explicitly declaring a type boolean is to
  * provide for platform independence.  That is,
  * `boolean' is not a defined type in the c language
@@ -136,5 +144,8 @@ struct _pstress {
    double minorx1,minory1,minorx2,minory2;
 };
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DDATYPES_H__ */

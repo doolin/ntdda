@@ -1,6 +1,14 @@
 
-#ifndef __DDADLIST_H_
-#define __DDADLIST_H_
+#ifndef __DDADLIST_H__
+#define __DDADLIST_H__
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
 
 /* Doubly linked lists:  These are routines that you can use to create, use,
    and manipulate doubly linked lists.  Each list is made of Dlist structures.
@@ -123,7 +131,7 @@ extern void *dl_val(DList *);   /* Returns node->val (used to shut lint up).
 /* This is a macro that traverses a list.  Look this one over, and be
  * sure you're convinced of how it works 
  */
-#define M_dl_traverse(ptr, list) \
+#define dlist_traverse(ptr, list) \
   for (ptr = first(list); ptr != nil(list); ptr = next(ptr))
 
 /* This is a macro to test whether a list is empty. */
@@ -132,4 +140,11 @@ extern void *dl_val(DList *);   /* Returns node->val (used to shut lint up).
 /* This function counts nodes in a list. (dmd)  */
 extern int dlist_length(DList *);
 
-#endif /* _DDADLIST */
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif /* __DDADLIST_H__ */

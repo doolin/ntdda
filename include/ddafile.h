@@ -1,10 +1,10 @@
 
-
-
-#ifndef _DDAFILE_H_
-#define _DDAFILE_H_
+#ifndef __DDAFILE_H__
+#define __DDAFILE_H__
 
 #include <stdio.h>
+
+
 
 #define FNAME_BUFSIZE  256
 
@@ -82,5 +82,5 @@ typedef struct file_pointers {
    FILE * vertexlogfile;  // log format
 } FILEPOINTERS;
 
-#endif
+#endif  /* __DDA_FILE_H__ */
 

@@ -1,8 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-/* memset */
-#include <string.h>  
+#include <string.h> /* memset */ 
 #include <math.h>
 #include <assert.h>
 
@@ -148,6 +147,124 @@ bolt_length(Bolt * b) {
 
 
 
+
+void 
+bolt_set_length_a(double * bolt) {
+
+   double x1 = bolt[1];
+   double y1 = bolt[2];
+   double x2 = bolt[3];
+   double y2 = bolt[4];
+   bolt[15] = sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+}
+
+
+/** 
+ * Take no chances, can't tell when double are 
+ * initialized in the general case.  Maybe later
+ * work out detailed for `magic' initialization 
+ * numbers.
+ */
+double
+bolt_get_length_a(double * bolt) {
+
+   double x1 = bolt[1];
+   double y1 = bolt[2];
+   double x2 = bolt[3];
+   double y2 = bolt[4];
+   return sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+}
+
+
+
+/**
+ * Since we can't rewrite, use the array
+ * in lieu of bolt struct.
+ *
+ * @todo This method needs to idempotent 
+ *  per each bolt.
+ *
+ * @todo Add code to ensure that the pretension is 
+ *  less than the stiffness.
+ *
+ * @param double * an array to various values 
+ *  needed for a bolt.
+ *
+ * @return double dl the length differential
+ *  computed by dl = f/k;       
+ */
+double 
+bolt_set_ref_length_a(double * bolt) {
+
+  double dl;
+
+  dl = bolt[9]/bolt[7];
+  bolt[14] = bolt[15] - dl;
+
+  return dl;
+}
+
+
+double
+bolt_get_ref_length_a(double * bolt) {
+
+   return bolt[14];
+}
+
+
+/** Probably won't implement this.
+ */
+void
+bolt_set_dir_cosine_a(double * bolt) {
+
+}
+
+
+void
+bolt_get_dir_cosine_a(double * bolt, double * lx, double * ly) {
+
+   double x1 = bolt[1];
+   double y1 = bolt[2];
+   double x2 = bolt[3];
+   double y2 = bolt[4];
+   double l  = bolt_get_length_a(bolt);
+
+  *lx = (x1-x2)/l;
+  *ly = (y1-y2)/l;
+
+ /* checking the obvious... doesn't seem to work.
+  * FIXME: Write a unit test for these asserts to see
+  * why they didn't fire on a 0 bolt length.
+  */
+  assert ( (-1 <= *lx) && (*lx <= 1));
+  assert ( (-1 <= *ly) && (*ly <= 1));
+
+}
+
+
+
+void
+bolt_set_pretension_a(double * bolt) {
+
+   double lref = bolt[14];
+   double l    = bolt[15];
+   double dl;
+
+   dl = l - lref;
+   bolt[9] = dl*bolt[7];
+}
+
+
+double
+bolt_get_pretension_a(double * bolt) {
+
+   return bolt[9];
+}
+
+
+
+
+
 Boltmat *
 boltmat_new(void) {
    Boltmat * bm;
@@ -218,7 +335,7 @@ boltlist_get_array(Boltlist * boltlist, double ** array) {
    Bolt * btmp;
    double x1,y1,x2,y2;
 
-   M_dl_traverse(ptr, boltlist->list) {
+   dlist_traverse(ptr, boltlist->list) {
 
       btmp = ptr->val;
 
@@ -245,7 +362,7 @@ boltlist_print(Boltlist * bl, PrintFunc printer, void * stream) {
    DList * ptr;
    Bolt * b;
 
-   M_dl_traverse(ptr, bl->list) {
+   dlist_traverse(ptr, bl->list) {
 
       b = (Bolt*)ptr->val;
       bolt_print(b,printer,stream);
@@ -285,7 +402,7 @@ bolt_load_matrix(Bolt * bolt, double ** K,
    int ep2 = bolt->b2;
    
    double s = bolt->stiffness;
-   double pt = bolt->pretension;
+   double t = bolt->pretension;
    
   /* Direction cosines, p. 38  */
    double lx, ly;
@@ -296,8 +413,8 @@ bolt_load_matrix(Bolt * bolt, double ** K,
   /** Temporary vectors for constructing K
    * @todo Put the math in here for these.
    */
-   double Ei[7];
-   double Gj[7];
+   double E[7];
+   double G[7];
    double T[7][7];
 
 
@@ -333,7 +450,7 @@ bolt_load_matrix(Bolt * bolt, double ** K,
       computeDisplacement(blockArea, T, x1,  y1, ep1);
      /* Do the inner product to construct Ei: */
       for (i=1; i<=6; i++) {
-         Ei[i] = T[1][i]*lx + T[2][i]*ly;
+         E[i] = T[1][i]*lx + T[2][i]*ly;
       }
 
 
@@ -343,7 +460,7 @@ bolt_load_matrix(Bolt * bolt, double ** K,
       * $G_j = [T_j]^T\cdot \ell$. 
       */
       for (j=1; j<=6; j++) {
-         Gj[j] = T[1][j]*lx + T[2][j]*ly;
+         G[j] = T[1][j]*lx + T[2][j]*ly;
       }
 
 
@@ -357,7 +474,7 @@ bolt_load_matrix(Bolt * bolt, double ** K,
       for (j=1; j<= 6; j++) {
          for (l=1; l<= 6; l++) {
             j1=6*(j-1)+l;
-            K[i3][j1] += s*(Ei[j]*Ei[l]);
+            K[i3][j1] += s*(E[j]*E[l]);
          }  
       }  
 
@@ -370,7 +487,7 @@ bolt_load_matrix(Bolt * bolt, double ** K,
       for (j=1; j<= 6; j++) {
          for (l=1; l<= 6; l++) {
             j1=6*(j-1)+l;
-            K[i3][j1] += s*(Gj[j]*Gj[l]);
+            K[i3][j1] += s*(G[j]*G[l]);
          }  
       }  
 
@@ -402,7 +519,7 @@ bolt_load_matrix(Bolt * bolt, double ** K,
          for (j=1; j<= 6; j++) {
             for (l=1; l<= 6; l++) {
                j3=6*(j-1)+l;  /* j3 = 1:36 */
-               K[i3][j3] += -s*(Ei[j]*Gj[l]);
+               K[i3][j3] += -s*(E[j]*G[l]);
             } 
          }  
      /* Add to Kji or Kij but not both. */
@@ -418,31 +535,20 @@ bolt_load_matrix(Bolt * bolt, double ** K,
          for (j=1; j<= 6; j++) {
             for (l=1; l<= 6; l++) {
                j3=6*(j-1)+l;  /* j3 = 1:36 */
-               K[i3][j3] += -s*(Gj[j]*Ei[l]);
+               K[i3][j3] += -s*(G[j]*E[l]);
             }
          }  
          
      }  /* close loops for Kij/Kji */
 
+#if 0
+      for (i=1; i<=6; i++) {
+         F[ep1][i] += -t*E[i];
+         F[ep2][j] +=  t*G[j];
+      }
 
-     /* FIXME: non-zero pt produces strange and
-      * unusual behavior.  This needs to be examined
-      * very closely.
-      */
-     /* Now load the force vector Fi:
-      */
-      for (i=1; i<=6; i++)
-      {
-         /* force vector */
-         F[ep1][i] = -pt*Ei[i];
-      }
-     /* And the force vector Fj:
-      */
-      for (j=1; j<=6; j++)
-      {
-         /* force vector */
-         F[ep2][j] = pt*Gj[j];
-      }
+#endif
+
 }
 #endif
 

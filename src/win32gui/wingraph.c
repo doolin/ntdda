@@ -289,7 +289,7 @@ drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points)
       hbr = GetStockObject(LTGRAY_BRUSH); // load and hole
 		SelectObject(hdc, hbr);
 
-      M_dl_traverse(ptr, gd->seispoints)
+      dlist_traverse(ptr, gd->seispoints)
       {
          //Extract the point struct from the DList.
          ptmp = ptr->val;

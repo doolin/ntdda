@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/05 22:36:24 $
+ * $Date: 2002/10/09 01:46:39 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.30 $
+ * $Revision: 1.31 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.31  2002/10/09 01:46:39  doolin
+ * Lots of clean up and fix it work on this commit.
+ * Details are in the diffs  ;)
+ *
  * Revision 1.30  2002/10/05 22:36:24  doolin
  * Cleaned up rock bolt material handling.  Bolt
  * materials are now incomplete types, and accessed through the
@@ -166,6 +170,7 @@
 
 
 #include "analysis.h"
+#include "bolt.h"
 #include "constants.h"
 #include "ddamemory.h"
 #include "printdebug.h"
@@ -432,13 +437,14 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * given for joints.  Then match the type with material 
    * later in the analysis.
    */
-   if (ad->boltmats != NULL)
-   {
-      for (i=0;i<gd->nBolts;i++)
-      {
+   if (ad->boltmats != NULL) {
+      for (i=0;i<gd->nBolts;i++) {
+
          gd->rockbolts[i][7] = ad->boltmats[0][0];
          gd->rockbolts[i][8] = ad->boltmats[0][1];
          gd->rockbolts[i][9] = ad->boltmats[0][2];
+         bolt_set_length_a(gd->rockbolts[i]);         
+         bolt_set_ref_length_a(gd->rockbolts[i]);
       }
    }
 
@@ -2910,8 +2916,10 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    double ** hb = gd->rockbolts;
    double ** c = ad->c;
    double x, y;
-  /* Displacements */
+  /* Displacements (deprecate this notation) */
    double x1, y1;
+  /* Displacements, change to ux,uy so that notation is uniform */
+   //double ux, uy;
   /* End point block number of rock bolts. */
    int ep1,ep2;
   /* Helper vars for updating stresses etc. */
@@ -3039,12 +3047,12 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 
 
   /* Amazingly enough, this appears to work! */
-   if (gd->nSPoints > 0)
-   { 
+   if (gd->nSPoints > 0) {
+      
       DList * ptr;
       DDAPoint * ptmp;
-      M_dl_traverse(ptr, gd->seispoints)
-      {
+      dlist_traverse(ptr, gd->seispoints) {
+
          //Extract the point struct from the DList.
          ptmp = ptr->val;
          i0 = ptmp->blocknum;
@@ -3132,6 +3140,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    */
    for (i=0; i<gd->nBolts; i++) 
    {
+      double u1,v1,u2,v2;
+
      /* Deal with one endpoint at a time,
       * starting with the arbitrarily chosen
       * `endpoint 1'.  Since hb is a double **,
@@ -3141,16 +3151,19 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       ep1 = (int)hb[i][5];
       x = hb[i][1];
       y = hb[i][2];
-      x1=0;  // need to reset to zero each time due to += inside loops
-	  y1=0;
-	  computeDisplacement(moments,T,x,y,ep1);
-      for (j=1; j<= 6; j++)
-      {
-         x1 += T[1][j]*F[ep1][j];
-         y1 += T[2][j]*F[ep1][j];
-      }  /*  j  */
-      hb[i][1] +=  x1;
-      hb[i][2] +=  y1;
+      u1=0;  // need to reset to zero each time due to += inside loops
+	   v1=0;
+	   computeDisplacement(moments,T,x,y,ep1);
+
+      for (j=1; j<= 6; j++) {
+         u1 += T[1][j]*F[ep1][j];
+         v1 += T[2][j]*F[ep1][j];
+      }  
+      hb[i][10] = u1;
+      hb[i][11] = v1;
+      //replace
+      hb[i][1] +=  u1;
+      hb[i][2] +=  v1;
 
      /* Now for endpoint 2, the other end of the same bolt.
       */
@@ -3158,18 +3171,37 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       //if (ep1 == ep2) exit(0);
       x = hb[i][3];
       y = hb[i][4];
-	  x1=0;
-	  y1=0;
+	   u2=0;
+	   v2=0;
+      /* Should be compute directors */
       computeDisplacement(moments,T,x,y,ep2);
       for (j=1; j<= 6; j++)
       {
-         x1 += T[1][j]*F[ep2][j];
-         y1 += T[2][j]*F[ep2][j];
-      }  /*  j  */
-      hb[i][3] +=  x1;
-      hb[i][4] +=  y1;
-            
-   }  /* Close rock bolt displacement loop.  */
+         u2 += T[1][j]*F[ep2][j];
+         v2 += T[2][j]*F[ep2][j];
+      }
+      hb[i][12] = u2;
+      hb[i][13] = v2;
+      //replace
+      hb[i][3] +=  u2;
+      hb[i][4] +=  v2;
+
+      /* If we do this instead of accessing the array entries
+       * directly, we get something that is testable, and can 
+       * be used for testing pretension, etc.
+       */
+      //bolt_update_endpoints(hb[i],u1,v1,u2,v2);
+
+      /* This should be fired as a result of the previous 
+       * call to update the endpoints, so remove it from here.
+       */
+      bolt_set_length_a(hb[i]);
+      
+      bolt_set_pretension_a(hb[i]);
+
+   }  
+
+
 
   /* FIXME: This looks stupid.  There has to be a better way...
    */

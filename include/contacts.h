@@ -5,12 +5,18 @@
  * the DDA code.
  */
 
-#ifndef _CONTACTS_H_
-#define _CONTACTS_H_
+#ifndef __CONTACTS_H__
+#define __CONTACTS_H__
 
 
-//#include "geometrydata.h"
-//#include "analysisdata.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
 
 /* First pass is an array wrapper.  Later,
  * each contact will have its own struct.
@@ -32,5 +38,13 @@ int    ** get_previous_contacts(Contacts *);
 
 /* new stuff */
 void updateLockState(C *);
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
 
 #endif

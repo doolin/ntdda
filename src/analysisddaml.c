@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/05 22:36:24 $
+ * $Date: 2002/10/09 01:46:39 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  */
 
 #include <stdio.h>
@@ -114,7 +114,7 @@ transferJointMatlistToAStruct(Analysisdata * ad, JOINTMATLIST * jointmatlist)
    * of occurrence in xml file.  The type attribute is ignored
    * for now.
    */
-   M_dl_traverse(ptr, jointmatlist)
+   dlist_traverse(ptr, jointmatlist)
    {
       jmtmp = ptr->val;
       ad->phiCohesion[i+1][0] = jointmat_get_friction(jmtmp);//->fric;
@@ -147,7 +147,7 @@ transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
   /* WARNING: This assumes that load points are listed in order 
    * of occurrence in xml file.  
    */
-   M_dl_traverse(ptr, loadpointlist)
+   dlist_traverse(ptr, loadpointlist)
    {
       lptmp = ptr->val;
 		s1 = lptmp->loadpointsize1;
@@ -188,7 +188,7 @@ transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
    ad->boltmats = DoubMat2DGetMem(adata->boltmatsize1,adata->boltmatsize2);
 
 
-   M_dl_traverse(ptr, boltmatlist) {
+   dlist_traverse(ptr, boltmatlist) {
       bmtmp = ptr->val;
       boltmat_get_props(bmtmp,&e00,&t0,&f0);
       ad->boltmats[i][0] = e00;
@@ -222,7 +222,7 @@ transferBlockMatlistToAStruct(Analysisdata * ad, BLOCKMATLIST * blockmatlist)
    * of occurrence in xml file.  The type attribute is ignored
    * for now.
    */
-   M_dl_traverse(ptr, blockmatlist)
+   dlist_traverse(ptr, blockmatlist)
    {
       bmtmp = ptr->val;
       ad->materialProps[i+1][0] = bmtmp->dens;

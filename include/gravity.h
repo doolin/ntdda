@@ -6,8 +6,16 @@
  */
 
 
-#ifndef _GRAVITY_H_
-#define _GRAVITY_H_
+#ifndef __GRAVITY_H__
+#define __GRAVITY_H__
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
 
 
 /* Typedefs first.  The struct definition may later be 
@@ -80,4 +88,10 @@ struct _gravity_tag {
 
 };
 
+
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif  /* __GRAVITY_H__ */

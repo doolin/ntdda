@@ -279,15 +279,10 @@ void           gdata_rockbolt_init         (Geometrydata * gd,
 void           gdata_read_input_file       (Geometrydata *, 
                                             char * filename);
 
-/* This needs to be an interface function. */
-//Geometrydata * geometryInput(Geometrydata *, char *);
-//void geometryInput(Geometrydata *, char *);
-
-
-
 
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif /* __GEOMETRYDATA_H__ */

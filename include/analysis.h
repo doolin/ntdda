@@ -6,10 +6,22 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:28 $
+ * $Date: 2002/10/09 01:46:37 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  */
+
+#ifndef __ANALYSIS_H__
+#define __ANALYSIS_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
+
 
 #include "dda.h"
 #include "contacts.h"
@@ -321,3 +333,8 @@ int __v0size1, __v0size2;
 int __Usize1, __Usize2;
 int __nsize1, __nsize2;
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* __ANALYSIS_H__ */

@@ -27,23 +27,7 @@ extern "C" {
 
 
 typedef struct _analysisdata_tag Analysisdata;
-//typedef struct _thresholds_tag Thresholds;
 
-
-
-
-/** @todo Add some comments to this or delete it.
- */
-#if 0
-struct _thresholds_tag {
-   double spring;
-   double angle;
-   double delta_t;
-   double blockarea;
-   double strainenergy;
-   double kineticenergy;
-};
-#endif
 
 
 /* Holds data for a particular instance of an 

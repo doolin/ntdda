@@ -9,9 +9,9 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2002/10/09 01:46:39 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 
@@ -1482,18 +1482,18 @@ b102:;
    } /* i */
 
    
-  /* M_dl_traverse is a macro! */
-   if (gd->nSPoints > 0)
-   {
-      M_dl_traverse(ptr, gd->seispoints)
-      {
+   if (gd->nSPoints > 0) {
+
+      dlist_traverse(ptr, gd->seispoints) {
+
          int blocknumber;
          ptmp = ptr->val;
          x = ptmp->x;
          y = ptmp->y;
          blocknumber = crr(gd, x, y, vindex, q, vertices);
-         if (blocknumber != 0)
+         if (blocknumber != 0) {
             ptmp->blocknum = blocknumber;
+         }
          // else 
          // throw an error
       }

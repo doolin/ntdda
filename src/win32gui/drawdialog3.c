@@ -401,8 +401,8 @@ handlePaint(HWND hDlg)
    Joint * jtmp;
    //InvalidateRect(hDlg, NULL, TRUE); //test2 no work
    hdc = BeginPaint(hDlg, &ps );
-   M_dl_traverse(ptr, jointlist)
-   {
+   dlist_traverse(ptr, jointlist) {
+
         jtmp = ptr->val;
         redrawJoint(jtmp);          
    }
@@ -435,7 +435,7 @@ handleLButtonDown(HWND hDlg, LPARAM lParam)
        case selection:
              if (SendMessage(hDlg,WMU_GETSELECTSTATE,0,0)) 
              {
-              M_dl_traverse(ptr, jointlist)
+                dlist_traverse(ptr, jointlist)
                  {
                   jtmp = ptr->val;
                   if(closetoJoint(jtmp,ptBegin))
@@ -447,7 +447,7 @@ handleLButtonDown(HWND hDlg, LPARAM lParam)
              }
              else 
              {
-                 M_dl_traverse(ptr, jointlist)
+                 dlist_traverse(ptr, jointlist)
                  {
                     jtmp = ptr->val;
 					if (inBoundingBoxEP(jtmp,ptBegin)) {
@@ -783,7 +783,7 @@ drawJoints(HDC hdc)
 
   /* Draw joints stored in jointlist.
    */
-   M_dl_traverse(ptr, jointlist)
+   dlist_traverse(ptr, jointlist)
    {
       jtmp = ptr->val;
       color = jtmp->type;
@@ -967,7 +967,7 @@ freeJointList()
    DList * ptr;
    Joint * jtmp;
 
-   M_dl_traverse(ptr, jointlist)
+   dlist_traverse(ptr, jointlist)
    {
       jtmp = ptr->val;
       free(jtmp);
@@ -984,7 +984,7 @@ freePointList()
    DList * ptr;
    DPoint * ptmp;
 
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       free(ptmp);
@@ -1059,7 +1059,7 @@ drawPoints(HDC hdc)
 
   /* Draw points stored in pointlist.
    */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
 		SelectObject(hdc, drawPen[1]);
@@ -1127,7 +1127,7 @@ transferJointlistToGeomStruct(Geometrydata * gd,
 
   /* Draw joints stored in jointlist.
    */
-   M_dl_traverse(ptr, jointlist)
+   dlist_traverse(ptr, jointlist)
    {
       jtmp = ptr->val;
 
@@ -1173,7 +1173,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    * only storing one type at a time, and in the correct
    * order in the points array.  First up is FIXED:
    */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == 0)
@@ -1189,7 +1189,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    } 
   
   /* Now store LOAD points */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == 2)
@@ -1203,7 +1203,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    } 
 
   /* MEASURED points */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == 1)
@@ -1217,7 +1217,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    } 
 
   /* HOLE points */
-   M_dl_traverse(ptr, pointlist)
+   dlist_traverse(ptr, pointlist)
    {
       ptmp = ptr->val;
       if (ptmp->type == 3)

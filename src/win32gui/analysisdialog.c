@@ -4,14 +4,20 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:44 $
+ * $Date: 2002/10/09 01:46:41 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 #include <stdio.h>
 
 #include "analysisdlg.h"
+
+#include"winmain.h"
+#include"resource.h"
+#include<assert.h>
+#include <windows.h>
+
 #include "ddamemory.h"
 #include "ddaml.h"
 #include "joint.h"
