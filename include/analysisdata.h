@@ -9,7 +9,7 @@
 #include "graphics.h"
 #include "gravity.h"
 #include "timehistory.h"
-#include "error.h"
+#include "dda_error.h"
 
 
 typedef struct _analysisdata_tag Analysisdata;
