@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:20 $
+ * $Date: 2002/12/20 05:20:02 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.16 $
+ * $Revision: 1.17 $
  */
 
 #include <malloc.h>
@@ -793,20 +793,24 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
 	  // NOTE: blocks containing more than one meas pt will be written to the file multiple times
 	  // if verticesflag IS set to 1, the data for all blocks is written to these files
 	  // (see code in analysisdriver.c)
+
+mary: ;/* I am going to rewrite this later anyway. */
+#if 0
 	  if (!ad->verticesflag) {
 	     block = (int) gd->points[i][3];
-		 writeBlockVerticesLog(gd, ad->cts, block);
+		  writeBlockVerticesLog(gd, ad->cts, block);
 
-		 fseek(fp.vertexfile, vertexfp_pos[j], SEEK_SET);
-		 startindex = gd->vindex[block][1];
-		 stopindex = gd->vindex[block][2];
-		 fprintf(fp.vertexfile, "%10d %20e ", ad->cts, ad->elapsedTime);
-		 for(k=startindex; k<=stopindex; k++) {
+		  fseek(fp.vertexfile, vertexfp_pos[j], SEEK_SET);
+		  startindex = gd->vindex[block][1];
+		  stopindex = gd->vindex[block][2];
+		  fprintf(fp.vertexfile, "%10d %20e ", ad->cts, ad->elapsedTime);
+		  for(k=startindex; k<=stopindex; k++) {
           fprintf(fp.vertexfile, vformatstring, gd->vertices[k][1], gd->vertices[k][2]);
-		 } // end for k
-		 fprintf(fp.vertexfile, "\n");
-		 vertexfp_pos[j] = ftell(fp.vertexfile); 
+        } // end for k
+		  fprintf(fp.vertexfile, "\n");
+		  vertexfp_pos[j] = ftell(fp.vertexfile); 
 	  } // end if
+#endif
 
    }  /*  i,j  */
 

@@ -96,7 +96,6 @@ struct _analysisdata_tag {
    enum contactmethod {penalty, auglagrange} contactmethod;
    enum frictionlaw {tpmc = 0, negexp, voight, druckerprager, bartonjrc} frictionlaw; 
 
-   enum integrator {constant, newmark, symplectic} integrator;
    enum units {si, english} units;
    int fileformat; //  Should be an enum  {original, extended, ddaml} fileformat;
 

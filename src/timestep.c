@@ -23,28 +23,21 @@ static int __V0size1;
 static int __V0size2;
 double ** __V0;
 
-static int __Dsize1;
-static int __Dsize2;
-double ** __D;
-
-
 typedef struct _integrator Integrator;
 
 struct _integrator {
 
    FILE * logfile;
-
-   double ** a;
-
-
+   //double ** a;
 };
+
 
 /** This will get moved around a bit. */
 static Integrator * integrator;
 
 
 void
-massmatrix_write(double SX0[7][7], double a0, int blocknum) {
+massmatrix_write(double SX0[7][7], int blocknum) {
   
    int i,j;
    FILE * ofp = integrator->logfile;
@@ -60,7 +53,7 @@ massmatrix_write(double SX0[7][7], double a0, int blocknum) {
    fprintf(ofp,"M(%d:%d,%d:%d) = [\n",start,stop,start,stop);
    for (i=1; i<=6; i++) {
       for (j=1; j<=6; j++) {
-         fprintf(ofp,"%30.16f ", a0*SX0[i][j]);
+         fprintf(ofp,"%30.16e ", SX0[i][j]);
       }
       fprintf(ofp,"\n");
    }
@@ -91,7 +84,11 @@ integrator_delete(Integrator * i) {
 
    
 
-
+/**
+ * This needs to be changed to accomdate a general 
+ * newmark scheme.  Some of them are not self-starting
+ * like the DDA scheme.
+ */
 void
 initIntegrationArrays(Geometrydata * gd, Analysisdata * ad) {
 
@@ -102,17 +99,16 @@ initIntegrationArrays(Geometrydata * gd, Analysisdata * ad) {
 
    integrator = integrator_new();
 
-   __Dsize1=nBlocks+1;
-   __Dsize2=13;
-   __D = DoubMat2DGetMem(__Dsize1, __Dsize2);
-
    __V0size1=nBlocks+1;
    __V0size2=13;
    __V0 = DoubMat2DGetMem(__V0size1, __V0size2);
 
-   for (i=1; i<= nBlocks; i++)
-   {
+   for (i=1; i<= nBlocks; i++) {
+
       i1 = vindex[i][0];
+      /* If these were indexed to i+6, might be able to get 
+       * rid of a conditional in df11.
+       */
       __V0[i][1] = materialProps[i1][7]; /* v11 */
       __V0[i][2] = materialProps[i1][8]; /* v22 */
       __V0[i][3] = materialProps[i1][9]; /* vr */
@@ -143,10 +139,6 @@ freeIntegrationArrays() {
 
    if (__V0)
       free2DMat((void **)__V0, __V0size1);
-
-   if (__D)
-      free2DMat((void **)__D, __Dsize1);
-
 }
 
 
@@ -180,52 +172,49 @@ velocity_rotate(double * v, double r) {
 }
 
 
+/** 
+ * Update using the Bathe and Wilson procedure.
+ * 
+ * @todo Pass in the size of the arrays instead of hard
+ *  coding for size 6. 
+ */
 void
-newmark_update(double * u, double * v, double * a,
-               double a0, double a2, double a7) {
+newmark_update(double * u, double * v, double * a, int size,
+               double a0, double a2, double a3, double a6, double a7) {
 
-   int j;
+   int i;
+   int s = size;
 
-   for (j=1; j<=  6; j++) {
+   for (i=1; i<=size; i++) {
 
-      a[j+6] = a[j];
-      v[j+6] = v[j];
+      a[i+s] = a[i];
+      v[i+s] = v[i];
 
-     /*  Test newmark style updates... */
-     //__A0[i][j] = (2*U[i][j])/(pts*pts) - (2/pts)*__V0[i][j+6];
-      v[j] = a0*u[j] - a2*v[j+6];
-      v[j] = a[j+6] + a7*a[j];
-     /* FIXME: Save the previous values to use for 
-      * computing kinetic energy.
-      */
-     /* FIXME: Where are the values of U set? */
-      //__V0[i][j] = (2*U[i][j]/(pts))-__V0[i][j];
+      a[i] = a0*u[i] - a2*v[i+s] - a3*a[i+s];
+      v[i] = v[i+s]  + a6*a[i+s] + a7*a[i];
    }  
 }
+
 
 /**************************************************/
 /* df11: submatrix of inertia                     */
 /**************************************************/
-/* df11() appears to implement a forward difference 
+/* Implements a forward difference 
  * scheme outlined in the 1996 offprint from the 1st
  * Int. DDA Forum held in Berkeley, 1996.  The relevant
  * material is listed on pages 23-27.
  */
-void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
+void df11(double ** K, int analysisType, double h, int cts, int m9, 
+          int nBlocks, int *k1, double **F,
           double ** e0, double **moments, int **n, 
-          double ** U, MassMatrix massmatrix) {
+          double ** U, MassMatrix massmatrix,int lasttimestep) {
 
    int i, j, i1, i2, ji, l;
-  /* g6 g5 coefficients of mass and velocity matrix.
-   * See Eqs. 2.49 & 2.52, p. 81, Shi 1988.
-   */
-   //double g5;
-  /* No longer necessary */
-   //double g6;
+
   /* unit mass density, was o0 */
    double rho;
 
-  /* Mass matrix variables:  Eq. 2.57, p. 85,
+  /* Second moments for mass matrix:  Eq. 2.57, p. 85,
    * Chapter 2, Shi 1988.
    */
    double S0,S1,S2,S3;
@@ -236,102 +225,59 @@ void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
   /* SX0 is integrated moments matrix, Eq. 2.57, p. 85. (was TT). */
    double SX0[7][7] = {{0}};
 
-  /* nBlocks := number of blocks in analysis */
-   //int nBlocks = gd->nBlocks;
-
-  /* STATIC or DYNAMIC  defined in dda.h */
-   int analysisType = ad->analysistype;
-  /* Stiffness matrix */
-   double ** K = ad->K;
-  /* Delta t time step */
-   double ts = ad->delta_t;
-   int cts = ad->cts;
-
-  /* previous time step needed for updating. */
-   //static double pts;
-
-  /* (Delta t)^2, time step squared */
-   double tss;
+  /* h^2, time step squared */
+   double hh = h*h;
 
   /* Viscosity coefficient, GHS 1988 pp.86-88. */
    double mu;
+
   /* Convenience value for collecting density, viscosity etc. */
    double coef;
 
-   double alpha = .5;
-   double delta = 1.0;
-   double a0;
-   double a2;
-   double a7;
+   /* Bathe and Wilson is non-standard on Newmark parameters.
+    * Most others use beta <-> alpha and gamma <-> delta.
+    */
+   double alpha, delta;
+   double a0,a1,a2,a3,a4,a5,a6,a7;
 
-  /* Precompute the squared time step to save a few cycles */
-   tss = ts*ts;
+  /* The 0.5625 value comes from Wang et al. 1996. */
+   alpha = .5;
+   delta = 1.0;
 
-/* Try to get the newmark stuff running... */
-   a0 = 1.0/(alpha*tss);
-   a2 = 1.0/(alpha*ts);
-   a7 = delta*ts;
-
-  /* Update velocity for load vector.  Eventually want to move 
-   * this into a inner loop.  FIXME: The behavior of the 
-   * flag `k00' needs to be completely documented.
-   * FIXME: Why is this handled at time steps larger than 1?
-   * The initial velocity should be used at time step 1, even 
-   * if the initial velocity is zero.
+  /* Newmark coefficients.  See Bathe and Wilson 1976, 
+   * p. 323 for details. 
    */
-  /* k00 = 0 means we haven't yet done a linear solve for the 
-   * system.
+   a0 = 1.0/(alpha*hh);
+   a1 = delta/(alpha*h);
+   a2 = 1.0/(alpha*h);
+   a3 = (1.0/(2*alpha)) - 1.0;
+   a4 = (delta/alpha) - 1.0;
+   a5 = (h/2.0)*( (delta/alpha) - 2.0 );
+   a6 = h*(1.0-delta);
+   a7 = delta*h;
+
+
+  /* Update velocity for load vector.  
+   * 
+   * @todo Figure out how to make the conditional 
+   *  expression redundant, then move this block into 
+   *  the next loop.  Probably should load up initial 
+   *  velocities so that this code can be called at the 
+   *  first time step.
    */
-   //if (currTimeStep > 1 && ad->k00 == 0) 
-   if (cts > 1 && ad->m9 == 0) {
+   if (cts > 1 && m9 == 0) {
 
       for (i=1; i<= nBlocks; i++) {
          
-         //newmark_update(U[i],__V0[i],__A0[i],a0,a2,a7);
-#if 1
-         for (j=1; j<=  6; j++) {
-
-            __A0[i][j+6] = __A0[i][j];
-            __V0[i][j+6] = __V0[i][j];
-
-            /*  Test newmark style updates... */
-            //__A0[i][j] = (2*U[i][j])/(pts*pts) - (2/pts)*__V0[i][j+6];
-            __A0[i][j] = a0*U[i][j]  - a2*__V0[i][j+6];
-            __V0[i][j] = __V0[i][j+6] + a7*__A0[i][j];
-           /* FIXME: Save the previous values to use for 
-            * computing kinetic energy.
-            */
-           /* FIXME: Where are the values of U set?
-            */
-            //__V0[i][j] = (2*U[i][j]/(pts))-__V0[i][j];
-         }  
-#endif
-
-         if (0) {
-            velocity_rotate(__V0[i], U[i][3]);
-         }            
-
+         newmark_update(U[i],__V0[i],__A0[i],6,a0,a2,a3,a6,a7);            
       }  
    }
 
 
-#if 0
-  /* g6 g5 coefficients of mass and velocity matrix */
-   if ( (analysisType == STATIC) || (ad->gravityflag == TRUE) ) { 
-      g5 = 0;  // redundant
-   } else { 
-      g5=2.0/(ts); 
-   }
-   //g6=2.0/(tss);
-#endif
-
-  /*  inertia terms                                 */
-  /* g5: only difference of statics and dynamics    */
-  /* g6: inertia coefficient                        */
    for (i=1; i<= nBlocks; i++) {
 
       rho = e0[i][0];  // density
-      mu  = e0[i][8];   // damping
+      mu  = e0[i][8];  // damping
 
      /* (GHS: zero terms of mass matrix)  */
       memset(SX0,0x0,sizeof(SX0));
@@ -354,8 +300,8 @@ void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
       * time step.
       */
       if (cts == 1) {
-      //if (cts == ad->nTimeSteps) {
-        massmatrix_write(SX0,a0,i);  
+      //if (cts == lasttimestep) {
+        massmatrix_write(SX0,i);  
       }
 
      /* Compute the kinetic energy. */
@@ -372,7 +318,7 @@ void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
      /* The default value of mu is zero (mu=0). If it is 
       * nonzero, it will be set in the ddaml input file.
       */
-      coef = 1; //2*( (mu/ts) + (rho/tss) );
+      coef = 1; //2*( (mu/h) + (rho/hh) );
       
       for (j=1; j<= 6; j++) {
          for (l=1; l<= 6; l++) {
@@ -386,7 +332,7 @@ void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
      /* FIXME: If we are running a static analysis,
       * is there any need to update accumulate here?
       */
-      if (analysisType == STATIC || ad->gravityflag == TRUE) {
+      if (analysisType == STATIC) {
          continue;
       }
 
@@ -400,258 +346,37 @@ void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
             */
             /* FIXME: Need to add viscous damping here? */
             //F[i1][j] += g5*rho*TT[j][l]*__V0[i][l];
-            F[i1][j] += SX0[j][l]*(a2*__V0[i][l]);
+            //F[i1][j] += SX0[j][l]*(a2*__V0[i][l]);
+            F[i1][j] += SX0[j][l]*(a2*__V0[i][l] + a3*__A0[i][l]);
          } 
       }  
-
-   }  /* i end loop over each block */
-
-
-  /* Here is where we want to set the previous time 
-   * step variable, but only for each time step in 
-   * time, not each change in time step value.  This is 
-   * because Delta t may change during a time step.
-   */
-   //pts = ad->delta_t;
-
+   }
 }
 
 
-/**
- * @brief An implementation of the Newmark algorithm using Bathe's
- * notation.
- *
- * @bugs This does not work, probably because Bathe does not do an 
- *       incremental update like DDA does.
- * @todo Derive a Newmark variant that assumes that the displacements 
- *       are incrementally updated.
- * @todo Incorporate viscous damping similarly to the ghs integration.
- */
-void
-newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
-          double **matprops, double **moments, int **n, double ** U,
 
-          MassMatrix massmatrix)
-{
-  /* Loop counters, etc. FIXME: explain i1. */
-   int i, j, i1, i2, ji, l;
-  /* Newmark parameters.  See Bathe and Wilson, p. 323. */
-  /* displacement weight */
-   double alpha = .25;
-  /* velocity weight */
-   double delta = .5;
-  /* Hilber-Hughes-Taylor alpha */
-   //double hht = 0.0;
-  /* Newmark coefficients.  See Bathe and Wilson 1976, 
-   * pp. 322-326 for details.  c is current parameter,
-   * that is, calculated going forward, p is for previous,
-   * which we need for updating.
-   */
-   double a0c, a1c, a2c,a3c,a4c,a5c,a6c,a7c;
-   //static double a0p, a1p, a2p,a3p,a4p,a5p,a6p,a7p;
-  /* unit mass density, was o0 */
-   double rho;
-  /* Mass matrix variables:  Eq. 2.57, p. 85,
-   * Chapter 2, Shi 1988.
-   */
-   double S0,S1,S2,S3;
-  /* x and y coordinates of centroid for each block */
-   double x0, y0;
-  /* TT is integrated moments matrix, Eq. 2.57, p. 85 */
-   double TT[7][7] = {{0}};
-  /* nBlocks := number of blocks in analysis */
-   int nBlocks = gd->nBlocks;
+void
+timeintegration(Geometrydata * gd, Analysisdata * ad,
+                double ** matprops, int * k1, int ** n,
+                double ** U,
+                MassMatrix massmatrix) {
+
+   double ** F = ad->F;
+   double ** moments = gd->moments;
+
   /* STATIC or DYNAMIC  defined in dda.h */
-   int analysistype = ad->analysistype;
+   int analysisType = ad->analysistype;
   /* Stiffness matrix */
    double ** K = ad->K;
   /* Delta t time step */
    double ts = ad->delta_t;
    int cts = ad->cts;
-  /* (Delta t)^2, time step squared */
-   double tss;
+   int m9 = ad->m9;
 
-  /* Precompute the squared time step to save a few cycles */
-   tss = ts*ts;
-
-  /* Newmark coefficients.  See Bathe and Wilson 1976, 
-   * p. 323 for details. 
-   */
-   a0c = 1.0/(alpha*tss);
-   a1c = delta/(alpha*ts);
-   a2c = 1.0/(alpha*ts);
-   a3c = (1.0/(2*alpha)) - 1.0;
-   a4c = (delta/alpha) - 1.0;
-   a5c = (ts/2.0)*( (delta/alpha) - 2.0 );
-   a6c = ts*(1.0-delta);
-   a7c = delta*ts;
-
-  /* For now, update all of the load vectors outside 
-   * of the accumulation loops.  Later, these need to 
-   * be put into the loops.  We have to use values computed
-   * from the previous time step to update properly.
-   */
-  /* Update velocity for load vector.  Eventually want to move 
-   * this into a inner loop.  FIXME: The behavior of the 
-   * flag `k00' needs to be completely documented.
-   */
-   //print2DArray(__A0, __A0size1, __A0size2, fp.logfile, "__A0 from newmark");
-   //print2DArray(__V0, __V0size1, __V0size2, fp.logfile, "__V0 from newmark");
-
-   //if ( (currTimeStep > 1) )//  && (ad->k00 == 0) ) 
-   if ( (cts > 1)  && (ad->m9 == 0) ) 
-   {
-      for (i=1; i<= nBlocks; i++)
-      {      
-         for (j=1; j<=  6; j++)
-         {
-            __A0[i][j+6] = __A0[i][j];
-            __V0[i][j+6] = __V0[i][j];
-            /** U[i][j+6] is "previous" displacement.  In DDA, the displacements 
-             * are updated incrementally, with initial displacements handled as
-             * constraints using penalty functions when necessary.  Part of the 
-             * reason this function may not have ever worked is that the newmark
-             * algorithm given in Bathe is _not_ an incremental update.  It builds
-             * the displacement vector as a function of time.  To make this work,
-             * it might be as little as eliminating the U[i][j+6] from the 
-             * following update for new acceleration.
-             */
-            //__A0[i][j] = a0p*(U[i][j] - U[i][j+6]) - (a2p*__V0[i][j]) - (a3p*__A0[i][j+6]);
-            __A0[i][j] = a0c*(U[i][j]) - (a2c*__V0[i][j+6]) - (a3c*__A0[i][j+6]);
-            __V0[i][j] = __V0[i][j+6] + ( (a6c*__A0[i][j+6]) + (a7c*__A0[i][j]));
-         }  
-      }  
-   }
-  
-  /*  inertia terms                                 */
-  /* g5: only difference of statics and dynamics    */
-  /* g6: inertia coefficient                        */
-   for (i=1; i<= nBlocks; i++)
-   {
-      rho=matprops[i][0];
-
-     /* (GHS: zero terms of mass matrix)  */
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {
-            TT[j][l]=0;
-         }  /*  l  */
-      }  /*  j  */
-      
-     /* (GHS: non-zero terms of mass matrix)  */
-     /* Compute centroids.   These are also computed in 
-      * the time step function. 
-      */
-      x0=moments[i][2]/moments[i][1];  // x0 := x centroid
-      y0=moments[i][3]/moments[i][1];  // y0 := y centroid
-
-     /* S1, S2, S3 result from integrals derived on 
-      * pp. 83-84, Chapter 2, Shi 1988.
-      */
-      S0 = moments[i][1];  
-
-      S1 = moments[i][4]-x0*moments[i][2];
-      S2 = moments[i][5]-y0*moments[i][3];
-      S3 = moments[i][6]-x0*moments[i][3];
-
-
-      massmatrix(TT,1,S0,S1,S2,S3);
-
-
-
-     /* (GHS: add mass matrix to a[][]) */
-     /* k1 stores "permutation index",
-      * n stores location of memory in 
-      * stiffness matrix and force vector.
-      */
-      i1=k1[i];
-      i2=n[i1][1]+n[i1][2]-1;
-     
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {
-            ji=6*(j-1)+l;
-            K[i2][ji] += a0c*rho*TT[j][l];//  + hht*(K[i2][ji]*__D[i][l]);
-         }  /*  l  */
-      }  /*  j  */
-
-     /* (GHS: add velocity matrix to f[]) */
-     /* No need to accumulate velocity terms for 
-      * a static analysis.
-      */
-      if (analysistype == STATIC || ad->gravityflag == TRUE)
-         continue;
-
-
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {
-           /* Velocity component of load vector is a
-            * matrix-vector product.  BLAS call is DGEMV.
-            */
-            ji=6*(j-1)+l;
-//            F[i1][j] += rho*TT[j][l]*(a2c*__V0[i][l+6] + a3c*__A0[i][l+6]) - hht*(K[i2][ji]*__D[i][l]);
-            F[i1][j] += rho*TT[j][l]*(a2c*__V0[i][l] + a3c*__A0[i][l]);// - hht*(K[i2][ji]*__D[i][l]);
-         }  /*  l  */
-      }  /*  j  */
-
-   }  /*  i end loop over each block */
-
-  /* Save the current parameters to use for updating
-   * next time through this loop.
-   */
-   //a0p=a0c;a1p=a1c;a2p=a2c;a3p=a3c;a4p=a4c;
-   //a5p=a5c;a6p=a6c;a7p=a7c;
-
-}  /* close newmark() */
-
-
-/**
- * @warning Only the GHS integrator works.
- * @todo Move the GData->moments dereference into 
- * the relevant functions.
- */
-void
-timeintegration(Geometrydata * GData, Analysisdata * AData,
-                double ** matprops, int * k1, /*double ** moments, */ int ** n,
-                double ** U,
-                MassMatrix massmatrix) {
-
-   double ** F = AData->F;
-   //clock_t start, stop;
-   double ** moments = GData->moments;
-
-   //start = clock();
-
-  /* submatrix of inertia */
-  /* df11() works by forward difference as derived in 
-   * offprint of 1st Int DDA Forum, Berkeley, 1996,
-   * pp. 23-27.
-   */
-   //AData->integrator = newmark;
-   switch (AData->integrator)
-   {
-      case constant:
-         df11(AData,GData->nBlocks,k1,F,matprops,moments,n,U,massmatrix);
-         break;
-
-     /* Newmark is from Bathe and Wilson, pp. 322-326, 1976. */
-      case newmark:
-         newmarkIntegration(GData, AData,k1,F,matprops,moments,n,U,massmatrix);
-         break;
-  
-      default:
-        /* Do something bad here */
-         break;
-   }
-   
-   //stop = clock();
-   //DLog->integration_runtime += stop - start;
-
+   df11(K,analysisType,ts,cts,m9,gd->nBlocks,k1,F,matprops,
+        moments,n,U,massmatrix,ad->nTimeSteps);
 } 
+
 
 /**************************************************/
 /* step: compute next time interval          0006 */

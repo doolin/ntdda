@@ -507,7 +507,6 @@ adata_new() {
    */
    //AData->contactmethod = auglagrange; 
    ado->contactmethod = penalty; 
-   ado->integrator = constant;
   /* TODO: Set this from the xml file at least. */
    ado->tsSaveInterval = 1;
    ado->frictionlaw = tpmc;

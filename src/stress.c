@@ -120,7 +120,7 @@ strain_linear_elastic(double * D, double strain[4]) {
 
 /** Assume that D carries elements of the tangent map.
  *
- * @param D carrying F1, F3, F2, F4.  This is column oriented.
+ * @param D carrying D11, D12, D21, D22.
  *
  * @return strains in last argument
  *

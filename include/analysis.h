@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/28 13:46:57 $
+ * $Date: 2002/12/20 05:20:01 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -235,22 +235,6 @@ void timeintegration(Geometrydata * GData,
                      double ** U, 
                      MassMatrix massmatrix);
 
-
-
-
-/** @todo  See if the df11() function takes care of 
- * all the parameter changes.  If so, this function 
- * should be changed to do an explicit integration.
- */
-void newmarkIntegration(Geometrydata *gd, 
-                        Analysisdata *ad, 
-                        int *k1, 
-                        double **F,
-                        double **matprops, 
-                        double **moments, 
-                        int **n, 
-                        double ** U,
-                        MassMatrix massmatrix);
 
 
 void postProcess(Geometrydata * GData, Analysisdata * AData);

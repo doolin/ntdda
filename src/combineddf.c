@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/11/26 13:13:35 $
+ * $Date: 2002/12/20 05:20:02 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.47 $
+ * $Revision: 1.48 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.48  2002/12/20 05:20:02  doolin
+ * Catch up commit.
+ *
  * Revision 1.47  2002/11/26 13:13:35  doolin
  * Added code to write out mass matrix for use in
  * computing spectrum.
@@ -2747,11 +2750,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    double avgarea;
 
 
-   /* This is for keeping track of displacements */
-   extern double ** __D;
-
-
-
   /* (GHS: change to new deformed block shape  u[][] df24) */
   /* In df24(), U gets over-written with vertex locations 
    * updated at the end of each open-close time step.  Here
@@ -2778,14 +2776,13 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    * need a copy of the displacements, as well as a copy of the
    * vertex updates.  
    */
-   for (i=1; i<= nBlocks; i++)
-   {
+   for (i=1; i<= nBlocks; i++) {
+
       i1=k1[i];
-      for (j=1; j<=  6; j++)
-      {
+      for (j=1; j<=  6; j++) {
+
          U[i][j+6] = U[i][j];
          U[i][j] = F[i1][j];
-         __D[i][j] = F[i1][j];
       } 
    }  
 

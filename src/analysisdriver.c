@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.40  2002/12/20 05:20:02  doolin
+ * Catch up commit.
+ *
  * Revision 1.39  2002/11/30 18:52:45  doolin
  * minor cleanup.
  *
@@ -354,19 +357,19 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
  * compile control because I want to deal with it asap.  And 
  * I want to get rid of compilecontrol asap.
  */
-   adata_set_output_flag(AData, VERTICES);
-   adata_set_output_flag(AData, FIXEDPOINTS);
+   //adata_set_output_flag(AData, VERTICES);
+   //adata_set_output_flag(AData, FIXEDPOINTS);
    adata_set_output_flag(AData, MEASPOINTS);
-   adata_set_output_flag(AData, SOLUTIONVECTOR);
+   //adata_set_output_flag(AData, SOLUTIONVECTOR);
    //adata_set_output_flag(AData, BLOCKSTRESSES);
-   adata_set_output_flag(AData, PENALTYFORCES);
-   adata_set_output_flag(AData, FRICTIONFORCES);
-   adata_set_output_flag(AData, BOLTS);
+   //adata_set_output_flag(AData, PENALTYFORCES);
+   //adata_set_output_flag(AData, FRICTIONFORCES);
+   //adata_set_output_flag(AData, BOLTS);
   /* FIXME: This is a horrible bogosity: moments need to 
    * be written from the geometry data, not the analysis
    * data.  
    */
-   adata_set_output_flag(AData, MOMENTS);
+   //adata_set_output_flag(AData, MOMENTS);
 
   /* Allocating arrays in a function removes lots of superfluous
    * code.  Most of this function will disappear in the future.
@@ -513,8 +516,8 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
  * here before the eigenvalues are found.
  */
 #if 1
-   //if ((AData->cts == AData->nTimeSteps) && (AData->m9 == 0)) {
    if ((AData->cts == 1) && (AData->m9 == 0)) {
+   //if ((AData->cts == AData->nTimeSteps) && (AData->m9 == 0)) {
 
       writeMFile(AData->K, AData->Fcopy, AData->F, kk, k1, n, GData->nBlocks);
       //printK(AData->K, AData->ksize1, "Analysis driver");
@@ -603,6 +606,8 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
       */
      /* FIXME: The function has a bottleneck in it somewhere
       * which slows down the initial time step tremendously.
+      * I think it is writing out vertices also, which 
+      * makes everything really slow.
       */
       if (AData->options & MEASPOINTS) {
          writeMeasuredPoints(GData, AData);
@@ -625,12 +630,14 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 	     writeBoltMatrix(GData, AData);
       }  
 
-	  if (AData->options & VERTICES && AData->verticesflag) {
-	   for (counter = 1; counter <= GData->nBlocks; counter++) {
-			writeBlockVerticesLog(GData, AData->cts, counter);
-	   } // end for
-	   writeAllBlockVerticesMatrix(GData, AData);
-	   }  // end if
+#if 0
+	   if (AData->options & VERTICES && AData->verticesflag) {
+	      for (counter = 1; counter <= GData->nBlocks; counter++) {
+			   writeBlockVerticesLog(GData, AData->cts, counter);
+         }
+	      writeAllBlockVerticesMatrix(GData, AData);
+	   }  
+#endif
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1) {

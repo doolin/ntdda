@@ -16,8 +16,6 @@
 #include "constants.h"
 
 
-/* Just a test... */
-//static DDAPoint p;
 
 
 static char mess[80];

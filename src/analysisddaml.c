@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/31 15:35:02 $
+ * $Date: 2002/12/20 05:20:02 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.23 $
+ * $Revision: 1.24 $
  */
 
 #include <stdio.h>
@@ -879,6 +879,7 @@ parseWritevertices(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    else { 
       adata->verticesflag = 0;
    } // end if
+
 
    fprintf(stdout,"verticesflag: %d\n\n", adata->verticesflag);
 
