@@ -28,8 +28,7 @@ typedef int (*PrintFunc)(void * stream,const char * format,...);
 
 
 #ifndef TRANSMAPFUNC
-typedef void (*TransMap)(double ** moments, double T[7][7], double x, 
-                         double y, int i0);
+typedef void (*TransMap)(double * moments, double T[7][7], double x, double y);
 #define TRANSMAPFUNC
 #endif
 

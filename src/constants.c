@@ -69,6 +69,15 @@ constants_new_defaults(void) {
 
 }
 
+
+
+void
+constants_validate(Constants * c) {
+
+
+}
+
+
 void
 constants_delete(Constants * c) {
 
@@ -342,7 +351,7 @@ constants_print_xml(Constants * constants, PrintFunc printer, void * stream) {
 
    printer(stream,I1"<AConstants>\n");
    printer(stream,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
-   printer(stream,I2"<Opencriteria value=\"%f\"/>\n",constants->opencriteria);
+   printer(stream,I2"<Opencriteria value=\"%.10f\"/>\n",constants->opencriteria);
    printer(stream,I2"<NormSpringPen value=\"%f\"/>\n",constants->norm_spring_pen);
    printer(stream,I2"<AngleOverlap value=\"%f\"/>\n",constants->angle_olap);
    printer(stream,I2"<ShearNormRatio value=\"%f\"/>\n",constants->shear_norm_ratio);

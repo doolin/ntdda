@@ -25,11 +25,19 @@ extern "C" {
 typedef int  (*PrintFunc)(void *, const char *, ...);
 #endif
 
+
+
 typedef struct _constants Constants;
 
 
 Constants * constants_new                   (void);
+
+Constants * constants_new_defaults          (void);
+
+void        constants_validate              (Constants * c);
+
 Constants * constants_clone                 (Constants * c);
+
 void        constants_delete                (Constants * c);
 
 
@@ -52,6 +60,7 @@ void        constants_set_w0                (Constants * c,
                                              double w0);
 
 
+//hardwired to 2.5
 double      constants_get_shear_norm_ratio  (Constants * c);
 void        constants_set_shear_norm_ratio  (Constants * c,
                                              double shear_norm_ratio);
@@ -78,7 +87,7 @@ double      constants_get_angle_olap        (Constants * c);
 void        constants_set_angle_olap        (Constants * c,
                                              double angle_olap);
 
-
+/** New constant, used in proj. */
 double      constants_get_min_refline_factor(Constants * c);
 void        constants_set_min_refline_factor(Constants * c,
                                              double min_refline_factor);

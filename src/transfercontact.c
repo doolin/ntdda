@@ -21,8 +21,9 @@
 /**************************************************/
 void df06(Geometrydata *bd, Analysisdata *ad, int **contacts, int **locks, 
           int **prevcontacts, int **c_index, double **c_length, int *kk, 
-          int *k3, int * nn0)
-{
+          int *k3, int * nn0) {
+
+
    int contact;  // was i
    int block;  // was i
    int  prevctact;  // number of previous contacts

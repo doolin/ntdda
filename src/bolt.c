@@ -5,6 +5,9 @@
 #include <math.h>
 #include <assert.h>
 
+
+/** This should probably go into ddatypes.h */
+#include "functions.h"
 #include "bolt.h"
 #include "ddadlist.h"
 
@@ -343,7 +346,7 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
       * of a particular rockbolt.
       */
       ep1 = (int)rockbolt[bolt][5];
-      transmap(blockArea, T, x,  y, ep1);
+      transmap(blockArea[ep1], T, x,  y);
 
       bolt_get_dir_cosine_a(rockbolt[bolt],&lx,&ly);
 
@@ -359,7 +362,7 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
       * endpoint of a particular rockbolt.
       */
       ep2 = (int)rockbolt[bolt][6];
-      transmap(blockArea, T, x,  y, ep2);
+      transmap(blockArea[ep2], T, x,  y);
 
      /* Do the inner product to construct Gj:
       * $G_j = [T_j]^T\cdot \ell$. 
@@ -488,7 +491,7 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
       ep1 = (int)bolts[i][5];
       x = bolts[i][1];
       y = bolts[i][2];
-	   transmap(moments,T,x,y,ep1);
+	   transmap(moments[ep1],T,x,y);
 
       transapply(T,F[ep1],&u1,&v1);
 
@@ -506,7 +509,7 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
       y = bolts[i][4];
 	   u2=0;
 	   v2=0;
-	   transmap(moments,T,x,y,ep1);
+	   transmap(moments[ep2],T,x,y);
 
       transapply(T,F[ep2],&u2,&v2);
 
