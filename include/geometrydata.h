@@ -263,6 +263,7 @@ int            gdata_get_block_number      (Geometrydata * gd,
 double         gdata_compute_moments       (Geometrydata * gd); 
 
 
+void           gdata_vertex_init           (Geometrydata * gd);
 
 
 void           gdata_get_centroid          (double * moments, 

@@ -26,8 +26,37 @@ typedef struct _contacts Contacts;
 /* Struct for each contact. Not currently used. */
 typedef struct _C C;
 
-Contacts * getNewContacts(int nblocks);
-void * freeContacts(Contacts *);
+Contacts * contacts_new            (int nblocks);
+
+void       contacts_delete         (Contacts *);
+
+
+double     compute_length          (const double x1, 
+                                    const double y1, 
+                                    const double x2, 
+                                    const double y2);
+
+double     compute_length_squared  (const double x1, 
+                                    const double y1, 
+                                    const double x2, 
+                                    const double y2);
+
+
+void       contacts_compute_bboxen (double ** bbox_c0,
+                                    double ** vertices, 
+                                    int numblocks, 
+                                    int ** vindex);
+
+
+int        contacts_bbox_overlap   (double ** bbox_c0, 
+                                    int ii, 
+                                    int jj, 
+                                    double d0);
+
+
+
+
+void updateLockState(C *);
 
 int    ** get_locks(Contacts *);
 int    ** get_contacts(Contacts *);
@@ -36,15 +65,9 @@ double ** get_contact_lengths(Contacts *);
 int    ** get_previous_contacts(Contacts *);
 
 
-/* new stuff */
-void updateLockState(C *);
-
-
-
 #ifdef __cplusplus
 }
 #endif
 
 
-
-#endif
+#endif  /* __CONTACTS_H__ */

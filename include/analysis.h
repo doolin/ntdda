@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:16 $
+ * $Date: 2002/10/28 13:46:57 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.21 $
+ * $Revision: 1.22 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -262,7 +262,6 @@ void initdf08(int ** n,int * kk,int nBlocks);
 
 
 
-void vertexInit(Geometrydata *);
 
 void blockNumberOfVertex(Geometrydata *);
 void savePreviousContacts(Geometrydata *, Analysisdata *,int **, int **, int **, double **);

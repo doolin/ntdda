@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "constants.h"
 
@@ -47,12 +48,26 @@ constants_new(void) {
    Constants * constants;
 
    constants = (Constants *)malloc(sizeof(Constants));
+#if _DEBUG
    memset((void*)constants,0xda,(size_t)sizeof(Constants));
-
+#endif
    return constants;
 
 }
 
+Constants *
+constants_new_defaults(void) {
+
+   Constants * constants;
+
+   constants = (Constants *)malloc(sizeof(Constants));
+#if _DEBUG
+   memset((void*)constants,0xda,(size_t)sizeof(Constants));
+#endif
+
+   return constants;
+
+}
 
 void
 constants_delete(Constants * c) {
@@ -199,8 +214,11 @@ constants_display_warning(const char * warning) {
 void
 constants_set_defaults(Constants * c) {
 
-
-
+   c->openclose =  .0002;  /* s0 = .0002  */
+   c->opencriteria = .0000002;  /* f0 = .0000002;  */
+   c->norm_spring_pen = .0004;//g3 = .0004;   /* g3 = .0004;  */
+   c->angle_olap = 3;   /* h1 = 3; */
+   c->shear_norm_ratio = 2.5;  /* h2 = 2.5; */   
 }
 
 
@@ -237,14 +255,14 @@ constants_init(Constants * constants, double maxdisplacement) {
   /* FIXME: This is the wrong place to initialize this value. */
    //ad->FPointSpring = ad->contactpenalty;
 
-//assert(ad->constants != NULL);
+   assert(constants != NULL);
 
-   if (constants == NULL) {
+   //if (constants == NULL) {
 
       //ad->constants = (CONSTANTS *)malloc(sizeof(CONSTANTS));
       //memset((void*)ad->constants,0xda,(size_t)sizeof(CONSTANTS));
 
-      constants = constants_new();
+      //constants = constants_new();
 
      /* The call to cons() just sets the value of some 
       * constants that would be better set in this 
@@ -262,20 +280,19 @@ constants_init(Constants * constants, double maxdisplacement) {
      /* d9 : normal penetration distance for contact   */
      /* h1 : angle overlapping degrees   for contact   */
      /* h2 : ratio for shear spring versus normal one  */
-      constants->openclose =  .0002;  /* s0 = .0002  */
-      constants->opencriteria = .0000002;  /* f0 = .0000002;  */
-      g3 = constants->norm_spring_pen = .0004;
+      //constants->openclose =  .0002;  /* s0 = .0002  */
+      //constants->opencriteria = .0000002;  /* f0 = .0000002;  */
+      //g3 = constants->norm_spring_pen = .0004;
       //g3 = .0004;   /* g3 = .0004;  */
-      constants->angle_olap = 3;   /* h1 = 3; */
-      constants->shear_norm_ratio = 2.5;  /* h2 = 2.5; */   
-   } 
-   else
-   { 
+      //constants->angle_olap = 3;   /* h1 = 3; */
+      //constants->shear_norm_ratio = 2.5;  /* h2 = 2.5; */   
+   //} 
+   //else
+   //{ 
       //char mess[80];
-      g3 = constants->norm_spring_pen;
       //sprintf(mess,"g3: %f, w0: %f",g3, ad->constants->w0);
       //iface->displaymessage(mess);
-   }
+   //}
 
   /* g2 is described in the manual as the maximum allowable 
    *  displacement ratio, recommended between 0.001-0.01.
@@ -292,6 +309,8 @@ constants_init(Constants * constants, double maxdisplacement) {
    */
    d0 = constants->norm_extern_dist = 2.5*(constants->w0)*(maxdisplacement);
    //d0 = ad->constants->norm_extern_dist = 2.0*(ad->constants->w0)*(ad->maxdisplacement);
+      
+   g3 = constants->norm_spring_pen;
 
    d9 = constants->norm_pen_dist = 0.3*d0;
 

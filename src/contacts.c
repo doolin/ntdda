@@ -180,6 +180,126 @@ get_previous_contacts(Contacts * c)
 }  /* close get_previous_contacts() */
 
 
+
+/** d0 is contact distance parameter derived from a 
+ * user controlled value read from the analysis input 
+ * file (g2), and initialized in the "initializeStuff"
+ * function.  c0 appears to be a square that completely 
+ * encloses each block.  The following 4 lines appear to 
+ * implement determination of contact by distance
+ * given by Equation 4.3 in Shi, 1993, p. 82.  
+ * Basically, if the bounding boxes of blocks i and j
+ * do not overlap, no contact, check next block.
+ *
+ * @param d0 the maximum displacement possible for a given 
+ *  time step and velocity.
+ *
+ * @return 1 if there is an overlap, 0 if no overlap.
+ *
+ */
+int 
+contacts_bbox_overlap(double ** bbox_c0, int ii, int jj, double d0) {
+
+  /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
+  /* (GHS: c0[][] xl xu yl yu)   */
+
+  /* xu_i < xl_j */
+   if (bbox_c0[ii][2]+d0 < bbox_c0[jj][1]) { 
+      return 0; 
+   }
+
+  /* xu_j < xl_i */   
+   if (bbox_c0[jj][2]+d0 < bbox_c0[ii][1]) { 
+      return 0; 
+   }
+
+  /* yu_i < yl_j */
+   if (bbox_c0[ii][4]+d0 < bbox_c0[jj][3]) {
+      return 0; 
+   }
+
+  /* yu_j < yl_i */
+   if (bbox_c0[jj][4]+d0 < bbox_c0[ii][3]) {
+      return 0;   
+   }
+
+   return 1;  /** overlaps */
+
+}
+
+/* (GHS: c0[][] xl xu yl yu)   */
+/* What c0 does is find a box that 
+ * completely encloses each block.  This is used
+ * in conjunction with the next block of code to 
+ * determine whether 2 blocks are close enough to 
+ * investigate a contact relationship.
+ */
+/** FIXME: Write a unit test for this. */
+void
+contacts_compute_bboxen(double ** bbox_c0,double ** vertices, 
+                        int numblocks, int ** vindex) {
+
+   int i,j;
+   int startIndex, stopIndex;
+
+   for (i=1; i<=numblocks; i++) {
+
+      startIndex = vindex[i][1];
+      stopIndex  = vindex[i][2];
+ 
+      bbox_c0[i][1] = vertices[startIndex][1];
+      bbox_c0[i][2] = vertices[startIndex][1];
+      bbox_c0[i][3] = vertices[startIndex][2];
+      bbox_c0[i][4] = vertices[startIndex][2];
+
+     /* j is probably a vertex counter. */
+      for (j=startIndex; j<= stopIndex; j++) { 
+         
+        /* (GHS: c0[][] xl xu yl yu)   */
+        /* find lower x */
+         if (bbox_c0[i][1] > vertices[j][1]) {
+            bbox_c0[i][1] = vertices[j][1];
+         }
+
+        /* find upper x */
+         if (bbox_c0[i][2] < vertices[j][1]) {
+            bbox_c0[i][2] = vertices[j][1];
+         }
+
+        /* find lower y */
+         if (bbox_c0[i][3] > vertices[j][2]) {
+            bbox_c0[i][3] = vertices[j][2];
+         }
+
+        /* find upper y */
+         if (bbox_c0[i][4] < vertices[j][2]) {
+            bbox_c0[i][4] = vertices[j][2];
+         }
+      } 
+   }  
+}
+
+
+
+
+/** These two functions probably need to go somewhere else. 
+ * Move 'em into utils after that gets cleaned up.
+ */
+double
+compute_length(const double x1, const double y1, const double x2, const double y2) {
+
+   return sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+}
+
+double
+compute_length_squared(const double x1, const double y1, const double x2, const double y2) {
+
+   return ((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+}
+
+
+
+
 /*********  PRIVATE Methods **************/
 
 static void init_contacts(Contacts * c, int nblocks)
@@ -264,7 +384,7 @@ init_previous_contacts(Contacts * c, int nblocks)
 
 
 static void 
-free_previous_contacts(Contacts * c)
+free_previous_contacts(Contacts * c) 
 {
    int m = c->prevcontactsize1;
    int n = c->prevcontactsize2;
@@ -275,8 +395,8 @@ free_previous_contacts(Contacts * c)
 
 
 Contacts *
-getNewContacts(int nblocks)
-{
+contacts_new(int nblocks) {
+
    Contacts * c;
    c = (Contacts *)malloc(sizeof(Contacts));
 
@@ -291,13 +411,11 @@ getNewContacts(int nblocks)
    init_previous_contacts(c,nblocks);
 
    return c;
+}
 
-}  /* close getNewContacts() */
 
-
-void * 
-freeContacts(Contacts * c)
-{
+void 
+contacts_delete(Contacts * c) {
 
    free_contacts(c);
    free_locks(c);
@@ -306,12 +424,9 @@ freeContacts(Contacts * c)
    free_previous_contacts(c);
 
 #if _DEBUG
-   memset((void *)c, 0xDD, sizeof(Contacts));
+   memset((void *)c, 0xdd, sizeof(Contacts));
 #endif
-
-   return NULL;
-
-}  /* close freeContacts() */
+} 
 
 
 /*  Taken mostly from manifold tech report, p. 109 */

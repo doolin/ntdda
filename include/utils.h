@@ -16,11 +16,16 @@ extern "C" {
 /* FIXME: Turn this into a macro and test it. */
 double sign         (double);
 
+
+#if 0
 /** Needs to be fixed to not depend on e0. */
 void   computeMass  (double * mass, 
                      double ** moments, 
                      double ** e0, 
                      int numblocks);
+#endif
+
+
 
 #ifdef __cplusplus
 }

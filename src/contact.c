@@ -16,6 +16,9 @@
 #include "constants.h"
 
 
+/* Just a test... */
+//static DDAPoint p;
+
 
 static char mess[80];
 
@@ -505,17 +508,17 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
 
 
 
+
+
+
 /**************************************************/
 /* df04: contact finding by distance criteria     */
 /* FIXME: Remove bbox array from this argument list,
  * make it local to this contact file.
  */
-void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3, 
-          double **bbox_c0, double **u)
-{
-   int block;
-   int startIndex;
-   int stopIndex;
+void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3, 
+          double ** bbox_c0, double ** u) {
+
   /* Loop counters over blocks. */
    int ii, jj;
    int i, j;
@@ -534,53 +537,22 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
    */
    double d1, d2, d3, d4;
 
-   int nBlocks = bd->nBlocks;
-   double ** vertices = bd->vertices;
-   int ** vindex = bd->vindex;
+   /* Sometimes we need the length, sometimes the length squared. */
+   //double length;
+   double length_sqd;
+
+   int nBlocks = gd->nBlocks;
+   double ** vertices = gd->vertices;
+   int ** vindex = gd->vindex;
+
   /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-   //double d0 = ad->constants->norm_extern_dist;
    double d0 = constants_get_norm_extern_dist(ad->constants);
-   //double d9 = ad->constants->norm_pen_dist;
    double d9 = constants_get_norm_pen_dist(ad->constants);
 
-  /* (GHS: c0[][] xl xu yl yu)   */
-  /* What c0 does is find a box that 
-   * completely encloses each block.  This is used
-   * in conjunction with the next block of code to 
-   * determine whether 2 blocks are close enough to 
-   * investigate a contact relationship.
-   */
-  /* FIXME: Remove the bounding box code and turn it 
-   * into a function that can be tested given an array
-   * of vertices.
-   */
-   for (block=1; block<= nBlocks; block++)  
-   {
-      startIndex=vindex[block][1];
-      stopIndex=vindex[block][2];
- 
-      bbox_c0[block][1]=vertices[startIndex][1];
-      bbox_c0[block][2]=vertices[startIndex][1];
-      bbox_c0[block][3]=vertices[startIndex][2];
-      bbox_c0[block][4]=vertices[startIndex][2];
-     /* j is probably a vertex counter. */
-      for (j=startIndex; j<= stopIndex; j++)
-      {  
-        /* (GHS: c0[][] xl xu yl yu)   */
-        /* find lower x */
-         if (bbox_c0[block][1]>vertices[j][1])  
-            bbox_c0[block][1]=vertices[j][1];
-        /* find upper x */
-         if (bbox_c0[block][2]<vertices[j][1])  
-            bbox_c0[block][2]=vertices[j][1];
-        /* find lower y */
-         if (bbox_c0[block][3]>vertices[j][2])  
-            bbox_c0[block][3]=vertices[j][2];
-        /* find upper y */
-         if (bbox_c0[block][4]<vertices[j][2])  
-            bbox_c0[block][4]=vertices[j][2];
-      }  /*  j  */
-   }  /*  block  */
+
+
+   contacts_compute_bboxen(bbox_c0,vertices,nBlocks,vindex);
+
 
   /**************************************************/
   /* contact finding by distance criteria           */
@@ -588,77 +560,63 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
   /* d0 : normal external    distance for contact   */
   /* d9 : normal penetration distance for contact   */
   /* m6 : number of contact vertices                */
-   ad->nCurrentContacts=0;
+   ad->nCurrentContacts = 0;
   
   /* The four level loop should be pretty easy to 
    * break up the goto statements.  They all seem to be 
    * performing a continue operation.
    */
   /* if two boxes of blocks are near  */
-   for (ii=1;    ii<= nBlocks-1; ii++)
-   {
-      for (jj=ii+1; jj<= nBlocks;   jj++)
-      {
-        /* d0 is contact distance parameter derived from a 
-         * user controlled value read from the analysis input 
-         * file (g2), and initialized in the "initializeStuff"
-         * function.  c0 appears to be a square that completely 
-         * encloses each block.  The following 4 lines appear to 
-         * implement determination of contact by distance
-         * given by Equation 4.3 in Shi, 1993, p. 82.  
-         * Basically, if the bounding boxes of blocks i and j
-         * do not overlap, no contact, check next block.
-         */
-        /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-        /* FIXME: Baecher model may crash here.
-         */        
-        /* (GHS: c0[][] xl xu yl yu)   */
-         if (bbox_c0[ii][2]+d0 < bbox_c0[jj][1]) /* xu_i < xl_j */
-            continue; 
-         if (bbox_c0[jj][2]+d0 < bbox_c0[ii][1]) /* xu_j < xl_i */
-            continue; 
-         if (bbox_c0[ii][4]+d0 < bbox_c0[jj][3]) /* yu_i < yl_j */
-            continue; 
-         if (bbox_c0[jj][4]+d0 < bbox_c0[ii][3]) /* yu_j < yl_i */
-            continue;         
+   for (ii=1;    ii<= nBlocks-1; ii++) {
+
+      for (jj=ii+1; jj<= nBlocks;   jj++) {
+
+         if (contacts_bbox_overlap(bbox_c0,ii,jj,d0) == 0) {
+            continue;
+         } // else they overlap...
+
+
         /* Next, traverse over vertices of the iith and 
          * jjth blocks.
          */
-         for (i=vindex[ii][1]; i<=vindex[ii][2]; i++)
-         {
-            for (j=vindex[jj][1]; j<=vindex[jj][2]; j++)
-            {
+         for (i=vindex[ii][1]; i<=vindex[ii][2]; i++) {
+
+            for (j=vindex[jj][1]; j<=vindex[jj][2]; j++) {
+
               /* Construct endpoints of line segments between the 
                * ith-(i+1)th vertex of the iith block,
                * and the jth and (j+1)th vertex of the 
                * jjth block.
                */
-               x1=vertices[i  ][1];
-               y1=vertices[i  ][2];
-               x2=vertices[i+1][1];
-               y2=vertices[i+1][2];
-               x3=vertices[j  ][1];
-               y3=vertices[j  ][2];
-               x4=vertices[j+1][1];
-               y4=vertices[j+1][2];
+               x1 = vertices[i  ][1];
+               y1 = vertices[i  ][2];
+               x2 = vertices[i+1][1];
+               y2 = vertices[i+1][2];
+               x3 = vertices[j  ][1];
+               y3 = vertices[j  ][2];
+               x4 = vertices[j+1][1];
+               y4 = vertices[j+1][2];
 
               /* v1 - v3 contact    v1-v3 v1 concave v3 concave */
               /* if true, pt 1 to pt 3 contact not possible, so check
                * some other kind of contact.
                */
               /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-               if ((x1-x3)*(x1-x3)+(y1-y3)*(y1-y3)> d0*d0) 
-               {
-                   x5=(x1+x2)*.5;  /* x midpoint of 1-2 */
-                   y5=(y1+y2)*.5;
-                   x6=(x3+x4)*.5;  /* x midpoint of 3-4 */
-                   y6=(y3+y4)*.5;
+               length_sqd = compute_length_squared(x1,y1,x3,y3);
+               //if ((x1-x3)*(x1-x3)+(y1-y3)*(y1-y3) > d0*d0) {
+               if ( length_sqd > d0*d0) {
+
+                   x5 = (x1+x2)*.5;  /* x midpoint of 1-2 */
+                   y5 = (y1+y2)*.5;
+                   x6 = (x3+x4)*.5;  /* x midpoint of 3-4 */
+                   y6 = (y3+y4)*.5;
 
                   /* p12: inner  normal of line 12     */
                   /* p34: vector along     line 12     */
                   /* p56: inner  normal of line 34     */
                   /* p78: vector along     line 34     */
-/*                       
+
+                  /*                       
                    /|\ P56
           \ (x6,y6) |         /
   (x3,y3)  `o-------o------o'  (x4,y4)
@@ -667,31 +625,35 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
            /        |         \
          / (x5,y5) \|/          \
                        P12 
-*/                      
+                   */
+                   
                   /* a1 := distance between adjacent vertices on
                    * the iith block.
                    */
-                   a1=sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-                   p1=(y1-y2)/a1; // x coord of unit inner normal 
-                   p2=(x2-x1)/a1; // y coord of unit inner normal
-                   p3=(x2-x1)/a1; // x coord of unit vector
-                   p4=(y2-y1)/a1; // y coord of unit vector
+                   //a1 = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+                   a1 = compute_length(x1,y1,x2,y2);
+                   p1 = (y1-y2)/a1; // x coord of unit inner normal 
+                   p2 = (x2-x1)/a1; // y coord of unit inner normal
+                   p3 = (x2-x1)/a1; // x coord of unit vector
+                   p4 = (y2-y1)/a1; // y coord of unit vector
+
                   /* a2 := distance between adjacent vertices on
                    * the jjth block.
                    */
-                   a2=sqrt((x4-x3)*(x4-x3)+(y4-y3)*(y4-y3));
-                   p5=(y3-y4)/a2;  // x coord of inner normal
-                   p6=(x4-x3)/a2;  // y coord of inner normal
-                   p7=(x4-x3)/a2;  // x coord of position vector
-                   p8=(y4-y3)/a2;  // y coord of position vector
+                   //a2 = sqrt((x4-x3)*(x4-x3)+(y4-y3)*(y4-y3));
+                   a2 = compute_length(x3,y3,x4,y4);
+                   p5 = (y3-y4)/a2;  // x coord of inner normal
+                   p6 = (x4-x3)/a2;  // y coord of inner normal
+                   p7 = (x4-x3)/a2;  // x coord of position vector
+                   p8 = (y4-y3)/a2;  // y coord of position vector
 
                   /* Inner products of inner unit normals with 
                    * vertex to midpoint vectors of adjacent blocks.
                    */
-                   d1=p5*(x1-x6)+p6*(y1-y6);
-                   d2=p7*(x1-x6)+p8*(y1-y6);
-                   d3=p1*(x3-x5)+p2*(y3-y5);
-                   d4=p3*(x3-x5)+p4*(y3-y5);
+                   d1 = p5*(x1-x6) + p6*(y1-y6);
+                   d2 = p7*(x1-x6) + p8*(y1-y6);
+                   d3 = p1*(x3-x5) + p2*(y3-y5);
+                   d4 = p3*(x3-x5) + p4*(y3-y5);
 
                   /* v1 - e43 contact  */
                   /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
@@ -700,13 +662,12 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
                    * the a405 labeled code up along with a few judicious
                    * continue statements.
                    */
+                   length_sqd = compute_length_squared(x1,y1,x4,y4);
+                   //if ((x1-x4)*(x1-x4)+(y1-y4)*(y1-y4) <= (d0*d0) || 
+                   if ( length_sqd <= (d0*d0) || 
+                          (fabs(d2) > a2/2)  ||  (d1 < -d0 || d1 > d9) ) {
 
-                   if ((x1-x4)*(x1-x4)+(y1-y4)*(y1-y4)<= (d0*d0) || 
-                          (fabs(d2) > a2/2)  ||  (d1 < -d0 || d1 > d9) )
-                
-                   {
-/* This is at least a dozen lines of duplicated code here.
- */
+                     /* This is at least a dozen lines of duplicated code here. */
                      /* j=v3 concave  v_i-e_j+1 e_j  v_i-e_je_i-j      */
     
                      /* v3 - e21 contact  */
@@ -714,7 +675,9 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
                       * contact possible.
                       */
                      /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-                      if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2)<=d0*d0) 
+                      length_sqd = compute_length_squared(x2,y2,x3,y3);
+                      //if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2) <= d0*d0) 
+                      if ( length_sqd <= d0*d0) 
                          continue; 
                      /* vertex 3 too far from edge 12 for contact,
                       * where distance measured parallel.
@@ -756,7 +719,9 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
                       * contact possible.
                       */
                      /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-                      if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2)<=d0*d0) 
+                      length_sqd = compute_length_squared(x2,y2,x3,y3);
+                      //if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2)<=d0*d0) 
+                      if (length_sqd <= d0*d0) 
                          continue;
                      /* vertex 3 too far from edge 12 for contact,
                       * where distance measured parallel.
@@ -786,10 +751,10 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
                }
 
               /* i=v1 concave  v_j-e_i+1 e_i  v_j-e_ie_i-1      */
-               if (u[i][2] < 180+.0001) 
-               {
-                  if (u[j][2] < 180+.0001) 
-                  {
+               if (u[i][2] < 180+.0001) {
+
+                  if (u[j][2] < 180+.0001) {
+
                      ad->nCurrentContacts+=1;
                      kk[ad->nCurrentContacts]  = i;
                     /* FIXME: A very high penalty spring will
@@ -798,29 +763,29 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
                      k3[ad->nCurrentContacts] = j;
                      continue; 
                   }
+
                   ad->nCurrentContacts+=1;
                   kk[ad->nCurrentContacts]  = (-1)*i;
                   k3[ad->nCurrentContacts] =      j;
                   ad->nCurrentContacts+=1;
                   kk[ad->nCurrentContacts]  = (-1)*i;
                   k3[ad->nCurrentContacts] =    j-1;
-                  if (j==vindex[jj][1])  
-                  {
+
+                  if (j==vindex[jj][1]) {
                      k3[ad->nCurrentContacts] = vindex[jj][2];
                   }
                   continue;
                }
 
-              /* What does this stuff do?
-               */
+              /* What does this stuff do? */
                ad->nCurrentContacts+=1;  /* was m6 */
                kk[ad->nCurrentContacts]  = (-1)*j;
-               k3[ad->nCurrentContacts] =      i;
-               ad->nCurrentContacts+=1;
+               k3[ad->nCurrentContacts]  =      i;
+               ad->nCurrentContacts     +=1;
                kk[ad->nCurrentContacts]  = (-1)*j;
-               k3[ad->nCurrentContacts] =    i-1;
-               if (i==vindex[ii][1])  
-               {
+               k3[ad->nCurrentContacts]  =    i-1;
+
+               if (i==vindex[ii][1]) {
                   k3[ad->nCurrentContacts] = vindex[ii][2];
                }
                continue;  
@@ -828,8 +793,7 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
          }  /*  i  */
       }  /*  jj */
    }  /*  ii */
-
-}  /* Close df04().  */
+}
 
 
 
@@ -845,12 +809,10 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
    double	dd = 3.1415926535/180.0;
    double e1, e2, e3, e4, e5;
    static double e6;
-   //double e[7][7];
    double e[7][3];
 
    double ** vertices = bd->vertices;
    int ** vindex = bd->vindex;
-   //double h1 = ad->constants->angle_olap;
    double h1 = constants_get_angle_olap(ad->constants);
    double y1, y2;
    double x1, x2;
@@ -859,8 +821,8 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
   /* nContacts number of contacts m[]   */
    nContacts=0;
 
-   for (i=1; i<= (ad->nCurrentContacts); i++)
-   {
+   for (i=1; i<= (ad->nCurrentContacts); i++) {
+
     /* vector i2i1 i2i3 j2j1 j2j3 rotate from x to y  */
     /* vertex in vindex[][1] vindex[][2] for contact transfer */
      i2=labs(kk[i]);

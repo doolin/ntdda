@@ -1,7 +1,7 @@
 
-
 #ifndef __FUNCTIONS_H__
 #define __FUNCTIONS_H__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,7 +9,6 @@ extern "C" {
 #if 0
 }
 #endif
-
 
 
 #ifndef TRANSMAPFUNC
@@ -28,6 +27,7 @@ typedef void (*TransApply)        (double T[][7],
                                    double * u1, 
                                    double * u2);
 #endif
+
 
 #ifndef MASS_MATRIX_FUNC
 #define MASS_MATRIX_FUNC
@@ -64,28 +64,20 @@ void transplacement_apply_exact   (double T[][7],
                                    double * u1, 
                                    double * u2);
 
-
 void massmatrix_linear            (double T[][7],
                                    const double S0,
                                    const double S1,
                                    const double S2,
                                    const double S3);
 
-
 void massmatrix_linear            (double T[][7],
                                    const double S0,
                                    const double S1,
                                    const double S2,
                                    const double S3);
-
-
-
-
-
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif  /* __FUNCTIONS_H__ */

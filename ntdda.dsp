@@ -172,10 +172,6 @@ SOURCE=.\src\geometrydata.c
 SOURCE=.\src\lns.c
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=.\src\utils.c
-# End Source File
 # End Group
 # Begin Group "gui"
 
@@ -311,6 +307,10 @@ SOURCE=.\include\resource.h
 # Begin Source File
 
 SOURCE=.\src\timehistory.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utils.c
 # End Source File
 # End Group
 # Begin Group "graphics"

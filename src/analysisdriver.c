@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.36  2002/10/28 13:46:58  doolin
+ * Refactoring contact handling.
+ * Code is highly regressed at the moment.
+ *
  * Revision 1.35  2002/10/27 20:53:17  doolin
  * File handling changes are minor, due to
  * Win32 need for complete path info.
@@ -385,7 +389,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    initNewAnalysis(GData, AData, e0, filepath);
 
   /* New contact handling struct */
-   CTacts = getNewContacts(GData->nBlocks);
+   CTacts = contacts_new(GData->nBlocks);
 
   /* Draw some stuff to the screen. */ 
    display(GData, AData);
@@ -673,8 +677,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 
   /* This should probably be freed in the calling function. */
    datalog_delete(DLog); 
-
-   CTacts = freeContacts(CTacts);
+   contacts_delete(CTacts);
 
   /* Keep this as the last function call so that there will 
    * no ambiguity about which files are open.  

@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:20 $
+ * $Date: 2002/10/28 13:46:58 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.23 $
+ * $Revision: 1.24 $
  */
 
 
@@ -21,139 +21,7 @@
 #include "contacts.h"
 #include "ddamemory.h"
 #include "utils.h"
-#include "datalog.h"
 #include "material.h"
-
-
-/** Maybe only used once in this file.  Try to get rid of it.
- */
-extern Datalog * DLog;
-
-
-
-/* Readjust delta_t and springstiffness sizes if
- * necessary.  I am not sure if this code works 
- * correctly, that is, the same way it worked when 
- * it was in the main analysis loop.
- * FIXME: Write some test cases to drive the 
- * checkParameters() function.
- */
-int 
-checkParameters(Geometrydata * gd, Analysisdata * ad, Contacts * ctacts, FILE * fp) {
-
-   int ** locks = get_locks(ctacts);
-   double ** contactlength = get_contact_lengths(ctacts);
-   double g3 = constants_get_norm_spring_pen(ad->constants);
-
-
-  /* after 6+2 interations reduce time interval by .3 */
-  	if ((ad->m9) == ad->OCLimit /* (6+2) */ ) 
-   {
-      if (ad->autotimestepflag)
-      {
-         //fprintf(fp.logfile, "OC limit reached, cutting time step size (checkparams) from %f ",
-         //                     ad->delta_t);
-         ad->delta_t *= .3;
-         fprintf(fp," to %f\n",ad->delta_t);
-         fflush(fp);
-
-      
-         if(ad->delta_t < ad->maxtimestep/100.0)
-            ad->delta_t = ad->maxtimestep/100.0;
-/*
-         if(ad->delta_t < ad->maxtimestep/1000.0)
-            ad->delta_t = ad->maxtimestep/1000.0;
-*/
-         DLog->timestepcut[ad->cts]++;
-      }  
-      else
-      {  
-         //sprintf(iface->message,"Max OC count (%d) reached in time step %d",ad->OCLimit, ad->currTimeStep);
-         //iface->displaymessage(iface->message);
-      }
-            
-      return TRUE;
-         //goto a001;
-         //goto newtimestep;
-   }
-
-  /* It appears to me that this next code just makes sure 
-   * that the time step is not greater than 3.  And if it is 
-   * take sqare root of time step to get new time step, 
-   * then continue.  FIXME: Find out what the [][1] entry is
-   * before messing with this block.
-   */
-  /* (GHS: displacement ratio > 2.5 reduce time interval).
-   * This parameter is set in df24(). 
-   */
-  /* FIXME: What inna world is this for? */
-   if (ad->globalTime[ad->cts][1]>3.0) {
-
-      fprintf(fp,"Max displacement passed on timestep %d, cutting time step size from %f ", 
-              ad->cts, ad->delta_t);
-      (ad->delta_t)/=sqrt(ad->globalTime[(ad->cts)][1]);
-      fprintf(fp,"to %f\n",ad->delta_t);
-      fflush(fp);
-
-      DLog->timestepcut[ad->cts]++;
-
-     /* Compute a minimum time step. */
-      if(ad->delta_t < ad->maxtimestep/100.0) {
-
-         ad->delta_t = ad->maxtimestep/100.0;
-      }
-
-
-      return TRUE;
-      //goto newtimestep;  /* goto a001; */
-   }  /* end cut time step */
-
-
-  /* w6 is first set here, and is used in step() for 
-   * time steps past the first.
-   */
-   ad->w6 = computeSpringStiffness(gd, ad, locks,contactlength);
-  /* norm_spring_pen (g3) is normal penetration distance limit 
-   * Basically, too much penetration so increase the
-   * contact penetration spring stiffness and redo(?)
-   * the time step.
-   * FIXME: Change the 2.5 to a user specified value.
-   */
-   //if (ad->w6/(ad->constants->norm_spring_pen)  > 2.5) 
-   if (ad->w6/g3  > 2.5) 
-   {
-     /* g0 is spring stiffness */
-      //ad->g0 *= 10.0; 
-     /* FIXME: Turn this off and run "concave".  The block
-      * has a nice backwards travel for a few time steps.
-      * Explain why this is.
-      */
-      ad->contactpenalty *= 10.0;
-         
-     /* Save the value of the spring stiffness for later
-      * examination.  But w6 is just a comparison value?
-      * should save AData->g0?
-      */
-      //ad->springstiffness[ad->currTimeStep] = ad->w6;
-      //ad->springstiffness[ad->currTimeStep] = ad->g0;
-      ad->springstiffness[ad->cts] = ad->contactpenalty;
-     /* When this goto is eliminated, check to 
-      * make sure the time step value is not incremented.
-      */
-      return TRUE;
-      //goto newtimestep;
-      //goto a001;  /* Last goto.  */
-   }         
-
-   //ad->springstiffness[ad->currTimeStep] = ad->g0;
-   ad->springstiffness[ad->cts] = ad->contactpenalty;
-
-   return FALSE;  /* Passed, on to new time step */
-
-}  
-
-
-
 
 
 
@@ -177,99 +45,7 @@ double sign(double f2)
 }  /* close sign() */
 
 
-/**************************************************/
-/* spri: compute stiffness of contact spring 0007 */
-/**************************************************/
-double  
-computeSpringStiffness(Geometrydata *gd, Analysisdata *ad, int **m0, double **o)
-{
-  /* loop over every contact */
-   int nContacts = gd->nContacts;  /* Number of contacts.  */
-  /* loop counter variable */   
-   int contact; 
-  /* maximum contact penetration */
-   double w5;
-  /* minimum contact penetration */
-   double w6; 
-  /* g2 is maximum displacement per time step. */
-   //double g2 = ad->g2;
-   double g2 = ad->maxdisplacement;
-   double g3 = constants_get_norm_spring_pen(ad->constants);
-  /* w0 is problem domain scaling constant */
-   double w0 = constants_get_w0(ad->constants);
-  /* temp var storing max value */
-   double b1;
-  /* temp var storing min value */
-   double b2;  /* Might be a return variable. */
 
-  /* Return if penalty value preset for all time steps. */
-   if(!ad->autopenaltyflag)
-      return 0;
- 
-  /* compute maximum  and minimum spring penetration */
-  /* w6 is a return variable.
-   */
-   w6 = 0;
-   w5 = 0;
-   for (contact=1; contact<= nContacts; contact++)
-   {
-      if (m0[contact][2] == 0) 
-        /* Then no contact */
-         continue;   //goto sp01;
-      if (o[contact][0]  > w5) 
-         w5 = o[contact][0];  /* Find max */
-      if (o[contact][0]  < w6) 
-         w6 = o[contact][0];  /* Find min */
-//sp01:;
-   }  /*  i  */
-   
-  /* Rescale penetration values with respect to
-   * actual size of problem domain.
-   */
-   w5 =  w5/w0;
-   w6 = -w6/w0;
-
-  /* Compute comparison values.  b1 relates the amount of
-   * penetration to the maximum allowed displacement for 
-   * a given time step.
-   */ 
-   //b1 = (ad->g0)*w5/(2.0*g2) + 0.0000001;
-   b1 = (ad->contactpenalty)*w5/(2.0*g2) + 0.0000001;
-  /* b2 relates the minimum penetration with the value
-   * of the allowable spring penetration.
-   */
-   //b2 = (ad->g0)*w6/g3       + 0.0000001;
-   b2 = (ad->contactpenalty)*w6/g3       + 0.0000001;
-   
-  /* (GHS: updating stiffness of support spring) */
-  /* If the penetration is dominated by the allowable 
-   * maximum displacement, set the allowable penetration
-   * to this value.
-   */
-   if (b2<b1) 
-      b2=b1;
-  /* If the value is too low... */
-   //if (b2 <= (ad->g0)/3.0)  
-   if (b2 <= (ad->contactpenalty)/3.0)  
-     /* then bump it up it a bit. */
-      //b2 = (ad->g0)/3.0;
-      b2 = (ad->contactpenalty)/3.0;
-
-  /* Now reset the spring stiffness parameter for use 
-   * elsewhere in the program.
-   */
-   //ad->g0 = b2;	
-   //assert(b2 <= 10e9);
-
-   ad->contactpenalty = b2;	
-
-  /* The minimum scaled penetration is used in parameter
-   * checking of open-close iteration, and for adaptively
-   * updating the value of the time step.
-   */
-   return w6;
-  
-} /* Close computeSpringStuffness()  (spri)  */
 
 		
 #define DIST_PROCEDURE 0
@@ -281,8 +57,8 @@ computeSpringStiffness(Geometrydata *gd, Analysisdata *ad, int **m0, double **o)
 /* Rewrite this as a MACRO and use it in df04
  * etc etc etc.
  */
-void dist(void)
-{
+void dist(void) {
+
    double x4,  y4;
    double t1;
    double d5;
@@ -298,58 +74,8 @@ void dist(void)
    x4  = x2 + t1*(x3-x2);
    y4  = y2 + t1*(y3-y2);
    d5  = sqrt((x4-x1)*(x4-x1) + (y4-yi)*(y4-yi));
-}  /* Close dist().  */
+}  
 #endif
-
-
-
-
-
-
-
-
-
-
-/* The simplex area function depends on having the vertex coordinates
- * in a certain order so that the coordinates can be traversed in 
- * a CCW direction.  vertexInit performs this reordering at the outset,
- * for all subsequent calls to area.  Since the area function is 
- * called everytime step, initializing ahead of time saves a lot of
- * overhead.
- */
-/**
-
- * @todo  Change the algorithm to use modular arithmetic so 
-
- * this loop does not have to be computed.
-
- */
-
-void
-vertexInit(Geometrydata *gd) {
-
-
-  /* change vertices to have previous vertex of 1st vertex */
-  /* This is a convenience for the simplex integration
-   * in the area function.
-   */
-   int i, i1, i2;
-
-   for (i=1; i<= gd->nBlocks; i++)
-   {
-      i1 = gd->vindex[i][1];
-      i2 = gd->vindex[i][2];
-      gd->vertices[i1-1][0]=gd->vertices[i2][0];
-      gd->vertices[i1-1][1]=gd->vertices[i2][1];
-      gd->vertices[i1-1][2]=gd->vertices[i2][2]; 
-   }  /*  i  */
-
-}  // Close vertexInit() 
-
-
-
-
-
 
 
 /* FIXME: This function should moved to between the analysis 
@@ -562,17 +288,13 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
       e0[i][8] = materialProps[i1][13];
     
    }  
-
-
-}  /* close initBlockProperties() */
-
-
+}  
 
 
 
 void
-initVelocity(Geometrydata * gd, Analysisdata * ad, double ** v0)
-{
+initVelocity(Geometrydata * gd, Analysisdata * ad, double ** v0) {
+
    int i, i1;
    double ** materialProps = ad->materialProps;
    int nBlocks = gd->nBlocks;
@@ -640,13 +362,6 @@ initContactSpring(Analysisdata * ad)
       ad->springstiffness[0] = ad->contactpenalty;
 
 }  /* close initContactSpring() */
-
-
-
-
-
-
-
 
 
 

@@ -361,6 +361,37 @@ deleteBlock(Geometrydata * gd, int blocknumber)
 }  /* close deleteBlock() */
 
 
+/* The simplex area function depends on having the vertex coordinates
+ * in a certain order so that the coordinates can be traversed in 
+ * a CCW direction.  vertexInit performs this reordering at the outset,
+ * for all subsequent calls to area.  Since the area function is 
+ * called everytime step, initializing ahead of time saves a lot of
+ * overhead.
+ */
+/**
+ * @todo  Change the algorithm to use modular arithmetic so 
+ * this loop does not have to be computed.
+ */
+void
+gdata_vertex_init(Geometrydata *gd) {
+
+  /* change vertices to have previous vertex of 1st vertex */
+  /* This is a convenience for the simplex integration
+   * in the area function.
+   */
+   int i, i1, i2;
+
+   for (i=1; i<= gd->nBlocks; i++)
+   {
+      i1 = gd->vindex[i][1];
+      i2 = gd->vindex[i][2];
+      gd->vertices[i1-1][0]=gd->vertices[i2][0];
+      gd->vertices[i1-1][1]=gd->vertices[i2][1];
+      gd->vertices[i1-1][2]=gd->vertices[i2][2]; 
+   }  /*  i  */
+
+}
+
 
 /* Code to specifically free the geometry data structure 
  * passed in to the analysis procedure.  This code should 
