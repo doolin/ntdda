@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/10/05 22:36:25 $
+ * $Date: 2002/10/06 19:17:19 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.23 $
+ * $Revision: 1.24 $
  */
 
 
@@ -61,7 +61,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.23 2002/10/05 22:36:25 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.24 2002/10/06 19:17:19 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -415,14 +415,16 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 static void
 handleTitle(HWND hwMain) { 
 
-     /* Just draw it once in lieu of splash screen */
-     /* FIXME: Make this a handleSplash function. */
-           static int draw = 1;
-           if (draw == 1) {
-               handleMainAbout(hwMain);
-            draw = 0;
-     }
-            //drawTitle(draw_wnd, hdc);
+  /* Just draw it once in lieu of splash screen */
+  /* FIXME: Make this a handleSplash function. */
+   static int draw = 1;
+           
+   if (draw == 0) {
+      return;
+   }
+   draw = 0;
+   handleMainAbout(hwMain);
+   //drawTitle(draw_wnd, hdc);
 }
 
 
@@ -982,8 +984,8 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
 
 
 void
-handleMainAbout(HWND hwMain)
-{
+handleMainAbout(HWND hwMain) {
+
    char about[1024];		    		
    char aText[9][256] = {ABOUT};
 
