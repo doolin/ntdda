@@ -231,4 +231,6 @@ double computeMoments(Geometrydata *);  //, double ** moments);
  */
 void computeDomainscale(Geometrydata *);  // was dc02()
 
+void gdata_destroy(Geometrydata *);
+
 #endif /* _GEOMETRYDATA_H_ */

@@ -374,6 +374,13 @@ deleteBlock(Geometrydata * gd, int blocknumber)
 
 }  /* close deleteBlock() */
 
+
+void 
+gdata_destroy(Geometrydata * gd)
+{
+   freeGeometrydata(gd);
+}
+
 /* Code to specifically free the geometry data structure 
  * passed in to the analysis procedure.  This code should 
  * be changed to take advantage of 2D matrix freeing code.

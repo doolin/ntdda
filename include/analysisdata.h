@@ -53,8 +53,6 @@ typedef struct _loadpoint {
  * beginning of an analysis, and not changed during
  * runtime.
  */
-/* FIXME  Move this into the analysisdata header.
- */
 typedef struct _constants_tag {
 double openclose;    /*  s0  */
 double opencriteria; /*  f0  */
@@ -463,17 +461,25 @@ struct _analysisdata_tag
 /* FIXME: These all need to be a private method */
 void validateAnalysisdata(Analysisdata *);
 Analysisdata * XMLparseDDA_Analysis_File(char *filename);
-int	ddanalysis(FILEPATHS *, GRAPHICS *);
+
+
 
 Analysisdata * cloneAnalysisData(Analysisdata * adn);
 
 void * freeAnalysisData(Analysisdata *);
+void adata_destroy(Analysisdata *);
 
+
+/* FIXME: Loadpoints need to go into their own module. */
 void freeLoadpoints(LOADPOINT *);
 
 void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
 void freeStresses(GRAPHICS *);
+
+/* Change this to adata_new(); */
 Analysisdata * initAnalysisData(void);
+Analysisdata * adata_new(void);
+
 
 void adata_set_output_flag(Analysisdata *, int flag);
 void adata_clear_output_flag(Analysisdata *, int flag);

@@ -508,7 +508,11 @@ closeAnalysisFiles()
 
 
 
-
+void 
+adata_destroy(Analysisdata * ad)
+{
+   freeAnalysisData(ad);
+}
 
 void *
 freeAnalysisData(Analysisdata * ad)

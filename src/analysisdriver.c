@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.9  2001/08/26 02:15:49  doolin
+ * Some minor changes leading up to a major memory overhaul to eliminate externs.  This commit will be tagged as 1.5.126
+ *
  * Revision 1.8  2001/08/26 00:21:20  doolin
  * Major output format change for block areas to handle all
  * the moments for each block at each time step.  The downside of this is
@@ -50,15 +53,16 @@
 #include "contacts.h"
 #include "postprocess.h"
 
+/* This should be the only allowable extern. */
+extern InterFace * iface;
 
-/* externs, necessary evil right now.
+/* FIXME: externs, necessary evil right now.
  * This MUST be cleaned up later.
  */
 extern Geometrydata * geomdata;
 extern Geometrydata * geometry2draw;
 extern Analysisdata * ad;
 
-extern InterFace * iface;
 extern FILEPOINTERS fp;
 
 DATALOG * DLog;
@@ -72,7 +76,7 @@ DDAError ddaerror;
  * leaks.
  */
 int	
-ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
+ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
 {
    Geometrydata * GData;
    Analysisdata * AData;

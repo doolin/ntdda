@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:22 $
+ * $Date: 2001/08/26 02:15:50 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #include <malloc.h>
@@ -179,8 +179,7 @@ writeAvgArea(Analysisdata * AData)
 }   /*  Close writeAvgArea  */
 
 
-/* For now just write out the area for each block 
- */
+
 void 
 writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
 {
@@ -191,10 +190,8 @@ writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
 
    if (currtimestep == 0)
    {
-     /* Might want to add the time step to the front also. */
       fprintf(fp.momentfile,"%% Block moments for each time step\n");
-//      fprintf(fp.areafile,"%% Starts at the zeroth time step\n\n");
-      fprintf(fp.momentfile,"%% Block_number S0 S1 S2 S3\n");
+      fprintf(fp.momentfile,"%% timestep block_number S0 S1 S2 S3\n");
       fprintf(fp.momentfile,"blockmoments = [\n");
    }
 
@@ -216,8 +213,8 @@ writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
       S2=moments[i][5]-y0*moments[i][3];
       S3=moments[i][6]-x0*moments[i][3];
 
-      fprintf(fp.momentfile, "%d  %21.16f   %21.16f   %21.16f   %21.16f\n",
-                            i,S0, S1, S2, S3);
+      fprintf(fp.momentfile, "%d  %d  %21.16f   %21.16f   %21.16f   %21.16f\n",
+                            currtimestep, i, S0, S1, S2, S3);
    }
    //fprintf(fp.areafile,"\n");
 

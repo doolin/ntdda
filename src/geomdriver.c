@@ -5,9 +5,9 @@
  * from a set of lines (fracture traces).
  * 
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:28 $
+ * $Date: 2001/08/26 02:15:50 $
  * $Source: /cvsroot/dda/ntdda/src/geomdriver.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include <stdio.h>
@@ -23,13 +23,6 @@ extern InterFace * iface;
 
 FILE * ddacutlog;
 FILE * pnpfile;
-
-/* Local functions */
-//static int getBlockNumberFromCursor(Geometrydata * gd, double x, double y);
-
-
-/* Get rid of this using interface functions */
-//extern HWND geomhwnd;
 
 /* 
  * ddacut is the driver routine for all of the dc code

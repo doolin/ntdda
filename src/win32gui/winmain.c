@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:24 $
+ * $Date: 2001/08/26 02:15:50 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 
@@ -115,20 +115,6 @@ HWND hToolBar;
 /* Used by display.c to update the analysis status bar fields. */
 HDC anahdc;
 
-/* Pass this around instead of using globals.
- */
-typedef struct _dda_tag  {
-
-   Geometrydata * geometry;
-   Analysisdata * analysis;
-   FILEPATHS * filepaths;
-   int menustate;
-   BOOL toolbarvis;
-   BOOL statusbarvis;
-   BOOL popupvis;
-   BOOL tooltipvis;
-
-} DDA;
 
 
 
@@ -460,7 +446,12 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    PAINTSTRUCT ps;
    RECT rectClient;
 
-
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+  /* This is what it will take to get rid of all the silly 
+   * externs.
+   */
+   // Geometrydata * gd = dda_get_geometry(dda);
+   
    draw_wnd = hwMain;
 
    hdc = BeginPaint(draw_wnd, &ps );
@@ -826,7 +817,7 @@ handleAnalRun(HWND hwMain)
    SwapBuffers(hdc);
 #endif /* WINGRAPHICS */
 
-   retval = ddanalysis(&filepath, g);
+   retval = ddanalysis(dda, &filepath, g);
 
   /* FIXME: Check retval for error codes.  Here we set the 
    * analysis data pointer to NULL so that further menu stuff
@@ -2081,9 +2072,6 @@ WndProc (HWND hwMain, UINT message,
    height= -(winSize.top-winSize.bottom);
  
    dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
-
-
-   //assert(ddacreated == dda);
 
    switch (message)
    {

@@ -447,6 +447,10 @@ SOURCE=.\include\contacts.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\dda.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\geometrydata.h
 # End Source File
 # Begin Source File

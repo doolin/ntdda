@@ -6,6 +6,7 @@
 
 #include "geometrydata.h"
 #include "analysisdata.h"
+#include "ddatypes.h"
 
 /* Need to strip out all windows specific code from 
  * from the numerical engine, if possible.  PEEK defines
@@ -52,36 +53,9 @@
 #endif
 
 
-/* Some standard includes that will most likely 
- * be needed everywhere.
- */
-#include<stdio.h>
-#include<time.h>
 
 
 
-
-
-/* Member of DDA struct.  Tracks processor
- * time.
- */
-typedef struct _timing_tag {
-
-  /* Total elapsed processor time. */
-   double globalstart, globalstop;
-
-}TIMINGINFO;
-
-
-/* Flags to control what gets saved to a file during an
- * analysis.  Then output can be controlled from the gui,
- * or from flags in an input file.
- */
-typedef struct _output_tag {
-
-   int timesteps;
-
-}OUTPUT;
 
 
 
@@ -109,4 +83,48 @@ typedef struct progbar_tag ProgressBarInfo;
 int getFileType(char *);
 
 
-#endif /* _INC_DDA */
+/* Pass this around instead of using globals.
+ */
+typedef struct _dda_tag DDA;
+
+struct _dda_tag {
+
+   Geometrydata * geometry;
+   Analysisdata * analysis;
+   FILEPATHS * filepaths;
+   int menustate;
+   ddaboolean toolbarvis;
+   ddaboolean statusbarvis;
+   ddaboolean popupvis;
+   ddaboolean tooltipvis;
+
+};
+
+
+Geometrydata * dda_get_geometrydata(DDA *);
+void dda_set_geometrydata(DDA *, Geometrydata *);
+
+Analysisdata * dda_get_analysisdata(DDA *);
+void dda_set_analysisdata(DDA *, Analysisdata *);
+
+ddaboolean dda_get_toolbarvis(DDA *);
+void dda_set_toolbarvis(DDA *, ddaboolean);
+
+ddaboolean dda_get_statusbarvis(DDA *);
+void dda_set_statusbarvis(DDA *, ddaboolean);
+
+ddaboolean dda_get_popupvis(DDA *);
+void dda_set_popupvis(DDA *, ddaboolean);
+
+ddaboolean dda_get_tooltipvis(DDA *);
+void dda_set_tooltipvis(DDA *, ddaboolean);
+
+int dda_get_menustate(DDA *);
+void dda_set_menustate(DDA *, int);
+
+int dda_run(DDA *);
+
+int ddanalysis(DDA *, FILEPATHS *, GRAPHICS *);
+
+
+#endif /* _DDA_H_ */
