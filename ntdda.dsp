@@ -125,6 +125,10 @@ SOURCE=.\src\friction.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\functions.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\ghssolver.c
 # End Source File
 # Begin Source File

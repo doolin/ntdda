@@ -41,7 +41,7 @@ Material *
 material_new (int numblocks) {
 
    int i;
-   const int numprops = 10;
+   const int numprops = 13;
    Material * m = (Material*)malloc(sizeof(Material));
 
    m->numblocks = numblocks;
@@ -56,9 +56,11 @@ material_new (int numblocks) {
    return m;
 }
 
-
+/**
+ *  Probably not necessary right now.
+ */
 Material * 
-material_clone (Material * m) {
+material_clone (Material * m_old) {
 
    return NULL;
 
@@ -77,6 +79,32 @@ material_delete (Material * m) {
    free(m->props);
    free(m);
 }
+
+
+double **
+material_get_props(Material * m) {
+
+   return m->props;
+}
+
+
+
+void 
+material_validate(int ** vindex, int numblocks, int nb) {
+
+   int i;
+
+   for (i=1; i<=numblocks; i++) {
+
+      if ( vindex[i][0] < 1  ) {
+         vindex[i][0]= 1;
+      }
+      if ( vindex[i][0] > nb )  {
+         vindex[i][0]=nb;
+      }
+   }
+}
+
 
 
 

@@ -4,6 +4,8 @@
  * and verification.
  */
 
+#include "analysis.h"
+
 
 
 /** @todo Almost all of these functions can be prototyped 

@@ -32,16 +32,13 @@ extern FILEPOINTERS fp;
  * blocks, integrating the pore pressure over each side.
  */
 int porepressure(GEOMETRYDATA *bd, int *k1, double **f, double **e0,
-          double **blockArea)
-{
-   //int j;
+          double **blockArea) {
+
    int i2;
    int nBlocks = bd->nBlocks;
    double ** v = bd->vertices;
    int ** vIndex = bd->vIndex;
    double ** pppoly = bd->porepres;
-   //double avgArea;
-   //extern int currTimeStep;
    int inside;
    int block;
    int vertex;
@@ -49,13 +46,11 @@ int porepressure(GEOMETRYDATA *bd, int *k1, double **f, double **e0,
 #if NEWPOREPRESSURECODE
    double v1_x, v1_y,oldx, oldy;
    int index;
-   //double currentx, currenty;
    int laststate;
    int v1_state;  /* State of first vertex on block.  */
    double a1;  /*  Length of block edge.  */
    double x1, x2, y1, y2;  /* Temp vars for computing normals. */
    double xp;
-   //double yp;
    double p1, p2;
    double A, A1, A2;
    double gammaw = 62.4;

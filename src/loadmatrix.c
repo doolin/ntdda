@@ -12,6 +12,7 @@
 #include "datalog.h"
 #include "bolt.h"
 #include "timehistory.h"
+#include "stress.h"
 
 
 extern Datalog * DLog;
@@ -26,168 +27,8 @@ static void seismicload(DList * seispoints,TimeHistory * timehistory, int timest
                         int *k1, double **F, double ** moments, 
                         double ** matprops, TransMap transmap);
 
-static void df09(Geometrydata *, Analysisdata *);
-static void df10(Geometrydata *, Analysisdata *, int **, double **);
-
-static void df12(Geometrydata *, Analysisdata *, int *, double **, 
-                 double **, int **, TransMap transmap);
-static void df13(int numblocks, double ** K, const int *, double **, double **, int **, int planestrainflag);
-static void df14(int numblocks, const int *, double **, const double **, const double **);
-static void df15(Geometrydata *, Analysisdata *, int *, 
-                 double **, double **, TransMap transmap);
-static void df16(Geometrydata *, int *, double **, double **, double **);
 
 
-/* This was moved from ddanalysis to shorten the size
- * of the analysis loop.
- */
-void
-assemble(Geometrydata * GData, Analysisdata * AData,
-         int ** locks, double ** matprops,
-         int * k1, int * kk, int ** n, double ** U,
-         TransMap transmap)
-{
-
-   double ** f = AData->F;
-   //clock_t start, stop;
-   double ** moments = GData->moments;
-
-   //DLog->assemble_start = clock();
-   //start = clock();
-
-      df09(GData, AData);
-     
-     /* Initialize submatrices back to zero, set
-      * some other parameter related to the global
-      * time step.
-      * FIXME: see if locks can be moved out of here.
-      */
-	   df10(GData, AData, locks,f);
-     /* submatrix of inertia
-      */
-	   //df11(GData, AData,k1,f,matprops,v0,moments,n);
-     /* WARNING!!!!  This comes in from timeintegration!!! 
-      * Delete after June 15 2000. */
-	 	//df11(GData, AData,k1,f,matprops,moments,n,U);
-
-
-      //printKForIthBlock(AData,1,k1,n);
-
-	  /* submatrix of fixed points.  T should probably be 
-      * either local or static extern scratch var.
-      */
-      df12(GData,AData,k1,f,moments,n,transmap);
-
-
-     /* submatrix of stiffness */
-	   df13(GData->nBlocks,AData->K,k1,matprops,moments,n,AData->planestrainflag);
-
-     /* submatrix of initial stress  */
-	   df14(GData->nBlocks,k1,f,matprops,moments);
-
-     /* submatrix of point loading  */
-	   df15(GData,AData, k1,f,moments, transmap);
-
-     /* seismic loading */
-      if (AData->timehistory != NULL) {
-
-         seismicload(GData->seispoints, AData->timehistory, AData->cts,
-                     k1, f, moments, matprops, transmap);
-      }
-
-     /* submatrix of volume force */
-	   df16(GData,k1,f,matprops,moments);
-       
-      if (GData->nBolts > 0) {
-
-         //rockbolts(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f);
-         bolt_stiffness_a(GData->rockbolts, GData->nBolts, AData->K, 
-            k1, kk, n, moments,f,transmap);
-      }
-
-      /* start open-close iteration  m9:step iterations */
-      //AData->extraIteration = 0;
-
-      //printForces(GData, f, k1);
-   
-      //stop = clock();
-      //DLog->assemble_runtime +=  stop - start; //(clock() - DLog->assemble_start)/((double)CLOCKS_PER_SEC);
-   
-   
-   //printKForIthBlock(AData, 2, 1, kk, n, "load matrix");
-
-}  /* close assemble() */
-
-
-
-
-/**************************************************/
-/* df09: time interpolation                       */
-/**************************************************/
-/* This appears to be linear lagrange intepolation
- * for time dependent loading points.  Note that fixed 
- * points are considered time dependent, except that from 
- * time 0 to 100000, 0 load is applied.  Behavior for
- * t > 100000 appears to be unspecified...
- */
-void df09(Geometrydata *gd, Analysisdata *ad)
-{
-   int i;
-   int j;
-   int n;
-   double a1;
-   double current_time;
-   int nLPoints = gd->nLPoints;
-   int nFPoints = gd->nFPoints;
-   double ** points = gd->points;
-   double ** globalTime = ad->globalTime;
-   double ** timeDeps = ad->timeDeps;
-  /* k5 is index into timeDeps array */
-   //int ** k5 = ad->k5;
-  /* Note that k5/tindex increments from zero in the 
-   * second slot, 1 from the leading slot.
-   */
-   int ** tindex = ad->tindex;
-   double **lpoints;
-   const int TIME = 0;
-   int nfp = gd->nFPoints;
-   int numloadpoints = ad->nLPoints;
-   
-   double dt;
-
-  /* a3 is the elapsed time at the end of the current step.
-   * This allows to find the force to apply in the current
-   * configuration (applied at a point in the reference 
-   * configuration).
-   */
-  /* FIXME: Note where globaltime is updated.
-   */
-   current_time = globalTime[ad->cts-1][0]+(ad->delta_t);
-      
-
-   for (i = 0; i < numloadpoints; i++) {
-
-     	n = ad->loadpoints[i].loadpointsize1;
-     	lpoints = ad->loadpoints[i].vals;
-     	for (j = 0; j < n-2; j++) {
-         if ( (lpoints[j][TIME] <= current_time) && 
-              (current_time  <= lpoints[j+1][TIME]) ) {
-            break;
-          }   
-	    }
-
-      dt = (lpoints[j+1][TIME] - lpoints[j][TIME]);
-      /*
-      if (dt <= 0) {
-         ad->display_error("Loadpoint error: Adjacent time step values must be different.\n");
-      }
-      */
-		a1 = (current_time - lpoints[j][TIME]) / dt;
-      points[i+nfp+1][4] = lpoints[j][1] + a1*(lpoints[j+1][1] - lpoints[j][1]);
-      points[i+nfp+1][5] = lpoints[j][2] + a1*(lpoints[j+1][2] - lpoints[j][2]);
-   }
-
-}  
 
 
 
@@ -200,14 +41,10 @@ void df09(Geometrydata *gd, Analysisdata *ad)
  *  stuff put somewhere else.
  */
 void df10(Geometrydata *bd, Analysisdata *ad, int **locks, 
-          double **F)
-{
+          double **F) {
    int i;
    int nBlocks = bd->nBlocks;
    int nContacts = bd->nContacts;  /* Not changed in df10(). */
-   /* int n3 = bd->n3; */ /* Not changed in df10(). */
-   /* int n3 = ad->n3; */ /* Not changed in df10(). */
-   //int n3 = ad->nCurrentContacts;  /* Not changed in df10(). */
 
    double ** globalTime = ad->globalTime;
    double ** K = ad->K;
@@ -236,7 +73,7 @@ void df10(Geometrydata *bd, Analysisdata *ad, int **locks,
    globalTime[ad->cts][0] = globalTime[ad->cts-1][0] + ad->delta_t;
    globalTime[ad->cts][2] = ad->delta_t;
 
-}  /*  Close df10  */
+}  
 
 
 
@@ -288,8 +125,8 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
 
 
   /* i0: block number  */
-   for (i=1; i<= nFPoints; i++)
-   {
+   for (i=1; i<= nFPoints; i++) {
+
      /* i0 is the block number that the point is 
       * associated with.  Notice that the fixed points
       * are read in as a line so that the 3,4 slots
@@ -371,103 +208,14 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
 
 
 
-/**************************************************/
-/* df13: submatrix of stiffness                    */
-/**************************************************/
-void 
-df13(int numblocks, double ** K, const int *k1, double **e0, double **blockArea,
-          int **n, int planestrainflag)
-{
-   int i, i2, i3;
-   int j, j1;
-   int l;
-   int block;
-
-   double S0;  // block volume, was a1
-   double a2;
-   double E,nu;
-
-   double e[7][7]; 
-
- 
-   for (i=1; i<= 6; i++) {
-      for (j=1; j<= 6; j++) {
-         e[i][j]=0;
-      }
-   } 
-   
-   for (block=1; block<=numblocks; block++) {
-
-      E  = e0[block][2];
-      nu = e0[block][3];
-      S0 = blockArea[block][1];
-       
-      if (planestrainflag == 1) {
-
-         a2 = S0*E/(1-nu);
-         e[4][4] = a2*(1-nu)/(1-2*nu);
-         e[5][5] = a2*(1-nu)/(1-2*nu);
-         e[4][5] = a2*(nu)/(1-2*nu);
-         e[5][4] = a2*(nu)/(1-2*nu);
-         e[6][6] = a2/2;
-
-      } else {  /* PLANESTRESS */
-
-         a2 = S0*E/(1-(nu*nu));
-         e[4][4] = a2;
-         e[4][5] = a2*nu;
-         e[5][4] = a2*nu;
-         e[5][5] = a2;
-         e[6][6] = a2*(1-nu)/2;
-      }
-
-     /* i2, i3 is location of Kii in global matrix. */
-      i2=k1[block];
-      i3=n[i2][1]+n[i2][2]-1;
-
-     /* This should only have to loop over 4,5,6 */
-      for (j=1; j<= 6; j++) {
-
-         for (l=1; l<= 6; l++) {
-
-            j1 = 6*(j-1)+l;  /* set index to global matrix */
-            K[i3][j1] += e[j][l];  /* add elastic coefficients */
-         }  
-      }  
-   }  
-}  
-
-      
-/**************************************************/
-/* df14: submatrix of initial stress              */
-/**************************************************/
-void df14(int nBlocks, const int *k1, double **F, const double **e0,
-          const double **moments)
-{
-   int i, i1;
-   double S0;  // block area (per unit thickness, was a1)
-   //int nBlocks = bd->nBlocks;
-
-   for (i=1; i<=nBlocks; i++)
-   {
-      S0 = moments[i][1];
-      i1 = k1[i];
-
-     /* Compute virtual work from last iteration. */
-     /* Add the stresses. e0 is updated in df25() */
-      F[i1][4] += -S0*e0[i][4];
-      F[i1][5] += -S0*e0[i][5];
-      F[i1][6] += -S0*e0[i][6];
-   }  
-}  
 
 
 /**************************************************/
 /* df15: submatrix of point loading               */
 /**************************************************/
 void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F, 
-          double **blockArea, TransMap transmap)
-{
+          double **blockArea, TransMap transmap) {
+
    int i, i0, i1, i2;
    int j;
    int nLPoints = gd->nLPoints;
@@ -523,7 +271,7 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
 void
 seismicload(DList * seispoints, TimeHistory * timehistory, int timestep,
             int *k1, double ** F, double ** moments, 
-            double ** matprops, TransMap transmap)
+            double ** e0, TransMap transmap)
 {
 
    DList * ptr;
@@ -550,7 +298,7 @@ seismicload(DList * seispoints, TimeHistory * timehistory, int timestep,
 
       accel = th_get_data_value(timehistory, timestep);
 
-      mass = moments[blocknumber][1]*matprops[blocknumber][1];
+      mass = moments[blocknumber][1]*e0[blocknumber][1];
       force = accel*mass;
 
       for (j=1; j<= 6; j++) {
@@ -610,14 +358,69 @@ void df16(Geometrydata *gd, int *k1, double **F, double **e0,
 
 } 
 
-
-
-/* Attempt to load code for viscosity. The algorithm
- * is taken from GHS, page ??? 1988.
+/* This was moved from ddanalysis to shorten the size
+ * of the analysis loop.
  */
-int
-viscosity(Geometrydata * bd, Analysisdata * ad, double ** hb, 
-          double ** blockArea, double ** F)
-{
-   return 0;
+void
+assemble(Geometrydata * gd, Analysisdata * ad,
+         int ** locks, double ** e0,
+         int * k1, int * kk, int ** n, double ** U,
+         TransMap transmap) {
+
+
+   //double ** f = AData->F;
+   double ** moments = gd->moments;
+
+
+
+/** @todo Pull the globaltime array out of here
+ * and just pass the current time into the 
+ * interpolation function.
+ */
+   df09(ad->loadpoints,
+          gd->points,
+          ad->globalTime,
+          ad->timeDeps,
+          ad->tindex,
+          gd->nFPoints,
+          ad->nLPoints,
+          ad->cts,
+          ad->delta_t);
+
+     /* Initialize submatrices back to zero, set
+      * some other parameter related to the global
+      * time step.
+      * FIXME: see if locks can be moved out of here.
+      */
+	   df10(gd,ad,locks,ad->F);
+
+	  /* submatrix of fixed points.  */
+      df12(gd,ad,k1,ad->F,moments,n,transmap);
+
+
+     /* df13 submatrix of stiffness */
+	   stress_stiffness(gd->nBlocks,ad->K,k1,e0,moments,n,ad->planestrainflag);
+
+     /* df14 submatrix of initial stress  */
+	   stress_initial(gd->nBlocks,k1,ad->F,e0,moments);
+
+     /* submatrix of point loading  */
+	   df15(gd,ad, k1,ad->F,moments, transmap);
+
+     /* seismic loading */
+      if (ad->timehistory != NULL) {
+
+         seismicload(gd->seispoints, ad->timehistory, ad->cts,
+                     k1, ad->F, moments, e0, transmap);
+      }
+
+     /* submatrix of volume force */
+	   df16(gd,k1,ad->F,e0,moments);
+       
+      if (gd->nBolts > 0) {
+
+         bolt_stiffness_a(gd->rockbolts, gd->nBolts, ad->K, 
+            k1, kk, n, moments,ad->F,transmap);
+      }
+
 }  

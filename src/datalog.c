@@ -47,10 +47,6 @@ datalog_delete(Datalog * dl) {
    if(dl->memallocsize)
       free(dl->memallocsize);
 
-  /* Store the starting mass in slot 0 */
-   if (dl->blockmass)
-      free2DMat(dl->blockmass, dl->blockmass_size1);
-
    if (dl->energy)
       free(dl->energy);
 
@@ -110,11 +106,6 @@ datalog_new(int numtimesteps, int numjointmats, int numblocks)
 
    dlo->memallocsize1 = numtimesteplus1;
    dlo->memallocsize = (int*)calloc(numtimesteplus1, sizeof(int));
-
-  /* Store the starting mass in slot 0 */
-   dlo->blockmass_size1 = numtimesteplus1;
-   dlo->blockmass_size2 = numblocksplus1;
-   dlo->blockmass = DoubMat2DGetMem(dlo->blockmass_size1,dlo->blockmass_size2);
 
   /* Contact forces handled also.  This will be trickier. */
 

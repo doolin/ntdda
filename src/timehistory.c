@@ -3,14 +3,14 @@
  * used with SHAKE.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 03:18:11 $
+ * $Date: 2002/10/24 15:12:40 $
  * $Source: /cvsroot/dda/ntdda/src/timehistory.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "timehistory.h"
 

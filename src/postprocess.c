@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/10/11 15:44:45 $
+ * $Date: 2002/10/24 15:12:39 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  */
 
 #include <malloc.h>
@@ -223,65 +223,17 @@ writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
 }  
 
 
-void 
-writeBlockMasses(Analysisdata *ad, Geometrydata * gd)
-{
-   int i;
-   double * mass = gd->mass;
-
-   if (ad->cts == 0)
-   {
-      fprintf(fp.massfile,"%% Block areas for each time step\n");
-      fprintf(fp.massfile,"%% Starts at the zeroth time step\n\n");
-      fprintf(fp.massfile,"blockmasses = [\n");
-   }
-
-  /* WARNING: indexed from 1 instead of 0 */
-   for (i=1;i<=gd->nBlocks;i++)
-   {
-      fprintf(fp.massfile, "%20.16f ",mass[i]);
-   }
-   fprintf(fp.massfile,"\n");
-
-   if (ad->cts == ad->nTimeSteps)
-      fprintf(fp.massfile,"];\n");
-
-}  /* close writeBlockMasses() */
 
 
 
-/* FIXME: Find a way to handle writing a matlab input 
- * file without checking to see that we are on the last 
- * iteration to close the array.  
- * FIXME: This function is obsolete.
- */
-void 
-writeMasses(Analysisdata *ad,
-                Geometrydata * gd)
-{
-   int i;
-
-  /* WARNING: indexed from 1 instead of 0 */
-   for (i=1;i<=gd->nBlocks;i++)
-   {
-      fprintf(fp.logfile, "%20.16f ",gd->mass[i]);
-   }
-   fprintf(fp.logfile,"\n");
-
-/*
-   if (ad->currTimeStep == ad->nTimeSteps)
-      fprintf(fp.areafile,"];\n");
-*/
-
-}  /* close writeMasses() */
 
 
 /* Find a different file to write this information to.
  * logfile is gettting tired.
  */
 void
-writeCentroids(Analysisdata * AData, GRAPHICS * g, int numblocks)
-{
+writeCentroids(Analysisdata * AData, GRAPHICS * g, int numblocks) {
+
    int i,j;
    fprintf(fp.logfile,"\nBegin Centroids\n");
    for (i=1;i<=AData->nTimeSteps; i++)
@@ -297,7 +249,7 @@ writeCentroids(Analysisdata * AData, GRAPHICS * g, int numblocks)
 
    fprintf(fp.logfile,"End Centroids\n\n");
 
-}  /* close writeCentroids() */
+}  
 
 
 /* The spring stiffness appears to be the same for 

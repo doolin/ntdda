@@ -7,13 +7,11 @@
 
 #include <assert.h>
 #include <stdlib.h>
-/* FIXME: This gets the computeMoments function, which needs to 
- * be moved into here and made private.
- */
-#include "analysis.h"
+
 #if _DEBUG
 #include "printdebug.h"
 #endif
+
 #include "geometrydata.h"
 
 #include "ddamemory.h"
@@ -27,24 +25,6 @@ static void dumpDDAMLGeometryFile(Geometrydata *, char *);
 static void computeBoundingBox(Geometrydata *);
 
 static void deleteBlock(Geometrydata * gd, int blocknumber);
-
-//static void emitJoints(Geometrydata *, FILE *);
-//static void emitPoints(Geometrydata *, FILE *);
-//static void emitBolts(Geometrydata *, FILE *);
-//static void emitMatlines(Geometrydata *, FILE *);
-
-
-
-double 
-getBlockMass(Geometrydata * gd, double ** moments, double ** e0, int blocknum)
-{
-#if _DEBUG
-   assert(moments != NULL);
-#endif
-   computeMoments(gd); //, moments);
-   return e0[blocknum][1]*moments[blocknum][1];
-}  /* close getBlockMass() */
-
 
 
 
@@ -595,7 +575,7 @@ gdata_clone(Geometrydata * gdn) {
    else
       gdo->moments = NULL;
 
-   cloneBlockMasses(gdn,gdo);
+   //cloneBlockMasses(gdn,gdo);
 
    return gdo;
 
@@ -752,7 +732,43 @@ gdata_new(void) {
 } 
 
 
+/** @todo Write a unit test for this then replace the 
+ * inner loop in computeMoments() with this function.
+ */
+/** This function computes all the relevant moments for
+ * a single block.
+ */
+static void
+moments_compute(double * moments, double ** vertices, int * vindex) {
 
+   int i;
+   double f1,x2,x3,y2,y3;
+
+   for (i=vindex[1]; i<=vindex[2]; i++) {
+
+      x2 = vertices[i][1];
+      y2 = vertices[i][2];
+      x3 = vertices[i][1];
+      y3 = vertices[i][2];
+      
+      f1 = (x2*y3-x3*y2);
+      moments[1] += f1/2;
+
+     /* Evidently, the 0 represents the value of
+      * x1 and y1.
+      */
+      moments[2] += f1*(0+x2+x3)/6;
+      moments[3] += f1*(0+y2+y3)/6;
+      moments[4] += f1*(x2*x2+x3*x3+x2*x3)/12;
+      moments[5] += f1*(y2*y2+y3*y3+y2*y3)/12;
+      moments[6] += f1*(2*x2*y2+2*x3*y3+x2*y3+x3*y2)/24;
+   }
+
+
+  /* Compute current centroids. */   
+   moments[7] = moments[2]/moments[1];
+   moments[8] = moments[3]/moments[1];
+}
 
 
 /**************************************************/
@@ -783,18 +799,26 @@ computeMoments(Geometrydata * gd) {
    int vertex;
    double x2, y2, x3, y3, f1;
 
- 		for (block=1; block<=nBlocks; block++) {
 
-        /* This loop to zero the moments matrix may or may not be 
-         * necessary.  Leave it in for now, as it is not the 
-         * problem affecting the areas.  This could also be moved
-         * outside the loop and zeroed with the subroutine call.
-         */
-         for (j=1; j<=  6; j++) {
-            moments[block][j] = 0;
-         }       
+   for (block=1; block<=nBlocks; block++) {
+
+     /* This loop to zero the moments matrix may or may not be 
+      * necessary.  Leave it in for now, as it is not the 
+      * problem affecting the areas.  This could also be moved
+      * outside the loop and zeroed with the subroutine call.
+      */
+     /* @todo move this into the function above. */
+      for (j=1; j<=8; j++) {
+         moments[block][j] = 0;
+      }       
       
-     /* x1=0  y1=0 here  */
+
+
+     /**  @todo replace the following inner loop with a function call
+      * which is much easier to test.
+      */     
+      //moments_compute(moments[block], vertices, vindex[block]) {
+
       for (vertex=vindex[block][1]; vertex<=vindex[block][2]; vertex++) {
 
          x2 = vertices[vertex][1];
@@ -814,29 +838,14 @@ computeMoments(Geometrydata * gd) {
          moments[block][6] += f1*(2*x2*y2+2*x3*y3+x2*y3+x3*y2)/24;
       }
 
-     /* Compute current centroids.  Leave this in for
-      * now, but move to a different function later.
-      */
-      if(1)
-      {
-         moments[block][7] = moments[block][2]/moments[block][1];
-         moments[block][8] = moments[block][3]/moments[block][1];
-      }
 
-
-
-     /* TODO: set a run-time trap for this assertion.
-      * Would be best to throw an exception.
-      * If this assertion fires, check to see if reducing 
-      * the max displacement (analysis file) solves the 
-      * problem.  This assertion is often fired as a result
-      * of divide by zero somewhere else in the code.
-      */
-      assert(moments[block][1]  > 0);
+     /* Compute current centroids. */   
+      moments[block][7] = moments[block][2]/moments[block][1];
+      moments[block][8] = moments[block][3]/moments[block][1];
 
       if (moments[block][1] <= 0) {
          char mess[80];
-         sprintf(mess,"Block %d has negative area",block);
+         sprintf(mess,"Block %d has negative area, probably divide by zero error",block);
          gd->display_error(mess);
       }
    }
@@ -849,56 +858,6 @@ computeMoments(Geometrydata * gd) {
    avgArea  = avgArea/nBlocks;
    
    return avgArea;
-
-}  /* Close computeMoments() */
-
-
-
-void
-initBlockMasses(Geometrydata * gd)
-{
-  /* index from 1 */
-   gd->masssize = gd->nBlocks+1;
-   gd->mass = (double *)malloc((gd->masssize)*sizeof(double));
-   memset((void*)gd->mass,0xDA,(gd->masssize)*sizeof(double));
-   gd->origmass = (double *)malloc((gd->masssize)*sizeof(double));
-   memset((void*)gd->origmass,0xDA,(gd->masssize)*sizeof(double));
-
-}  /* close initBlockMasses() */
-
-
-void 
-cloneBlockMasses(Geometrydata * gdn, Geometrydata * gdo)
-{
-
-   if (gdn->mass)
-   {
-      memcpy((void*)gdo->mass,(void*)gdn->mass,(gdn->masssize)*sizeof(double));
-   }
-
-   if (gdn->origmass)
-   {
-      memcpy((void*)gdo->origmass,(void*)gdn->origmass,(gdn->masssize)*sizeof(double));
-   }
-
-}  /* close cloneBlockMasses() */
-
-
-void freeBlockMasses(Geometrydata * gd)
-{
-
-   if(gd->mass)
-   {
-      memset((void*)gd->mass,0xDD,(gd->masssize)*sizeof(double));
-      free(gd->mass);
-   }
-
-   if(gd->origmass)
-   {
-      memset((void*)gd->origmass,0xDD,(gd->masssize)*sizeof(double));
-      free(gd->origmass);
-   }
-
 }  
 
 
@@ -912,12 +871,12 @@ gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
   /* Need a function that will just compute moments for a single block. */
    computeMoments(gd);
 
-   x0=moments[block][2]/moments[block][1];  // x0 := x centroid
-   y0=moments[block][3]/moments[block][1];  // y0 := y centroid
+   x0=moments[block][7];   
+   y0=moments[block][8];
 
    centroid[0] = x0;
    centroid[1] = y0;
-   return;
+
 }
 
 

@@ -49,18 +49,7 @@ typedef int  (*PrintFunc)(void *, const char *, ...);
 typedef void  (*DisplayFunc)(const char * message);
 #endif
 
-#ifndef TRANSMAPFUNC
-typedef void (*TransMap)(double ** moments, double T[7][7], double x, 
-                         double y, int i0);
-#define TRANSMAPFUNC
-#endif
 
-
-#ifndef TRANS_APPLY_FUNC
-#define TRANS_APPLY_FUNC
-typedef void (*TransApply)(double T[][7], double * D, 
-                           double * u1, double * u2);
-#endif
 
 
 
@@ -95,21 +84,6 @@ typedef struct {
 } DPoint;
 
 
-
-#if 0
-struct _jointmat {
-
-  /* Need a union of structs and an 
-   * enum in here to handle the various types
-   * of friction laws.
-   */
-   double fric;
-  	double coh;
-	double tens;
-
-  	int type;
-};
-#endif
 
 
 struct _ddapoint{

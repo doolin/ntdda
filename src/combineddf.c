@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/22 15:35:20 $
+ * $Date: 2002/10/24 15:12:35 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.39 $
+ * $Revision: 1.40 $
  *
  */
 /*################################################*/
@@ -17,6 +17,13 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.40  2002/10/24 15:12:35  doolin
+ * Point commit to allow some unit testing on unix side.
+ * (Much easier to write command line cod ein unix etc.)  Lots and
+ * lots of relatively small changes, but the code has been touched
+ * almost everywhere.  Probably should not update on this commit.
+ * Wait until a future commit.
+ *
  * Revision 1.39  2002/10/22 15:35:20  doolin
  * minor cleanups
  *
@@ -393,7 +400,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    }
 
   /* FIXME: Move initBlockMasses() to a better place. */
-   initBlockMasses(gd);
+   //initBlockMasses(gd);
 
 
   /* Only as many knowns as blocks DOF. */
@@ -2418,8 +2425,6 @@ df24(Geometrydata *gd, Analysisdata *ad, double ** F, int *k1,
    double x, y;
    double u1, u2;
 
-   //double ** F = ad->F;
-
    double T[7][7] = {{0.0}};
    
    int nBlocks = gd->nBlocks;
@@ -2435,8 +2440,8 @@ df24(Geometrydata *gd, Analysisdata *ad, double ** F, int *k1,
 
 
   /* (GHS: vertex displacements) */
-	for (i=1; i<=nBlocks; i++)
-   {
+	for (i=1; i<=nBlocks; i++) {
+
 	  	i1 = vindex[i][1];
 	  	i2 = vindex[i][2];
       
@@ -2496,7 +2501,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 
    int i, i0, i1, i2;
    int j; 
-   //double a1; 
    int nBlocks = gd->nBlocks;
    int nLPoints = gd->nLPoints;
    int nFPoints = gd->nFPoints;
@@ -2512,11 +2516,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /* Displacements (deprecate this notation) */
    double x1, y1;
   /* Displacements, change to ux,uy so that notation is uniform */
-   //double ux, uy;
-  /* End point block number of rock bolts. */
-   //int ep1,ep2;
-  /* Helper vars for updating stresses etc. */
-   //double nu, youngsmods;
+   //double u1, u2;
+
    double T[7][7];
   /* Deformations D overwrite the forcing vector F during 
    * LU decomposition.
@@ -2563,15 +2564,16 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
          U[i][j+6] = U[i][j];
          U[i][j] = F[i1][j];
          __D[i][j] = F[i1][j];
-      }  /*  j  */
-   }  /*  i  */
+      } 
+   }  
 
   /* For each measured point, save the current location,
    * i.e., (x,y) coordinates to compare with the updated
    * coordinates.  This is used to determine the 
    * displacements of the measured points.  Beware
    * the index shifting here.
-   * FIXME: Write a copy array function.
+   * FIXME: Get rid of this and do the postprocessing 
+   * in matlab or perl or something.
    */   
    for (i=1; i<=nFPoints+nLPoints+nMPoints; i++)
    {

@@ -74,6 +74,7 @@ stress_equals(double * d1, double * d2, double tol) {
 }
 
 
+
 double *
 stress_clone(const double * s1) {
 
@@ -83,6 +84,8 @@ stress_clone(const double * s1) {
    memcpy(s2,s1,sizeof(double)*_size_);
    return s2;
 }
+
+
 
 
 void
@@ -98,6 +101,8 @@ stress_update(double ** e0, double ** D, int * k1,
       //stress_rotate(e0[i],D[i1][3]);
    }
 }
+
+
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 /**
@@ -173,6 +178,97 @@ stress_rotate(double * stress, double r0) {
 }
 
 
+/**************************************************/
+/* df13: submatrix of stiffness                    */
+/**************************************************/
+void 
+stress_stiffness(int numblocks, double ** K, const int *k1, double **e0, 
+                 double ** moments, int **n, int planestrainflag) {
+
+   int i, i2, i3;
+   int j, j1;
+   int l;
+   int block;
+
+   double S0;  // block volume, was a1
+   double a2;
+   double E,nu;
+
+   double e[7][7]; 
+
+ 
+   for (i=1; i<= 6; i++) {
+      for (j=1; j<= 6; j++) {
+         e[i][j]=0;
+      }
+   } 
+   
+   for (block=1; block<=numblocks; block++) {
+
+      E  = e0[block][2];
+      nu = e0[block][3];
+      S0 = moments[block][1];
+       
+      if (planestrainflag == 1) {
+
+         a2 = S0*E/(1-nu);
+         e[4][4] = a2*(1-nu)/(1-2*nu);
+         e[5][5] = a2*(1-nu)/(1-2*nu);
+         e[4][5] = a2*(nu)/(1-2*nu);
+         e[5][4] = a2*(nu)/(1-2*nu);
+         e[6][6] = a2/2;
+
+      } else {  /* PLANESTRESS */
+
+         a2 = S0*E/(1-(nu*nu));
+         e[4][4] = a2;
+         e[4][5] = a2*nu;
+         e[5][4] = a2*nu;
+         e[5][5] = a2;
+         e[6][6] = a2*(1-nu)/2;
+      }
+
+     /* i2, i3 is location of Kii in global matrix. */
+      i2=k1[block];
+      i3=n[i2][1]+n[i2][2]-1;
+
+     /* This should only have to loop over 4,5,6 */
+      for (j=1; j<= 6; j++) {
+
+         for (l=1; l<= 6; l++) {
+
+            j1 = 6*(j-1)+l;  /* set index to global matrix */
+            K[i3][j1] += e[j][l];  /* add elastic coefficients */
+         }  
+      }  
+   }  
+}  
+
+
+
+/**************************************************/
+/* df14: submatrix of initial stress              */
+/**************************************************/
+void stress_initial(int nBlocks, const int *k1, double **F, const double **e0,
+                    const double ** moments) {
+
+   int i, i1;
+   double S0;
+
+   for (i=1; i<=nBlocks; i++) {
+
+      S0 = moments[i][1];
+      i1 = k1[i];
+
+     /* Compute virtual work from last iteration. */
+     /* Add the stresses. e0 is updated in df25() */
+      F[i1][4] += -S0*e0[i][4];
+      F[i1][5] += -S0*e0[i][5];
+      F[i1][6] += -S0*e0[i][6];
+   }  
+}  
+
+
 
 void
 stress_print(double * s, PrintFunc printer, void * stream) {
@@ -181,6 +277,7 @@ stress_print(double * s, PrintFunc printer, void * stream) {
                    s[_rho_],s[_gamma_],s[_E_],s[_nu_]);
    stress_print_stresses(s,printer,stream);
 }
+
 
 
 void 

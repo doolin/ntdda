@@ -43,8 +43,6 @@ void writeTimeInfo(Analysisdata *);
 void writeMeasuredPoints(Geometrydata *, Analysisdata *);
 void writeFixedPoints(Geometrydata *, Analysisdata *);
 void writeMoments(Geometrydata *, int timestep, int numtimesteps);
-void writeBlockMasses(Analysisdata *,Geometrydata *);
-void writeMasses(Analysisdata *,Geometrydata *);
 void writeSpyfile(int ** n, int * kk, int numblocks, FILE * spyfile1);
 void writeBlockVerticesLog(Geometrydata *, int timestep, int block);
 void writeAllBlockVerticesMatrix(Geometrydata *, Analysisdata *);

@@ -46,35 +46,53 @@ typedef void (*ConstModel)(double * e0, double * D);
  *
  * @return void.
  */
-void stress_update          (double ** e0, 
-                             double ** D, 
-                             int * k1, 
-                             int numblocks,
-                             ConstModel apply_const_model);
+void     stress_update         (double ** e0, 
+                                double ** D, 
+                                int * k1, 
+                                int numblocks,
+                                ConstModel apply_const_model);
 
 
-void  stress_print          (double * s, 
-                             PrintFunc printer, 
-                             void * stream);
+void     stress_print          (double * s, 
+                                PrintFunc printer, 
+                                void * stream);
 
 
-void  stress_print_stresses (double * s, 
-                             PrintFunc printer, 
-                             void * stream);
+void     stress_print_stresses (double * s, 
+                                PrintFunc printer, 
+                                void * stream);
 
 
-double * stress_clone       (const double * s1);
+double * stress_clone          (const double * s1);
 
-int      stress_equals      (double * d1, 
-                             double * d2, 
-                             double tol);
+int      stress_equals         (double * d1, 
+                                double * d2, 
+                                double tol);
 
 
-void     stress_planestrain (double * e0,
-                             double * D);
+void     stress_planestrain    (double * e0,
+                                double * D);
 
-void     stress_planestress (double * e0,
-                             double * D);
+void     stress_planestress    (double * e0,
+                                double * D);
+
+
+void     stress_stiffness      (int numblocks, 
+                                double ** K, 
+                                const int *k1, 
+                                double **e0, 
+                                double ** moments, 
+                                int **n, 
+                                int planestrainflag);
+
+
+void     stress_initial        (int nBlocks, 
+                                const int *k1, 
+                                double **F, 
+                                const double **e0,
+                                const double **moments);
+
+
 
 
 /** TCK stress rotation correction, Eq. 17, p. 324,

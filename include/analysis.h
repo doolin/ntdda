@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/23 16:46:53 $
+ * $Date: 2002/10/24 15:12:31 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -25,7 +25,7 @@ extern "C" {
 
 #include "dda.h"
 #include "contacts.h"
-
+#include "functions.h"
 
 
 /* These are the old variable names, retained for 
@@ -124,9 +124,18 @@ void allocateAnalysisArrays(Geometrydata * GData,
                             int ** kk, 
                             int ** k1, 
                             double *** c0, 
-                            double *** e0,
+                            //double *** e0,
                             double *** angles, 
                             int *** n);
+
+void deallocateAnalysisArrays(int * kk, 
+                              int * k1, 
+                              double ** c0, 
+                              //double ** e0, 
+                              double ** U, 
+                              int ** n);
+
+
 
 double df01(Geometrydata *);
 void df02(void);
@@ -141,7 +150,15 @@ void sparsestorage(Geometrydata *, Analysisdata *, Contacts *,
                    int *, int **);
 
 
-
+void df09(Loadpoint * loadpoints,
+          double ** points,
+          double ** globalTime,
+          double ** timeDeps,
+          int ** tindex,
+          int nfp,
+          int numloadpoints,
+          int cts,
+          double delta_t);
 
 /******************  Solver *********************/
 /* FIXME:  All this needs to go into its own header file. */
@@ -190,18 +207,6 @@ void multnew(double [][7], double [][7]);
 
 
 
-/* This needs to go into the geometrydata part. */
-void transplacement_linear(double **, double [7][7], const double, const double, const int);
-void transplacement_finite(double **, double [7][7], const double, const double, const int);
-
-void transplacement_apply_linear(double T[][7], double * D, 
-                                  double * u1, double * u2);
-
-void transplacement_apply_2dorder(double T[][7], double * D, 
-                                  double * u1, double * u2);
-
-void transplacement_apply_exact(double T[][7], double * D, 
-                                  double * u1, double * u2);
 
 
 void findContacts(Geometrydata * GData, Analysisdata * AData, 
@@ -213,12 +218,29 @@ void assemble(Geometrydata * GData, Analysisdata * AData,
             int ** locks, double ** e0, int * k1, int * kk,
             /* double ** moments, */int ** n, double ** U, TransMap transmap);
 
-void timeintegration(Geometrydata * GData, Analysisdata * AData,
-            double ** e0, int * k1,
-            /* double ** moments, */ int ** n, double ** U);
+void timeintegration(Geometrydata * GData, 
+                     Analysisdata * AData,
+                     double ** e0, 
+                     int * k1,
+                     //double ** moments,
+                     int ** n, 
+                     double ** U, 
+                     MassMatrix massmatrix);
 
-void newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
-          double **matprops, double **moments, int **n, double ** U);
+
+/** @todo  See if the df11() function takes care of 
+ * all the parameter changes.  If so, this function 
+ * should be changed to do an explicit integration.
+ */
+void newmarkIntegration(Geometrydata *gd, 
+                        Analysisdata *ad, 
+                        int *k1, 
+                        double **F,
+                        double **matprops, 
+                        double **moments, 
+                        int **n, 
+                        double ** U,
+                        MassMatrix massmatrix);
 
 
 void postProcess(Geometrydata * GData, Analysisdata * AData);
@@ -235,7 +257,6 @@ int checkDiagDominance(double ** K, int ** colindex, int numblocks);
 
 Geometrydata * readBlocks(FILEPATHS *);
 
-void deallocateAnalysisArrays(int *, int *, double **, double **, double**, int ** n);
 
 void vertexInit(Geometrydata *);
 

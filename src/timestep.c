@@ -32,7 +32,7 @@ static int __Dsize2;
 double ** __D;
 
 static void df11(Geometrydata *, Analysisdata *, int *, double **,
-            double **, double **, int **, double ** U);
+            double **, double **, int **, double ** U, MassMatrix massmatrix);
 
 /* Integration constants for Newmark */
 static double a0c, a1c, a2c,a3c,a4c,a5c,a6c,a7c;
@@ -107,9 +107,11 @@ freeIntegrationArrays()
  */
 void
 timeintegration(Geometrydata * GData, Analysisdata * AData,
-         double ** matprops, int * k1, /*double ** moments, */ int ** n,
-         double ** U)
-{
+                double ** matprops, int * k1, /*double ** moments, */ int ** n,
+                double ** U,
+                MassMatrix massmatrix) {
+
+
    double ** f = AData->F;
    clock_t start, stop;
    double ** moments = GData->moments;
@@ -125,12 +127,12 @@ timeintegration(Geometrydata * GData, Analysisdata * AData,
    switch (AData->integrator)
    {
       case constant:
-         df11(GData, AData,k1,f,matprops,moments,n,U);
+         df11(GData, AData,k1,f,matprops,moments,n,U,massmatrix);
          break;
 
      /* Newmark is from Bathe and Wilson, pp. 322-326, 1976. */
       case newmark:
-         newmarkIntegration(GData, AData,k1,f,matprops,moments,n, U);
+         newmarkIntegration(GData, AData,k1,f,matprops,moments,n,U,massmatrix);
          break;
   
       default:
@@ -155,7 +157,7 @@ timeintegration(Geometrydata * GData, Analysisdata * AData,
  */
 void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
           double ** e0, double **moments, int **n, 
-          double ** U)
+          double ** U, MassMatrix massmatrix)
 {
    int i, j, i1, i2, ji, l;
   /* g6 g5 coefficients of mass and velocity matrix.
@@ -319,9 +321,10 @@ double a7;
       S2=moments[i][5]-y0*moments[i][3];
       S3=moments[i][6]-x0*moments[i][3];
 
-     /* Build the mass matrix using Eq. 2.57, p. 85,
-      * Chapter 2, Shi 1988.
-      */
+
+      massmatrix(TT,S0,S1,S2,S3);
+
+#if 0
       TT[1][1]=S0;
       TT[2][2]=S0;
       TT[3][3]=S1+S2;
@@ -338,6 +341,7 @@ double a7;
       TT[5][6]=S3/2;
       TT[6][5]=TT[5][6];
       TT[6][6]=(S1+S2)/4;
+#endif
 
      /* Compute the kinetic energy.
       * FIXME: Rewrite this as a function, then
@@ -453,7 +457,8 @@ double a7;
  */
 void
 newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
-          double **matprops, double **moments, int **n, double ** U)
+          double **matprops, double **moments, int **n, double ** U,
+          MassMatrix massmatrix)
 {
   /* Loop counters, etc. FIXME: explain i1. */
    int i, j, i1, i2, ji, l;
@@ -476,7 +481,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
   /* Mass matrix variables:  Eq. 2.57, p. 85,
    * Chapter 2, Shi 1988.
    */
-   double S1,S2,S3;
+   double S0,S1,S2,S3;
   /* x and y coordinates of centroid for each block */
    double x0, y0;
   /* TT is integrated moments matrix, Eq. 2.57, p. 85 */
@@ -573,30 +578,13 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
      /* S1, S2, S3 result from integrals derived on 
       * pp. 83-84, Chapter 2, Shi 1988.
       */
-      S1=moments[i][4]-x0*moments[i][2];
-      S2=moments[i][5]-y0*moments[i][3];
-      S3=moments[i][6]-x0*moments[i][3];
+      S0 = moments[i][1];  
+      S1 = moments[i][4]-x0*moments[i][2];
+      S2 = moments[i][5]-y0*moments[i][3];
+      S3 = moments[i][6]-x0*moments[i][3];
 
-     /* Build the mass matrix using Eq. 2.57, p. 85,
-      * Chapter 2, Shi 1988.
-      */
-      TT[1][1]=moments[i][1];  // area S0
-      TT[2][2]=moments[i][1];  // area S0
-      TT[3][3]=S1+S2;
-      TT[4][4]=S1;
-      TT[5][5]=S2;
-      TT[6][6]=(S1+S2)/4;
+      massmatrix(TT,S0,S1,S2,S3);
 
-      TT[3][4]= -S3;
-      TT[4][3]=TT[3][4];
-      TT[3][5]=S3;
-      TT[5][3]=TT[3][5];
-      TT[3][6]=(S1-S2)/2;
-      TT[6][3]=TT[3][6];
-      TT[4][6]=S3/2;
-      TT[6][4]=TT[4][6];
-      TT[5][6]=S3/2;
-      TT[6][5]=TT[5][6];
 
      /* (GHS: add mass matrix to a[][]) */
      /* k1 stores "permutation index",

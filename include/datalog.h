@@ -12,6 +12,13 @@ extern "C" {
 }
 #endif
 
+
+/** Start changing this over to use an incomplete type.
+ * It will be much easier to maintain.
+ */
+// typedef struct _datalog Datalog;
+
+
 /* Track energy consumption per time step.  Later,
  * each block can grab one of these structs for itself.
  */
@@ -107,14 +114,6 @@ typedef struct datalog_tag {
   /* Records number of convex-concave angle contacts in each time step. */
    int num_cvex_ccave_contactsize1;
    int * num_cvex_ccave_contacts;
-
-  /* Records mass of every block for every time step.  This is for 
-   * validation purposes.  Adding mass adds energy.  Bad.  This will
-   * have to be changed to write out incrementally at a later date.
-   */
-   int blockmass_size1;  // num timesteps
-   int blockmass_size2;  // num blocks
-   double ** blockmass;
 
   /* Record the memory allocation size.  This is different from the 
    * contact sizes, because it has to handle the diagonals, off-diagonals,

@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/23 16:46:54 $
+ * $Date: 2002/10/24 15:12:40 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  */
 
 
@@ -150,7 +150,7 @@ checkParameters(Geometrydata * gd, Analysisdata * ad, Contacts * ctacts, FILE * 
 
    return FALSE;  /* Passed, on to new time step */
 
-}  /* close checkParameters() */
+}  
 
 
 
@@ -301,155 +301,6 @@ void dist(void)
 
 
 
-/**************************************************/
-/* dspl: block displacement matrix           0001 */
-/*************************************************/
-/* x10  y10  u2  v2  t[][]               i0  x  y */
-/* FIXME: Change the arguments for this function so that 
- * it will be easier to test:
- * transplacement_linear(double T[][7], double tX, tY)
- * where T is the "return value", and tX,tY are 
- * \tilde X and \tilde Y respectively.  This way the 
- * moments array does not need to be continually 
- * dereferenced in this function.  In fact, computing 
- * the centroid could be done anytime the block is
- * already in memory (i.e., the array is being dereferenced
- * elsewhere for any other reason.  
- */
-void 
-transplacement_linear(double **moments, double T[][7], 
-                      const double x, const double y, const int i0) {
-
-   double x0, y0;
-   double u2, v2;
-   
-  /* i0 is block number                         */
-  /* x10,y10:center of gravity of the block         */
-   x0 = moments[i0][2]/moments[i0][1];
-   y0 = moments[i0][3]/moments[i0][1];
-
-
-  /* u2 and v2 are temporary variables to handle linear 
-   * rotation and strains.
-   */
-   u2      = x-x0;
-   v2      = y-y0;
-
-  /* Translations. */
-   T[1][1] = 1;
-   T[2][1] = 0;
-   T[1][2] = 0;
-   T[2][2] = 1;
-  /* Linear rotations. */
-   T[1][3] = -v2;
-   T[2][3] = u2;
-  /* Principal strains. */
-   T[1][4] = u2;
-   T[2][4] = 0;
-   T[1][5] = 0;
-   T[2][5] = v2;
-  /* Shear strains. */
-   T[1][6] = v2/2;
-   T[2][6] = u2/2;
-}   
-
-
-void 
-transplacement_finite(double **moments, double T[][7], 
-                      const double x, const double y, const int i0) {
-
-   double x0, y0;
-   //double u2, v2;
-   double tX, tY;
-   
-  /* i0 is block number                         */
-  /* x10,y10:center of gravity of the block     */
-   x0 = moments[i0][2]/moments[i0][1];
-   y0 = moments[i0][3]/moments[i0][1];
-
-   tX      = x-x0;
-   tY      = y-y0;
-
-   T[1][1] = 1;
-   T[2][1] = 0;
-   T[1][2] = 0;
-   T[2][2] = 1;
-   T[1][3] = tX;
-   T[2][3] = 0;
-   T[1][4] = 0;
-   T[2][4] = tY;
-   T[1][5] = tX;
-   T[2][5] = 0;
-   T[1][6] = 0;
-   T[2][6] = tY;
-
-}   
-
-
-void 
-transplacement_apply_linear(double T[][7], double * D, 
-                             double * u1, double * u2) {
-
-   int j;
-
-   *u1 = 0;
-   *u2 = 0;
-
-   for (j=1; j<= 6; j++) {
-     *u1 += T[1][j]*D[j];
-     *u2 += T[2][j]*D[j];
-   }  
-}
-
-
-
-void 
-transplacement_apply_2dorder(double T[][7], double * D, 
-                             double * u1, double * u2) {
-
-   int j;
-
-  *u1 = 0;
-  *u2 = 0;
-
-   for (j=1; j<= 6; j++) {
-
-      if (j==3) {
-         j++;
-      }
-           
-     *u1 += T[1][j]*D[j];
-     *u2 += T[2][j]*D[j];
-   }  
-      
-  *u1 += (-T[2][3]*D[3]*D[3]/2.0) + (T[1][3]*D[3]);
-  *u2 += (T[2][3]*D[3]) + (T[1][3]*D[3]*D[3]/2.0);
-
-}
-
-
-void 
-transplacement_apply_exact(double T[][7], double * D, 
-                             double * u1, double * u2) {
-
-   int j;
-
-  *u1 = 0;
-  *u2 = 0;
-
-   for (j=1; j<= 6; j++) {
-
-      if (j==3) {
-         j++;
-      }
-           
-     *u1 += T[1][j]*D[j];
-     *u2 += T[2][j]*D[j];
-   }  
-      
-  *u1 += (T[2][3] * (cos(D[3])-1) + T[1][3]*sin(D[3]));
-  *u2 += (T[2][3] * sin(D[3]) - T[1][3]*(cos(D[3])-1)); 
-}
 
 
 
@@ -484,9 +335,13 @@ setMatrixToZero(double **matrix, int row, int column)
  * called everytime step, initializing ahead of time saves a lot of
  * overhead.
  */
+/**
+ * @todo  Change the algorithm to use modular arithmetic so 
+ * this loop does not have to be computed.
+ */
 void
-vertexInit(Geometrydata *gd)
-{
+vertexInit(Geometrydata *gd) {
+
   /* change vertices to have previous vertex of 1st vertex */
   /* This is a convenience for the simplex integration
    * in the area function.
@@ -503,6 +358,9 @@ vertexInit(Geometrydata *gd)
    }  /*  i  */
 
 }  // Close vertexInit() 
+
+
+
 
 /* FIXME: This function should moved to between the analysis 
  * part and the geometry part.  That way it can be cloned 
@@ -645,6 +503,7 @@ copy2DIntMat(int ** mat1, int ** mat2, int n, int m)
 
 
 
+
 void
 initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
 {
@@ -657,11 +516,14 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
 
    double gravaccel = adata_get_grav_accel(ad);
 
+  /** Fix any problems silently. */
+   material_validate(vindex,nBlocks,nb);
+
   /* materialProps: ma we e0 u0 s11 s22 s12 t1 t2 t12 vx vy vr */
   /* (GHS: e0: ma we e0 u0 c11 c22 c12 t-weight)  */
   /* (GHS: v0: velocity of u v r ex ey gxy parameters) */
-   for (i=1; i<= nBlocks; i++)
-   {
+   for (i=1; i<= nBlocks; i++) {
+
      /* WARNING: The material types for the blocks must be specified
       * in order. Example: 1,2,3,4.  Any out-of-order material type,
       * such as 1,2,3,5, will result in material type 5 being demoted
@@ -675,10 +537,6 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
       * it only exists to make the transfer from the input file to
       * e0, and can possibly be radically rewritten.
       */
-      if ( vindex[i][0] < 1  )  
-         vindex[i][0]= 1;
-      if ( vindex[i][0] > nb )  
-         vindex[i][0]=nb;
 
       i1 = vindex[i][0];
       e0[i][0] = materialProps[i1][0]; /* density; unit mass */
@@ -706,8 +564,11 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
      /* Damping parameter from Shi 1988 formulation. */
       e0[i][8] = materialProps[i1][13];
     
-   }  /*  i  */
+   }  
+
 }  /* close initBlockProperties() */
+
+
 
 void
 initVelocity(Geometrydata * gd, Analysisdata * ad, double ** v0)
@@ -828,7 +689,7 @@ void allocateAnalysisArrays(Geometrydata * GData,
                             int ** kk, 
                             int ** k1,
                             double *** c0, 
-                            double *** e0,
+                            //double *** e0,
                             double *** U, 
                             int *** n) 
 {
@@ -857,16 +718,6 @@ void allocateAnalysisArrays(Geometrydata * GData,
    __c0size2=7;
   *c0 = DoubMat2DGetMem(__c0size1, __c0size2);
 
-  /**************************************************/
-  /* e0: block material constants                   */
-  /* e0: ma we e0 u0 c11 c22 c12 t-weight           */
-  /* e0[nBlocks+1][7]  e_z                          */
-  /* e0[][8] = damping.                             */
-  /* e0[][9] = initial area                         */
-   __matpropsize1=GData->nBlocks+1;
-   __matpropsize2=10;//9;//8;
-  *e0 = DoubMat2DGetMem(__matpropsize1, __matpropsize2);
-
   /*  u v  or x+u y+v  of vertices in vertices          */
   /* u[vertexCount+1][3]                                */
    __Usize1=GData->nBlocks+1; //GData->vertexCount+1;
@@ -885,9 +736,13 @@ void allocateAnalysisArrays(Geometrydata * GData,
 }  
 
 
-void deallocateAnalysisArrays(int *kk, int *k1, 
-                     double **c0, double **e0, 
-                     double **U, int ** n) 
+void 
+deallocateAnalysisArrays(int *kk, 
+                         int *k1, 
+                         double **c0, 
+                         //double **e0, 
+                         double **U, 
+                         int ** n) 
 {
    extern void freeCGTemp();
 
@@ -902,14 +757,16 @@ void deallocateAnalysisArrays(int *kk, int *k1,
 
    if (n)
       free2DMat((void **)n, __nsize1);
+
 	  if (c0)
       free2DMat((void **)c0, __c0size1);
-   if (e0)
-      free2DMat((void **)e0, __matpropsize1);
+
    //if (v0)
    //   free2DMat((void **)v0, __v0size1);
-		 //if (moments)
+		 
+       //if (moments)
       //free2DMat((void **)moments, __momentsize1);
+
    if (U)
       free2DMat((void **)U, __Usize1);
 

@@ -7,6 +7,13 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.32  2002/10/24 15:12:33  doolin
+ * Point commit to allow some unit testing on unix side.
+ * (Much easier to write command line cod ein unix etc.)  Lots and
+ * lots of relatively small changes, but the code has been touched
+ * almost everywhere.  Probably should not update on this commit.
+ * Wait until a future commit.
+ *
  * Revision 1.31  2002/10/23 16:46:54  doolin
  * Added a struct to help manage memory for material properties.
  *
@@ -190,6 +197,7 @@
 #include "postprocess.h"
 #include "datalog.h"
 #include "bolt.h"
+#include "material.h"
 
 
 Datalog * DLog;
@@ -204,8 +212,14 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    Geometrydata * GData = dda_get_geometrydata(dda);
    Analysisdata * AData = dda_get_analysisdata(dda);
 
+  /** Maximum vertex displacement current time step. */
+   double md_cts;
 
+  /** Callbacks for really critical stuff, like 
+   * integration, motion, etc.
+   */
    TransMap transmap = transplacement_linear;
+   MassMatrix massmatrix = massmatrix_linear;
    TransApply transapply = NULL;
 
    Contacts * CTacts;
@@ -234,7 +248,11 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
   /* e0: block material constants                   */
   /* e0: ma we e0 u0 c11 c22 c12 t-weight           */
   /* e0[nBlocks+1][8]                               */
-   double ** e0; //matprops; // was e0
+  double ** e0; //matprops; // was e0
+  Material * m;
+
+
+
   /*------------------------------------------------*/
   /*  u v  or x+u y+v  of vertices in the `vertices'*/
   /* matrix,                                        */
@@ -292,7 +310,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    adata_set_output_flag(AData, FIXEDPOINTS);
    adata_set_output_flag(AData, MEASPOINTS);
    adata_set_output_flag(AData, SOLUTIONVECTOR);
-   adata_set_output_flag(AData, BLOCKMASSES);
    //adata_set_output_flag(AData, BLOCKSTRESSES);
    adata_set_output_flag(AData, PENALTYFORCES);
    adata_set_output_flag(AData, FRICTIONFORCES);
@@ -304,9 +321,16 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    adata_set_output_flag(AData, MOMENTS);
 
   /* Allocating arrays in a function removes lots of superfluous
-   * code. 
+   * code.  Most of this function will disappear in the future.
    */
-   allocateAnalysisArrays(GData, &kk, &k1, &c0, &e0, &U, &n);
+   allocateAnalysisArrays(GData, &kk, &k1, &c0, 
+                          //&e0, 
+                          &U, &n);
+
+  /* Handle the previous e0 */
+   m = material_new(GData->nBlocks);
+   e0 = material_get_props(m);
+
 
   /* FIXME: document function. */
    initNewAnalysis(GData, AData, e0, filepath);
@@ -345,7 +369,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    if (AData->options & MOMENTS)
       writeMoments(GData, AData->cts, AData->nTimeSteps);
 
-   //writeBlockMasses(AData,GData);
   /* If arg 2 is greater than the number of blocks, 
    * we get a crash.
    */
@@ -428,7 +451,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          * code currently uses a forward difference expansion
          * outlined in the 1996 1st DDA Int forum.
          */
-         timeintegration(GData, AData,e0,k1, n, U);
+         timeintegration(GData, AData,e0,k1, n, U, massmatrix);
 
 
         /* OPEN-CLOSE ITERATION */
@@ -436,8 +459,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          
            /* Add and subtract contact matrices */
             df18(GData, AData, CTacts, kk,k1,c0,n, transmap);
-            //printKForIthBlock(AData, 2, 1, kk, n, "After sparsestorage");
-            //printKK(kk,n,GData->nBlocks,"Analysis driver");
 
            /** @brief The saveState() function saves a copy of K and F 
             * because the solver overwrites both, and the OCI
@@ -454,21 +475,16 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             */
             saveState(AData->K,AData->Kcopy,AData->n3,AData->F,
                       AData->Fcopy,GData->nBlocks,c0);
-            //saveState(AData, c0, GData->nBlocks);
 
            /* U = K^{-1}F  df20() and df21() are still called from solve(). 
             * U is overwritten into F as a result of the LU solver.
             */
-            //printForces(GData, AData->F, k1, "analysis driver before solve");
             solve(AData, AData->K, AData->F,kk,k1,n,GData->nBlocks);
 
-            //printForces(GData, AData->F, k1, "analysis driver after solve");
-            //fflush(fp.logfile);
            /* set open-close    k00=1:locks[i][1]=locks[i][2] df22 */
            /* FIXME: Rename these flags to something a little more descriptive. */
             AData->k00=1; /* k00 seems to be a flag */
-            //AData->first_openclose_iteration = FALSE;
-            AData->m9++;
+            AData->m9++;  // current oc count
             AData->n9++;  // total oc count
 
            /* (GHS: Contact judge after iteration.)*/
@@ -479,9 +495,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             */
             df22(GData, AData, CTacts, k1, transmap);
    
-           /* displacement ratio and iteration drawing.
-            */
-            df24(GData, AData, AData->F, k1, transmap, transapply);
+           /* displacement ratio and iteration drawing. */
+            md_cts = df24(GData, AData, AData->F, k1, transmap, transapply);
            
            /** @brief m9 = -1 means the OCI has converged, so if
             * it hasn't converged, the state of the stiffness and
@@ -499,9 +514,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
         /* while ( HAVETENPEN && ( AData->iterationcount < MaxOpenCloseCount) ) */
          }  while (0<(AData->m9)  && (AData->m9)< (8) );          
 
-        /* PASSED OPEN CLOSE ITERATION */
-
-         //DLog->openclose_runtime += (stop - start);
+/******************* PASSED OPEN CLOSE ITERATION **************************/
 
      /* Check the iteration count.  If too high and not converged,
       * recompute time step size or spring stiffness.  Then
@@ -509,9 +522,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       */
       }  while(checkParameters(GData, AData, CTacts, fp.logfile));  
 
-     /* PASSED PARAMETER CHECKS */
+/******************* PASSED PARAMETER CHECKS ******************************/
 
-      //printForces(GData->nBlocks, AData->F, k1, "After OC convergence");
 
      /* Compute step displacements.  FIXME: See if this function 
       * can be renamed "updateGeometry()".
@@ -538,9 +550,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       if (AData->options & SOLUTIONVECTOR)
          writeSolutionVector(AData->F, kk, k1, n, GData->nBlocks);
 
-      if (AData->options & BLOCKMASSES)
-         writeBlockMasses(AData, GData);
-
       if (AData->options & BLOCKSTRESSES)
          writeBlockStresses(e0,4);
 
@@ -548,10 +557,9 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          writeMoments(GData, AData->cts, AData->nTimeSteps);
 
 	  if (AData->options & BOLTS) {
-         //writeBoltLog(GData, AData);
         bolt_log_a(GData->rockbolts, GData->nBolts, AData->cts, AData->elapsedTime,(PrintFunc)fprintf,fp.boltlogfile);
 	     writeBoltMatrix(GData, AData);
-      }  // end if
+      }  
 
 	  if (AData->options & VERTICES && AData->verticesflag) {
 	   for (counter = 1; counter <= GData->nBlocks; counter++) {
@@ -561,8 +569,9 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 	  }  // end if
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
-      if (AData->gravityflag == 1)
+      if (AData->gravityflag == 1) {
          checkGravityConvergence(AData->gravity, GData, AData);
+      }
 
      /* Draw some stuff to the screen. */ 
       display(GData, AData);
@@ -602,14 +611,19 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    * function as soon as the memory debacle with the 
    * geometry data is fixed.
    */
-   deallocateAnalysisArrays(kk,k1,c0,e0,U,n);
+   deallocateAnalysisArrays(kk,
+                            k1,
+                            c0,
+                            //e0,
+                            U,
+                            n);
+
+    //Get rid of e0.
+   material_delete(m);
 
   /* This should probably be freed in the calling function. */
-   //AData = freeAnalysisData(AData);  //adata_destroy(AData);
-   //AData = adata_delete(AData);
    datalog_delete(DLog); 
 
-  /* New contacts structure */
    CTacts = freeContacts(CTacts);
 
   /* Keep this as the last function call so that there will 
@@ -617,12 +631,13 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */
    closeAnalysisFiles();   
 
-  /* Eventually, this will return a struct that points at various parts of the
+  /** @brief Eventually, this will return a struct that points at various parts of the
    * analysis.  That way, the analysis only has to be run one time, and all relevant
    * variables etc can be retained in the struct for further (and faster) 
    * examination.  What is happening currently is there is 
    * an extern pointing at it from winmain.
    */  
-   return TRUE;  
-   
-} /* Close ddanalysis().  */
+   return TRUE;     
+} 
+
+

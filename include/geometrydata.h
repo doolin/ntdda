@@ -178,10 +178,6 @@ struct _geo_data_tag {
    int origdensitysize;  // numblocks + 1
    double * origdensity; 
 
-  /* For conserving mass.. */
-   int masssize;
-   double * mass;
-   double * origmass;
 
   /*********************************************************/
 
@@ -219,9 +215,12 @@ Geometrydata * XMLparseDDA_Geometry_File(char *filename);
 
 void ddacut(Geometrydata *);
 
+
+/*
 void initBlockMasses(Geometrydata *);
 void cloneBlockMasses(Geometrydata *, Geometrydata *);
 void freeBlockMasses(Geometrydata *);
+*/
 
 //Geometrydata * initGeometrydata(void);
 
@@ -229,8 +228,8 @@ void freeBlockMasses(Geometrydata *);
 void dumpGeometrydata(Geometrydata *, void *);
 
 
-/* Moved from analysisdata.h */
-double computeMoments(Geometrydata *);  //, double ** moments);
+double computeMoments(Geometrydata *); 
+
 
 /* Moved from dc02 in blocks.c.  Duplicates df01 */
 /* FIXME: Move the bounding box code out of here, then 
@@ -247,17 +246,18 @@ void computeDomainscale(Geometrydata *);  // was dc02()
  * most readable way to write c code.
  */
 Geometrydata * gdata_new                   (void);
-Geometrydata * gdata_clone                 (Geometrydata *);
 
-void           gdata_delete                (Geometrydata *);
+Geometrydata * gdata_clone                 (Geometrydata * gd);
 
-int            gdata_get_number_of_blocks  (Geometrydata *);
+void           gdata_delete                (Geometrydata * gd);
 
-int            gdata_get_block_number      (Geometrydata *, 
+int            gdata_get_number_of_blocks  (Geometrydata * gd);
+
+int            gdata_get_block_number      (Geometrydata * gd, 
                                             double x, 
                                             double y);
 
-void           gdata_get_block_centroid    (Geometrydata * gd, 
+void           gdata_get_block_centroid    (Geometrydata * gd,
                                             int block, 
                                             double [2]);
 
