@@ -35,13 +35,17 @@ static void df11(Geometrydata *, Analysisdata *, int *, double **,
             double **, double **, int **, double ** U, MassMatrix massmatrix);
 
 /* Integration constants for Newmark */
-static double a0c, a1c, a2c,a3c,a4c,a5c,a6c,a7c;
+//static double a0c, a1c, a2c,a3c,a4c,a5c,a6c,a7c;
 
 /* Handy variables for computing kinetic energy */
 /* velocity terms */
 static double d1, d2, d3, d4, d5, d6;
+
+
 /* Diagonal terms of generalised inertia matrix. */
-static double E11, E22, E33, E44, E55, E66;
+//static double E11, E22;
+static double E33, E44, E55, E66;
+
 /* Off-diagonal terms of generalized inertia matrix */
 static double E34, E35, E36, E46, E56;
 
@@ -445,7 +449,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
   /* velocity weight */
    double delta = .5;
   /* Hilber-Hughes-Taylor alpha */
-   double hht = 0.0;
+   //double hht = 0.0;
   /* Newmark coefficients.  See Bathe and Wilson 1976, 
    * pp. 322-326 for details.  c is current parameter,
    * that is, calculated going forward, p is for previous,

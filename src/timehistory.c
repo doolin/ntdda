@@ -3,9 +3,9 @@
  * used with SHAKE.
  *
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:38 $
+ * $Date: 2002/10/26 20:11:55 $
  * $Source: /cvsroot/dda/ntdda/src/timehistory.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 #include <stdio.h>
@@ -267,22 +267,3 @@ th_delete (TimeHistory * th) {
 
 
 
-
-#ifdef STANDALONE
-int
-main(int argc, char *argv[])
-{
-  TimeHistory * th;
-
-   if (argc != 2) { 
-      printf("Usage: eqlex <motion file>\n");
-      return 0;
-   }
-
-   th = getTimeHistory(argv[1], matlab);
-
-   th_delete(th);
-
-   return 0;
-}
-#endif

@@ -319,15 +319,15 @@ constants_init(Constants * constants, double maxdisplacement) {
  * @todo Change the call to take a PrintFunc.
  */
 void 
-constants_print_xml(Constants * constants, FILE * outfile) {
+constants_print_xml(Constants * constants, PrintFunc printer, void * stream) {
 
-   fprintf(outfile,I1"<AConstants>\n");
-   fprintf(outfile,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
-   fprintf(outfile,I2"<Opencriteria value=\"%f\"/>\n",constants->opencriteria);
-   fprintf(outfile,I2"<NormSpringPen value=\"%f\"/>\n",constants->norm_spring_pen);
-   fprintf(outfile,I2"<AngleOverlap value=\"%f\"/>\n",constants->angle_olap);
-   fprintf(outfile,I2"<ShearNormRatio value=\"%f\"/>\n",constants->shear_norm_ratio);
-   fprintf(outfile,I1"</AConstants>\n\n");
+   printer(stream,I1"<AConstants>\n");
+   printer(stream,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
+   printer(stream,I2"<Opencriteria value=\"%f\"/>\n",constants->opencriteria);
+   printer(stream,I2"<NormSpringPen value=\"%f\"/>\n",constants->norm_spring_pen);
+   printer(stream,I2"<AngleOverlap value=\"%f\"/>\n",constants->angle_olap);
+   printer(stream,I2"<ShearNormRatio value=\"%f\"/>\n",constants->shear_norm_ratio);
+   printer(stream,I1"</AConstants>\n\n");
 }
 
   
@@ -336,18 +336,18 @@ constants_print_xml(Constants * constants, FILE * outfile) {
  * @todo Change printed output to match a matlab struct.
  */
 void 
-constants_print_matlab(Constants * c, FILE * stream) {
+constants_print_matlab(Constants * c, PrintFunc printer, void * stream) {
 
 
    //if(ad->cts == 1)
    //{
-         fprintf(stream,"# Analysis parameters\n");
-         fprintf(stream,"# openclose opencriteria    w0     norm_spring_pen"
+   printer(stream,"# Analysis parameters\n");
+   printer(stream,"# openclose opencriteria    w0     norm_spring_pen"
                             " norm_extern_dist norm_pen_dist angle_olap"
                             " shear_norm_ratio\n");
    //}
 
-   fprintf(stream,"  %8.5f %10.5f %10.5f     %8.5f   %10.5f %10.5f %10.5f %10.5f\n",
+   printer(stream,"  %8.5f %10.5f %10.5f     %8.5f   %10.5f %10.5f %10.5f %10.5f\n",
                        c->openclose           /* s0 */, 
                        c->opencriteria        /* f0 */,
                        c->w0                  /* related to the physical scale of the model. */,

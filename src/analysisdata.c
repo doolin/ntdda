@@ -23,7 +23,6 @@
 #define I2 "      "
 
 
-static void adata_write_ddaml(Analysisdata *, PrintFunc printer, void * outfilestream);
 
 static void emitBlockMaterials(Analysisdata *, PrintFunc printer, void * stream);
 static void emitJointMaterials(Analysisdata *, PrintFunc printer, void * stream);
@@ -182,7 +181,7 @@ adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
    printer(outfile,I1"<!-- These used to be hard-wired into the\n"); 
    printer(outfile,I1"     DDA source code.  Not currently used -->\n");
 
-   constants_print_xml(ad->constants, outfile);
+   constants_print_xml(ad->constants, printer, outfile);
 
 /** 
  * @todo implement loadpoints_print_xml

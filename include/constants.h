@@ -20,7 +20,10 @@ extern "C" {
 }
 #endif
 
-
+#ifndef PRINTFUNC
+#define PRINTFUNC
+typedef int  (*PrintFunc)(void *, const char *, ...);
+#endif
 
 typedef struct _constants Constants;
 
@@ -36,9 +39,11 @@ void        constants_init                  (Constants * c,
                                              double maxdisplacement);
 
 void        constants_print_xml             (Constants * constants,
+                                             PrintFunc printer,
                                              void * stream);
 
 void        constants_print_matlab          (Constants * c,
+                                             PrintFunc printer,
                                              void * stream);
 
 

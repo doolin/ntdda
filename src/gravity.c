@@ -23,9 +23,9 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2002/10/14 16:02:47 $
+ * $Date: 2002/10/26 20:11:55 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 #include<math.h>
@@ -219,11 +219,13 @@ computeGravityForce(Gravity * grav, Analysisdata * adn, int n2, int numblocks)
  * requested.
  */
 void
-checkGravityConvergence(Gravity * grav, Geometrydata * gd, Analysisdata * ad)
-{
+checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
 
    ddaboolean converged;  
    char tempstring[100];
+
+   Geometrydata * gd = (Geometrydata*) gdata;
+   Analysisdata * ad = (Analysisdata*) adata;
 
   /* WARNING !!! Having this here instead of further down stiffens the 
    * system and requires less steps to gravity convergence.

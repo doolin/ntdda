@@ -24,7 +24,6 @@
 char mess[80];
 char scaletext[10];
 
-extern FILEPOINTERS fp;
 
 
 int 

@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:40 $
+ * $Date: 2002/10/26 20:11:56 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.25 $
+ * $Revision: 1.26 $
  */
 
 
@@ -61,7 +61,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.25 2002/10/25 01:53:40 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.26 2002/10/26 20:11:56 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -103,7 +103,6 @@ int ycursor;
  */
 Options options;
 FILEPATHS filepath;
-FILEPOINTERS fp;
 
 
 GRAPHICS * g = NULL;

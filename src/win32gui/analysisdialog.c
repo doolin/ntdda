@@ -4,9 +4,9 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:39 $
+ * $Date: 2002/10/26 20:11:56 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 #include <stdio.h>
@@ -949,7 +949,7 @@ saveData()
    FILE * fp;
 
    fp = fopen(filepath.apath, "w");
-   //fp = fopen("testfile.ana", "w");
+
   /* Might want to reimplement time step saving interval
    * as well.
    */
@@ -1021,7 +1021,8 @@ saveData()
    ad->loadpoints = lpoints;
 
 /* Won't link, don't know why. */
-   //adata_write_ddaml(ad,fprintf,fp);
+   adata_write_ddaml(ad,fprintf,fp);
+   fclose(fp);
 
   /* Leave this stuff for clean up. */
    if(jmatOld) 
@@ -1031,7 +1032,6 @@ saveData()
       free(bmatOld);
    free(bmat);
   /* FIXME: free analysis data struct also */
-   fclose(fp);
 
 } /* saveData() */
 

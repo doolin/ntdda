@@ -291,7 +291,7 @@ test_stress_update(void) {
    e0[2] = s2;
    e0[3] = s3;
 
-   stress_update(e0,D,k1,numblocks,stress_planestrain);
+   stress_update(e0,D,k1,numblocks,stress_planestrain, strain_linear_elastic);
 
    return passed;
 }

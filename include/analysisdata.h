@@ -465,7 +465,7 @@ void           adata_read_input_file     (Analysisdata *,
 
 void           adata_write_ddaml          (Analysisdata * ad, 
                                            PrintFunc printer, 
-                                           void * outfile);
+                                           void * stream);
 
 
 

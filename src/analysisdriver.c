@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.34  2002/10/26 20:11:55  doolin
+ * Catch up commit since ce server was down for a while.
+ *
  * Revision 1.33  2002/10/25 01:53:35  doolin
  * Lots more clean up.  Some calling conventions changed.
  * Some dead or nearly code removed.  This commit is Not Yet Ready
@@ -206,7 +209,7 @@
 
 
 Datalog * DLog;
-extern FILEPOINTERS fp;
+FILEPOINTERS fp;
 
 
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
@@ -580,7 +583,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 			writeBlockVerticesLog(GData, AData->cts, counter);
 	   } // end for
 	   writeAllBlockVerticesMatrix(GData, AData);
-	  }  // end if
+	   }  // end if
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1) {
@@ -593,18 +596,12 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    } /* END OF MAIN ANALYSIS LOOP  */
 
 
-   if (AData->writemfile)
-   {
+   if (AData->writemfile) {
+
       writeMFile(AData->K, AData->Fcopy, AData->F, kk, k1, n, GData->nBlocks);
       //printK(AData->K, AData->ksize1, "Analysis driver");
-
-/* FIXME: This fflush call may need to be moved somewhere else. */
+     /* FIXME: This fflush call may need to be moved somewhere else. */
       //fflush(fp.mfile);
-
-      //fflush(fp.logfile);  
-      //exit(0);    
-      //congrad(AData->K, AData->F, kk, k1, n, GData->nBlocks);
-
       AData->writemfile = FALSE;
    }
 

@@ -13,19 +13,19 @@ extern "C" {
 
 
 
-#ifndef __PRINTFUNC__
-#define __PRINTFUNC__
+#ifndef PRINTFUNC
+#define PRINTFUNC
 typedef int (*PrintFunc)(void * stream, const char * format, ...);
 #endif
 
-#ifndef __BOUNDCOND_FUNC__
-#define __BOUNCOND_FUNC__
+#ifndef BOUNDCOND_FUNC
+#define BOUNCOND_FUNC
 typedef void (*BoundCond)(double * e0, double strain[4]);
 #endif
 
 
-#ifndef __STRAINMODEL_FUNC__
-#define __STRAINMODEL_FUNC__
+#ifndef STRAINMODEL_FUNC
+#define STRAINMODEL_FUNC
 typedef void (*StrainModel)(double * D, double strain[4]);
 #endif
 

@@ -19,7 +19,7 @@ ADATA_SOURCE =  ../constants.c      \
                 ../utils.c          \
                 ../timestep.c
 
-OBJECTS =  bolttest          \
+OBJECTS =       \
            matmulttest       \
 	   loadpointtest     \
            stress_test       \

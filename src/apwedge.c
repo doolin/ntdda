@@ -214,11 +214,11 @@ handleSave(HWND hDlg)
 
   /* write an analysis file */
   /* Won't link, don't know why. */
-  /*
+
    ofp = fopen("apwedge.ana","w");
    adata_write_ddaml(adata,(PrintFunc)fprintf,ofp);
    fclose(ofp);
-*/
+
    //EndDialog (hDlg, 0);   // return 0: don't save data
 
    return 0;
