@@ -1,9 +1,25 @@
 
 
 #include "analysisdata.h"
-#include "gravity.h"
-#include "analysis.h"
-#include "geometry.h"
+#include "ddafile.h"
+#include "datalog.h"
+
+FILEPOINTERS fp;
+Datalog * DLog;
+
+
+void
+dda_display_error(const char * error) {
+
+}
+
+void 
+ddaml_read_analysis_file(void * userdata, char * filename) {
+
+
+}
+
+
 
 /** See if we are releasing all the memory. */
 int 
@@ -28,7 +44,7 @@ analysisdata_test(void) {
 int 
 main() {
 
-
+  analysisdata_test();
 
   return 0;
 }

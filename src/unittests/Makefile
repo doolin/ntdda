@@ -15,19 +15,38 @@ ADATA_SOURCE =  ../constants.c      \
                 ../analysisdata.c   \
                 ../ddamemory.c      \
                 ../loadpoint.c      \
-                ../gravity.c        \
-                ../utils.c          \
-                ../timestep.c
+                ../analysisreader.c \
+                ../ddafile.c
 
-OBJECTS =       \
+
+GDATA_SOURCE =  ../inpoly.c         \
+                ../geometrydata.c   \
+                ../ddafile.c        \
+                ../ddamemory.c      \
+                ../geomreader.c
+
+
+OBJECTS =                    \
            matmulttest       \
 	   loadpointtest     \
            stress_test       \
 	   material_test     \
-           analysisdata_test 
+           bolttest          \
+           analysisdata_test \
+           geometrydata_test \
+           contacttest       \
+           inpoly_test       \
+           ddadlist_test 
+
 
 all: $(OBJECTS)
 
+
+ddadlist_test: ddadlist_test.c ../ddadlist.c
+	gcc $(FLAGS) -o ddadlist_test ddadlist_test.c ../ddadlist.c  -I../../include
+
+geometrydata_test: geometrydata_test.c 
+	gcc $(CFLAGS)  -o geometrydata_test geometrydata_test.c  $(GDATA_SOURCE)  -I ../../include -lm
 
 analysisdata_test: analysisdata_test.c 
 	gcc $(CFLAGS)  -o analysisdata_test analysisdata_test.c  $(ADATA_SOURCE)  -I ../../include -lm
@@ -42,6 +61,8 @@ bolttest: bolttest.c
 stress_test: stress_test.c ../stress.c
 	gcc $(CFLAGS)  -o stress_test stress_test.c ../stress.c  -I ../../include -lm
 
+inpoly_test: inpoly_test.c ../inpoly.c
+	gcc $(CFLAGS)  -o inpoly_test inpoly_test.c ../inpoly.c  -I ../../include -lm
 
 loadpointtest: loadpointtest.c 
 	gcc $(CFLAGS)  -o loadpointtest loadpointtest.c ../loadpoint.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
