@@ -8,7 +8,7 @@
 
 #define FNAME_BUFSIZE  256
 
-typedef struct filepath_tag {
+typedef struct _filepath_tag {
 char gpath[FNAME_BUFSIZE];
 char path[FNAME_BUFSIZE];
 char apath[FNAME_BUFSIZE];
