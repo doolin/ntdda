@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 14:53:55 $
+ * $Date: 2002/10/23 16:46:54 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.18 $
+ * $Revision: 1.19 $
  */
 
 
@@ -22,6 +22,7 @@
 #include "ddamemory.h"
 #include "utils.h"
 #include "datalog.h"
+#include "material.h"
 
 
 /** Maybe only used once in this file.  Try to get rid of it.
@@ -824,9 +825,12 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber)
 
 
 void allocateAnalysisArrays(Geometrydata * GData, 
-                   int ** kk, int ** k1,
-                   double *** c0, double *** e0,
-                   double *** U, int *** n) 
+                            int ** kk, 
+                            int ** k1,
+                            double *** c0, 
+                            double *** e0,
+                            double *** U, 
+                            int *** n) 
 {
 
   /* k : index of a    2*block contact + 20*nBlocks      */

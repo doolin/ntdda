@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.31  2002/10/23 16:46:54  doolin
+ * Added a struct to help manage memory for material properties.
+ *
  * Revision 1.30  2002/10/21 14:53:55  doolin
  * Updating callbacks now implemented.  No more
  * switching on rotation types every time somethings position
@@ -227,7 +230,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
   /* c0[nBlocks+1][7]                               */
    double **c0;
 
-  /* FIXME: Move matprops to geometry structure */
   /**************************************************/
   /* e0: block material constants                   */
   /* e0: ma we e0 u0 c11 c22 c12 t-weight           */

@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 14:53:53 $
+ * $Date: 2002/10/23 16:46:53 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.16 $
+ * $Revision: 1.17 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -121,8 +121,12 @@ extern "C" {
 
 
 void allocateAnalysisArrays(Geometrydata * GData, 
-                            int ** kk, int ** k1, double *** c0, double *** e0,
-                            double *** angles, int *** n);
+                            int ** kk, 
+                            int ** k1, 
+                            double *** c0, 
+                            double *** e0,
+                            double *** angles, 
+                            int *** n);
 
 double df01(Geometrydata *);
 void df02(void);
@@ -341,7 +345,11 @@ int __k1size1;
 int __fsize1, __fsize2;
 int __rrsize1, __rrsize2;
 int __c0size1, __c0size2;
+
+
 int __matpropsize1, __matpropsize2;  // was e0
+
+
 int __v0size1, __v0size2;
 int __Usize1, __Usize2;
 int __nsize1, __nsize2;
