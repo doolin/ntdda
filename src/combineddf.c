@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/10 15:05:31 $
+ * $Date: 2002/10/11 15:44:45 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.32 $
+ * $Revision: 1.33 $
  *
  */
 /*################################################*/
@@ -17,6 +17,16 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.33  2002/10/11 15:44:45  doolin
+ * More componentization.  Still having difficulty
+ * finding a convenient level of abstraction for stresses.
+ * Transplacements have been delivered as callbacks to certain
+ * components (e.g., stresses) to make it easier to test.
+ *
+ * Overall, the API complexity is increasing a bit as derived
+ * types are being replaced with primitives, but it is making it
+ * much easier to write testing code.
+ *
  * Revision 1.32  2002/10/10 15:05:31  doolin
  * More tests for stress.
  *
@@ -2931,7 +2941,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /* Displacements, change to ux,uy so that notation is uniform */
    //double ux, uy;
   /* End point block number of rock bolts. */
-   int ep1,ep2;
+   //int ep1,ep2;
   /* Helper vars for updating stresses etc. */
    //double nu, youngsmods;
    double T[7][7];
@@ -3147,6 +3157,9 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 }
 
    
+   bolt_update_arrays(gd->rockbolts,gd->nBolts,ad->F,gd->moments, computeDisplacement);
+
+#if 0
   /* Compute rock bolt end displacements.  Note that no
    * rotation correction is supplied here.
    */
@@ -3215,6 +3228,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       
       bolt_set_pretension_a(hb[i]);
    }  
+#endif
 
 
   /* FIXME: This looks stupid.  There has to be a better way...
@@ -3222,4 +3236,3 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    ad->elapsedTime = ad->globalTime[ad->cts][0];
 
 } 
-

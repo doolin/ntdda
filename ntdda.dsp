@@ -105,6 +105,10 @@ SOURCE=.\src\analysisdriver.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\bolt.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\combineddf.c
 # End Source File
 # Begin Source File
@@ -130,10 +134,6 @@ SOURCE=.\src\gravity.c
 # Begin Source File
 
 SOURCE=.\src\loadmatrix.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rockbolts.c
 # End Source File
 # Begin Source File
 
@@ -268,10 +268,6 @@ SOURCE=.\src\win32gui\winmain.c
 # Begin Group "utilities"
 
 # PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\src\bolt.c
-# End Source File
 # Begin Source File
 
 SOURCE=.\src\datalog.c

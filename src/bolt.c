@@ -262,6 +262,273 @@ bolt_get_pretension_a(double * bolt) {
 }
 
 
+// writes bolt data to output file filename_bolt.log
+// NOTE: data is NOT in matlab format!
+// current implementation is minimal:
+// writes elapsed time followed by a colon and a list of bolt endpoints
+// each bolt has 2 pairs of x,y coordinates
+// semicolons separate data for each bolt
+void 
+bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, PrintFunc printer, void *stream) {
+
+	int i;
+   
+   if(cts == 0) {
+      printer(stream, "This analysis contains %d bolt(s)\n", numbolts);
+   }
+
+	printer(stream, "%lf:", elapsedTime);
+
+   for (i=0; i < numbolts; i++) {
+		printer(stream, " %.12f,%.12f %.12f,%.12f;", 
+                               hb[i][1], hb[i][2], hb[i][3], hb[i][4]);
+	}
+
+	printer(stream,"\n");
+}
+
+void
+bolt_stiffness_arrays(double ** rockbolt, int numbolts, double ** K, 
+                      int * k1, int * kk, int ** n, double ** blockArea,  
+                      double ** F, TransMap transmap) {  
+
+  /* loop counters */   
+   int i, j, l, bolt; 
+
+  /* block indices */
+   int i2, i3;
+
+  /* storage indices */
+   int ji, j1, j2, j3;
+
+  /* Direction cosines, p. 38  */
+   double lx, ly;
+
+  /* block numbers containing bolt endpoints */
+   int ep1, ep2;
+
+  /* x,y coordinates of bolt endpoint.  */
+   double x, y;
+
+  /* Temporary vectors for constructing K, F. */
+   double E[7], G[7], T[7][7];
+
+  /* bolt stiffness: */
+   double s;
+
+  /* bolt pre-tension */
+   double t;
+
+  /* Main loop for constructing matrices. */
+   for (bolt=0; bolt<numbolts; bolt++) {
+    
+     /* Deal with endpoint 1 */
+      x = rockbolt[bolt][1];
+      y = rockbolt[bolt][2];
+     /* [5] stores the block number of the `first' endpoint 
+      * of a particular rockbolt.
+      */
+      ep1 = (int)rockbolt[bolt][5];
+      //computeDisplacement(blockArea, T, x,  y, ep1);
+      transmap(blockArea, T, x,  y, ep1);
+
+      bolt_get_dir_cosine_a(rockbolt[bolt],&lx,&ly);
+
+     /* Do the inner product to construct Ei: */
+      for (i=1; i<=6; i++) {
+         E[i] = T[1][i]*lx + T[2][i]*ly;
+      }
+
+     /* Deal with endpoint 2, get x, y coords */
+      x = rockbolt[bolt][3];
+      y = rockbolt[bolt][4];
+     /* [6] stores the block number of the `second'
+      * endpoint of a particular rockbolt.
+      */
+      ep2 = (int)rockbolt[bolt][6];
+      //computeDisplacement(blockArea, T, x,  y, ep2);
+      transmap(blockArea, T, x,  y, ep2);
+
+     /* Do the inner product to construct Gj:
+      * $G_j = [T_j]^T\cdot \ell$. 
+      */
+      for (j=1; j<=6; j++) {
+         G[j] = T[1][j]*lx + T[2][j]*ly;
+      }
+
+      s = rockbolt[bolt][7];
+
+     /* Try copying the rock bolt stuff into the 
+      * global stiffness matrix. Try endpoint 1
+      * for Kii first.
+      */
+      i2=k1[ep1];
+      i3=n[i2][1]+n[i2][2]-1;
+
+      for (j=1; j<= 6; j++) {
+         for (l=1; l<= 6; l++) {
+            j1=6*(j-1)+l;
+            K[i3][j1] += s*(E[j]*E[l]);
+         }  
+      }  
+
+     /* Now try the second endpoint for Kjj*/
+     /* i2 
+      */
+      i2=k1[ep2];
+      i3=n[i2][1]+n[i2][2]-1;
+
+      for (j=1; j<= 6; j++) {
+         for (l=1; l<= 6; l++) {
+            j1=6*(j-1)+l;  /* j1 = 1:36 */
+            K[i3][j1] += s*(G[j]*G[l]);
+         }  
+      }  
+
+     /* For the cross terms of Kij and Kji, we will need
+      * access memory allocated from the contact algorithm.
+      * The we should be able to get i2 for the ith block 
+      * i3 for the jth block, or vice versa, to initialize
+      * Kij.
+      */
+     /* locate j1j2 in a[][] only lower triangle saved */
+     /* if j2 < j1, add terms to Kij instead of Kji */
+      ji = k1[ep1];
+      j2 = k1[ep2];
+
+      if (j2<ji) {
+
+        /* find Kij */
+         for (j=n[ji][1]; j<= n[ji][1]+n[ji][2]-1; j++) {
+            i3=j;
+            if (kk[j]==j2) {
+               break;
+            }
+         }  
+         
+        /* submatrix ij  s01-06 i normal s07-12 i shear   */
+        /* Add penetration penalty terms to Kji */
+         for (j=1; j<= 6; j++) {
+            for (l=1; l<= 6; l++) {
+               j3=6*(j-1)+l;  /* j3 = 1:36 */
+               K[i3][j3] += -s*(E[j]*G[l]);
+            }  
+         }  
+
+     /* Add to Kji or Kij but not both. */
+      }  else  {             /* ji < j2 */
+
+        /* locate j2j1 in a[][] only lower triangle saved */
+         for (j=n[j2][1]; j<= n[j2][1]+n[j2][2]-1; j++) {
+            i3=j;
+            if (kk[j]==ji) {
+               break;
+            }
+         }  
+         
+        /* add bolt terms to K_{ji} */
+         for (j=1; j<= 6; j++) {
+            for (l=1; l<= 6; l++) {
+               j3=6*(j-1)+l;  /* j3 = 1:36 */
+               K[i3][j3] += -s*(G[j]*E[l]);
+            }  
+         }  
+      }  
+
+      t = bolt_get_pretension_a(rockbolt[bolt]);
+      for (i=1; i<=6; i++) {
+         F[ep1][i] += -t*E[i];
+         F[ep2][i] +=  t*G[i];
+      }
+
+   }  
+
+}  
+
+
+
+
+
+  /* Compute rock bolt end displacements.  Note that no
+   * rotation correction is supplied here.
+   */
+  /* Move this whole loop into the bolts.c file, 
+   * supplying a callback or something for the 
+   * transplacement map function.
+   */
+void
+bolt_update_arrays(double ** hb, int numbolts, double ** F, double ** moments, TransMap transmap) {
+
+   int i,j;
+   int ep1,ep2;
+   double x,y;
+   double u1,v1,u2,v2;
+   double T[7][7];
+
+   for (i=0; i<numbolts; i++) {
+
+
+     /* Deal with one endpoint at a time,
+      * starting with the arbitrarily chosen
+      * `endpoint 1'.  Since hb is a double **,
+      * we have to cast the block numbers of the 
+      * endpoints.
+      */
+      ep1 = (int)hb[i][5];
+      x = hb[i][1];
+      y = hb[i][2];
+      u1=0;  // need to reset to zero each time due to += inside loops
+	   v1=0;
+	   //computeDisplacement(moments,T,x,y,ep1);
+	   transmap(moments,T,x,y,ep1);
+
+      for (j=1; j<= 6; j++) {
+         u1 += T[1][j]*F[ep1][j];
+         v1 += T[2][j]*F[ep1][j];
+      }  
+      hb[i][10] = u1;
+      hb[i][11] = v1;
+      //replace
+      hb[i][1] +=  u1;
+      hb[i][2] +=  v1;
+
+     /* Now for endpoint 2, the other end of the same bolt.
+      */
+      ep2 = (int)hb[i][6];
+      //if (ep1 == ep2) exit(0);
+      x = hb[i][3];
+      y = hb[i][4];
+	   u2=0;
+	   v2=0;
+      /* Should be compute directors */
+      //computeDisplacement(moments,T,x,y,ep2);
+	   transmap(moments,T,x,y,ep1);
+
+      for (j=1; j<= 6; j++) {
+         u2 += T[1][j]*F[ep2][j];
+         v2 += T[2][j]*F[ep2][j];
+      }
+      hb[i][12] = u2;
+      hb[i][13] = v2;
+      //replace
+      hb[i][3] +=  u2;
+      hb[i][4] +=  v2;
+
+      /* If we do this instead of accessing the array entries
+       * directly, we get something that is testable, and can 
+       * be used for testing pretension, etc.
+       */
+      //bolt_update_endpoints(hb[i],u1,v1,u2,v2);
+
+      /* This should be fired as a result of the previous 
+       * call to update the endpoints, so remove it from here.
+       */
+      bolt_set_length_a(hb[i]);
+      
+      bolt_set_pretension_a(hb[i]);
+   }  
+
+} 
 
 
 
@@ -368,189 +635,6 @@ boltlist_print(Boltlist * bl, PrintFunc printer, void * stream) {
       bolt_print(b,printer,stream);
    }
 }
-
-
-
-/** This doesn't work very well. */
-#if 0
-bolt_load_matrix(Bolt * bolt, double ** K, 
-          int * k1, int * kk, int ** n, double ** blockArea,  double ** F) {
-            
-  /* loop counters */
-   int i, j, l;  
-
-  /* block indices */
-   int i2, i3;
-   int ji, j1, j2, j3;
-
-   double boltlength;
-
-  /* Endpoint coordinates. */
-   double x1 = bolt->x1;
-   double y1 = bolt->y1;
-   double x2 = bolt->x2;
-   double y2 = bolt->y2;
-
-  /* Displacements of endpoints. */
-   double ux1 = bolt->ux1;
-   double uy1 = bolt->uy1;
-   double ux2 = bolt->ux2;
-   double uy2 = bolt->uy2;
-
-  /* block numbers containing bolt endpoints */
-   int ep1 = bolt->b1;
-   int ep2 = bolt->b2;
-   
-   double s = bolt->stiffness;
-   double t = bolt->pretension;
-   
-  /* Direction cosines, p. 38  */
-   double lx, ly;
-
-  /* differential bolt length, units of L^2 */
-   double dl;
-
-  /** Temporary vectors for constructing K
-   * @todo Put the math in here for these.
-   */
-   double E[7];
-   double G[7];
-   double T[7][7];
-
-
-    
-     /* get x, y coordinates of each endpoints of 
-      * the rockbolt 
-      */
-      boltlength = bolt_length(bolt);
-      assert(boltlength > 0);
-
-
-     /* Direction cosines.  Check to make sure these are
-      * the correct formulas
-      */
-      lx = (x1-x2)/boltlength;
-      ly = (y1-y2)/boltlength;
-     /* checking the obvious... doesn't seem to work.
-      * FIXME: Write a unit test for these asserts to see
-      * why they didn't fire on a 0 bolt length.
-      */
-      assert ( (-1 <= lx) && (lx <= 1));
-      assert ( (-1 <= ly) && (ly <= 1));
-
- 
-     /* Compute the differential length, from 
-      * Yeung  1992, p. 40, Eq. ???.
-      */
-      dl = ( (x1-x2)*(ux1-ux2) + (y1-y2)*(uy1-uy2) );
-
-      s = bolt->stiffness;
-
-     /* Deal with endpoint 1 */
-      computeDisplacement(blockArea, T, x1,  y1, ep1);
-     /* Do the inner product to construct Ei: */
-      for (i=1; i<=6; i++) {
-         E[i] = T[1][i]*lx + T[2][i]*ly;
-      }
-
-
-     /* endpoint 2 */
-      computeDisplacement(blockArea, T, x2,  y2, ep2);
-     /* Do the inner product to construct Gj:
-      * $G_j = [T_j]^T\cdot \ell$. 
-      */
-      for (j=1; j<=6; j++) {
-         G[j] = T[1][j]*lx + T[2][j]*ly;
-      }
-
-
-     /* Try copying the rock bolt stuff into the 
-      * global stiffness matrix. Try endpoint 1
-      * for Kii first.
-      */
-      i2=k1[ep1];
-      i3=n[i2][1]+n[i2][2]-1;
-
-      for (j=1; j<= 6; j++) {
-         for (l=1; l<= 6; l++) {
-            j1=6*(j-1)+l;
-            K[i3][j1] += s*(E[j]*E[l]);
-         }  
-      }  
-
-     /* Now try the second endpoint for Kjj*/
-     /* i2 
-      */
-      i2=k1[ep2];
-      i3=n[i2][1]+n[i2][2]-1;
-
-      for (j=1; j<= 6; j++) {
-         for (l=1; l<= 6; l++) {
-            j1=6*(j-1)+l;
-            K[i3][j1] += s*(G[j]*G[l]);
-         }  
-      }  
-
-     /* For the cross terms of Kij and Kji, we will need
-      * access memory allocated from the contact algorithm.
-      * The we should be able to get i2 for the ith block 
-      * i3 for the jth block, or vice versa, to initialize
-      * Kij.
-      */
-     /* locate j1j2 in a[][] only lower triangle saved */
-     /* if j2 < j1, add terms to Kij instead of Kji */
-      ji = k1[ep1];
-      j2 = k1[ep2];
-
-     /* FIXME: Find out what is wrong with this memory 
-      * finding stuff.
-      */
-      if (j2<ji) {
-        /* find Kij */
-         for (j=n[ji][1]; j<= n[ji][1]+n[ji][2]-1; j++) {
-            i3=j;
-            if (kk[j]==j2) {
-               break;
-            }
-         } 
-         
-        /* submatrix ij  s01-06 i normal s07-12 i shear   */
-        /* Add penetration penalty terms to Kji */
-         for (j=1; j<= 6; j++) {
-            for (l=1; l<= 6; l++) {
-               j3=6*(j-1)+l;  /* j3 = 1:36 */
-               K[i3][j3] += -s*(E[j]*G[l]);
-            } 
-         }  
-     /* Add to Kji or Kij but not both. */
-     /* locate j2j1 in a[][] only lower triangle saved */
-      } else { /* ji < j2 */
-         for (j=n[j2][1]; j<= n[j2][1]+n[j2][2]-1; j++) {
-            i3=j;
-            if (kk[j]==ji) 
-               break;
-         } 
-         
-        /* add bolt terms to K_{ji} (???) */
-         for (j=1; j<= 6; j++) {
-            for (l=1; l<= 6; l++) {
-               j3=6*(j-1)+l;  /* j3 = 1:36 */
-               K[i3][j3] += -s*(G[j]*E[l]);
-            }
-         }  
-         
-     }  /* close loops for Kij/Kji */
-
-#if 0
-      for (i=1; i<=6; i++) {
-         F[ep1][i] += -t*E[i];
-         F[ep2][j] +=  t*G[j];
-      }
-
-#endif
-
-}
-#endif
 
 
 #ifdef __cplusplus

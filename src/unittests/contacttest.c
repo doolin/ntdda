@@ -6,7 +6,7 @@
  * here to keep the compiler from screeching about
  * undefined references.
  */
-FILEPOINTERS fp;
+//FILEPOINTERS fp;
 
 
 /* The point of this is to run it through debauch on 

@@ -7,6 +7,16 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.27  2002/10/11 15:44:44  doolin
+ * More componentization.  Still having difficulty
+ * finding a convenient level of abstraction for stresses.
+ * Transplacements have been delivered as callbacks to certain
+ * components (e.g., stresses) to make it easier to test.
+ *
+ * Overall, the API complexity is increasing a bit as derived
+ * types are being replaced with primitives, but it is making it
+ * much easier to write testing code.
+ *
  * Revision 1.26  2002/10/10 15:39:32  doolin
  * Started backing out the datalog structure and methods.
  * Current implementation is too clunky and not very useful.  Most
@@ -156,6 +166,7 @@
 #include "contacts.h"
 #include "postprocess.h"
 #include "datalog.h"
+#include "bolt.h"
 
 
 Datalog * DLog;
@@ -294,9 +305,11 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    
    if (AData->options & BOLTS) {
         //writeBoltLog(GData, AData);
-        writeBoltLog(GData->rockbolts,GData->nBolts, AData->cts, AData->elapsedTime);
-	     writeBoltMatrix(GData, AData);
-   }  // end if
+        //writeBoltLog(GData->rockbolts,GData->nBolts, AData->cts, AData->elapsedTime);
+        bolt_log_a(GData->rockbolts,GData->nBolts, AData->cts, AData->elapsedTime,(PrintFunc)fprintf,fp.boltlogfile);
+
+        writeBoltMatrix(GData, AData);
+   }  
 
    if (AData->options & MOMENTS)
       writeMoments(GData, AData->cts, AData->nTimeSteps);
@@ -508,7 +521,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
 	  if (AData->options & BOLTS) {
          //writeBoltLog(GData, AData);
-        writeBoltLog(GData->rockbolts, GData->nBolts, AData->cts, AData->elapsedTime);
+        bolt_log_a(GData->rockbolts, GData->nBolts, AData->cts, AData->elapsedTime,(PrintFunc)fprintf,fp.boltlogfile);
 	     writeBoltMatrix(GData, AData);
       }  // end if
 

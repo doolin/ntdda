@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:30 $
+ * $Date: 2002/10/11 15:44:45 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  */
 
 
@@ -724,68 +724,12 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber)
 
 
 
-/* Hopefully this will help clean up some of the code
- * in the analysis driver routine.
- */
-/* FIXME: All these temporary arrays need to be removed from 
- * this file and put into the analysis driver or util file,
- * and the corresponding globals stashed there instead of in the 
- * header file.
- */
+
 void allocateAnalysisArrays(Geometrydata * GData, 
-                            /*int *** contacts,*/
-                   /*int *** locks, */
-                   /*int *** m1,*/
-                   /*int *** prevcontacts,*/
-                   /*double *** contactlength,*/ 
                    int ** kk, int ** k1,
                    double *** c0, double *** e0,
                    double *** U, int *** n) 
 {
-
-  /* m : 1-6 i1 j1 j2  j1 i1 i2 m[][0]=0 v-e =1 v-v */
-  /* m[nBlocks*11+1][7]                                  */
-  /* n7=11*nBlocks+1; */
-  /*	n7 = 21*nBlocks+1; */ /* changed feb 7 '95 */
-  /* The matrix `m' appears to record the contacting 
-   * vertices.  So it will be renamed `contacts' for 
-   * now.  May get renamed later.
-   */
-//   __contactsize1 = TWENTYONE*GData->nBlocks+1;  /* changed 19 July 1999  */
-//	 	__contactsize2 = 7 + 1; /* store contact type -- dmd */
-//  *contacts = IntMat2DGetMem(__contactsize1, __contactsize2);
-
-  /* m0: open-close flag  of contact points          */
-  /* m0: 1 previous-flag         2 current-flag     */
-  /* m0: 3 save flag  4 contact transfer  0 tension */
-  /* m0[nBlocks*11+1][5]                                 */
-  /* n7=11*nBlocks+1; */
-//  	__locksize1 = TWENTYONE*GData->nBlocks+1; /* changed feb 7 '95 */
-//   __locksize2 = 5;
-//  *locks = IntMat2DGetMem(__locksize1, __locksize2);
-
-
-  /* m1: block index of m locks  1 start 2 end block i */
-  /* m1[nBlocks+1][3]                                    */
-//   __contactindexsize1 = GData->nBlocks+1;
-//   __contactindexsize2 = 3; /* 4 = 3 + 1 for bolt flag */
-//  *m1 = IntMat2DGetMem(__contactindexsize1, __contactindexsize2);
-
-
-  /* m2: 1-6 i1 j1 j2 j1 i1 i2     0 joint material */
-  /* m2[nBlocks*11+1][7]                            */
-//   __prevcontactsize1 = TWENTYONE*GData->nBlocks+1; /* changed feb 7 '95 */
-//   __prevcontactsize2 = 7;
-//  *prevcontacts = IntMat2DGetMem(__prevcontactsize1, __prevcontactsize2);
-
-  /*------------------------------------------------*/
-  /* o : 0 normal penetration  1 shear  movement    */
-  /* o : 2 contact edge ratio  3 cohesion length    */
-  /* o : 4 save o[][0] 5 save o[][1]  6 save o[][2] */
-  /* o[nBlocks*11+1][7]                                  */
-//   __contactlengthsize1 = TWENTYONE*GData->nBlocks+1; /* changed feb 7 '95 */
-//   __contactlengthsize2 = 7;
-//  *contactlength = DoubMat2DGetMem(__contactlengthsize1, __contactlengthsize2);
 
   /* k : index of a    2*block contact + 20*nBlocks      */
   /* k : reserved positions for non-zero storage    */
@@ -802,13 +746,6 @@ void allocateAnalysisArrays(Geometrydata * GData,
   /* k1[nBlocks+1]                                  */
    __k1size1=GData->nBlocks+1;
   *k1 = (int *)calloc(1,sizeof(int)*__k1size1);
-
-  /*------------------------------------------------*/
-  /* k3: index of a    for lower triangle k 6000    */
-  /* k3: reserved positions for non-zero storage    */
-  /* k3[nBlocks*40+1]                               */
-//   __k3size1=FORTY*GData->nBlocks+1;
-//  *k3 = (int *)calloc(1,sizeof(int)*__k3size1);
 
   /*------------------------------------------------*/
   /* c0: xl xu yl yu block box in 3000              */
@@ -828,23 +765,6 @@ void allocateAnalysisArrays(Geometrydata * GData,
    __matpropsize2=10;//9;//8;
   *e0 = DoubMat2DGetMem(__matpropsize1, __matpropsize2);
 
-  /*------------------------------------------------*/
-  /* v0: velosity of u v r ex ey gxy parameters     */
-  /* v0[nBlocks+1][7]                               */
-   //__v0size1=GData->nBlocks+1;
-   //__v0size2=13;
-  //*v0 = DoubMat2DGetMem(__v0size1, __v0size2);
-
-  /*------------------------------------------------*/
-  /* blockArea: s  sx  sy  sxx  syy  sxy  of blocks */
-  /* blockArea: old blk number                      */
-  /* blockArea[nBlocks+1][7]                        */
-//   __momentsize1=GData->nBlocks+1;
-  /* __momentsize2=7;*/
-  /* Add 2 for centroid (x,y) */
-//   __momentsize2=9;
-//  *moments = DoubMat2DGetMem(__momentsize1, __momentsize2);
-
   /*  u v  or x+u y+v  of vertices in vertices          */
   /* u[vertexCount+1][3]                                */
    __Usize1=GData->nBlocks+1; //GData->vertexCount+1;
@@ -860,15 +780,11 @@ void allocateAnalysisArrays(Geometrydata * GData,
    __nsize2=4;
   *n = IntMat2DGetMem(__c0size1, __c0size2);
 
-}  /* closeAllocateAnalysisArrays() */
+}  
 
 
-void deallocateAnalysisArrays(/*int **contacts, */
-                     /*int **locks,*/
-                     /*int **prevcontacts,*/ /*int **m1,*/ 
-                     /*double **c_length,*/ 
-                     int *kk, int *k1, 
-                     double **c0, double **e0, //double **moments,
+void deallocateAnalysisArrays(int *kk, int *k1, 
+                     double **c0, double **e0, 
                      double **U, int ** n) 
 {
    extern void freeCGTemp();
@@ -914,7 +830,7 @@ void deallocateAnalysisArrays(/*int **contacts, */
       k1 = NULL;
    }
 
-}  /* Close deallocateAData() */
+}  
 
 
 
@@ -932,7 +848,6 @@ computeMass(double * mass, double ** moments, double ** e0, int numblocks) {
       density = e0[i][0];
       mass[i] = currentarea*thickness*density;
    }
-
 } 
 
 

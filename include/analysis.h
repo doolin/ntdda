@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/09 01:46:37 $
+ * $Date: 2002/10/11 15:44:44 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -21,7 +21,10 @@ extern "C" {
 }
 #endif
 
-
+#ifndef TRANSMAPFUNC
+typedef void (*TransMap)(double ** moments, double T[7][7], double x, double y, int i0);
+#define TRANSMAPFUNC
+#endif
 
 #include "dda.h"
 #include "contacts.h"
@@ -133,16 +136,15 @@ void df06(Geometrydata *, Analysisdata *, int **, int **, int **, int **, double
             int *, int *, int *);
 
 void sparsestorage(Geometrydata *, Analysisdata *, Contacts *, 
-                   /* int **, int ** contactindex,*/ int *, int *, 
+                   int *, int *, 
                    int *, int **);
 
 void df18(Geometrydata *, Analysisdata *, Contacts *, 
-          /*double **,*/ int *, int *, double **, /* double ** moments, */ int **);
+          int *, int *, double **,  int **);
 
 
 /******************  Solver *********************/
 /* FIXME:  All this needs to go into its own header file. */
-//void saveState(Analysisdata *, double ** c0, int numblocks);
 void saveState(double ** K, double ** Kcopy, int n3,
                   double ** F, double ** Fcopy, int numblocks,
                   double ** c0);

@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/09 01:46:39 $
+ * $Date: 2002/10/11 15:44:44 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.20 $
+ * $Revision: 1.21 $
  */
 
 #include <stdio.h>
@@ -833,21 +833,23 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    Boltmat * boltmat;
    char * tempstring;
-   //double temp[3] = {0.0};
    int checkval;  
    double stiffness, strength, pretension;
 
    cur = cur->childs;
-  /* Grab a struct for bolt properties */
-   boltmat = boltmat_new();
             
    tempstring = xmlNodeListGetString(doc, cur, 1);
+
+  /* Everything below should be moved into the rock bolt
+   * component file, because none of it depends on any
+   * of the xml processing code.
+   */
+  /* Grab a struct for bolt properties */
+   boltmat = boltmat_new();
+
    checkval = sscanf(tempstring,"%lf%lf%lf",
                      &stiffness,&strength,&pretension);
    if (checkval == 3) {
-      //stiffness  = temp[0];
-      //strength   = temp[1];
-      //pretension = temp[2];
       boltmat_set_props(boltmat,stiffness,strength,pretension);
    } else {  
       ddaml_display_error("Wrong number of bolt property values");   
@@ -855,6 +857,8 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    dl_insert_b(boltmatlist,(void*)boltmat);
 }  
+
+
 
 static void 
 parseWritevertices(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 

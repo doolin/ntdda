@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+
 #include <stdlib.h>
 #include <string.h>  /* memcpy */
 #include <math.h>
@@ -138,15 +139,12 @@ stress_planestress(double * stress, double * D) {
    stress[_s22_] += a1*(D[4]*nu + D[5]);
    stress[_s12_] += a1* D[6]*(1-nu)/2;
 
-  /* Now compute e_zz, which should be 0 if we are in plane
-   * strain, and will be used for computing mass if in 
-   * plane stress.  This is for density correction.  See
-   * TCK, p. 213, Fung, p. 267.
-   * Note: we have to accumulate e_z to use for calculating
-   * current thickness of block when calculating mass.
+  /* Now compute stress_zz, which should be 0 if we are in plane
+   * stress.
    */
-   stress[7] += -(nu/(1-nu))*(D[4] + D[5]);
+   //stress[7] += 0; //-(nu/(1-nu))*(D[4] + D[5]);
 }
+
 
 
 /** TCK stress rotation correction, Eq. 17, p. 324,
@@ -189,12 +187,9 @@ stress_print(double * s, PrintFunc printer, void * stream) {
 void 
 stress_print_stresses(double * s, PrintFunc printer, void * stream) {
 
-
    printer(stream,"sigma = [ %f %f  \n          %f %f ];\n", 
                    s[_s11_],s[_s12_],s[_s12_],s[_s22_]);
 }
-
-
 
 
 

@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/10/10 15:39:32 $
+ * $Date: 2002/10/11 15:44:45 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  */
 
 #include <malloc.h>
@@ -997,29 +997,23 @@ writeBlockStresses(double ** e0, int block)
 // each bolt has 2 pairs of x,y coordinates
 // semicolons separate data for each bolt
 void 
-//writeBoltLog(Geometrydata * gd, Analysisdata *ad) {
-writeBoltLog(double ** hb, int numbolts, int cts, double elapsedTime) {
+bolt_log_old(double ** hb, int numbolts, int cts, double elapsedTime) {
 
 	int i;
-//	double ** hb = gd->rockbolts;
    
-//   if(ad->cts == 0) {
    if(cts == 0) {
-//      fprintf(fp.boltlogfile, "This analysis contains %d bolt(s)\n", gd->nBolts);
       fprintf(fp.boltlogfile, "This analysis contains %d bolt(s)\n", numbolts);
    }
 
-//	fprintf(fp.boltlogfile, "%lf:", ad->elapsedTime);
 	fprintf(fp.boltlogfile, "%lf:", elapsedTime);
 
-//   for (i=0; i < gd->nBolts; i++) {
    for (i=0; i < numbolts; i++) {
-		fprintf(fp.boltlogfile, " %.12f,%.12f %.12f,%.12f;", hb[i][1], hb[i][2], hb[i][3], hb[i][4]);
-	}  // end for each bolt
+		fprintf(fp.boltlogfile, " %.12f,%.12f %.12f,%.12f;", 
+                               hb[i][1], hb[i][2], hb[i][3], hb[i][4]);
+	}
 
 	fprintf(fp.boltlogfile,"\n");
-
-}  /* close writeBoltLog() */
+}
 
 
 

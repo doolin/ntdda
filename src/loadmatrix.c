@@ -27,12 +27,11 @@ static void df09(Geometrydata *, Analysisdata *);
 static void df10(Geometrydata *, Analysisdata *, int **, double **);
 
 static void df12(Geometrydata *, Analysisdata *, int *, double **, double **, int **);
-static void df13(Geometrydata *, Analysisdata *,int *, double **, double **, int **);
-static void df14(Geometrydata *, int *, double **, double **, double **);
+static void df13(int numblocks, double ** K, const int *, double **, double **, int **, int planestrainflag);
+static void df14(int numblocks, const int *, double **, const double **, const double **);
 static void df15(Geometrydata *, Analysisdata *, int *, double **, double **);
 static void df16(Geometrydata *, int *, double **, double **, double **);
-//static void df18(Geometrydata *, Analysisdata *, int **, int **, int **, 
-//            double **, int *, int *, double **, double **, int **);
+
 
 /* This was moved from ddanalysis to shorten the size
  * of the analysis loop.
@@ -40,19 +39,16 @@ static void df16(Geometrydata *, int *, double **, double **, double **);
 void
 assemble(Geometrydata * GData, Analysisdata * AData,
          int ** locks, double ** matprops,
-         int * k1, int * kk, /* double ** moments, */ int ** n, double ** U)
+         int * k1, int * kk, int ** n, double ** U)
 {
 
    double ** f = AData->F;
-   clock_t start, stop;
+   //clock_t start, stop;
    double ** moments = GData->moments;
 
    //DLog->assemble_start = clock();
-   start = clock();
+   //start = clock();
 
-     /* FIXME: Time interpolation.  What is it?  Why 
-      * is it important?
-      */
       df09(GData, AData);
      
      /* Initialize submatrices back to zero, set
@@ -60,7 +56,7 @@ assemble(Geometrydata * GData, Analysisdata * AData,
       * time step.
       * FIXME: see if locks can be moved out of here.
       */
-	    	df10(GData, AData, locks,f);
+	   df10(GData, AData, locks,f);
      /* submatrix of inertia
       */
 	   //df11(GData, AData,k1,f,matprops,v0,moments,n);
@@ -78,10 +74,10 @@ assemble(Geometrydata * GData, Analysisdata * AData,
 
 
      /* submatrix of stiffness */
-	   df13(GData,AData,k1,matprops,moments,n);
+	   df13(GData->nBlocks,AData->K,k1,matprops,moments,n,AData->planestrainflag);
 
      /* submatrix of initial stress  */
-	   df14(GData,k1,f,matprops,moments);
+	   df14(GData->nBlocks,k1,f,matprops,moments);
 
      /* submatrix of point loading  */
 	   df15(GData,AData, k1,f,moments);
@@ -97,7 +93,8 @@ assemble(Geometrydata * GData, Analysisdata * AData,
        
       if (GData->nBolts > 0) {
 
-         rockbolts(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f);
+         //rockbolts(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f);
+         bolt_stiffness_arrays(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f,computeDisplacement);
       }
 
       /* start open-close iteration  m9:step iterations */
@@ -105,8 +102,8 @@ assemble(Geometrydata * GData, Analysisdata * AData,
 
       //printForces(GData, f, k1);
    
-      stop = clock();
-      DLog->assemble_runtime +=  stop - start; //(clock() - DLog->assemble_start)/((double)CLOCKS_PER_SEC);
+      //stop = clock();
+      //DLog->assemble_runtime +=  stop - start; //(clock() - DLog->assemble_start)/((double)CLOCKS_PER_SEC);
    
    
    //printKForIthBlock(AData, 2, 1, kk, n, "load matrix");
@@ -182,26 +179,7 @@ void df09(Geometrydata *gd, Analysisdata *ad)
       points[i+nfp+1][5] = lpoints[j][2] + a1*(lpoints[j+1][2] - lpoints[j][2]);
    }
 
-#define OLDPOINTS 0
-#if OLDLPOINTS
-   for (i=1; i<=nFPoints+nLPoints; i++)
-   {
-      for (j=tindex[i][0]; j<=tindex[i][1]-1; j++)
-      {
-         i1=j;
-         if ( (timeDeps[j][0] <= current_time) && (current_time <= timeDeps[j+1][0]) ) 
-         {
-            break;
-         }   
-      }  /*  j  */
-		    a1 = (current_time-timeDeps[i1][0])/(timeDeps[i1+1][0]-timeDeps[i1][0]);
-      points[i][4] = timeDeps[i1][1] + a1*(timeDeps[i1+1][1]-timeDeps[i1][1]);
-		    points[i][5] = timeDeps[i1][2] + a1*(timeDeps[i1+1][2]-timeDeps[i1][2]);
-   }  /*  i  */
-#endif
-
-   
-}  /* Close df09().  */
+}  
 
 
 
@@ -387,10 +365,9 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
 /**************************************************/
 /* df13: submatrix of stiffness                    */
 /**************************************************/
-/* The k1 matrix is "old block number new block number */
 void 
-df13(Geometrydata *bd, Analysisdata *ad,int *k1, double **e0, double **blockArea,
-          int **n)
+df13(int numblocks, double ** K, const int *k1, double **e0, double **blockArea,
+          int **n, int planestrainflag)
 {
    int i, i2, i3;
    int j, j1;
@@ -399,50 +376,40 @@ df13(Geometrydata *bd, Analysisdata *ad,int *k1, double **e0, double **blockArea
 
    double S0;  // block volume, was a1
    double a2;
-   int nBlocks = bd->nBlocks;
-   double ** a = ad->K;
-   //double nu;
-   //double youngsmod;
+   double E,nu;
 
-   double e[7][7]; // = {0};
+   double e[7][7]; 
 
-  /* We could make a call for this, but that would 
-   * incur overhead in the solver loop.  Not a good
-   * place to add overhead.
-   */
-   
-   for (i=1; i<= 6; i++)
-   {
-      for (j=1; j<= 6; j++)
-      {
+ 
+   for (i=1; i<= 6; i++) {
+      for (j=1; j<= 6; j++) {
          e[i][j]=0;
       }
    } 
    
-  /* a1:area of block  */
-   for (block=1; block<= nBlocks; block++)
-   {
+   for (block=1; block<=numblocks; block++) {
+
+      E  = e0[block][2];
+      nu = e0[block][3];
       S0 = blockArea[block][1];
        
-      if (ad->planestrainflag == 1)
-      {
-         a2 = e0[block][2]*S0/(1-e0[block][3]);
-        /* Non-zero terms of matrix, see GHS p. 34. */
-         e[4][4] = a2*(1-e0[block][3])/(1-2*e0[block][3]);
-         e[5][5] = a2*(1-e0[block][3])/(1-2*e0[block][3]);
-         e[4][5] = a2*(e0[block][3])/(1-2*e0[block][3]);
-         e[5][4] = a2*(e0[block][3])/(1-2*e0[block][3]);
+      if (planestrainflag == 1) {
+
+         a2 = S0*E/(1-nu);
+         e[4][4] = a2*(1-nu)/(1-2*nu);
+         e[5][5] = a2*(1-nu)/(1-2*nu);
+         e[4][5] = a2*(nu)/(1-2*nu);
+         e[5][4] = a2*(nu)/(1-2*nu);
          e[6][6] = a2/2;
-      }
-      else
-      {
-        /* a2 = area x ( E / (1-nu^2) ) */
-         a2 = e0[block][2]*S0/(1-e0[block][3]*e0[block][3]);
+
+      } else {  /* PLANESTRESS */
+
+         a2 = S0*E/(1-(nu*nu));
          e[4][4] = a2;
-         e[4][5] = a2*e0[block][3];
-         e[5][4] = a2*e0[block][3];
+         e[4][5] = a2*nu;
+         e[5][4] = a2*nu;
          e[5][5] = a2;
-         e[6][6] = a2*(1-e0[block][3])/2;
+         e[6][6] = a2*(1-nu)/2;
       }
 
      /* i2, i3 is location of Kii in global matrix. */
@@ -450,45 +417,40 @@ df13(Geometrydata *bd, Analysisdata *ad,int *k1, double **e0, double **blockArea
       i3=n[i2][1]+n[i2][2]-1;
 
      /* This should only have to loop over 4,5,6 */
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {
-            j1=6*(j-1)+l;  /* set index to global matrix */
-            a[i3][j1]+=e[j][l];  /* add elastic coefficients */
-         }  /*  l  */
-      }  /*  j  */
-      
-   }  /*  block  */
+      for (j=1; j<= 6; j++) {
 
-}  /* Close df13  */
+         for (l=1; l<= 6; l++) {
+
+            j1 = 6*(j-1)+l;  /* set index to global matrix */
+            K[i3][j1] += e[j][l];  /* add elastic coefficients */
+         }  
+      }  
+   }  
+}  
 
       
 /**************************************************/
 /* df14: submatrix of initial stress              */
 /**************************************************/
-void df14(Geometrydata *bd, int *k1, double **f, double **e0,
-          double **moments)
+void df14(int nBlocks, const int *k1, double **F, const double **e0,
+          const double **moments)
 {
-   int block;
-   double S0;  // block area (per unit thickness, was a1
-   int i2;
-   int nBlocks = bd->nBlocks;
+   int i, i1;
+   double S0;  // block area (per unit thickness, was a1)
+   //int nBlocks = bd->nBlocks;
 
-   for (block=1; block<= nBlocks; block++)
+   for (i=1; i<=nBlocks; i++)
    {
-      S0 = moments[block][1];
-      i2 = k1[block];
+      S0 = moments[i][1];
+      i1 = k1[i];
 
      /* Compute virtual work from last iteration. */
-
      /* Add the stresses. e0 is updated in df25() */
-      f[i2][4] += -S0*e0[block][4];
-      f[i2][5] += -S0*e0[block][5];
-      f[i2][6] += -S0*e0[block][6];
-   }  /*  i  */
-
-}  /* Close df14().  */
+      F[i1][4] += -S0*e0[i][4];
+      F[i1][5] += -S0*e0[i][5];
+      F[i1][6] += -S0*e0[i][6];
+   }  
+}  
 
 
 /**************************************************/
@@ -646,12 +608,9 @@ void df16(Geometrydata *gd, int *k1, double **F, double **e0,
       o2 = -e0[block][1];
       F[i2][1] += o1*moments[block][1];
       F[i2][2] += o2*moments[block][1];
-   }  /*  i  */
+   }  
 
-
-   //printBlockWeights(gd, moments, e0);
-
-}  /* Close df16().  */
+} 
 
 
 
@@ -663,4 +622,4 @@ viscosity(Geometrydata * bd, Analysisdata * ad, double ** hb,
           double ** blockArea, double ** F)
 {
    return 0;
-}  /* Close viscosity() */
+}  

@@ -50,13 +50,6 @@ void writeBlockVerticesLog(Geometrydata *, int timestep, int block);
 void writeAllBlockVerticesMatrix(Geometrydata *, Analysisdata *);
 
 
-
-void writeBoltLog (double ** rockbolts, 
-                   int numbolts, 
-                   int current_time_step, 
-                   double elapsed_time);
-
-
 void writeBoltMatrix(Geometrydata *, Analysisdata *);
 
 

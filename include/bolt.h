@@ -15,6 +15,11 @@ extern "C" {
 typedef int (*PrintFunc)(void * stream,const char * format,...);
 #endif
 
+#ifndef TRANSMAPFUNC
+typedef void (*TransMap)(double ** moments, double T[7][7], double x, double y, int i0);
+#define TRANSMAPFUNC
+#endif
+
 typedef struct _bolt Bolt;
 typedef struct _boltlist Boltlist; 
 typedef struct _boltmat Boltmat;
@@ -119,7 +124,12 @@ void       bolt_get_endpoints_a  (double * b,
 void       bolt_set_length_a     (double * bolt);
 double     bolt_get_length_a     (double * bolt);
 
-
+void       bolt_log_a            (double ** rockbolts, 
+                                  int numbolts, 
+                                  int current_time_step, 
+                                  double elapsed_time,
+                                  PrintFunc printer,
+                                  void * stream);
 /**
  * When a bolt is given an initial pretension force,
  * an unstrained length of the bolt must be computed 
@@ -159,8 +169,21 @@ void       bolt_get_dir_cosine_a (double * bolt,
                                   double * lx, 
                                   double * ly);
 
+void       bolt_update_arrays    (double ** bolts, 
+                                  int numbolts, 
+                                  double ** F,
+                                  double ** moments, 
+                                  TransMap transmap);
 
-
+void       bolt_stiffness_arrays (double ** bolts, 
+                                  int numbolts, 
+                                  double ** K, 
+                                  int * k1, 
+                                  int * kk, 
+                                  int ** n, 
+                                  double ** blockArea,  
+                                  double ** F, 
+                                  TransMap transmap);
 
 /** Boltmat methods, which may go into their own header
  * file in the future.

@@ -5,10 +5,17 @@
  * by GHS, p.42, 1988.
  *
  * $Author: doolin $
- * $Date: 2002/10/09 01:46:40 $
+ * $Date: 2002/10/11 15:44:45 $
  * $Source: /cvsroot/dda/ntdda/src/Attic/rockbolts.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
+
+
+
+/* Warning: All of this is scheduled to go away soon. */
+
+
+//#if 0
 
 #include <math.h>
 #include <assert.h>
@@ -22,8 +29,8 @@
  */
 void
 rockbolts(double ** rockbolt, int numbolts, double ** K, 
-          int * k1, int * kk, int ** n, double ** blockArea,  double ** F)
-{  
+          int * k1, int * kk, int ** n, double ** blockArea,  double ** F) {  
+
   /* loop counters */   
    int i, j, l, bolt; 
 
@@ -127,11 +134,8 @@ rockbolts(double ** rockbolt, int numbolts, double ** K,
       ji = k1[ep1];
       j2 = k1[ep2];
 
-     /* FIXME: Find out what is wrong with this memory 
-      * finding stuff.
-      */
-      if (j2<ji) 
-      {
+      if (j2<ji) {
+
         /* find Kij */
          for (j=n[ji][1]; j<= n[ji][1]+n[ji][2]-1; j++) {
             i3=j;
@@ -180,10 +184,4 @@ rockbolts(double ** rockbolt, int numbolts, double ** K,
 }  
 
 
-/*
-int 
-rockboltContacts(Geometrydata *bd, Analysisdata *ad, int *kk, 
-                 int *k3, double **u) {
-return 0;
-} 
-*/
+//#endif
