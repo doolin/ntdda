@@ -9,9 +9,10 @@
 
 CFLAGS = -g -Wall -DSTANDALONE
 
-OBJECTS =  bolttest   \
-           matmulttest \
-	   loadpointtest
+OBJECTS =  bolttest       \
+           matmulttest    \
+	   loadpointtest  \
+           stress_test
 
 all: $(OBJECTS)
 
