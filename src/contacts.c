@@ -1,18 +1,8 @@
 
+#include <math.h>
 #include "ddamemory.h"
 #include "contacts.h"
 
-
-
-/*  This might help track contacts states... */
-//typedef enum contactstate { openopen, opensliding, openlocked,
-//                    slidingopen, slidingsliding, slidinglocked,
-//                    lockedopen, lockedsliding, lockedlocked };
-
-/* TODO: Change some of these ** arrays to arrays
- * of structs, where the members have descriptive 
- * variable names.
- */
 
 struct _contacts {
 
@@ -55,9 +45,25 @@ struct _contacts {
 };
 
 
+
+/* These are currently toted around the place for no 
+ * good reason.  They are global, no sense to be local
+ * else they would be moved into the _C struct.  They 
+ * can be set from an initial function, then used at will
+ * in methods for _C.
+ */
+static double domainscale;
+static double openclose;
+static double opencriteria;
+static double shear_norm_ratio;
+
+
 /* This will be how the new contacts work. */
 struct _C {
 
+  /* This may need to be typedefed in the header so that 
+   * the value can be passed in with a function.
+   */
    enum {vertex_edge, vertex_vertex} contact_type;
 
    /* These will point into the vertex arrays. 
@@ -67,14 +73,26 @@ struct _C {
     */
    double *x1, *y1, *x2, *y2, *x3, *y3;
 
-   /* Shear locking point */
+   /* Shear locking point, may not need to save this, use omega
+    * instead.
+    */
    double x0,y0;
 
    double contact_length;
 
+  /* these dist variables are probably the 
+   * normal and shear "displacements".
+   */
    double pen_dist;
    double shear_dist;
    double cohesion_length;
+
+  /* These "strength" parameters have to be set 
+   * somewhere, possibly in the contact code.
+   */
+   double phi;
+   double cohesion;
+   double tstrength;
 
   /* If the contact is a vertex_vertex contact, we have to 
    * check which vertex penetrates the most.  If the second
@@ -90,23 +108,22 @@ struct _C {
    /* Shear locking ratio, should be between 0 and 1 */
    double omega;
 
-   /* State of contact for open-close iteration.  May not use these,
-    * but could be very useful.  Delete if not necessary.
-    */
-   enum { openopen, opensliding, openlocked,
-          slidingopen, slidingsliding, slidinglocked,
-          lockedopen, lockedsliding, lockedlocked } modechange;
-
    enum { open, sliding, locked } previous_state, current_state;
 
   /* In the future, might be able to adjust the penalty springs
    * on a case by case basis instead of using a global penalty
-   * spring.
+   * spring.  Also, these could all be floats, which doesn't buy
+   * anything in the cpu but does save a few bytes per contact,
+   * which might be handy later.
    */
   /* Contact normal stiffness */
    double kn;
   /* Contact shear stiffness */
    double ks;
+  /* Contact normal damping */
+   double cn;
+  /* Contact shear damping */
+   double cs;
   /* Lagrange multiplier, may never be needed... */
    double lagmult;
   /* Normal reaction generated at contact */
@@ -114,7 +131,9 @@ struct _C {
   /* Shear reaction generated at contact */
    double shearforce;
 
-   /* Not yet implemented... */
+  /* Not yet implemented... we need these for setting the 
+   * global stiffness and force matrices.
+   */
    //Block * block_i, block_j;
 };
 
@@ -292,3 +311,46 @@ freeContacts(Contacts * c)
    return NULL;
 
 }  /* close freeContacts() */
+
+
+/*  Taken mostly from manifold tech report, p. 109 */
+void
+updateLockState(C * c)
+{
+   switch (c->previous_state)
+   {
+      case open:
+         if (c->pen_dist > 0)
+            c->current_state = open;
+         else if (fabs(c->shearforce) > fabs(c->normalforce)*tan(c->phi))
+            c->current_state = sliding;
+         else 
+            c->current_state = locked;
+         break;
+
+      case sliding:
+         if (c->pen_dist > 0)
+            c->current_state = open;
+        /* This test is bogus.  The description in manifold
+         * tech note (p. 109) has typos and the wording confuses me.
+         */
+         else if (sign(c->shear_dist) == -sign(c->shearforce))
+            c->current_state = sliding;
+         else 
+            c->current_state = locked;
+         break;
+
+      case locked:
+         if (c->pen_dist > 0)
+            c->current_state = open;
+         else if (fabs(c->shearforce) > fabs(c->normalforce)*tan(c->phi))
+            c->current_state = sliding;
+         else 
+            c->current_state = locked;      
+         break;
+
+      default:
+         break;
+   }
+}
+

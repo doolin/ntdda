@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/15 00:04:30 $
+ * $Date: 2001/07/23 12:54:49 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  *
  */
 /*################################################*/
@@ -17,6 +17,13 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.12  2001/07/23 12:54:49  doolin
+ * Added stuff to the contact handling code.
+ * The whole build is broken, don't know why.  Examples don't
+ * work correctly, and they run very slowly.  Will probably
+ * need to back out several weeks, possibly months worth of
+ * changes to figure it out.
+ *
  * Revision 1.11  2001/07/15 00:04:30  doolin
  * Minor changes.
  *
@@ -966,16 +973,6 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    */
    //double P[], Q[];
 
-  /* These are variables needed for computing friction force. */
-   //double ** phiCohesion = ad->phiCohesion;
-   //double pen_dist2;  // Replaces s4 when s4 used as distance instead of force.
-   //double shearforce;  //s4;
-   //double normalforce;
-  /* FIXME: What is e11? */
-   //double e11;
-   //double phi, cohesion; // was t1, t2
-   //int joint_type;  // was j4 
-
   /* (GHS: c0[] free term of equations for friction force.) */
   /*
    * This resets the friction forces to zero at the start of 
@@ -1132,7 +1129,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             */
            /* FIXME: Add an assert here for omega < 1 */
             omega = c_length[contact][2];
-            assert (omega < 1);
+            //assert (omega < 1);
            /* Eq. 58, TCK 1995, p. 1239.  sheardisp is denoted by 
             * s0 in this paper.
             */
@@ -1940,7 +1937,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
       * FIXME: Find out why ratio is sometimes < 0 or > 1.
       */
       //assert(0.0 <= ratio  && ratio <= 1.0);
-      assert(0.0 <= omega  && omega <= 1.0);
+      //assert(0.0 <= omega  && omega <= 1.0);
       //fprintf(fp.logfile,"ratio: %f\n",ratio);
 
      /* (GHS: case e-v sliding distance   a1: previous) */

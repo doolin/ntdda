@@ -6,10 +6,14 @@
  * functions from the "df", or "dda forward" 
  * written by GHS.
  * 
- * $Author: doolin $
- * $Date: 2001/06/23 23:14:03 $
- * $Source: /cvsroot/dda/ntdda/src/analysisdriver.c,v $
- * $Revision: 1.4 $
+ * $Log: analysisdriver.c,v $
+ * Revision 1.5  2001/07/23 12:54:49  doolin
+ * Added stuff to the contact handling code.
+ * The whole build is broken, don't know why.  Examples don't
+ * work correctly, and they run very slowly.  Will probably
+ * need to back out several weeks, possibly months worth of
+ * changes to figure it out.
+ *
  */
 
 

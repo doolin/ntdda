@@ -30,4 +30,7 @@ double ** get_contact_lengths(Contacts *);
 int    ** get_previous_contacts(Contacts *);
 
 
+/* new stuff */
+void updateLockState(C *);
+
 #endif
