@@ -92,6 +92,8 @@ struct _dda_tag {
    ddaboolean statusbarvis;
    ddaboolean popupvis;
    ddaboolean tooltipvis;
+   short xcur;
+   short ycur;
 
 };
 

@@ -744,7 +744,7 @@ END
 
 DDAAPACCEL ACCELERATORS DISCARDABLE 
 BEGIN
-    VK_F1,          MENU_HELPINDEX,         VIRTKEY, SHIFT, NOINVERT
+    VK_F1,          MENU_HELPINDEX,         VIRTKEY, NOINVERT
 END
 
 #endif    // English (U.S.) resources

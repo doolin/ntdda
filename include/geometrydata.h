@@ -216,6 +216,8 @@ void freeBlockMasses(Geometrydata *);
 Geometrydata * initGeometrydata(void);
 Geometrydata * gdata_new(void);
 
+void gd_get_block_centroid(Geometrydata *, int block, double [2]);
+
 void dumpGeometrydata(Geometrydata *, FILE *);
 
 /* Moved from geometry.h */

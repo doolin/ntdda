@@ -7,6 +7,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+//#include <winuser.h>
 
 
 /*
@@ -30,7 +31,7 @@
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.6 2001/09/03 03:45:36 doolin Exp $\n", \
+              "$Id: winmain.h,v 1.7 2001/10/14 02:08:37 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \

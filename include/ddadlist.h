@@ -1,6 +1,6 @@
 
-#ifndef _DDADLIST
-#define _DDADLIST
+#ifndef __DDADLIST_H_
+#define __DDADLIST_H_
 
 /* Doubly linked lists:  These are routines that you can use to create, use,
    and manipulate doubly linked lists.  Each list is made of Dlist structures.

@@ -780,9 +780,11 @@ initGeometrydata(void)
  * This is also called from df25.
  */
 /* i  j  x2  y2  x3  y3  f1  moments[][] */
+/* FIXME: This needs to be written to call a function 
+ * that takes a block number.
+ */
 double 
-computeMoments(Geometrydata * gd) //, double **moments)
-{
+computeMoments(Geometrydata * gd) {
   /* FIXME: Need this to track the block 
    * centroids.
    */
@@ -925,4 +927,21 @@ void freeBlockMasses(Geometrydata * gd)
 
 }  /* close freeBlockMasses() */
 
+
+
+void 
+gd_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
+
+   double x0,y0;
+   double ** moments = gd->moments;
+
+   computeMoments(gd);
+
+   x0=moments[block][2]/moments[block][1];  // x0 := x centroid
+   y0=moments[block][3]/moments[block][1];  // y0 := y centroid
+
+   centroid[0] = x0;
+   centroid[1] = y0;
+   return;
+}
 

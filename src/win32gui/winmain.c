@@ -7,13 +7,14 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/09/15 14:14:35 $
+ * $Date: 2001/10/14 02:08:39 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  */
 
 
 #include "winmain.h"
+
 
 #include <commdlg.h>
 #include <commctrl.h>
@@ -68,6 +69,7 @@ long zoom = 25000;
 /* These set the cursor location on a mouse button down */
 int xcursor;
 int ycursor;
+
 
 /* FIXME: Move to local if possible */
 /* These won't work until version msvc 6 */
@@ -225,6 +227,11 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
    icex.dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES;
    InitCommonControlsEx(&icex);
 
+
+//sprintf(mess,"WM_KEYDOWN: %p",WM_KEYDOWN);
+//MessageBox(NULL,mess,mess,MB_OK);
+
+
   /* This might be a problem too... */
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
@@ -343,6 +350,9 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
    xnew = mousepos.x;
    ynew = mousepos.y;
 
+   dda->xcur = mousepos.x;
+   dda->ycur = mousepos.y;
+
   /* Horrid kludge */
   /* FIXME: Get rid of this kludge, redesign, anything...
    * The following code is extremely unstable and in 
@@ -427,6 +437,10 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
          case (MK_RBUTTON+MK_SHIFT):
             break;
 
+         case (MK_RBUTTON+'c'):
+            //MessageBox(NULL,"c","c",MB_OK);
+            break;
+
          case MK_MBUTTON: 
             break;
 
@@ -437,6 +451,49 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
    }
 
 }  /* close handleMouseMove() */
+
+static int
+handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+
+   char mess[80];
+   int vkcode;
+   int xnew, ynew;
+   int blocknumber;
+   DPoint p;
+   DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
+
+   xnew = dda->xcur;
+   ynew = dda->ycur;
+
+   /* FIXME:  This is a kludgy way to handle this. */
+   if (whatToDraw == LINES || whatToDraw == BLOCKS) {
+      vkcode = wParam;
+
+      switch (vkcode) {
+      case 'c': {
+            double centroid[2] = {0};
+            //displayPhysicalCoordinates(hwMain,wParam,lParam);
+            p = DPtoPP(hwMain, xnew,ynew);
+            blocknumber = geomdata->getblocknumber(geomdata->this,p.x,p.y);
+            gd_get_block_centroid(geomdata,blocknumber,centroid);
+            sprintf(mess,"Block %d centroid: (%lf,%lf)",blocknumber,centroid[0],centroid[1]);
+            MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
+                }
+            break;
+
+      case VK_F1:
+         MessageBox(NULL,NULL,NULL,MB_OK);
+         break;
+
+         default:
+            break;
+      }
+   }
+
+   return 0;
+
+}  /* close handleChar() */
 
 
 
@@ -1915,6 +1972,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
          handleViewToggles(hwMain,wParam,lParam);
          break;
 
+      case MENU_HELPINDEX:
       case GEOM_BROWSE:
          handleGeomBrowse(hwMain, lParam);
          break;  
@@ -2126,8 +2184,22 @@ WndProc (HWND hwMain, UINT message,
  
    dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
 
+/*
+   if (message == 0x100) {
+         MessageBox(hwMain,"keydown","keydown",MB_OK);
+   }
+*/
+
    switch (message)
    {
+
+   case WM_SYSCHAR:
+      MessageBox(NULL,"syschar",NULL,MB_OK);
+      break;
+
+      case WM_CHAR:
+         return(handleChar(hwMain, wParam, lParam));
+
      /* There are some control of flow problems with the DDA struct
       * segfaulting before being initialized.
       */
@@ -2154,7 +2226,9 @@ WndProc (HWND hwMain, UINT message,
          */
          updateMainMenuA(hwMain, dda->menustate);
          break;
-  
+
+
+
       case WM_MENUSELECT:
         /* There needs to be a state variable here to track 
          * callbacks for handling dynamically loaded menu
@@ -2301,16 +2375,14 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
    hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE( DDAAPACCEL ));
 
-  	while (GetMessage (&msg, NULL, 0, 0)) 
-   {
-      if (!TranslateAccelerator(hwMain,hAccel,&msg)) 
-      {
+  	while (GetMessage (&msg, NULL, 0, 0)) {
+      if (!TranslateAccelerator(msg.hwnd,hAccel,&msg)) {
          TranslateMessage (&msg);
          DispatchMessage (&msg);
-      }
-   }  /* end while (getmessage) */
+      } 
 
-   //DestroyWindow(hwMain);
+   }  
+
    return msg.wParam;
 
 }  /* close WinMain()  */
