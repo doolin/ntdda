@@ -141,6 +141,10 @@ SOURCE=.\src\sparsestorage.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\stress.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\timestep.c
 # End Source File
 # Begin Source File
