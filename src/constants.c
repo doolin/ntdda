@@ -101,6 +101,7 @@ constants_set_w0(Constants * c, double w0) {
    c->w0 = w0;
 }
 
+
 double 
 constants_get_w0(Constants * c) {
 

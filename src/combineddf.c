@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/28 13:46:58 $
+ * $Date: 2002/10/31 15:35:02 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.44 $
+ * $Revision: 1.45 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.45  2002/10/31 15:35:02  doolin
+ * Not yet ready for prime time.  This commit is just some
+ * minor changes.
+ *
  * Revision 1.44  2002/10/28 13:46:58  doolin
  * Refactoring contact handling.
  * Code is highly regressed at the moment.
@@ -562,6 +566,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    */
    w0 = df01(gd->vertices,gd->vindex,gd->nBlocks);
    constants_set_w0(ad->constants,w0);
+   constants_init(ad->constants, ad->maxdisplacement);
 
   /* ad->pointcount is needed for saving restoring force terms 
    * for fixed points.

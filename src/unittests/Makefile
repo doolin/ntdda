@@ -10,6 +10,15 @@
 CFLAGS = -g -Wall -DSTANDALONE
 
 
+ALL_TESTS_SOURCE =  ../functions.c     \
+		    constants_test.c   \
+		    ../constants.c        \
+		    unittest.c         \
+		    ../bolt.c          \
+		    ../ddadlist.c      \
+		    ../ddamemory.c     \
+		    bolttest.c
+
 ADATA_SOURCE =  ../constants.c      \
                 ../timehistory.c    \
                 ../analysisdata.c   \
@@ -36,11 +45,16 @@ OBJECTS =                    \
            geometrydata_test \
            inpoly_test       \
            ddadlist_test     \
-           constants_test
+           constants_test    \
+	   all_tests
 
 
 all: $(OBJECTS)
 
+
+
+all_tests: all_tests.c
+	gcc -Wall -g -o all_tests all_tests.c $(ALL_TESTS_SOURCE) -I../../include -lm
 
 ddadlist_test: ddadlist_test.c ../ddadlist.c
 	gcc $(FLAGS) -o ddadlist_test ddadlist_test.c ../ddadlist.c  -I../../include

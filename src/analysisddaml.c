@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:17 $
+ * $Date: 2002/10/31 15:35:02 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  */
 
 #include <stdio.h>
@@ -441,7 +441,7 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    //CONSTANTS * constants;
    //constants  = (CONSTANTS *)calloc(1,sizeof(CONSTANTS));
   
-   Constants * constants = constants_new();
+   Constants * constants = constants_new_defaults();
 
 
    fprintf(stderr,"Inside constants\n");

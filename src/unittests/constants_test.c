@@ -304,6 +304,7 @@ constants_test(void) {
 
 }
 
+#ifdef STANDALONE
 int
 main() {
 
@@ -312,3 +313,4 @@ main() {
   return 0;
 
 }
+#endif
