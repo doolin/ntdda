@@ -5,8 +5,11 @@
  * data structures in dda.  
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:18 $
+ * $Date: 2003/02/06 14:08:25 $
  * $Log: ddamemory.c,v $
+ * Revision 1.5  2003/02/06 14:08:25  doolin
+ * .
+ *
  * Revision 1.4  2002/10/27 20:53:18  doolin
  * File handling changes are minor, due to
  * Win32 need for complete path info.
@@ -53,7 +56,7 @@ IntMat2DGetMem(int n, int m)
    int i;
    int **x;
 
-assert ( (m!=0) && (n!=0) );
+   assert ( (m!=0) && (n!=0) );
 
    //x = (int **)malloc(sizeof(int *)*n);
    x = (int **)calloc(n,sizeof(int *));
@@ -133,41 +136,42 @@ clone2DMatDoub(double ** mat,int n, int m)
 
 }  /* Close clone2DMatDoub().  */
 
+
 int **
-clone2DMatInt(int ** mat,int n, int m)
-{
+clone2DMatInt(int ** mat,int n, int m) {
+
    int i;
    int j;
    int **x;
 
-assert ( (m!=0) && (n!=0) );
+   assert ( (m!=0) && (n!=0) );
 
-x = IntMat2DGetMem(n, m);
+   x = IntMat2DGetMem(n, m);
 
    for (i=0; i<n;i++)
       for (j=0;j<m;j++)
          x[i][j] = mat[i][j];
 
    return x;
+}  
 
-}  /* Close clone2DmatInt().  */
 
 int *
-clone1DMatInt(int * mat,int m)
-{
+clone1DMatInt(int * mat,int m) {
+
    int i;
    int *x;
 
-assert (m!=0);
+   assert (m!=0);
 
-x = (int *)calloc(m, sizeof(int));
+   x = (int *)calloc(m, sizeof(int));
 
    for (i=0; i<m;i++)
          x[i] = mat[i];
 
    return x;
 
-}  /* Close clone2DmatInt().  */
+} 
 
 
 

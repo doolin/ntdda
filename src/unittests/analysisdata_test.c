@@ -32,10 +32,29 @@ test_adata_new(void) {
   return 0;
 }
 
+
+int
+test_adata_clone(void) {
+
+  Analysisdata * ad1, * ad2;
+  
+  ad1 = adata_new();
+
+  ad2 = adata_clone(ad1);
+
+  adata_delete(ad1);
+  adata_delete(ad2);
+
+  return 0;
+}
+
+
+
 int
 analysisdata_test(void) {
 
   test_adata_new();
+  test_adata_clone();
 
   return 0;
 }
