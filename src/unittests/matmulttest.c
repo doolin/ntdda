@@ -5,6 +5,8 @@
 #include "ddamemory.h"
 
 
+
+
 /*  These things are really ugly.  Should try and
  * write some sort of logging code like glog.
  */
@@ -75,6 +77,17 @@ equals(double computed[7][7], double true[7][7], double tol)
   
   return 1;
 }
+
+
+
+/* FIXME: Remove all the functionality out of this,
+ * create a struct that has a member that can run the 
+ * test, create a test() method that returns true 
+ * or false, then make a source file to run all of
+ * the tests at once, and log to somewhere easy to 
+ * find.  Maybe log to an XML file that can be loaded 
+ * into IE and the tree examined.
+ */
 
 int 
 main() 

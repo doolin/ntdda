@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/06/30 23:19:46 $
+ * $Date: 2001/07/01 07:00:34 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  *
  */
 /*################################################*/
@@ -541,7 +541,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
 
    double normalforce, shearforce;
    double e11;
-   double pen_dist2;
+   double pen_dist2;  // was s4?
    double phi, cohesion;
    const double dd = 3.1415926535/180; /* radians to degrees */
 
@@ -793,12 +793,17 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    * most likely be turned into a pair of flags in the future.
    * QQ indicates whether the locks changes states between 
    * successive open-close iterations in a particular time step.
-   * QQ = -1 :  
+   * QQ = -1 :  Lock state was {open,closed}, now {closed,open}
    * QQ = 0  :  The contact lock state has not changed.
-   * QQ = 1  : 
+   * QQ = 1  :  Lock state was {open,closed}, now {closed,open}
    */
-   int QQ[1][3];
+  /* FIXME: QQ should probably be initted to {0} when 
+   * df18() is entered.
+   */
+   int QQ[1][3];// = {0};
+  /* FIXME: Make this proveable 3x7, then change to 2x6. */
    double T[7][7];
+   //double T[3][7];
   /* TODO: s[] should probably be split into several arrays of
    * length 6 (or length whatever the DOF for a single block.
    * s[1-6] := er, s[7-12] := gr; p. 161, Eq 2.18, GHS 1988.
@@ -1211,7 +1216,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          * "sliding", we don't need any friction force, so continue on 
          */
 
-        /* FIXME: Find out whether the we can have a SLIDING lock when we have a 
+        /* FIXME: Find out whether we can have a SLIDING lock when we have a 
          *  VV contact.  If not, these conditionals can be cleaned up a lot.
          */
          if (contacts[contact][TYPE] != VE || locks[contact][CURRENT] != SLIDING) 
@@ -1354,6 +1359,8 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    double p[4][4];
   /* T is the usual, i.e., T \equiv [T] */
    double T[7][7];
+  /* FIXME: Change this to: */
+   //double T[3][7] = {0};
   /* x,y are temporary variables used to carry contact vertex
    * locations for computing displacements
    */
