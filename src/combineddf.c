@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/19 00:08:42 $
+ * $Date: 2002/05/19 16:43:02 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.21 $
+ * $Revision: 1.22 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.22  2002/05/19 16:43:02  doolin
+ * More general source cleanup.
+ *
  * Revision 1.21  2002/05/19 00:08:42  doolin
  *
  * Current check out does not build for some reason.
@@ -112,10 +115,9 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "errorhandler.h"
 #include "ddamemory.h"
 #include "interface.h"
-#include "ddaerror.h"
+//#include "ddaerror.h"
 #include "printdebug.h"
 #include "gravity.h"
 #include "contacts.h"
@@ -138,7 +140,7 @@
 extern FILEPOINTERS fp;
 extern DATALOG * DLog;
 extern InterFace * iface;
-extern DDAError ddaerror;
+//extern DDAError ddaerror;
 
 /**************************************************/
 /* df01: input geometric data                     */
@@ -3046,7 +3048,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    if (avgarea == 0)
    {
       ad->abort(ad->this);
-      ddaerror.error = __ZERO_MOMENT_ERROR__;
+      /* Not the right way to do this. */
+      //ddaerror.error = __ZERO_MOMENT_ERROR__;
       iface->displaymessage("Zero block area");
    }
    ad->avgArea[ad->currTimeStep] = avgarea;

@@ -60,7 +60,7 @@ error_register_handler(Error * e,
 }
 
 void
-error_throw(Error * e, const char * message) {
+error_display(Error * e, const char * message) {
 
   e->printer(e->stream, e->win_frame_title, message);
 } 

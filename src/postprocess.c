@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 02:15:50 $
+ * $Date: 2002/05/19 16:43:03 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 #include <malloc.h>
@@ -16,7 +16,6 @@
 #include <time.h>
 #include "analysis.h"
 #include "math.h"
-#include "errorhandler.h"
 #include "ddamemory.h"
 #include "interface.h"
 #include "graphics.h"

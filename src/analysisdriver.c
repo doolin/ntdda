@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.14  2002/05/19 16:43:02  doolin
+ * More general source cleanup.
+ *
  * Revision 1.13  2001/11/02 13:38:41  doolin
  * Gravitational acceleration now a user option, specifically to
  * allow zero gravity.  Not sure if the tag has any effect at the moment,
@@ -78,10 +81,9 @@
 #include <direct.h>
 #include <assert.h>
 #include <string.h>
-#include "errorhandler.h"
 #include "ddamemory.h"
 #include "interface.h"
-#include "ddaerror.h"
+//#include "ddaerror.h"
 #include "printdebug.h"
 #include "gravity.h"
 #include "contacts.h"
@@ -96,7 +98,7 @@ extern InterFace * iface;
 extern FILEPOINTERS fp;
 
 DATALOG * DLog;
-DDAError ddaerror;
+//DDAError ddaerror;
 
 
 
@@ -397,6 +399,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
       * n steps, or to not save at all at user request.
       * This would just cost a conditional. 
       * FIXME: Buffer this to be written out after the analysis.
+      * FIXME: move to a dda_log_step_data() function.
       */
 
       if (AData->options & MEASPOINTS)

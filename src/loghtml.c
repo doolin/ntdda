@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:21 $
- * $Revision: 1.2 $
+ * $Date: 2002/05/19 16:43:03 $
+ * $Revision: 1.3 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -31,7 +31,7 @@
 #if DDA_FOR_WINDOWS
 #include "winmain.h"
 #endif
-#include "ddaerror.h"
+//#include "ddaerror.h"
 
 static void writeHTMLHeader(FILE * htmlfile);
 static void writeHTMLBody(GRAPHICS *, Analysisdata *, FILE * htmlfile);
@@ -48,7 +48,7 @@ extern FILEPOINTERS fp;
 #if DDA_FOR_WINDOWS
 extern OPTIONS options;
 #endif
-extern DDAError ddaerror;
+//extern DDAError ddaerror;
 
 
 /* One way to get information into this function is
@@ -144,6 +144,7 @@ writeHTMLBody(GRAPHICS * g, Analysisdata * ad, FILE * htmlfile)
    printBarTable("Run-time errors",htmlfile);
 
   /* FIXME: Move this switch into ddaerror.c for handling. */
+   /*
    if (ddaerror.error)
    {
       fprintf(htmlfile,"<span class=\"error\">");
@@ -159,7 +160,7 @@ writeHTMLBody(GRAPHICS * g, Analysisdata * ad, FILE * htmlfile)
       }
       fprintf(htmlfile,"</span>\n");
    }
-
+*/
 
 
   /* List warnings */

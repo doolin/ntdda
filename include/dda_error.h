@@ -15,7 +15,7 @@ void error_delete(Error *);
 
 void error_register_handler(Error * e, void * stream, Print_Func callback, const char * title);
 
-void error_throw(Error * e, const char * message);
+void error_display(Error * e, const char * message);
 
 #ifdef __cplusplus
 } /* extern "C" */

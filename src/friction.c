@@ -2,9 +2,9 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2001/05/20 20:59:35 $
+ * $Date: 2002/05/19 16:43:03 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -16,7 +16,6 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "errorhandler.h"
 #include "ddamemory.h"
 #include "interface.h"
 

@@ -13,10 +13,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <assert.h>
-//#if WINDOWS
-//#include "wingraph.h"
-//#endif
-#include "errorhandler.h"
+
 #include "ddamemory.h"
 #include "contacts.h"
 

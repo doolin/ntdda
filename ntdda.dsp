@@ -270,10 +270,6 @@ SOURCE=.\src\ddamemory.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\errorhandler.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\inpoly.c
 # End Source File
 # Begin Source File

@@ -5,10 +5,13 @@
  * data structures in dda.  
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:48 $
+ * $Date: 2002/05/19 16:43:03 $
  * $Log: ddamemory.c,v $
- * Revision 1.1  2001/05/20 21:00:48  doolin
- * Initial revision
+ * Revision 1.2  2002/05/19 16:43:03  doolin
+ * More general source cleanup.
+ *
+ * Revision 1.1.1.1  2001/05/20 21:00:48  doolin
+ * This import corresponds to development version 1.5.124
  * *
  */
 
@@ -16,7 +19,6 @@
 #include <memory.h>
 #include<assert.h>
 #include "ddamemory.h"
-#include "errorhandler.h"
 
 
 
@@ -196,7 +198,12 @@ free2DMat(void ** mat, int m)
 
    if (mat == NULL)
    { 
-      error ("Null mat passed into freemat().");
+      /* Should probably be warnings instead of errors,
+       * and in any case should throw a NULL pointer
+       * warning function instead of a generic error 
+       * function.
+       */
+      //error ("Null mat passed into freemat().");
       return;
    }
 
@@ -216,7 +223,7 @@ free2Darray(void ** array, int m)
 
    if (array == NULL)
    { 
-      error ("Null array passed into free2Darray().");
+      //error ("Null array passed into free2Darray().");
       return;
    }
 
@@ -235,14 +242,14 @@ free2DIntArray(int ** array, int m, int n)
 
    if (array == NULL)
    { 
-      error ("Null array passed into free2DIntArray().");
+      //error ("Null array passed into free2DIntArray().");
       return;
    }
 
   /* Check for pointer to 0xDD or 0xDA */
    if ((int)array == 0xdadadada || (int)array == 0xdddddddd)
    {
-      error("Uninitialized array pointer passed to free2DIntArray");
+      //error("Uninitialized array pointer passed to free2DIntArray");
       return;
    }
 
@@ -263,14 +270,14 @@ free2DDoubleArray(double ** array, int m, int n)
 
    if (array == NULL)
    { 
-      error ("Null array passed into free2DDoubleArray().");
+      //error ("Null array passed into free2DDoubleArray().");
       return;
    }
 
   /* Check for pointer to 0xDD or 0xDA */
    if ((int)array == 0xdadadada || (int)array == 0xdddddddd)
    {
-      error("Uninitialized array pointer passed to free2DDoubleArray");
+      //error("Uninitialized array pointer passed to free2DDoubleArray");
       return;
    }
 

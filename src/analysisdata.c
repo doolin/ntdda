@@ -52,7 +52,7 @@ abortAnalysis(Analysisdata * ad) {
 
 
 
-
+/* FIXME: Change name to ddaml_analysis_write_file() */
 static void
 dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
 {
@@ -575,6 +575,7 @@ analysisInput(char * analysisFile, Geometrydata * gd)
    switch(afv)
    {
        case ddaml:
+          /* FIXME: change to ddaml_parse_analysis_file() */
           AData = XMLparseDDA_Analysis_File(analysisFile);
           assert(AData != NULL);
           break;

@@ -5,6 +5,7 @@
 
 extern FILEPOINTERS fp;
 
+/*
 void error(char * errorstring)
 {
 
@@ -13,8 +14,9 @@ void error(char * errorstring)
 
    return;
 }
+*/
 
-
+#ifdef HJHGHHHHHH
 /*  print out a matrix. 
  */
 
@@ -35,3 +37,5 @@ void matrixprint(double ** matrix, int n, int m)
    }
    fclose(ofp);
 }
+
+#endif
