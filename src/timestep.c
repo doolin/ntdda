@@ -54,9 +54,6 @@ initIntegrationArrays(Geometrydata * gd, Analysisdata * ad)
    for (i=1; i<= nBlocks; i++)
    {
       i1 = vindex[i][0];
-      //__V0[i][1] = materialProps[i1][10]; /* v11 */
-      //__V0[i][2] = materialProps[i1][11]; /* v22 */
-      //__V0[i][3] = materialProps[i1][12]; /* vr */
       __V0[i][1] = materialProps[i1][10]; /* v11 */
       __V0[i][2] = materialProps[i1][11]; /* v22 */
       __V0[i][3] = materialProps[i1][12]; /* vr */
