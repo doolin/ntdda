@@ -2,7 +2,8 @@
 #include <stdio.h>
 
 #include "loadpoint.h"
-
+/*Dave, you really should fix this test so that it works. --Kat
+*/
 
 #ifdef __cplusplus
 extern "C" {
