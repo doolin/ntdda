@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/11 15:44:45 $
+ * $Date: 2002/10/11 22:04:43 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.33 $
+ * $Revision: 1.34 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.34  2002/10/11 22:04:43  doolin
+ * Mostly small stuff.
+ *
  * Revision 1.33  2002/10/11 15:44:45  doolin
  * More componentization.  Still having difficulty
  * finding a convenient level of abstraction for stresses.
@@ -184,6 +187,7 @@
 
 #include "analysis.h"
 #include "bolt.h"
+#include "stress.h"
 #include "constants.h"
 #include "ddamemory.h"
 #include "printdebug.h"
@@ -3139,7 +3143,17 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    
 
    //updateStresses(gd, ad, e0, k1);
-   updateStresses(e0, ad->F, k1, gd->nBlocks, ad->planestrainflag);
+   //updateStresses(e0, ad->F, k1, gd->nBlocks, ad->planestrainflag);
+
+  /** @todo instead of switching on the flag, have it dereferenced
+   * from ad, which turns this into a single call.
+   */
+   if (ad->planestrainflag == 1) { 
+      stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestrain);
+   } else {
+      stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestress);
+   }
+
 
    
 {

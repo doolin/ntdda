@@ -96,6 +96,8 @@ freeStorageTempArrays(void)
 
 }  /* close freeStorageTempArrays() */
 
+
+
 /****  New df08 under here  ************/
 /* Positions of nonzero storage. 
  * FIXME:  copy GHS comments from original function.
@@ -326,8 +328,9 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
    * t0 is stiffness for now.  e00 is unknown.
    */
 #if 0 //ROCKBOLTSTORAGE
-   for (i=0; i<numbolts; i++)
-   {
+
+   for (i=0; i<numbolts; i++) {
+
       i2 = (int)rockbolts[i][5];
       j2 = (int)rockbolts[i][6];
 
@@ -338,8 +341,9 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
 
       n[i2][2]++;
 
-      if (kk[j0] == j0)
+      if (kk[j0] == j0) {
          continue;   // already in contact with this block
+      }
 
      /* else add the connection */
 
