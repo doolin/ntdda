@@ -304,7 +304,7 @@ test_strain_green_lagrange() {
 
    double strain[4] = {0.0};
    double F[7]      = {0.0, 0.0, 0.0, 0.5, 0.3, 0.2, 0.3};
-   double E[4]      = {
+//   double E[4]      = {
 
 }
 
