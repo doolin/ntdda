@@ -25,6 +25,10 @@ static int __V0size1;
 static int __V0size2;
 double ** __V0;
 
+static int __Dsize1;
+static int __Dsize2;
+double ** __D;
+
 static void df11(Geometrydata *, Analysisdata *, int *, double **,
             double **, double **, int **, double ** U);
 
@@ -46,6 +50,10 @@ initIntegrationArrays(Geometrydata * gd, Analysisdata * ad)
    double ** materialProps = ad->materialProps;
    int nBlocks = gd->nBlocks;
    int ** vindex = gd->vindex;
+
+   __Dsize1=nBlocks+1;
+   __Dsize2=13;
+   __D = DoubMat2DGetMem(__Dsize1, __Dsize2);
 
    __V0size1=nBlocks+1;
    __V0size2=13;
@@ -85,9 +93,16 @@ freeIntegrationArrays()
    if (__V0)
       free2DMat((void **)__V0, __V0size1);
 
+   if (__D)
+      free2DMat((void **)__D, __Dsize1);
+
 }  /* close freeIntegrationArrays() */
 
-
+/**
+ * @warning Only the GHS integrator works.
+ * @todo Move the GData->moments dereference into 
+ * the relevant functions.
+ */
 void
 timeintegration(Geometrydata * GData, Analysisdata * AData,
          double ** matprops, int * k1, /*double ** moments, */ int ** n,
@@ -104,6 +119,7 @@ timeintegration(Geometrydata * GData, Analysisdata * AData,
    * offprint of 1st Int DDA Forum, Berkeley, 1996,
    * pp. 23-27.
    */
+   //AData->integrator = newmark;
    switch (AData->integrator)
    {
       case constant:
@@ -182,9 +198,19 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    double mu;  //ad->mu;
   /* Convenience value for collecting density, viscosity etc. */
    double coef;
+double alpha = .5;
+double delta = 1.0;
+double a0;
+double a2;
+double a7;
 
   /* Precompute the squared time step  to save a few cycles */
    tss = ts*ts;
+
+/* Try to get the newmark stuff running... */
+   a0 = 1.0/(alpha*tss);
+   a2 = 1.0/(alpha*ts);
+   a7 = delta*ts;
 
   /* Update velocity for load vector.  Eventually want to move 
    * this into a inner loop.  FIXME: The behavior of the 
@@ -203,12 +229,19 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       {
          for (j=1; j<=  6; j++)
          {
+            __A0[i][j+6] = __A0[i][j];
+            __V0[i][j+6] = __V0[i][j];
+
+            /*  Test newmark style updates... */
+            //__A0[i][j] = (2*U[i][j])/(pts*pts) - (2/pts)*__V0[i][j+6];
+            __A0[i][j] = a0*U[i][j]  - a2*__V0[i][j+6];
+            __V0[i][j] = __V0[i][j+6] + a7*__A0[i][j];
            /* FIXME: Save the previous values to use for 
             * computing kinetic energy.
             */
            /* FIXME: Where are the values of U set?
             */
-            __V0[i][j] = (2*U[i][j]/(pts))-__V0[i][j];
+            //__V0[i][j] = (2*U[i][j]/(pts))-__V0[i][j];
          }  
         /* TCK 1996 p. 324 velocity rotation correction. */
         /* FIXME: This does not appear to work at all. */
@@ -237,11 +270,11 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
 
 
   /* g6 g5 coefficients of mass and velocity matrix */
-   if ( (analysisType == STATIC) || (ad->gravityflag == TRUE) )  
+   if ( (analysisType == STATIC) || (ad->gravityflag == TRUE) ) { 
       g5 = 0;  // redundant
-   else 
+   } else { 
       g5=2.0/(ts); 
-
+   }
    //g6=2.0/(tss);
 
 
@@ -346,7 +379,8 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
      /* KLUDGE: The default value of mu is zero (mu=0). If it is 
       * nonzero, it will be set in the ddaml input file.
       */
-      coef = 2*( (mu/ts) + (rho/tss) );
+      coef = 1; //2*( (mu/ts) + (rho/tss) );
+      
       for (j=1; j<= 6; j++)
       {
          for (l=1; l<= 6; l++)
@@ -357,7 +391,7 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
              * loop.
              */
             //K[i2][ji] += g6*rho*TT[j][l];
-            K[i2][ji] += coef*TT[j][l];
+            K[i2][ji] += a0*rho*coef*TT[j][l];
 
          }  /*  l  */
       }  /*  j  */
@@ -378,7 +412,9 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
             * matrix-vector product.  BLAS call is DGEMV.
             * FIXME: Move g5 out of this loop.
             */
-            F[i1][j] += g5*rho*TT[j][l]*__V0[i][l];
+            /* FIXME: Need to add viscous damping here? */
+            //F[i1][j] += g5*rho*TT[j][l]*__V0[i][l];
+            F[i1][j] += rho*TT[j][l]*(a2*__V0[i][l]);
          }  /*  l  */
       }  /*  j  */
 
@@ -403,6 +439,16 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
 }  /*  Close df11().  */
 
 
+/**
+ * @brief An implementation of the Newmark algorithm using Bathe's
+ * notation.
+ *
+ * @bugs This does not work, probably because Bathe does not do an 
+ *       incremental update like DDA does.
+ * @todo Derive a Newmark variant that assumes that the displacements 
+ *       are incrementally updated.
+ * @todo Incorporate viscous damping similarly to the ghs integration.
+ */
 void
 newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
           double **matprops, double **moments, int **n, double ** U)
@@ -411,18 +457,18 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    int i, j, i1, i2, ji, l;
   /* Newmark parameters.  See Bathe and Wilson, p. 323. */
   /* displacement weight */
-   double alpha = .58;
+   double alpha = .25;
   /* velocity weight */
-   double delta = .9;
+   double delta = .5;
   /* Hilber-Hughes-Taylor alpha */
-   double hht = 0.11111;
+   double hht = 0.0;
   /* Newmark coefficients.  See Bathe and Wilson 1976, 
    * pp. 322-326 for details.  c is current parameter,
    * that is, calculated going forward, p is for previous,
    * which we need for updating.
    */
    double a0c, a1c, a2c,a3c,a4c,a5c,a6c,a7c;
-   static double a0p, a1p, a2p,a3p,a4p,a5p,a6p,a7p;
+   //static double a0p, a1p, a2p,a3p,a4p,a5p,a6p,a7p;
   /* unit mass density, was o0 */
    double rho;
   /* Mass matrix variables:  Eq. 2.57, p. 85,
@@ -469,16 +515,30 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    * this into a inner loop.  FIXME: The behavior of the 
    * flag `k00' needs to be completely documented.
    */
-   
-   if ( (currTimeStep > 1)  && (ad->k00 == 0) ) 
+   //print2DArray(__A0, __A0size1, __A0size2, fp.logfile, "__A0 from newmark");
+   //print2DArray(__V0, __V0size1, __V0size2, fp.logfile, "__V0 from newmark");
+
+   //if ( (currTimeStep > 1) )//  && (ad->k00 == 0) ) 
+   if ( (currTimeStep > 1)  && (ad->m9 == 0) ) 
    {
       for (i=1; i<= nBlocks; i++)
       {      
          for (j=1; j<=  6; j++)
          {
             __A0[i][j+6] = __A0[i][j];
-            __A0[i][j] = a0p*(U[i][j] - U[i][j+6]) - (a2p*__V0[i][j]) - (a3p*__A0[i][j+6]);
-            __V0[i][j] = __V0[i][j] + ((a6p*__A0[i][j+6]) + (a7p*__A0[i][j]));
+            __V0[i][j+6] = __V0[i][j];
+            /** U[i][j+6] is "previous" displacement.  In DDA, the displacements 
+             * are updated incrementally, with initial displacements handled as
+             * constraints using penalty functions when necessary.  Part of the 
+             * reason this function may not have ever worked is that the newmark
+             * algorithm given in Bathe is _not_ an incremental update.  It builds
+             * the displacement vector as a function of time.  To make this work,
+             * it might be as little as eliminating the U[i][j+6] from the 
+             * following update for new acceleration.
+             */
+            //__A0[i][j] = a0p*(U[i][j] - U[i][j+6]) - (a2p*__V0[i][j]) - (a3p*__A0[i][j+6]);
+            __A0[i][j] = a0c*(U[i][j]) - (a2c*__V0[i][j+6]) - (a3c*__A0[i][j+6]);
+            __V0[i][j] = __V0[i][j+6] + ( (a6c*__A0[i][j+6]) + (a7c*__A0[i][j]));
          }  
       }  
       fprintf(fp.logfile,"Updated V and A (newmark)\n");
@@ -549,7 +609,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
          for (l=1; l<= 6; l++)
          {
             ji=6*(j-1)+l;
-            K[i2][ji] += a0c*rho*TT[j][l]  + hht*(K[i2][ji]*U[j][l]);
+            K[i2][ji] += a0c*rho*TT[j][l];//  + hht*(K[i2][ji]*__D[i][l]);
          }  /*  l  */
       }  /*  j  */
 
@@ -569,8 +629,8 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
             * matrix-vector product.  BLAS call is DGEMV.
             */
             ji=6*(j-1)+l;
-            F[i1][j] += rho*TT[j][l]*(a0c*U[i][l+6] + a2c*__V0[i][l+6] - a3c*__A0[i][l+6])
-                          - hht*(K[i2][ji]*U[j][l]);
+//            F[i1][j] += rho*TT[j][l]*(a2c*__V0[i][l+6] + a3c*__A0[i][l+6]) - hht*(K[i2][ji]*__D[i][l]);
+            F[i1][j] += rho*TT[j][l]*(a2c*__V0[i][l] + a3c*__A0[i][l]);// - hht*(K[i2][ji]*__D[i][l]);
          }  /*  l  */
       }  /*  j  */
 
@@ -579,10 +639,12 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
   /* Save the current parameters to use for updating
    * next time through this loop.
    */
-   a0p=a0c;a1p=a1c;a2p=a2c;a3p=a3c;a4p=a4c;
-   a5p=a5c;a6p=a6c;a7p=a7c;
+   //a0p=a0c;a1p=a1c;a2p=a2c;a3p=a3c;a4p=a4c;
+   //a5p=a5c;a6p=a6c;a7p=a7c;
 
 }  /* close newmark() */
+
+
 
 
 /**************************************************/
@@ -606,7 +668,8 @@ computeTimeStep(Geometrydata *bd, Analysisdata *ad)
                 * for computing the delta_t size.
                 */
    double a1, a2, a3, a9;
-   double max_load, max_stress;
+   double max_load = 0;
+   double max_stress;
    double max_velocity;  /* was a2  */
    int nLPoints = bd->nLPoints;  /* Number of load points I think. */
    int nFPoints = bd->nFPoints;  /* Number of fixed points(?).  */

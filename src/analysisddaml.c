@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/11/05 02:59:49 $
+ * $Date: 2001/12/29 06:01:05 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 #include <stdio.h>
@@ -978,8 +978,10 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       if ((!strcmp(cur->name, "Unitmass")) ) //&& (cur->ns == ns))
          bmat->dens = atof(xmlNodeListGetString(doc, cur->childs, 1));
          
+      /*
       if ((!strcmp(cur->name, "Unitweight")) ) //&& (cur->ns == ns))
          bmat->wt = atof(xmlNodeListGetString(doc, cur->childs, 1));
+*/
 
       if ((!strcmp(cur->name, "Youngsmod")) ) //&& (cur->ns == ns))
          bmat->ymod = atof(xmlNodeListGetString(doc, cur->childs, 1));

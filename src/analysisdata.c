@@ -272,11 +272,17 @@ adata_validate(Analysisdata * ad)
      /* That is, set the initial spring stiffness
       * equal to the highest Young's modulus...
       */
+      /* This code should no longer be necessary since 
+       * the unit weight is computed from the density 
+       * and gravitational acceleration.
+       */
+      /*
       if (fabs((grav*materialProps[i][0] - materialProps[i][1])) > 0.01) 
       {
          iface->displaymessage("Density and unit weight are inconsistent");
          //exit(0);
       }
+      */
    }  /*  i  */
 
 

@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/11/05 02:59:49 $
+ * $Date: 2001/12/29 06:01:06 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 
@@ -204,7 +204,7 @@ computeSpringStiffness(Geometrydata *gd, Analysisdata *ad, int **m0, double **o)
       return 0;
  
   /* compute maximum  and minimum spring penetration */
-  /* w6 is a return variables.
+  /* w6 is a return variable.
    */
    w6 = 0;
    w5 = 0;
@@ -304,6 +304,17 @@ void dist(void)
 /* dspl: block displacement matrix           0001 */
 /*************************************************/
 /* x10  y10  u2  v2  t[][]               i0  x  y */
+/* FIXME: Change the arguments for this function so that 
+ * it will be easier to test:
+ * computeDisplacement(double T[][7], double tX, tY)
+ * where T is the "return value", and tX,tY are 
+ * \tilde X and \tilde Y respectively.  This way the 
+ * moments array does not need to be continually 
+ * dereferenced in this function.  In fact, computing 
+ * the centroid could be done anytime the block is
+ * already in memory (i.e., the array is being dereferenced
+ * elsewhere for any other reason.  
+ */
 void 
 computeDisplacement(double **moments, double T[][7], double x, double y, int i0)
 {
@@ -474,7 +485,7 @@ print2DArray(double ** mat, int m, int n, FILE * fp, char * location)
 
    assert ( (m!=0) && (n!=0) && (mat != NULL) );
 
-   fprintf(fp,"\n");
+   fprintf(fp,"%s\n",location);
 
    for ( i = 0; i<m; i++)
    {

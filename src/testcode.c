@@ -685,6 +685,18 @@ printM1(int ** m1, char * location)
    fprintf(fp.logfile, "End m1[][] output\n\n");
 }  /* close printM1() */
 
+
+void
+printLockStates(int ls[3][5], char * location) {
+
+   fprintf(fp.logfile,"\n===---===\n");
+   fprintf (fp.logfile,"%d %d %d %d\n",ls[1][1],ls[1][2],ls[1][3],ls[1][4]);
+   fprintf (fp.logfile,"%d %d %d %d\n",ls[2][1],ls[2][2],ls[2][3],ls[2][4]);
+   fprintf(fp.logfile,"\n===---===\n");
+
+}
+
+
 void 
 printLocks(int ** locks, char * location)
 {

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/11/09 14:41:30 $
+ * $Date: 2001/12/29 06:01:05 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.20  2001/12/29 06:01:05  doolin
+ * If this commit breaks anything, check out any revision before
+ * Christmas.
+ *
  * Revision 1.19  2001/11/09 14:41:30  doolin
  * The penalty code in df18 does not work correctly.  Backporting
  * ghs original penalty code doesn't work anymore, the logic is too far apart.
@@ -1294,6 +1298,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
 
       getLockStates(locks,lockstate,contact);
 
+      printLockStates(lockstate,"df18");
+
+
      /* (GHS: compute 4 6*6  2 6*1 contact submatrices)       */
      /* (GHS: if sliding force +- changing shear g0/h2 h2= 4) */
      /* (GHS: k00=0 set locks[][1]=0 still have friction force)  */
@@ -1319,7 +1326,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          */
          QQ[PREVIOUS]=lockstate[1][1];
          QQ[CURRENT]=lockstate[1][2];
- 
+
+         fprintf(fp.logfile,"QQ: %d %d\n",QQ[PREVIOUS],QQ[CURRENT]);
+
         /* If the locks changed between the previous iteration
          * and the current iteration, then have to construct 
          * penalty matrices.  If the spring locks did not change,
@@ -2154,6 +2163,15 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
          * FIXME: Explain the difference between the variables
          * openclose and opencriteria.
          */
+        /* Still not sure what the difference between openclose and 
+         * opencriteria is, but what is happening in the following code
+         * is that a contact that is interpenetrating, that is, with 
+         * pendist < 0, can still be declared open during open-close
+         * iteration if the distance is smaller than the absolute value
+         * of the number given by openclose*domainscale.  It will be 
+         * very interesting to find out why, exactly, open-close iteration
+         * needs this to converge.  Or maybe it doesn't.
+         */
          if (c_length[contact][PENDIST] >  -openclose*domainscale)  
             locks[contact][CURRENT]  = OPEN;
       }
@@ -2816,7 +2834,10 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    * LU decomposition.
    * FIXME: Where is the forcing vector rezeroed?
    */
-   double ** D = ad->F;
+   double ** F = ad->F;
+
+   /* This is for keeping track of displacements */
+   extern double ** __D;
    clock_t start, stop;
 
    int timestep = ad->currTimeStep;
@@ -2857,7 +2878,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       for (j=1; j<=  6; j++)
       {
          U[i][j+6] = U[i][j];
-         U[i][j] = D[i1][j];
+         U[i][j] = F[i1][j];
+         __D[i][j] = F[i1][j];
       }  /*  j  */
    }  /*  i  */
 
@@ -2897,16 +2919,16 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
             if (j==3)
                j++;
          }
-         x1 += T[1][j]*D[i1][j];
-         y1 += T[2][j]*D[i1][j];
+         x1 += T[1][j]*F[i1][j];
+         y1 += T[2][j]*F[i1][j];
       }  /*  j  */
       
       if (ad->rotationflag == 1)
       {  /* 2d order */
          //x1 += (-T[2][3]*F[i1][3]*F[i1][3]/2.0) + (T[1][3]*F[i1][3]);
          //y1 += (T[2][3]*F[i1][3]) + (T[1][3]*F[i1][3]*F[i1][3]/2.0);
-         x1 += (T[2][3] * (cos(D[i1][3])-1) + T[1][3]*sin(D[i1][3]));
-         y1 += (T[2][3] * sin(D[i1][3]) - T[1][3]*(cos(D[i1][3])-1)); 
+         x1 += (T[2][3] * (cos(F[i1][3])-1) + T[1][3]*sin(F[i1][3]));
+         y1 += (T[2][3] * sin(F[i1][3]) - T[1][3]*(cos(F[i1][3])-1)); 
       }
 
      /* Compute work of load points here, before the point
@@ -2956,16 +2978,16 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
                if (j==3)
                   j++;
             }
-            x1 += T[1][j]*D[i1][j];
-            y1 += T[2][j]*D[i1][j];
+            x1 += T[1][j]*F[i1][j];
+            y1 += T[2][j]*F[i1][j];
          }  /*  j  */
       
          if (ad->rotationflag == 1)
          {  /* 2d order */
             //x1 += (-T[2][3]*F[i1][3]*F[i1][3]/2.0) + (T[1][3]*F[i1][3]);
             //y1 += (T[2][3]*F[i1][3]) + (T[1][3]*F[i1][3]*F[i1][3]/2.0);
-            x1 += (T[2][3] * (cos(D[i1][3])-1) + T[1][3]*sin(D[i1][3]));
-            y1 += (T[2][3] * sin(D[i1][3]) - T[1][3]*(cos(D[i1][3])-1)); 
+            x1 += (T[2][3] * (cos(F[i1][3])-1) + T[1][3]*sin(F[i1][3]));
+            y1 += (T[2][3] * sin(F[i1][3]) - T[1][3]*(cos(F[i1][3])-1)); 
          }
          ptmp->x += x1;
          ptmp->y += y1;
@@ -3033,8 +3055,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       computeDisplacement(moments,T,x,y,ep1);
       for (j=1; j<= 6; j++)
       {
-         x1 += T[1][j]*D[ep1][j];
-         y1 += T[2][j]*D[ep1][j];
+         x1 += T[1][j]*F[ep1][j];
+         y1 += T[2][j]*F[ep1][j];
       }  /*  j  */
       hb[i][1] +=  x1;
       hb[i][2] +=  y1;
@@ -3048,8 +3070,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       computeDisplacement(moments,T,x,y,ep2);
       for (j=1; j<= 6; j++)
       {
-         x1 += T[1][j]*D[ep2][j];
-         y1 += T[2][j]*D[ep2][j];
+         x1 += T[1][j]*F[ep2][j];
+         y1 += T[2][j]*F[ep2][j];
       }  /*  j  */
       hb[i][3] +=  x1;
       hb[i][4] +=  y1;
