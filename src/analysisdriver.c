@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.39  2002/11/30 18:52:45  doolin
+ * minor cleanup.
+ *
  * Revision 1.38  2002/11/30 14:33:40  doolin
  * Refactored some of the stress-strain code.
  *
@@ -496,7 +499,6 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
          * outlined in the 1996 1st DDA Int forum.
          */
          timeintegration(GData, AData,e0,k1, n, U, massmatrix);
-
 
         /* OPEN-CLOSE ITERATION */
          do {       /* the label formerly known as a002: */
