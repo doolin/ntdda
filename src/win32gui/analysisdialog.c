@@ -4,8 +4,8 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2001/05/20 20:58:37 $
- * $Source: /cvsroot/dda/ntdda/src/Attic/analysisdialog.c,v $
+ * $Date: 2001/08/13 02:58:23 $
+ * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
  * $Revision: 1.1 $
  */
 

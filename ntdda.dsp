@@ -181,7 +181,7 @@ SOURCE=.\src\lns.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\analysisdialog.c
+SOURCE=.\src\win32gui\analysisdialog.c
 # End Source File
 # Begin Source File
 
@@ -189,7 +189,7 @@ SOURCE=.\src\apwedge.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\drawdialog3.c
+SOURCE=.\src\win32gui\drawdialog3.c
 # End Source File
 # Begin Source File
 
@@ -203,10 +203,14 @@ SOURCE=.\src\geomdlg.c
 
 SOURCE=.\src\unitdialog.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\src\win32gui\wingraph.c
+# End Source File
 # End Group
 # Begin Source File
 
-SOURCE=.\src\drawtitle.c
+SOURCE=.\src\win32gui\drawtitle.c
 # End Source File
 # Begin Source File
 
@@ -243,10 +247,6 @@ SOURCE=.\src\visedhandle.c
 # Begin Source File
 
 SOURCE=.\src\win32gui\win32utils.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\wingraph.c
 # End Source File
 # Begin Source File
 
