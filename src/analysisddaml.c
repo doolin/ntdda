@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/05 22:10:37 $
+ * $Date: 2002/06/06 13:41:55 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  */
 
 #include <stdio.h>
@@ -1090,7 +1090,7 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    
 
   /* We don't care what the top level element name is */
-   cur = cur->childs;
+   //cur = cur->childs;
 
    while (cur != NULL) 
    {
@@ -1197,13 +1197,19 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
   /* FIXME:  This needs to be handled as an exception to
    * protect against dereferencing a null pointer.
    */
-   cur = cur->childs->next;
+   cur = cur->childs;
 
-   parseAnalysis(ad,doc, ns, cur);
+   while (cur != NULL) {
+         if ( !strcmp( cur->name, "Analysis") )  {
+            cur = cur->childs;
+            parseAnalysis(ad,doc, ns, cur); 
+            break;
+         }
+	     cur = cur->next;
+   }
+
 
    assert(ad != NULL);
-   
-   //return(ad);
 } 
 
 

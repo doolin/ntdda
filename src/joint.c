@@ -18,8 +18,26 @@ extern "C" {
  */
 
 
+/**
+ * @todo Figure out a way to "handle" exceptions 
+ * in C without resorting to ugly macros, then
+ * use one here to throw when a joint value is
+ * out of range.
+ */
+int 
+joint_check_range(double value, double min, double max) {
+
+   if ( (value >= min) &&
+        (value <= max)) {
+        return 1;
+   } else {
+        return 0;
+   }
+}
+
+
 Jointmat * 
-jointmat_new           (void) {
+jointmat_new (void) {
 
    Jointmat * jm = (Jointmat*)malloc(sizeof(Jointmat));
    memset(jm,0x0,sizeof(Jointmat));
@@ -38,7 +56,7 @@ jointmat_array_new (int numjoints) {
 
 
 void       
-jointmat_delete        (Jointmat * jm) {
+jointmat_delete (Jointmat * jm) {
 
    free(jm);
 }

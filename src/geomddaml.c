@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/05 22:10:37 $
+ * $Date: 2002/06/06 13:41:55 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 /**
@@ -147,16 +147,35 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    * just to handle exceptional cases.
    */
   /* Here, we not only do not want the parent, we want to 
-   * bypass the top level node, in this case `Geometry',
+   * bypass the top level node, in this case `DDA',
    * completely to start with the first element in the 
    * geometry part of the document.
    */
-   cur = cur->childs->next;
+   //cur = cur->childs->next;
 
-   parseGeometry(gd,doc, ns, cur); 
+  /** @warning There is a serious problem with comment parsing in the
+   * geometry file, which I am going to try and fix below.
+   */
+   cur = cur->childs;
 
+   while (cur != NULL) {
+         if ( !strcmp( cur->name, "Geometry") )  {
+            cur = cur->childs;
+            parseGeometry(gd,doc, ns, cur); 
+            break;
+         }
+	     cur = cur->next;
+   }
+   
+
+  /* Write it out and see if we can load it... */
+   //dumpGeometrydata(gdata, outtestfile);
+   //fclose(outtestfile);
+  /* Now clean everything up. */
+   //freeDlistsAndStuff();
 
 }  
+
 
 
 
@@ -1183,6 +1202,11 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    int i = 0;
    //FILE * outtestfile;
 
+   if (cur == NULL) {
+      ddaml_display_warning("Problem parsing ddaml file.");
+      exit(0);
+   }
+
    //outtestfile = fopen("testgeomxml.geo","w");
 
   /* Easiest to parse into a list, then count 
@@ -1201,8 +1225,8 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    //gdata = initGeometrydata();
    //gdata = gdata_new();
 
-/** This is global and not thread safe. */
-gdata = gd;
+  /** This is global and not thread safe. */
+   gdata = gd;
 
 
    if (gdata == NULL) 
@@ -1217,7 +1241,7 @@ gdata = gd;
    * of a single comment in front of the the <Geometry>
    * and <Analysis> tags in the input files.
    */
-   cur = cur->childs;
+   //cur = cur->childs;
 
    while (cur != NULL) 
    {
