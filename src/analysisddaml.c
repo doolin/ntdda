@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/09 15:53:16 $
+ * $Date: 2002/06/16 15:43:39 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  */
 
 #include <stdio.h>
@@ -826,7 +826,7 @@ void
 parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    int i;
-   int numloadpoints;
+   int numloadpoints = 0;
    int parsepoints = 0;
    int checkval;
    double temp[3] = {0.0};
@@ -840,9 +840,8 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    while (cur != NULL) {
 
-      if ((!strcmp(cur->name, "Loadpoint")) ) //&& (cur->ns == ns))
-      {
-         loadpoint = loadpoint_new();
+      if ((!strcmp(cur->name, "Loadpoint")) ) {
+
 
         /* Get the size of this thing from the attribute value: */
         /* FIXME: Segfaults if no attribute specified.  Either output
@@ -855,6 +854,8 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          if (numloadpoints < 2) {
             ddaml_display_error("2 or more load points are required.");
          }
+
+         loadpoint = loadpoint_new();
          loadpoint->loadpointsize1 = numloadpoints+1;
          loadpoint->loadpointsize2 = 3+1;
          loadpoint->vals = DoubMat2DGetMem(loadpoint->loadpointsize1,
@@ -886,8 +887,10 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          if (parsepoints != numloadpoints) {
             ddaml_display_error("Load point att and val inconsistent");
          }
-         dl_insert_b(loadpointlist, loadpoint);
 
+         dl_insert_b(loadpointlist, loadpoint);
+         parsepoints = 0;
+         numloadpoints = 0;
       } else {
 
         /* Big problems.  Something passed the validator that was
