@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/10 15:39:32 $
+ * $Date: 2002/10/14 16:02:47 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  *
  */
 #include <assert.h>
@@ -16,7 +16,6 @@
 
 #include "analysis.h"
 #include "ddamemory.h"
-#include "datalog.h"
 
 
 void sp_mult(double * Arow, double * x, double * y, int blocksize, int index);
@@ -37,7 +36,6 @@ int * ipiv;
  * data to write to arbitrary files.
  */
 extern FILEPOINTERS fp;
-extern Datalog * DLog;
 
 void df20(double ** K, double ** F,int *, int **, int numblocks);
 void df20blas(double ** K, double ** F,int *, int **, int numblocks);
@@ -49,16 +47,13 @@ void df21(double ** K, double ** F,int *, int **, int numblocks);
 void
 solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, int nBlocks)
 {
-   //clock_t startclock, stopclock;
-   //char message[80];
-
-   //startclock = clock();
 
 
 
 
-   if (ad->solvetype == lu) // (ghsolver)
-   {
+
+   if (ad->solvetype == lu) {// (ghsolver)
+   
      /* Block $L D^{-1} L^T$ decomposition solver from Shi 1988, 
       * Chapter 5, Section 5.2, pp. 193-199.  Shi proves in each
       * relevant section that K is SPD.  The decomposition is 
@@ -82,11 +77,7 @@ solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, i
       ; // do something else
    }
 
-   //stopclock = clock();
-
-   //DLog->solve_runtime += (stopclock - startclock);
-
-}  /* close solve() */
+}  
 
 
 
@@ -155,16 +146,8 @@ freeSolverTempArrays()
 
 void saveState(double ** K, double ** Kcopy, int n3,
                double ** F, double ** Fcopy, int numblocks,
-               double ** c0)
-//void
-//saveState(Analysisdata * ad, double ** c0, int nBlocks)
-{
+               double ** c0) {
    int i,j;
-   //double ** K = ad->K;
-   //double ** Kcopy = ad->Kcopy;
-   //double ** F = ad->F;
-   //double ** Fcopy = ad->Fcopy;
-   //int nBlockContacts = ad->n3;
     
   /* (GHS: save equation coefficient matrix before change) */
   /* FIXME: Why do we need to do this?  Also, this 
@@ -199,14 +182,13 @@ void saveState(double ** K, double ** Kcopy, int n3,
          * FIXME: Explain this in detail.  Also, this should
          * probably be done before calling the solver, so that 
          * this solver can be replaced with any other. This 
-         * should be moved into df18().
+         * should be moved back into df18().
          */
          F[i][j] += c0[i][j];
       }
    }  
 
-}  /* close saveState() */
-
+}  
 
 
 

@@ -16,7 +16,6 @@
 #include "constants.h"
 
 
-//extern InterFace * iface;
 
 #define I1 "   "
 #define I2 "      "
@@ -27,7 +26,6 @@ static void dumpDDAMLAnalysisFile(Analysisdata *, FILE * outfilestream);
 
 static void emitBlockMaterials(Analysisdata *, FILE *);
 static void emitJointMaterials(Analysisdata *, FILE *);
-
 
 
 

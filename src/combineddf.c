@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/13 20:36:04 $
+ * $Date: 2002/10/14 16:02:47 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.35 $
+ * $Revision: 1.36 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.36  2002/10/14 16:02:47  doolin
+ * Lots of small clean up done.  No major changes in this commit.
+ *
  * Revision 1.35  2002/10/13 20:36:04  doolin
  * .
  *
@@ -2186,7 +2189,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
          * results due to garbage in the over-allocated arrays.
          */
          if (joint_type == 1 || joint_type == 2)
-            phi = computeVFriction(gd, ad, phi);
+            phi = computeVFriction(gd, ad->units, phi);
          else 
             phi=phiCohesion[joint_type][0];
       }
@@ -2201,7 +2204,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
          * results due to garbage in the over-allocated arrays.
          */
          if (joint_type == 1)
-            phi = computeFriction(gd, ad,joint_type);
+            phi = computeFriction(gd, /*ad,*/joint_type);
          else 
             phi=phiCohesion[joint_type][0];
       }
@@ -2693,6 +2696,8 @@ restoreState(double ** K, double ** Kcopy, int n3,
       }  
    }
 }
+
+
 
 
 /**************************************************/

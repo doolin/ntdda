@@ -21,20 +21,22 @@ extern "C" {
  * runtime.
  */
 struct _constants {
-double openclose;    /*  s0  */
-double opencriteria; /*  f0  */
-double norm_spring_pen; /* g3  */
+
+   double openclose;    /*  s0  */
+   double opencriteria; /*  f0  */
+   double norm_spring_pen; /* g3  */
+
 //#if 0
-double w0;  /* related to the physical scale of the model. */
-double norm_extern_dist; /* d0 */
-double norm_pen_dist;    /* d9  */
+   double w0;  /* related to the physical scale of the model. */
+   double norm_extern_dist; /* d0 */
+   double norm_pen_dist;    /* d9  */
 //#endif
-double angle_olap;      /*  h1  */
-double shear_norm_ratio;  /* h2 */
-/* new, used in contact determination to 
- * prevent division by 0 (in proj()) 
- */
-double min_refline_factor;  
+   double angle_olap;      /*  h1  */
+   double shear_norm_ratio;  /* h2 */
+  /* new, used in contact determination to 
+   * prevent division by 0 (in proj()) 
+   */
+   double min_refline_factor;  
 };
 
 

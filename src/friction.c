@@ -2,21 +2,18 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/10/14 16:02:47 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  */
 
 
-#include "analysis.h"
 #include <math.h>
-#include <time.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdlib.h>
 #include <assert.h>
-#include "ddamemory.h"
+
+#include "analysis.h"
+
 
 
 
@@ -34,7 +31,7 @@
  * results due to garbage in the over-allocated arrays.
  */
 double
-computeFriction(Geometrydata *gd, Analysisdata * ad, int joint_type)
+computeFriction(Geometrydata *gd, /*Analysisdata * ad,*/ int joint_type)
 { 
    static double phi;
    double x;
@@ -76,8 +73,7 @@ computeFriction(Geometrydata *gd, Analysisdata * ad, int joint_type)
  */
 /* FIXME: Don't need the analysis data here. */
 double
-computeVFriction(Geometrydata *gd, Analysisdata * ad, 
-                 double mu0)
+computeVFriction(Geometrydata *gd, /*Analysisdata * ad,*/ int units, double mu0)
 { 
    static double phi;
    double x;
@@ -86,16 +82,10 @@ computeVFriction(Geometrydata *gd, Analysisdata * ad,
    * passed in as a parameter.
    */
    double lambda0;
-  /* mu = tan(phi) = tan(16) */
-   //double mu = 0.287;  /* vaiont */
-   //double mu;  /* incline plane */
-  /* initial friction coefficient ??? */
-   //double mu0 = 0.287;  /* vaiont */
-   //double mu0 = 0.5; /* incline plane */
+
   /* kinetic friction coefficient */
    double mu_k;
-  /* shear stress */
-   //double tau;
+
   /* thickness of shearing zone. This is given in Voight 
    * in meters.  For Vaiont, we need it in feet.
    */
@@ -145,8 +135,9 @@ computeVFriction(Geometrydata *gd, Analysisdata * ad,
    if(!b)
    {
      /* System of units matter */
-      if (ad->units == si)
-      {
+      //if (ad->units == si)
+      if (units == si) {
+
          lambda0 = 0;
          h = 0.333;
          n0 = 0.2;
@@ -208,21 +199,5 @@ computeVFriction(Geometrydata *gd, Analysisdata * ad,
 
    return phi;
 
-}  /* Close computeVFriction() */
+}  
 
-double
-computeJRCFriction(Geometrydata *gd, Analysisdata * ad, int jointtype)
-{ 
-   static double phi;
-   //double x;
-  /* probably better to dereference this in the calling 
-   * function and pass the array in directly instead of 
-   * making multiple dereferences.
-   */
-   double ** points = gd->points;
-
-  /* x, y are the cumulative displacements
-   */
-   return phi;
-
-}  /* Close computeJRCFriction() */

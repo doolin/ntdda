@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.28  2002/10/14 16:02:47  doolin
+ * Lots of small clean up done.  No major changes in this commit.
+ *
  * Revision 1.27  2002/10/11 15:44:44  doolin
  * More componentization.  Still having difficulty
  * finding a convenient level of abstraction for stresses.
@@ -183,8 +186,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
    Contacts * CTacts;
 
-   clock_t start, stop;
-   int doublesize;   // 8 bytes on a 32 bit machine
    int counter;  // for writeBlockVerticesLog loop
 
   /**************************************************/
@@ -248,7 +249,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */
    int **n;
 
-   doublesize = sizeof(double);
 
 
 /* The invoking program, whether windows or not, is going to 
@@ -382,7 +382,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       */
       do {
 
-         start = clock();
    	  /* FIXME: m9 appears to be the iteration
          * counter for a particular time step.
          */
@@ -400,7 +399,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          */
          timeintegration(GData, AData,e0,k1, n, U);
 
-         start = clock();
 
         /* OPEN-CLOSE ITERATION */
          do {       /* the label formerly known as a002: */
@@ -472,7 +470,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
         /* PASSED OPEN CLOSE ITERATION */
 
-         stop = clock();
          //DLog->openclose_runtime += (stop - start);
 
      /* Check the iteration count.  If too high and not converged,

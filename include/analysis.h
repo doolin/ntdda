@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/11 15:44:44 $
+ * $Date: 2002/10/14 16:02:46 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -173,9 +173,6 @@ void df25(Geometrydata *, Analysisdata *, int *,
             double **, /* double ** moments,*/ double **);
 
 
-//void dist(void);
-
-//double computeMoments(Geometrydata *);  //, double ** moments);
 
 void computeVertexAngles(Geometrydata *, double **);
 void anglorig(Geometrydata *, double **);
@@ -239,9 +236,9 @@ int computeStresses(Geometrydata *, Analysisdata *, double **,
 
 
 /* Friction law stuff */
-double computeFriction(Geometrydata * gd, Analysisdata *, int);
-double computeVFriction(Geometrydata * gd, Analysisdata *, double);
-double computeJRCFriction(Geometrydata * gd, Analysisdata *, int);
+double computeFriction(Geometrydata * gd, /*Analysisdata *,*/ int);
+double computeVFriction(Geometrydata * gd, /*Analysisdata *,*/ int units, double);
+
 
 double getBlockMass(Geometrydata *, double ** moments, double ** e0, int blocknum);
 

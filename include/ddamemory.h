@@ -2,8 +2,11 @@
  *  ddamemory.h
  * 
  *  $Author: doolin $
- *  $Date: 2002/10/09 01:46:38 $
+ *  $Date: 2002/10/14 16:02:46 $
  *  $Log: ddamemory.h,v $
+ *  Revision 1.3  2002/10/14 16:02:46  doolin
+ *  Lots of small clean up done.  No major changes in this commit.
+ *
  *  Revision 1.2  2002/10/09 01:46:38  doolin
  *  Lots of clean up and fix it work on this commit.
  *  Details are in the diffs  ;)
@@ -18,6 +21,14 @@
 
 #include <stdlib.h>
 #include <memory.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
 
 int ** IntMat2DGetMem(int, int);
 double ** DoubMat2DGetMem(int, int);
@@ -41,4 +52,8 @@ int copy2DIntMat(int **, int **, int, int);
 void setMatrixToZero(double **, int, int);
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif  /* __DDAMEMORY_H__ */

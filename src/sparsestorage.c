@@ -14,12 +14,9 @@
 #include <assert.h>
 
 #include "analysis.h"
-//#include "ddamemory.h"
 #include "contacts.h"
-//#include "datalog.h"
 
 
-//extern Datalog * DLog;
 extern FILEPOINTERS fp;
 
 static void regUpperTriangle(int ** n, int * k, int * nn0, int ** m, 
@@ -95,6 +92,8 @@ freeStorageTempArrays(void)
    }
 
 }  /* close freeStorageTempArrays() */
+
+
 
 
 
@@ -329,7 +328,9 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
    */
 #if 0 //ROCKBOLTSTORAGE
 
+
    for (i=0; i<numbolts; i++) {
+
 
       i2 = (int)rockbolts[i][5];
       j2 = (int)rockbolts[i][6];
@@ -344,6 +345,7 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
       if (kk[j0] == j0) {
          continue;   // already in contact with this block
       }
+
 
      /* else add the connection */
 
