@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:04:05 $
+ * $Date: 2001/08/25 02:51:22 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include"dda.h"
@@ -166,8 +166,7 @@ void df24(Geometrydata *, Analysisdata *,
 void df25(Geometrydata *, Analysisdata *, int *, 
             double **, /* double ** moments,*/ double **);
 
-/* FIXME: Turn this into a macro and test it. */
-double sign(double);
+
 //void dist(void);
 
 //double computeMoments(Geometrydata *);  //, double ** moments);
