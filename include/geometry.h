@@ -5,12 +5,11 @@
  * General header file for the numerical geometry routines.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:23 $
+ * $Date: 2002/05/27 15:23:55 $
  * $Source: /cvsroot/dda/ntdda/include/geometry.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
-#include "dda.h"
 #include "geometrydata.h"
 
 /*
@@ -30,9 +29,6 @@
  */
 
 
-//void computeDomainscale(Geometrydata *);  // was dc02()
-
-
 void countIntersections(Geometrydata *);  // was dc03()
 void allocateGeometryArrays(Geometrydata *, int *** aa, int *** k,
                             int *** r, int *** m, int ** h, 
@@ -45,15 +41,11 @@ void deallocateGData(Geometrydata *, int **, int **, int **, int **, int **, int
 
 
 int crr(Geometrydata *, double, double, int **, double **, double **);
-//int crr(double w0, double, double, int **, double **, double **);
 
 int lns(double, double, double, double, double,
          double, double, double, double, double *, double *);
 
-//int rlt(Geometrydata *pc, int, double, double, int **, double **, double **);
 int rlt(double w0, int, double, double, int **, double **, double **);
-
-
 
 Geometrydata * geometryToReturn(Geometrydata *, int **, double **);
 

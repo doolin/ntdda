@@ -5,9 +5,9 @@
  * on the unix side.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/ddamain.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #define OPTIONS 0
@@ -105,7 +105,7 @@ rundda(int argc, char ** argv)
 
    g = initGraphicStruct ();
 
-   geomdata = ddacut (&filepath, g);
+   ddacut (geomdata);
    
    ddanalysis (&filepath, g);
 

@@ -311,25 +311,31 @@ drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points)
 
 
 int 
-drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) 
-{
+drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) {
+
    int i, j, k;
    int numSides;  // length;
    int firstvertex;
    //FILE * blockmat;
    int numblocks = gd->nBlocks;
+
    //double offsetx = g->offsetx;
    //double offsety = g->offsety;
+
    double scale = g->scale;
    POINT offset = g->offset;
    POINT p[MAXVERTICES];
+
    //FILE * ofp;
    //HGDIOBJ horigpen, horigbrush, horigbrush2;
    //char c[80];
+
    int ** k0 = gd->vindex;
    double ** d = gd->vertices;
+
    //ofp = fopen("blocks","w");
    //fprintf(ofp,"Scale: %f, offx: %d, offy: %d\n",scale, g->offset.x, g->offset.y);
+
    assert (hdc != NULL);
 
    for (i = 0; i< numblocks; i++) 
@@ -354,6 +360,7 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd)
       firstvertex = k0[i+1][1];
       numSides = k0[i+1][2] - firstvertex + 1;
       //p = (POINT *) malloc(sizeof(POINT) * (numSides+1));
+
       for (k = 0; k<numSides; k++) 
       {
         /* FIXME: Get rid of the .5 or explain why it is 

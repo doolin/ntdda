@@ -471,10 +471,6 @@ SOURCE=.\include\gravity.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\lapack.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\postprocess.h
 # End Source File
 # Begin Source File

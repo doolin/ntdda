@@ -1,6 +1,6 @@
 
 
-/* <pre>
+/** <pre>
  * georeader.c
  * 
  * Procedure reads rock mass geometry from a file compatible
@@ -17,9 +17,9 @@
  * http://www.cyclic.com.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:25 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/geomreader.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -29,8 +29,6 @@
 #include "assert.h"
 #include "geometry.h"
 #include "ddamemory.h"
-
-///extern InterFace * iface;
 
 
 /**************************************************/
@@ -43,68 +41,47 @@
  * NULL pointer.   geometryReader replaces the dc01 
  * procedure.
  */
-Geometrydata * geometryReader1(char *geometryInputFile)
-{
-   int i;  /* loop counter */
-   /*  This is the struct that will get passed back.
-    * A new one of these is grabbed on every call to this
-    * routine, so they will have to be disposed of at some
-    * point, probably at the end of the driver routine.
-    */
-   Geometrydata * gid;
-   int n5;  /* scratch variable for array malloc. */
+void
+geometryReader1(Geometrydata * gid,char *infilename) {
+
+   int i;  
+
+  /* scratch variable for array malloc. */   
+   int n5;  
+
   /* geomInFile is the geometry data input file pointer.  
    */
-   FILE * geomInFile;
+   FILE * infile;
 
-   geomInFile = fopen (geometryInputFile, "r");
+   infile = fopen (infilename, "r");
+
   /* Should throw an exception here. */
-   assert (geomInFile != NULL);
-  /* initialize the geometry struct...
-   */
-   //gid = initGeometrydata();
-   gid = gdata_new();
-
+   assert (infile != NULL);
 
   /* Input geometric data.  All of this needs to 
    * be range and type checked.
    */
-   fscanf(geomInFile,"%lf",&gid->e00);  /* minimum edge-node distance */
-   fscanf(geomInFile,"%d%d", &gid->nJoints,&gid->nBoundaryLines);
-   fscanf(geomInFile,"%d", &gid->nMatLines);
-   fscanf(geomInFile,"%d", &gid->nBolts);
-   fscanf(geomInFile,"%d", &gid->nFPoints);
-   fscanf(geomInFile,"%d", &gid->nLPoints);
-   fscanf(geomInFile,"%d", &gid->nMPoints);
-   fscanf(geomInFile,"%d", &gid->nHPoints);
+   fscanf(infile,"%lf",&gid->e00);  /* minimum edge-node distance */
+   fscanf(infile,"%d%d", &gid->nJoints,&gid->nBoundaryLines);
+   fscanf(infile,"%d", &gid->nMatLines);
+   fscanf(infile,"%d", &gid->nBolts);
+   fscanf(infile,"%d", &gid->nFPoints);
+   fscanf(infile,"%d", &gid->nLPoints);
+   fscanf(infile,"%d", &gid->nMPoints);
+   fscanf(infile,"%d", &gid->nHPoints);
 
   /* Catch non-zero numbers of rock bolts.  Since bolts are 
    * not implemented in the solver, but alot of the code exist between
    * here and there, just catch it for now then exit.
    */
-   if (gid->nBolts != 0)
-   {
-//#if WINDOWS
-      //MessageBox(hwMain, "Rock bolts are not yet implemented.", "Rock bolts", MB_OK);
-      dda_display_warning("Rock bolts are not yet implemented" /* "Warning" */);
-//#else
-//      printf("Rock bolts are not yet implemented.\n");
-//#endif
-      //exit(0);  // Change to return
+   if (gid->nBolts != 0) {
+      gid->display_warning("Rock bolts are not yet implemented" /* "Warning" */);
    }
 
   /* Catch non-zero numbers of load points.  
    */
-   if (gid->nLPoints != 0)
-   {
-//#if WINDOWS
-      //MessageBox(hwMain, "Load points not available in this file format.", "Load points", MB_OK);
-      dda_display_warning("Load points not available in this file format" /* "Warning" */);
-//#else
-//      printf("Load points not avaiable in this file format.\n");
-//#endif
-      // exit(0);  // Change to return
-      
+   if (gid->nLPoints != 0) {
+      gid->display_warning("Load points not available in this file format" /* "Warning" */);
    }
 
    gid->nPoints = gid->nFPoints + gid->nMPoints + gid->nLPoints + gid->nHPoints;
@@ -115,16 +92,19 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    gid->jointsize1=gid->nJoints+1;
    gid->jointsize2=6;
    gid->joints = DoubMat2DGetMem(gid->jointsize1, gid->jointsize2);
-   if (gid->joints == NULL) 
-      return NULL;
-
+   if (gid->joints == NULL) {
+      gid->display_error("NULL joints");
+      exit (0);
+   }
   
   /* gg0:   x1  y1  x2  y2  n  of material lines     */
    gid->matlinesize1=gid->nMatLines+1;
    gid->matlinesize2=6;
    gid->matlines = DoubMat2DGetMem(gid->matlinesize1, gid->matlinesize2);
-   if (gid->matlines == NULL)
-      return NULL;
+   if (gid->matlines == NULL) {
+      gid->display_error("NULL material lines");
+      exit (0);   
+   }
    
   /* g : +nFPoints  x1  y1  x2  y2  of fixed lines   */
 		/* g : +nLPoints  x   y   of loading  points        */
@@ -139,14 +119,6 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    setMatrixToZero(gid->points, gid->pointsize1, gid->pointsize2);
    gid->prevpoints = clone2DMatDoub(gid->points, gid->pointsize1, gid->pointsize2);
 
-
-/*
-
-   gid->points = DoubMat2DGetMem(gid->pointsize1, gid->pointsize2);
-   if (gid->points == NULL) 
-      return NULL;
-*/
-
   /* Note loops start from 1 here and 0 elswhere.  
    */
   /* This loop reads in "line data" from the input 
@@ -156,7 +128,7 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    */
    for (i=1; i<= gid->nJoints; i++)
    {
-	 fscanf(geomInFile,"%lf %lf %lf %lf %lf",
+	 fscanf(infile,"%lf %lf %lf %lf %lf",
 	         &gid->joints[i][1],&gid->joints[i][2],&gid->joints[i][3],
                  &gid->joints[i][4],&gid->joints[i][5]);
    } /* i */
@@ -165,7 +137,7 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    */
   for (i=0; i< gid->nMatLines; i++)
   {
-    fscanf(geomInFile,"%lf  %lf  %lf  %lf  %lf",
+    fscanf(infile,"%lf  %lf  %lf  %lf  %lf",
         &gid->matlines[i][1], &gid->matlines[i][2], 
         &gid->matlines[i][3], &gid->matlines[i][4], &gid->matlines[i][5]);
   } /* i */
@@ -175,7 +147,7 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    */
 	 	for (i= 1; i<= gid->nFPoints; i++)
 		 {
-      fscanf(geomInFile,"%lf  %lf  %lf  %lf",
+      fscanf(infile,"%lf  %lf  %lf  %lf",
 	 	         &gid->points[i][1], &gid->points[i][2], &gid->points[i][3], &gid->points[i][4]);
 		    gid->points[i][0] = 0;  /* added 8/9/95 for graphics */
 	 	}   /* i */
@@ -184,28 +156,24 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    */
    for (i=gid->nFPoints+1; i<= gid->nFPoints+gid->nLPoints; i++)
 	 	{
-      fscanf(geomInFile,"%lf %lf",&gid->points[i][1],&gid->points[i][2]);
+      fscanf(infile,"%lf %lf",&gid->points[i][1],&gid->points[i][2]);
 		    gid->points[i][0] = 2;  /* added 8/9/95 for graphics */
-	 	}   /* i */
+	 	}  
   
   
    for (i=gid->nFPoints+gid->nLPoints+1; i<= gid->nFPoints+gid->nLPoints+gid->nMPoints; i++)
 	 	{
-	  	   fscanf(geomInFile,"%lf %lf",&gid->points[i][1],&gid->points[i][2]);
+	  	   fscanf(infile,"%lf %lf",&gid->points[i][1],&gid->points[i][2]);
 		     gid->points[i][0] = 1;  /* added 8/9/95 for graphics */
-	 	}   /* i */
+	 	}  
   
    for (i=gid->nFPoints+gid->nLPoints+gid->nMPoints+1;i<= gid->nFPoints+gid->nLPoints+gid->nMPoints+gid->nHPoints; i++)
    {
-		    fscanf(geomInFile,"%lf %lf",&gid->points[i][1],&gid->points[i][2]);
+		    fscanf(infile,"%lf %lf",&gid->points[i][1],&gid->points[i][2]);
 	    	gid->points[i][0] = 3;  /* added 8/9/95 for graphics */
-   }   /* i */
+   }   
 		
-   fclose(geomInFile);
+   fclose(infile);
 
    gid->pointCount = (gid->nFPoints) + (gid->nLPoints) + (gid->nMPoints);
-
-   return gid;
-
-}   /* Close geometryReader.  */
-
+}

@@ -20,8 +20,7 @@ struct _dda_tag  {
    Analysisdata * analysis;
    FILEPATHS * filepaths;
    int menu_state;
-   //ddaboolean toolbarvis;
-   //ddaboolean statusbarvis;
+
    ddaboolean popupvis;
    ddaboolean tooltipvis;
    short xcur;

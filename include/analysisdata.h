@@ -16,12 +16,15 @@
 #include "options.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
 typedef struct _analysisdata_tag Analysisdata;
 typedef struct _thresholds_tag Thresholds;
-
-
-
-
 
 
 /* Kludge kludge kludge kludge kludge 
@@ -482,7 +485,10 @@ double         adata_get_grav_accel      (Analysisdata *);
  * adata_read_input_file wraps all of the file format ugliness
  * behind a single call.  If there is a recoverable problem,
  * the Analysisdata * will come back NULL, and the memory freed
- * internally somewhere.  
+ * internally somewhere.  The reason why there are so many arguments
+ * is that GHS original file format splits geometry from properties
+ * so some quantities are read from different files using fscanf
+ * in for loops.
  *
  * @param Analysisdata * points to a preallocated struct.
  * @param void * filestream needs to be cast in the actual
@@ -491,10 +497,15 @@ double         adata_get_grav_accel      (Analysisdata *);
  * @return NULL Analysisdata * (with freed memory).
  */
 void           adata_read_input_file      (Analysisdata *, 
-                                           char * filename);
+                                           char * filename,
+                                           int numfixedpoints,
+                                           int pointcount,
+                                           int numloadpoints);
 
-Analysisdata * XMLparseDDA_Analysis_File(char *filename);
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* __ANALYSISDATA_H__ */

@@ -14,13 +14,21 @@ extern FILEPOINTERS fp;
 extern FILEPATHS filepath;
 
 
+
 int
 handleResultsViewReplay(HWND hwMain, LPARAM lParam, GRAPHICS * g)
 {
    OPENFILENAME ofn;
 
    LPCSTR szFilter[] = {"Replay files (*.replay)\0*.replay\0All files (*.*)\0*.*\0\0"};
+
+   dda_display_info(filepath.vfile);
+
    fileBrowse(hwMain, &ofn, szFilter, filepath.vpath, filepath.vfile, "replay");
+                   
+                    
+         
+                   
                         
        if( !GetOpenFileName(&ofn) ) 
        {
@@ -40,9 +48,12 @@ handleResultsViewReplay(HWND hwMain, LPARAM lParam, GRAPHICS * g)
           strcpy(filepath.rootname, strtok(ofn.lpstrFileTitle, "."));
           strcpy(filepath.gfile, filepath.rootname);
           strcat(filepath.gfile, ".geo");
+
+          dda_display_info(filepath.gfile);
+
           SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
 
-          readReplayFile(hwMain, g, filepath.replayfile);
+          replay_analysis(hwMain, g, filepath.replayfile);
 
        }  /* Close if-else  */
 
@@ -144,8 +155,8 @@ writeReplayFile(Geometrydata * gd, Analysisdata * ad)
  * while an analysis is running.
  */
 void 
-readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
-{
+replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
+
    FILE * rpfile;
    int i,j;
    int nsteps_saved;
@@ -158,12 +169,19 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
 
    dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
-
-   //gd = initGeometrydata();
    gd = gdata_new();
+   gdata_read_input_file(gd,filepath.gfile);
 
-   //geometry2draw = gd;
+   if (gd == NULL) {
+      dda_display_error("NULL geometry");
+   }
 
+   dda_set_geometrydata(dda,gd);
+   ddacut(gd);
+
+	InvalidateRect(hwMain, NULL, TRUE);
+   UpdateWindow(hwMain);
+  
   /* Open the replay file */
    rpfile = fopen(replayfilename,"r");
 
@@ -327,7 +345,8 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
       */
 		InvalidateRect(hwMain, NULL, TRUE);
 		UpdateWindow(hwMain);
-   
+
+
    }  /* end for loop over each saved time step */
 				
   	//showOrig++;

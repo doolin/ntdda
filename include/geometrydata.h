@@ -206,7 +206,7 @@ struct _geo_data_tag {
 /* These two input parsers need to be static in some 
  * driver function.
  */
-Geometrydata * geometryReader1(char *);
+void geometryReader1(Geometrydata *,char *);
 //Geometrydata * geometryReader2(char *);
 
 
@@ -215,7 +215,7 @@ Geometrydata * XMLparseDDA_Geometry_File(char *filename);
 //Geometrydata * cloneGeometrydata(Geometrydata *);
 //int freeGeometrydata(Geometrydata *);
 
-void ddacut(Geometrydata *,FILEPATHS *, GRAPHICS *);
+void ddacut(Geometrydata *);
 
 void initBlockMasses(Geometrydata *);
 void cloneBlockMasses(Geometrydata *, Geometrydata *);

@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 
@@ -65,24 +65,29 @@ static void transferMatlinelistToGeomStruct(Geometrydata *, MATLINELIST *);
 static double ** DoubMat2DGetMem(int n, int m);
 
 
-static void * checkGeometryDoc(xmlDocPtr doc);
+static void  checkGeometryDoc(xmlDocPtr doc);
 static void initializeGLists(void);
 
 
-typedef struct _gkwdtab
-{
+/**
+ * @todo Move this struct definition into the 
+ * ddaml header file and combine with the struct
+ * definition in the analysisddaml parsing file.
+ */
+typedef struct _gkwdtab {
+
    char *kwd;			/* text of the keyword        */
   /* Token codes can be used to point at the relevant 
    * function pointer in the union.
    */
    enum  tokentype  {node = 0, string, prop} ktok;
    union {
-      void *(*nodeparse)  (xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-      void *(*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );	
-      void *(*propparse)  (xmlDocPtr doc, xmlNodePtr cur, int );
+      void (*nodeparse)  (xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
+      void (*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );	
+      void (*propparse)  (xmlDocPtr doc, xmlNodePtr cur, int );
    } pparse;
-
 } GKWDTAB;
+
 
 
 Geometrydata * gdata;
@@ -144,61 +149,49 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
 }  
 
 
-void *
-checkGeometryDoc(xmlDocPtr doc)
-{
-   xmlNodePtr cur;
-    
-   if (doc == NULL) 
-   {
-     /* Log this as an error somewhere, then */
-      fprintf(stderr,"Null document, really bad error somewhere\n");
-      return(NULL);
+
+/** @todo  Change calling semantics, put in header so that it
+ * can be used by both analysis and geometry (and other)
+ * ddaml subparsers.
+ */
+/*
+ ddaml_check_document(xmlDocPtr doc, const char * name_space, const char * rootname) {
+ */
+void 
+checkGeometryDoc(xmlDocPtr doc) {
+
+   if (doc == NULL) {
+      ddaml_display_warning("Null document, really bad error somewhere");
+      exit (0);
    }
 
-  /*
-   * Check the document is of the right kind
-   */
-   cur = doc->root;
-    
-   if (cur == NULL) 
-   {
-      fprintf(stderr,"empty geometry document\n");
-	     xmlFreeDoc(doc);
-	     return(NULL);
+   if (doc->root == NULL) {
+       ddaml_display_warning("Empty geometry document.");
+	    xmlFreeDoc(doc);
+       exit (0);
    }
 
-
-   
-   //gdata->namespace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
-  /* FIXME: The input files crash when some other name space is used.
-   * Find out why this is and fix it to not depend on namespaces.
-   */
-   nspace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
+   //nspace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
+   nspace = xmlSearchNsByHref(doc, doc->root, "http://www.tsoft.com/~bdoolin/dda");
  
-   if (nspace == NULL) 
-   {
-      fprintf(stderr,"Namespace error, check URL\n");
+   if (nspace == NULL) {
+        ddaml_display_error("Namespace error, check URL");
 	     xmlFreeDoc(doc);
-	     return(NULL);
+        exit (0);
    }
     
-   if (strcmp(cur->name, "DDA")) 
-   {
-      fprintf(stderr,"document of the wrong type, root node != DDA");
+   if (strcmp(doc->root->name, "DDA")) {
+	     ddaml_display_error("Document of the wrong type, root node != DDA");
 	     xmlFreeDoc(doc);
-	     return(NULL);
+        exit (0);
    }
 
-   return NULL;
-
-}  /* close checkGeometryDoc() */
+}  
 
 
 
 void 
-initializeGLists()
-{
+initializeGLists() {
 
    jointlist = make_dl();
    pointlist = make_dl();
@@ -206,28 +199,19 @@ initializeGLists()
    spointlist = make_dl();
    boltlist = make_dl();
    matlinelist = make_dl();
-
-}  /* close initializeLists() */
-
+} 
 
 
-void *
-parseEdgenodedist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
-{
 
-   fprintf(stdout, "Parsing Edge-node distance\n");
-   
+void 
+parseEdgenodedist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
+
    gdata->e00 = atof(xmlGetProp(cur, "distance"));
-
-   fprintf(stdout,"Edge-node distance: %f\n\n",gdata->e00);
-
-   return NULL;
-
-}  /* close parseEdgenodedist() */
+}  
 
 
 
-void *
+void 
 parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
   /* This has to be initialized so that the mickeysoft
@@ -307,20 +291,12 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       //jscur = jscur->next;
       cur = cur->next;
    }
-//cur = cur->next;
-//}  /* end while loop over Jointset */
+}  
 
- 
-
-   fprintf(stdout, "\n");
-
-   return NULL;
-
-}  /*  close parseJointlist() */
 
 /* FIXME: Move this to a fpointlist instead of a pointlist.
  */
-static void *
+static void 
 parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    DDALine * line;
@@ -390,14 +366,10 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-   fprintf(stdout,"Number fixed points %d\n\n", gdata->nFPoints);
-
-   return NULL;
-
-}  /*  close parseFixedpointlist() */
+}  
 
 
-static void *
+static void 
 parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {   
    DDAPoint * point;
@@ -451,14 +423,10 @@ parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       }
       cur = cur->next;
    }
+}  
 
-   fprintf(stdout, "\n");
 
-   return NULL;
-
-}  /*  close parseMeasuredpointlist() */
-
-static void *
+static void 
 parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {   
    DDAPoint * point;
@@ -513,15 +481,11 @@ parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-   fprintf(stdout, "\n");
-
-   return NULL;
-
 }  /*  close parseSeismicpointlist() */
 
 
 
-static void *
+static void 
 parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    DDAPoint * point;
@@ -577,15 +541,11 @@ parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-   fprintf(stdout,"\n");
-
-   return NULL;
-
 }  /*  close parseLoadpointlist() */
 
 
 
-static void *
+static void 
 parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
 
@@ -641,10 +601,6 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-   fprintf(stdout,"\n");
-
-   return NULL;
-
 }  /*  close parseHolepointlist() */
 
 
@@ -654,7 +610,7 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
  * a function written that will transfer the bolt properties
  * from the analysis side to the geometry side.
  */ 
-static void *
+static void 
 parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    BOLT * bolt;
@@ -715,15 +671,10 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-   fprintf(stdout,"\n");
-
-
-   return NULL;
-
 }  /*  close parseBoltlist() */
 
 
-void *
+void 
 parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    DDALine * line;
@@ -791,26 +742,15 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-   fprintf(stdout,"\n");
-
-
-
-   return NULL;
-
 }  /*  close parseMatlinelist() */
 
-void * 
-parseJointset(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
-{
-
-
-return NULL;
-
-}  /* close parseJointset() */
+void 
+parseJointset(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
+}  
 
 
 
-void *
+void 
 parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    DDALine * line;
@@ -867,11 +807,8 @@ parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
       cur = cur->next;
    }
+} 
 
-   fprintf(stdout,"\n");
-   return NULL;
-
-}  /*  close parseBoundlist() */
 
 Joint *
 getNewJoint(void)

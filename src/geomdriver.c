@@ -5,9 +5,9 @@
  * from a set of lines (fracture traces).
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:25 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/geomdriver.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 #include <stdio.h>
@@ -51,19 +51,9 @@ void dc19(Geometrydata *, int **, double **);
  */
  /* FIXME: Get rid of the GRAPHICS * */
 void
-ddacut(Geometrydata *geomdata, FILEPATHS *filestruct, GRAPHICS * ggraphics)
-{
+ddacut(Geometrydata *geomdata) {
   
-   //HWND hwMain = geomhwnd;
-   
-  /* Get rid of one of these, keep the other.
-   */
-   //Geometrydata *geomdata;  
    Geometrydata *returnGeom;   
-
-
-   //char  *geomfile; //= filestruct->gfile;
-
 
    int **aa;
    int **k;
@@ -87,18 +77,6 @@ ddacut(Geometrydata *geomdata, FILEPATHS *filestruct, GRAPHICS * ggraphics)
    */
    ddacutlog = fopen("cut.log", "w");
    pnpfile = fopen("pnp.log","w");
-
-
-
-/*
-   geomfile = filestruct->gfile;
-   assert(geomfile != NULL);
-   geomdata = geometryInput(geomfile);
-   if (!geomdata)  {
-       dda_display_error("Error in geometry file");
-         return NULL;
-   }
-*/
 
    assert(geomdata != NULL);
 

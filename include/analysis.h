@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:22 $
+ * $Date: 2002/05/27 15:23:55 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 #include "dda.h"
@@ -297,8 +297,15 @@ LOADPOINT * cloneLoadPoints(Analysisdata *);
  * read in from the block file.  So we have to keep 
  * geometrydata struct here.
  */
-Analysisdata * analysisInput(char *, Geometrydata *);
-Analysisdata * analysisReader1(char *, Geometrydata *);
+//Analysisdata * analysisInput(char *, Geometrydata *);
+
+void           analysisReader1 (Analysisdata *,
+                                char *, 
+                                int numfixedpoints,
+                                int pointcount,
+                                int numloadpoints);
+
+
 //Analysisdata * analysisReader2(char *, int pointcount);
 
 

@@ -1,13 +1,12 @@
 
 
 
-#ifndef __DDATYPES_H_
-#define __DDATYPES_H_
+#ifndef __DDATYPES_H__
+#define __DDATYPES_H__
 
 #include <sys/types.h>
 
-/* The reason 
- * for explicitly declaring a type boolean is to
+/** The reason for explicitly declaring a type boolean is to
  * provide for platform independence.  That is,
  * `boolean' is not a defined type in the c language
  * and counting on the compiler to do the right thing
@@ -27,6 +26,7 @@ typedef int ddaboolean;
 #define TRUE (!FALSE)
 #endif
 
+/* From Kahan probably. */
 #define MACHEPS (3.*((4.0/3.0)-1.0)-1.0)
 
 
@@ -38,7 +38,7 @@ typedef int  (*PrintFunc)(void *, const char *, ...);
 
 #ifndef DISPLAYFUNC
 #define DISPLAYFUNC
-typedef int  (*DisplayFunc)(const char * message);
+typedef void  (*DisplayFunc)(const char * message);
 #endif
 
 /* TODO: collect all the enums for the program to right here
@@ -58,7 +58,7 @@ typedef struct _joint Joint;
 typedef struct _ddapoint DDAPoint;
 typedef struct _ddaline DDALine;
 typedef struct _ddarect DDARect;
-typedef struct _ddarfile DDARFile;  // results file
+//typedef struct _ddarfile DDARFile;  // results file
 
 /* Try to get rid of this enum. */
 typedef enum _pointtype {fixed=0,measured,load,hole, seismic} PointType;
@@ -161,12 +161,6 @@ struct _boltmat{
    double f0;
 };
 
-/* This struct is not used yet. */
-typedef struct time_tag {
-	int currTimeStep;
-	int tsSaveInterval;
-	double currentTime;
-} TIME;
 
 struct _pstress {
   /* End points of lines showing magnitude
@@ -176,52 +170,5 @@ struct _pstress {
    double minorx1,minory1,minorx2,minory2;
 };
 
-
-/* Results file.  Hopefully, this abstraction will 
- * allow subclassing or whatever to get different 
- * file output formats.
- */
-struct _ddarfile {
-
-   char * headerstring;
-   char * trailerstring;
-   char path[256];
-   //FILE * fp;
-   void (*open)(DDARFile *);
-   void (*appand)(DDARFile *);
-   void (*close)(DDARFile *);
-
-};
-
-
-/* DDA Block. */
-struct _ddablock {
-
-  /* Integer tag for the block. Useful for 
-   * searching maybe. 
-   */
-   int blocknumber;
-   int numvertices;
-  /* (x,y) pairs */
-   double * vertices;
-
-   double area, area0;
-   double S0, S1, S2, S3;
-
-   double E; // Young's modulus
-   double density, density0;
-   double x0,y0;  // centroid
-   double ex,ey,exy;  // strains
-   double sx,sy,sxy;  //stresses
-
-   double KE;
-   double EE;  // elastic energy
-
-  /* List of all the points associated with a 
-   * particular block.
-   */
-   // PointList * pointlist; 
-
-};
 
 #endif /* __DDATYPES_H__ */

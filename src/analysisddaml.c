@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/05/27 15:23:55 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 #include <stdio.h>
@@ -47,7 +47,6 @@ static BOLTMATLIST * boltmatlist;
 
 static xmlNsPtr nspace;
 
-static Analysisdata * parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 static JointMat * getNewJointMat(void);
 static BlockMat * getNewBlockMat(void);
@@ -66,91 +65,28 @@ static ddaboolean checkAnalysisDoc(xmlDocPtr doc);
 static void initializeALists(void);
 
 
-typedef struct _akwdtab
-{
+
+/**
+ * @todo Move this struct definition into the 
+ * ddaml header file and combine with the struct
+ * definition in the geomddaml parsing file.
+ */
+typedef struct _akwdtab {
    char *kwd;			/* text of the keyword        */
   /* Token codes can be used to point at the relevant 
    * function pointer in the union.
    */
    enum  tokentype  {node = 0, string, prop} ktok;
    union {
-      void *(*nodeparse)(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);		/* function */
-      void *(*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );		/* function */
-      void *(*propparse)(xmlDocPtr doc, xmlNodePtr cur, int );		/* function */
+      void *(*nodeparse)(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
+      void *(*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );		
+      void *(*propparse)(xmlDocPtr doc, xmlNodePtr cur, int );		
    }parsefn;
-}
-AKWDTAB;
+} AKWDTAB;
 
 Analysisdata * adata;
 
 
-
-#ifdef STANDALONE
-int 
-main(int argc, char **argv) 
-{
-   int i;
-   fprintf(stderr,"Parsing analysis data...\n");
-
-   for (i = 1; i < argc ; i++) 
-   {
-	     adata = XMLparseDDA_Analysis_File(argv[i]);
-   }
-
-   return(0);
-}  /* close main() */
-
-#endif /* STANDALONE */
-
-
-
-Analysisdata *
-XMLparseDDA_Analysis_File(char *filename) 
-{
-   xmlDocPtr doc;
-   xmlNsPtr ns;
-   xmlNodePtr cur;
-   Analysisdata * ad;
-
-   xmlDoValidityCheckingDefaultValue = 1;
-
-  /*
-   * build an XML tree from the file;
-   */
-   doc = xmlParseFile(filename);
-
-   if(!checkAnalysisDoc(doc))
-   {
-      dda_display_error("Bad DDAML document");
-      return NULL;
-   }
-
-  /* This is where we need an exception */
-   //if (adata == NULL)
-   //return NULL;
-
-   cur = doc->root;
-   ns = nspace;
-
-  /*
-   * Now, walk the tree.  All the following code will
-   * be replaced with keyscanning.  Initially, do not
-   * check for keyscanning failure.  Let the dtd validator
-   * handle that.  Later, a few simple checks can be added,
-   * just to handle exceptional cases.
-   */
-  /* FIXME:  This needs to be handled as an exception to
-   * protect against dereferencing a null pointer.
-   */
-   cur = cur->childs->next;
-
-   ad = parseAnalysis(doc, ns, cur);
-
-   assert(ad != NULL);
-   
-   return(ad);
-
-}  /* close XMLparseDDA_Analysis_File() */
 
 
 ddaboolean
@@ -824,19 +760,15 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /* Grab a struct for block materials */
    bmat = getNewBlockMat(); 
 
-  /* FIXME: Reimplement namespace checking.
-   */
-   while (cur != NULL) 
-   {
-      //fprintf(stderr,"In block materials loop\n");
+  /** @todo Reimplement namespace checking. */
+   while (cur != NULL) {
 
       if ((!strcmp(cur->name, "Unitmass")) ) //&& (cur->ns == ns))
          bmat->dens = atof(xmlNodeListGetString(doc, cur->childs, 1));
          
-      /*
+     /** @todo Find a way to get rid of unit weight, it's redundant. */
       if ((!strcmp(cur->name, "Unitweight")) ) //&& (cur->ns == ns))
          bmat->wt = atof(xmlNodeListGetString(doc, cur->childs, 1));
-*/
 
       if ((!strcmp(cur->name, "Youngsmod")) ) //&& (cur->ns == ns))
          bmat->ymod = atof(xmlNodeListGetString(doc, cur->childs, 1));
@@ -844,10 +776,10 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       if ((!strcmp(cur->name, "Poissonratio")) ) //&& (cur->ns == ns))
          bmat->pois = atof(xmlNodeListGetString(doc, cur->childs, 1));
 
-      if ((!strcmp(cur->name, "Damping")) ) //&& (cur->ns == ns))
+      if ((!strcmp(cur->name, "Damping")) ) //&& (cur->ns == ns)) 
       {
          bmat->damping = atof(xmlNodeListGetString(doc, cur->childs, 1));
-         gotdamping = 1;
+         gotdamping = 1;  //kludge
       }
 
      /* These will have three values each */
@@ -855,14 +787,12 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
-         if (checkval == 3)
-         {
+         if (checkval == 3) {
             bmat->iss[0] = temp[0];
             bmat->iss[1] = temp[1];
             bmat->iss[2] = temp[2];
-         }
-         else
-         { // Throw some kind of error.
+         } else { 
+            ddaml_display_error("Wrong number of initial stress values");
          }  
       }
 
@@ -870,14 +800,12 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
-         if (checkval == 3)
-         {
+         if (checkval == 3) {
             bmat->ist[0] = temp[0];
             bmat->ist[1] = temp[1];
             bmat->ist[2] = temp[2];
-         }
-         else
-         {  // Throw some kind of error
+         } else {
+            ddaml_display_error("Wrong number of initial strain values");
          }     
       }
 
@@ -885,23 +813,20 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
-         if (checkval == 3)
-         {
+         if (checkval == 3) {
             bmat->ivel[0] = temp[0];
             bmat->ivel[1] = temp[1];
             bmat->ivel[2] = temp[2];
-         }
-         else
-         {  // Throw some kind of error
+         } else {
+            ddaml_display_error("Wrong number of initial velocity values");
          }
       }
 
       cur = cur->next;
    }
 
-   if (!gotdamping)
-   {
-      dda_display_error("Damping tag not found in BlockMaterials");
+   if (!gotdamping) {
+      ddaml_display_error("Damping tag not found in BlockMaterials");
       exit(0);
    }
 
@@ -909,7 +834,9 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    return NULL;
 
-}  /*close parseBlockmaterial() */
+}  
+
+
 
 // Just for reference...
 /*
@@ -921,8 +848,8 @@ typedef struct _loadpoint {
 }LOADPOINT;
 */
 void *
-parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
+
    int i;
    int checkval;
    double temp[3] = {0.0};
@@ -934,8 +861,8 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    fprintf(stderr,"Parsing load points\n");
 
-   while (cur != NULL) 
-   {
+   while (cur != NULL) {
+
       if ((!strcmp(cur->name, "Loadpoint")) ) //&& (cur->ns == ns))
       {
          loadpoint = getNewLoadpoint();
@@ -957,92 +884,73 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
         /* FIXME: Check the behavior of this with respect to the 
          * start of indexing value 0 or 1.
          */
-         for (i=0; i<loadpoint->loadpointsize1; i++)
-         {
+         for (i=0; i<loadpoint->loadpointsize1; i++) {
+
             checkval = sscanf(recordstring,"%lf%lf%lf",
                               &temp[0],&temp[1],&temp[2]);
-            fprintf(stdout,"%f %f %f\n", temp[0],temp[1], temp[2]);
-            if (checkval == 3)
-            {
+
+            if (checkval == 3) {
                loadpoint->vals[i][0] = temp[0];
                loadpoint->vals[i][1] = temp[1];
                loadpoint->vals[i][2] = temp[2];
                recordstring = strtok(NULL, ";");
-            }
-            else
-            {
-                fprintf(stdout,"Empty load point list.\n");
+            } else {
+                ddaml_display_warning("Empty load point list.\n");
             }
 
-         }  /* end for loop over time history.  */
+         }  
 
          dl_insert_b(loadpointlist, loadpoint);
 
-      }
-      else
-      {
+      } else {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
          */         
-         fprintf(stderr,"Validation failure in load point parsing."  
-                        " Contact author.\n");
+         ddaml_display_error("Validation failure in load point parsing."  
+                             " Contact author.\n");
       }
-
       cur = cur->next;
    }
-
-   fprintf(stdout,"\n");
-   
    return NULL;
+}  
 
-}  /*close parseLoadpoints() */
 
 
 /* The values parsed here will correspond to the 
  * entries 7,8,9 in the geometry structure bolt array
  */ 
 void *
-parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
-   //adata->boltmatsize1 = 1;
    BoltMat * boltmat;
    char * tempstring;
    double temp[3] = {0.0};
    int checkval;  
 
    cur = cur->childs;
-  /* Grab a struct for joint properties */
+  /* Grab a struct for bolt properties */
    boltmat = getNewBoltMat();
             
    tempstring = xmlNodeListGetString(doc, cur, 1);
    checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
-   if (checkval == 3)
-   {
+   if (checkval == 3) {
       boltmat->e00 = temp[0];
       boltmat->t0 = temp[1];
       boltmat->f0 = temp[2];
-   }
-   else
-   {  // Throw some kind of error
-   }
+   } else {  
+      ddaml_display_error("Wrong number of bolt property values");   }
 
-  /* Append */
    dl_insert_b(boltmatlist,(void*)boltmat);
    return NULL;
-
-}  /*close parseBoltproperties() */
+}  
 
 
 LOADPOINT *
-getNewLoadpoint(void)
-{
+getNewLoadpoint(void) {
    LOADPOINT * l;
-   //fprintf(stdout,"Getting new load point\n");
    l = (LOADPOINT *)calloc(1,sizeof(LOADPOINT));
    return l;
-
-}  /*  close getNewLoadpoint() */
+}  
 
 
 
@@ -1115,7 +1023,7 @@ AKWDTAB atab_type[] = {
    {"Analysistype",0, *parseAnalysistype},
    {"Numtimesteps", 0, *parseNumtimesteps},
    {"Planestrain", 0, *parsePlanestrain},
-   {"Analysis", 0, *parseAnalysis},
+   //{"Analysis", 0, *parseAnalysis},
    {"Jointproperties",0, *parseJointproperties},
    {"Loadpointlist",0, *parseLoadpoints},
    {"Blockmaterial",0, *parseBlockmaterial},
@@ -1132,9 +1040,10 @@ AKWDTAB atab_type[] = {
    {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
 };
 
-Analysisdata *
-parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+
+void
+parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
+
    int i = 0;
    //FILE * outtestfile;
 
@@ -1144,13 +1053,12 @@ parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /*
    * allocate the struct
    */
-   adata = adata_new(); //(Analysisdata *) malloc(sizeof(Analysisdata));
+   //adata = adata_new(); //(Analysisdata *) malloc(sizeof(Analysisdata));
 
-   if (adata == NULL) 
-   {
-      dda_display_error("out of memory for analysis data");
-     	return(NULL);
-   }
+   //if (adata == NULL) {
+   //   dda_display_error("out of memory for analysis data");
+   //  	return(NULL);
+   //}
    
    //memset(adata, 0, sizeof(Analysisdata));
 
@@ -1223,9 +1131,79 @@ parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    * whether the gravity tag and attribute are seen
    * and set properly.
    */
-   if (adata->gravaccel == -1)
+   if (adata->gravaccel == -1) {
       adata->gravaccel = 9.81;
+   }
 
-   return adata;
+   //return adata;
 }  
 
+
+
+//Analysisdata *
+//XMLparseDDA_Analysis_File(char *filename) {
+void
+ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
+
+   xmlDocPtr doc;
+   xmlNsPtr ns;
+   xmlNodePtr cur;
+
+   xmlDoValidityCheckingDefaultValue = 1;
+
+   adata = ad;
+
+  /*
+   * build an XML tree from the file;
+   */
+   doc = xmlParseFile(filename);
+
+   if(!checkAnalysisDoc(doc)) {
+
+      dda_display_error("Bad DDAML document");
+      //return NULL;
+   }
+
+  /* This is where we need an exception */
+   //if (adata == NULL)
+   //return NULL;
+
+   cur = doc->root;
+   ns = nspace;
+
+  /** Now, walk the tree.  All the following code will
+   * be replaced with keyscanning.  Initially, do not
+   * check for keyscanning failure.  Let the dtd validator
+   * handle that.  Later, a few simple checks can be added,
+   * just to handle exceptional cases.
+   */
+  /* FIXME:  This needs to be handled as an exception to
+   * protect against dereferencing a null pointer.
+   */
+   cur = cur->childs->next;
+
+   parseAnalysis(ad,doc, ns, cur);
+
+   assert(ad != NULL);
+   
+   //return(ad);
+} 
+
+
+
+
+#ifdef STANDALONE
+int 
+main(int argc, char **argv) 
+{
+   int i;
+   fprintf(stderr,"Parsing analysis data...\n");
+
+   for (i = 1; i < argc ; i++) {
+	     adata = XMLparseDDA_Analysis_File(argv[i]);
+   }
+
+   return(0);
+}  /* close main() */
+
+#endif /* STANDALONE */

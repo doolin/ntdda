@@ -45,8 +45,6 @@ error_delete(Error * e) {
  * printf or fprintf, the win_frame_title could be 
  * passed in as NULL.
  * 
- * So I need a 3rd function to hook the code-specific  
- * stuff to the callback register.
  */
 
 void 

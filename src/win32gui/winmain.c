@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:27 $
+ * $Date: 2002/05/27 15:23:57 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  */
 
 
@@ -59,7 +59,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.17 2002/05/26 23:47:27 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.18 2002/05/27 15:23:57 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -135,37 +135,31 @@ HWND mainwindow;
 
 
 
-int
+void
 dda_display_error(const char * message) {
 
    MessageBox(NULL,message,"Error",MB_OK | MB_ICONERROR);
-
-   return 0;
 }
 
-int
+void
 dda_display_warning(const char * message) {
 
    MessageBox(NULL,message,"Warning",MB_OK | MB_ICONWARNING);
-
-   return 0;
 }
 
 
-int
+void
 dda_display_info(const char * message) {
 
    MessageBox(NULL,message,"Info",MB_OK | MB_ICONINFORMATION);
-
-   return 0;
 }
 
 
 
 
 static void 
-initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
-{
+initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+
    HINSTANCE hInst;
    INITCOMMONCONTROLSEX icex;
 
@@ -186,22 +180,19 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
    */ 
    g = initGraphicStruct();
 
-   //iface = getNewIFace();
-   //iface->setdisplay((unsigned int)hwMain);
-
    statusbar_init(hwMain);
-   toolbar_init(hwMain);
-
-   //ShowWindow(hToolBar, SW_SHOWNORMAL);
-   toolbar_show();
    statusbar_show();
+
+   toolbar_init(hwMain);
+   toolbar_show();
 
 
   /* Handle a possible command line argument from 
    * a file drag and drop.
    */
-   if (__argc > 1)
+   if (__argc > 1) {
       handleCommandLine(hwMain, __argc, __argv, &filepath);
+   }
 } 
 
 
@@ -398,6 +389,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    extern HBRUSH hBr[6];
    HWND draw_wnd;
 
+
    HDC hdc; 
    PAINTSTRUCT ps;
    RECT rectClient;
@@ -407,6 +399,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    draw_wnd = hwMain;
 
    hdc = BeginPaint(draw_wnd, &ps );
+
 
    switch (whatToDraw)
    {
@@ -465,6 +458,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    //DeleteDC(hdc);
    //ReleaseDC(draw_wnd, hdc);
 
+
 }  /* close handleWinPaint() */
 
 
@@ -502,7 +496,7 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
    }
 
    dda_set_geometrydata(dda,geomdata);
-   ddacut(geomdata, &filepath, g);
+   ddacut(geomdata);
 
 
    if(geomdata->nBlocks>0) {
@@ -734,10 +728,11 @@ handleAnalBrowse(HWND hwMain, LPARAM lParam)
 
 
 static int 
-handleAnalRun(HWND hwMain)
-{
-   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+handleAnalRun(HWND hwMain) {
+
    int retval;
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Analysisdata * ad = adata_new();
 
    dda_set_menu_state(dda,ANA_STATE | RUNNING);
    toolbar_set_state(ANA_STATE | RUNNING);
@@ -751,6 +746,12 @@ handleAnalRun(HWND hwMain)
 #else
    SwapBuffers(hdc);
 #endif /* WINGRAPHICS */
+
+
+   ad->display_error = dda_display_error;
+   ad->display_warning = dda_display_warning;
+   dda_set_analysisdata(dda,ad);
+   adata_read_input_file(ad,filepath.afile,0,0,0);
 
    /* So I really need to grab the analysis struct before calling
     * so that all the initialization can be done...  
@@ -1083,6 +1084,8 @@ handleGeomCancel(HWND hwMain, WPARAM wParam, LPARAM lParam)
 /* Once this gets working, move the initialization code elsewhere,
  * then use this function to call the tracking and display of the
  * pop up menu.
+ *
+ * @todo Move popup code somewhere else.
  */
 static void 
 handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
@@ -1091,30 +1094,52 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
    POINT pt;
    HINSTANCE hInst;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-   Geometrydata * geomdata = dda_get_geometrydata(dda);
-   Analysisdata * ad = dda_get_analysisdata(dda);
 
-/* kludgy */
+  /* kludgy */
    if(dda_get_popupvis(dda) == 0)
       return;
 
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
    hmenu = LoadMenu(hInst, "IDR_CHILDCONTEXT");
    hpopupmenu = GetSubMenu(hmenu,0);
-   if (geomdata == NULL)
-   {
-      EnableMenuItem(hpopupmenu, POPUP_ANALYSIS, MF_BYCOMMAND | MF_GRAYED);
-     /* FIXME: Replay handling does not work very well here. */
-    	 EnableMenuItem(hpopupmenu, POPUP_REPLAY, MF_BYCOMMAND | MF_GRAYED);
+
+
+   switch(dda_get_menu_state(dda)) {
+
+      case READY_STATE:
+		   EnableMenuItem(hpopupmenu, POPUP_ANALYSIS, MF_BYCOMMAND | MF_GRAYED);
+		   EnableMenuItem(hpopupmenu, POPUP_REPLAY,   MF_BYCOMMAND | MF_GRAYED);
+		   EnableMenuItem(hpopupmenu, POPUP_ABORT,    MF_BYCOMMAND | MF_GRAYED);
+         break;
+
+      case (GEOM_STATE | FINISHED):
+		   EnableMenuItem(hpopupmenu, POPUP_ANALYSIS, MF_BYCOMMAND | MF_ENABLED);
+		   EnableMenuItem(hpopupmenu, POPUP_REPLAY,   MF_BYCOMMAND | MF_GRAYED);
+		   EnableMenuItem(hpopupmenu, POPUP_ABORT,    MF_BYCOMMAND | MF_GRAYED);
+         break;
+      
+      case (ANA_STATE | READY_STATE):
+			EnableMenuItem(hpopupmenu, ANAL_EDITPARAMD, MF_BYCOMMAND | MF_ENABLED);
+			EnableMenuItem(hpopupmenu, ANAL_EDITPARAMN, MF_BYCOMMAND | MF_ENABLED);
+			EnableMenuItem(hpopupmenu, ANAL_RUN, MF_BYCOMMAND | MF_ENABLED);
+         break;
+
+      case (ANA_STATE | FINISHED):
+		   EnableMenuItem(hpopupmenu, POPUP_ABORT,   MF_BYCOMMAND | MF_GRAYED);
+         break;
+
+      case (ANA_STATE | RUNNING):
+  	      EnableMenuItem(hpopupmenu, POPUP_GEOMETRY, MF_BYCOMMAND | MF_GRAYED);
+ 	      EnableMenuItem(hpopupmenu, POPUP_ANALYSIS, MF_BYCOMMAND | MF_GRAYED);
+		   EnableMenuItem(hpopupmenu, POPUP_REPLAY,   MF_BYCOMMAND | MF_GRAYED);
+		   EnableMenuItem(hpopupmenu, POPUP_EXIT,     MF_BYCOMMAND | MF_GRAYED);
+         break;
+
+      default:
+         //MessageBox(NULL,"Bad menu state",NULL,MB_OK);
+         break;
    }
 
-  /* FIXME: Get rid of the external Analysisdata * ad */
-   if(ad == NULL)
-   {
-  	   EnableMenuItem(hpopupmenu, POPUP_ABORT, MF_BYCOMMAND | MF_GRAYED);
-     /* FIXME: Replay handling does not work very well here. */
-    	 //EnableMenuItem(hpopupmenu, POPUP_REPLAY, MF_BYCOMMAND | MF_GRAYED);
-   }
 
    pt.x = xcursor;
    pt.y = ycursor;
@@ -1705,7 +1730,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
          break;
 
 	  	case RES_REPLAY:
-         readReplayFile(hwMain,g,filepath.replayfile);
+         replay_analysis(hwMain,g,filepath.replayfile);
 	  	  	break;
                 
      /* Most of this is going to get passed to the printing routine
@@ -1766,7 +1791,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
       case POPUP_REPLAY:
          /* FIXME: popup menus are segfaulting on this. */
          //if(!ad->isRunning)
-         readReplayFile(hwMain,g,filepath.replayfile);
+         replay_analysis(hwMain,g,filepath.replayfile);
          break;
 
       case POPUP_ABORT:
@@ -1860,11 +1885,8 @@ WndProc (HWND hwMain, UINT message,
          * 892 in Rector and Newcomer.
          */
          menuflags = HIWORD(wParam);
-         if ( (menuflags & MF_POPUP) && (menuflags != 0xFFFF))
-         {
+         if ( (menuflags & MF_POPUP) && (menuflags != 0xFFFF)) {
             menu_item_number = LOWORD(wParam);
-            //sprintf(mess,"%d",menu_item_number);
-            //MessageBox(hwMain,mess,mess,MB_OK);
          } 
          break; 
 
@@ -2018,6 +2040,4 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
    return msg.wParam;
 
 }  /* close WinMain()  */
-
-
 

@@ -1,56 +1,60 @@
 
-/*
- * analysisreader.c
- *
- * This procedure reads in the data from the 
- * .ana files.
+/** This procedure reads in the data from the 
+ * .ana files in original ghs format
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+
 #include "analysis.h"
 #include "ddamemory.h"
 
 #define BUFSIZE 180
 
-Analysisdata *
-analysisReader1(char * af, Geometrydata * gd)
-{
+
+
+/** 
+ * @todo  The geometry data argument can probably be replaced 
+ * by three ints.
+ */
+void
+analysisReader1(Analysisdata * adn, char * af, int nfp, int pc, int nlp) {
+
    FILE * analysisFile;
-   Analysisdata * adn;  
    int i, j, n7, n8;
    int jointmat;  /* Loop counter to initialize joint materials matrix. */
    double ** materialProps;
    double ** phiCohesion;
    double ** timeDeps;
    int i1;
-   int nFPoints = gd->nFPoints;  /* number of fixed points */
-   int pointCount = gd->pointCount;  /* total number of points */
-   int nLPoints = gd->nLPoints;  /* number of load points  */
+
+   int nFPoints = nfp;  
+   int pointCount = pc;  
+   int nLPoints = nlp;  
+
+
+
   /**************************************************/
   /* k5: index of u0               >=2 time points  */
   /* k5: 0 start of point i   1 end of point i      */
-  /* k5[nFPoints+nLPoints+1][2]                                 */
+  /* k5[nFPoints+nLPoints+1][2]                     */
    int **k5;
   /*------------------------------------------------*/
   /* c : movement u v of fixed measured load points */
- 	/* c[pointCount+1][3]                                     */
+ 	/* c[pointCount+1][3]                            */
    double **c;
-
-   //adn = (Analysisdata *)malloc(sizeof(Analysisdata));
-   adn = adata_new();
 
   /**************************************************/
   /* k5: index of u0               >=2 time points  */
   /* k5: 0 start of point i   1 end of point i      */
-  /* k5[nFPoints+nLPoints+1][2]                                 */
+  /* k5[nFPoints+nLPoints+1][2]                     */
    adn->k5size1 = nFPoints+nLPoints+1;
    adn->k5size2 = 2;
    k5 = IntMat2DGetMem(adn->k5size1, adn->k5size2);
@@ -70,32 +74,19 @@ analysisReader1(char * af, Geometrydata * gd)
    analysisFile = fopen(af, "r");
 
    fscanf(analysisFile,"%d",&adn->analysistype);
-   //fprintf(cf,"\n");
    fscanf(analysisFile,"%d", &adn->nTimeSteps);
-   //fprintf(ffl0,"enter number of block materials   \n");
    fscanf(analysisFile,"%d", &adn->nBlockMats);
-   //fprintf(ffl0,"enter number of joint materials   \n");
    fscanf(analysisFile,"%d", &adn->nJointMats);
-  /* control real number constants                  */
-   //fprintf(ffl0,"enter max. allowable step displacement divided \n");
-   //fprintf(ffl0,"by half height of whole block mesh (.02-.001)  \n");
-   //fscanf(analysisFile,"%lf",&adn->g2);
    fscanf(analysisFile,"%lf",&adn->maxdisplacement);
-   //fprintf(ffl0,"enter upper limit of time interval per step    \n");
    fscanf(analysisFile,"%lf",&adn->maxtimestep); /* reads value but ignores it! */
-   //fprintf(ffl0,"enter stiffness of contact spring (temprary)   \n");
-  /* fscanf(analysisFile,"%lf",&g0); */
+
 
   /* Save the following for reimplementation of time-
    * dependent parameters.
    */
   /* dynamic diplacement and loading input          */
   /* k5[i][0] >= 2                                  */
-   //fprintf(ffl0,"enter number of time dependent x y   >= 2 \n");
-   //fprintf(ffl0,"for each fixed measured loading point i   \n");
-   for (i=1; i<= nFPoints+nLPoints; i++)
-   {
-     /* fscanf(analysisFile,"%d",&k5[i][0]); */ /* removed feb 15 '95 */
+   for (i=1; i<= nFPoints+nLPoints; i++) {
      /* What this means is that the c matrix is always set 
       * to unity in the next loop.
       */
@@ -104,8 +95,8 @@ analysisReader1(char * af, Geometrydata * gd)
 
       
   /* (GHS: k5[i][0]=0 fixed points   c[i][0]=1 flag) */
-   for (i=1; i<= nFPoints+nLPoints; i++)
-   {
+   for (i=1; i<= nFPoints+nLPoints; i++) {
+
       if (k5[i][0] == 0)
       {
          c[i][0]=1;
@@ -165,7 +156,6 @@ analysisReader1(char * af, Geometrydata * gd)
   /* u0: t x y of time dependent displacements      */
   /* u0: t x y of time dependent loading            */
   /* u0[nt+1][3]                                    */
-   //fprintf(ffl0,"enter time depending movement & loads \n");
 
    i1  = 0;
 
@@ -201,7 +191,6 @@ analysisReader1(char * af, Geometrydata * gd)
    }  /*  i  */
       
   /* ma we e0 u0 s11 s22 s12 t11 t22 t12 vx vy vr   */
-   //fprintf(ffl0,"enter block material constants \n");
   /* Note that the dimension of a is 
    * [number of block (types?)][13].
    */
@@ -215,11 +204,8 @@ analysisReader1(char * af, Geometrydata * gd)
       }  /*  j  */
    }  /*  i  */
 
-   //fprintf(fp.logfile,"From a reader\n");      
-   //print2DArray(materialProps, adn->materialpropsize1, adn->materialpropsize2);
 
   /* friction-angle   cohesion   tension-strength   */
-   //fprintf(ffl0,"enter joint material constants \n");
    /* nJointMats probably is the number of JOINT TYPES, not the 
     * number of JOINTS!!!!
     */
@@ -254,8 +240,6 @@ analysisReader1(char * af, Geometrydata * gd)
    /* New file format does this automatically. */
    initConstants(adn);
 
-   return adn;
-
 }  /*  Close analysisReader1()  */
 
 
@@ -265,18 +249,16 @@ analysisReader1(char * af, Geometrydata * gd)
  */
 /* FIXME: This needs to be abstracted out. */
 int
-fgetspc(char *paramstring, int bufsize, FILE * infile, int linenumber)
-{
+fgetspc(char *paramstring, int bufsize, FILE * infile, int linenumber) {
 
   /* Grab a line, check the first character for a 
    * comment marker, spin until no comment marker in 
    * first position.
    */
-   do 
-   { 
+   do { 
      fgets(paramstring, bufsize, infile);linenumber++;
    } while (paramstring[0] == '#');
 
    return linenumber;
 
-}  /*  Close fgetspc()  */
+}

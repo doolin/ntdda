@@ -3,8 +3,17 @@
  * post processing helper functions.
  */
 
-#ifndef _POSTPROCESS_H_
-#define _POSTPROCESS_H_
+#ifndef __POSTPROCESS_H__
+#define __POSTPROCESS_H__
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
 
 /* Set the mask for the stuff we want to look at in an
  * output file.
@@ -50,4 +59,8 @@ void writeSolutionVector(double ** D, int * kk,
 void writeSX0();
 
 
-#endif /* _POSTPROCESS_H_ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __POSTPROCESS_H__ */

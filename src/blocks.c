@@ -9,9 +9,9 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 
@@ -21,6 +21,7 @@
 #include <math.h>
 #include <malloc.h>
 #include <string.h>
+
 #include "ddamemory.h"
 #include "geometry.h"
 
@@ -65,9 +66,7 @@ extern FILEPATHS * filepath;
 /*-------------------------------------------------*/    
 
 
-#if GEOMPEEK
-MSG winMess;
-#endif
+
 
 /* FIXME: This needs a testing framework for handling debugging
  * and loggin files.
@@ -134,12 +133,12 @@ countIntersections(Geometrydata * gd)
  
 a301:
          ;  /* Do nothing, i.e., continue.  */
-      } /* j */
-   } /* i */
+      } 
+   } 
       
    gd->nIntersectionPoints = n2;
 
-}  /*  Close dc03().  */
+}  
 
 
 /**************************************************/
@@ -238,7 +237,7 @@ dc04(Geometrydata *gd, int **aa, double **q, double ** nodesmaybe)
             i1=ell;
             goto a404;
 //a403:;
-         } /* l */
+         } 
 
 a402:;
          num_int_section += 1;
@@ -315,7 +314,7 @@ a404:;
             i1 = ell;
             goto a414;
 //a413:;
-         } /* ell */
+         } 
 
 a412:;
          num_int_section += 1;
@@ -331,7 +330,7 @@ a414:;
             kk1=ell;
             if ( (aa[i1][ell]==i) || (aa[i1][ell]==0) ) 
                break;  // goto a415;
-         } /* ell */
+         } 
 
 //a415:;
          aa[i1][kk1]=i;
@@ -466,7 +465,7 @@ a504:
       c[n3][2]=c[i][2];
 
 //a506:;
-   } /* i */
+   } 
 
   /**************************************************/
   /* 0, 0 matrix            n3 points after cutting */
@@ -477,7 +476,7 @@ a504:
       {
          k[i][j]=0;
       } /* j */
-   } /* i */
+   } 
       
   /* find all points along line i                   */
    for (i=1; i<= gd->nJoints; i++)
@@ -1283,7 +1282,7 @@ void dc10(Geometrydata *gd, int ** vindex, double ** vertices)
       points[i+i1][2] = points[i][2];
       points[i+i1][3] = points[i][3];
       points[i+i1][4] = points[i][4];
-   } /* i */
+   } 
       
   /**************************************************/
   /* produce and registrate fixed points            */
@@ -1341,8 +1340,8 @@ b004:;
             points[i2][1] = x0;    /* a fixed point   */
             points[i2][2] = y0;
 //b002:;
-         } /* l */
-      } /* j */
+         } 
+      } 
 
      /* (GHS: case whole line inside a block)  */
       if (i3 > 0) 
@@ -1354,7 +1353,7 @@ b004:;
 	    	points[i2][2] = points[i][2];
  
 //b001:; 
-   } /* i */
+   } 
       
   /**************************************************/
   /* move g[][] back and set nFPoints as fixed points   */
@@ -1407,14 +1406,14 @@ void dc11(Geometrydata *gd, int **vindex, double **q, double **vertices)
    stop = gd->nFPoints+gd->nLPoints+gd->nMPoints+gd->nHPoints;
 
   /* hole point: delete blocks with hole point      */
-		 for (i= start; i<= stop; i++)
-   {
+   for (i= start; i<= stop; i++) {
+
      /* (GHS: judge if points are coinside with block nodes)  */
       x = points[i][1];
       y = points[i][2];
       points[i][3] = crr(gd, x, y, vindex, q, vertices);
       assert(points[i][3] != 0);
-   } /* i */
+   } 
    
        
   /* case hole point without carry block  */
@@ -1433,18 +1432,18 @@ void dc11(Geometrydata *gd, int **vindex, double **q, double **vertices)
   /* (GHS: delete blocks with hole point)  */
    i0=0;  /* block counter  */
    i1=0;  /* node  counter  */
-   for (i=1; i<= gd->nBlocks; i++)
-   {
+   for (i=1; i<= gd->nBlocks; i++) {
+
      /* Basically, what this says is that if the 
       * block number matches the block number associated
       * with a certain hole point, then don't count 
       * that block, ie delete it.
       */
-      for (holepoint=start; holepoint<= stop; holepoint++)
-      {
+      for (holepoint=start; holepoint<= stop; holepoint++) {
+
          if ( i == (int)points[holepoint][HOLEBLOCK] )  
             goto b102;
-      } /* j */
+      } 
       
       i0 += 1;     /* block number+1 */
       i2  = i1+1;  /* start of block */
@@ -1511,7 +1510,7 @@ b102:;
    {
       if ( points[i][3] != 0 ) 
          continue;  // goto b103;
-      dda_display_warning("Point outside of block");
+      gd->display_warning("Point outside of block");
       fprintf(ddacutlog,"fixed load measured point outside all blocks %d \n",i);
       fprintf(ddacutlog,"%f , %f \n",points[i][1],points[i][2]);
 //b103:;

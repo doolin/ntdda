@@ -131,11 +131,11 @@ void           dda_set_ycur           (DDA * dda,
 
 
 /** Some platform independent prototypes. */
-int            dda_display_error      (const char * message);
+void           dda_display_error      (const char * message);
 
-int            dda_display_warning    (const char * message);
+void           dda_display_warning    (const char * message);
 
-int            dda_display_info       (const char * message);
+void           dda_display_info       (const char * message);
 
 #ifdef __cplusplus
 }

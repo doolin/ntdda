@@ -57,7 +57,7 @@ emitJoints(Geometrydata * gd, FILE * outfile)
    for (i=1;i<=gd->nJoints;i++)
    {
       fprintf(outfile,I2"<Joint type=\"%d\">",(int)gd->joints[i][5]);
-      fprintf(outfile," %f %f %f %f ",
+      fprintf(outfile," %14.10f %14.10f %14.10f %14.10f ",
               gd->joints[i][1],gd->joints[i][2],
               gd->joints[i][3],gd->joints[i][4]);
       fprintf(outfile,"</Joint>\n");
@@ -422,23 +422,21 @@ gdata_delete(Geometrydata * gd) {
 
 
 
-//Geometrydata *
-static void
-geometryInput(Geometrydata * geomdata, char * geomfile ) {
+void
+gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
 
    IFT gfv;
-   //Geometrydata * geomdata;
  
    assert(geomfile != NULL);
 
    gfv = getFileType(geomfile);
 
-   switch(gfv)
-   {
+   switch(gfv) {
+
        case ddaml:
-          //geomdata = XMLparseDDA_Geometry_File(geomfile);
           ddaml_read_geometry_file(geomdata,geomfile);
-         break;
+          break;
+
        case extended: 
           dda_display_warning("Extended geometry file format obsolete");
           exit(0);
@@ -452,24 +450,10 @@ geometryInput(Geometrydata * geomdata, char * geomfile ) {
        case original:
        default:
           dda_display_warning("Obsolete geometry file detected");
-          geomdata = geometryReader1(geomfile);  
+          geometryReader1(geomdata,geomfile);  
+          break;
    }
-
-  /* If this is NULL, there is a problem in the input file and it will 
-   * be handled upstream.  FIXME: Find a way to fix this error here,
-   * because it will be much more descriptive.
-   */
-   //return geomdata;
-
 }  
-
-
-void
-gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
-
-   geometryInput(geomdata,geomfile);
-}
-
 
 
 static void
@@ -516,11 +500,12 @@ computeBoundingBox(Geometrydata * gd)
    
 }  /* close computeBoundingBox() */
 
+
 /** FIXME: This needs to be set as an object method.
  */
 Geometrydata *
-//cloneGeometrydata(Geometrydata * gdn)
 gdata_clone(Geometrydata * gdn) {
+
    int i;
    /* There should be a way to initialize this
     * in the type declaration and pass back the
@@ -530,7 +515,6 @@ gdata_clone(Geometrydata * gdn) {
 
    Geometrydata * gdo;
 
-   //gdo = initGeometrydata(); //(Geometrydata *)malloc(sizeof(Geometrydata));
    gdo = gdata_new();
 
    memcpy((void*)gdo,(void*)gdn,sizeof(Geometrydata));
@@ -746,7 +730,6 @@ gdata_get_number_of_blocks(Geometrydata * gd) {
  * line wrapper that drives an analysis.
  */
 Geometrydata *
-//initGeometrydata1(void) {
 gdata_new(void) {
 
    Geometrydata * gdo;
@@ -754,14 +737,9 @@ gdata_new(void) {
   /* Change to a malloc, memset everything to garbage */
    gdo = (Geometrydata *)calloc(1,sizeof(Geometrydata));
 
-
    gdo->deleteblock = deleteBlock;
    gdo->dumptofile = dumpDDAMLGeometryFile;
    gdo->computeBBox = computeBoundingBox;
-   //gdo->getblocknumber = getBlockNumberFromCursor;
-
-  /* Why is this here? */
-   //assert(gdo->joints == NULL);
 
    return gdo;
 
@@ -783,10 +761,10 @@ gdata_new(void) {
  */
 double 
 computeMoments(Geometrydata * gd) {
+
   /* FIXME: Need this to track the block 
    * centroids.
    */
-   //extern int currTimeStep;
 
    int j;
    int nBlocks = gd->nBlocks;
@@ -799,21 +777,20 @@ computeMoments(Geometrydata * gd) {
    int vertex;
    double x2, y2, x3, y3, f1;
 
- 		for (block=1; block<= nBlocks; block++)
-	 	{
+ 		for (block=1; block<= nBlocks; block++) {
+
         /* This loop to zero the moments matrix may or may not be 
          * necessary.  Leave it in for now, as it is not the 
          * problem affecting the areas.  This could also be moved
          * outside the loop and zeroed with the subroutine call.
          */
-         for (j=1; j<=  6; j++)
-         {
+         for (j=1; j<=  6; j++) {
             moments[block][j] = 0;
-         }  /*  j  */      
+         }       
       
      /* x1=0  y1=0 here  */
-      for (vertex=vindex[block][1]; vertex<=vindex[block][2]; vertex++)
-      {
+      for (vertex=vindex[block][1]; vertex<=vindex[block][2]; vertex++) {
+
          x2 = vertices[vertex][1];
          y2 = vertices[vertex][2];
          x3 = vertices[vertex+1][1];
@@ -829,7 +806,7 @@ computeMoments(Geometrydata * gd) {
          moments[block][4] += f1*(x2*x2+x3*x3+x2*x3)/12;
          moments[block][5] += f1*(y2*y2+y3*y3+y2*y3)/12;
          moments[block][6] += f1*(2*x2*y2+2*x3*y3+x2*y3+x3*y2)/24;
-      }  /*  vertex  */
+      }
 
      /* Compute current centroids.  Leave this in for
       * now, but move to a different function later.
@@ -849,24 +826,18 @@ computeMoments(Geometrydata * gd) {
       * problem.
       */
       assert(moments[block][1]  > 0);
-      //if (moments[block][1] <= 0)
-      //   return 0;
 
-      if (moments[block][1] <= 0)
-      {
+      if (moments[block][1] <= 0) {
          char mess[80];
          sprintf(mess,"Block %d has negative area",block);
-         dda_display_error(mess);
+         gd->display_error(mess);
       }
-                     
-
-   }  /*  block  */
+   }
 
 	avgArea=0;
-   for (block=1; block<= nBlocks; block++)
-	{
+   for (block=1; block<= nBlocks; block++) {
 	   avgArea += moments[block][1];
-   }  /*  i  */
+   }
       
    avgArea  = avgArea/nBlocks;
    
@@ -921,9 +892,7 @@ void freeBlockMasses(Geometrydata * gd)
       free(gd->origmass);
    }
 
-
-
-}  /* close freeBlockMasses() */
+}  
 
 
 
@@ -933,6 +902,7 @@ gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
    double x0,y0;
    double ** moments = gd->moments;
 
+  /* Need a function that will just compute moments for a single block. */
    computeMoments(gd);
 
    x0=moments[block][2]/moments[block][1];  // x0 := x centroid

@@ -19,6 +19,8 @@ extern int xmlDoValidityCheckingDefaultValue;
 
 
 void ddaml_read_geometry_file (void * userdata, char * filename);
+void ddaml_read_analysis_file (void * userdata, char * filename);
+
 
 void  (*ddaml_display_warning) (const char * message);
 void  (*ddaml_display_error)   (const char * message);

@@ -1,8 +1,5 @@
 
-/* 
- * blockreader.c
- *
- * The data contained in the file "block.in" is read in
+/** The data contained in the file "block.in" is read in
  * this subroutine.  No error checking is performed.
  * The "block.in" file is written by dc19.  This piece of code
  * will be maintained for third party purposes, but the actual
@@ -10,16 +7,14 @@
  * geometry routine in the DDA for Windows code.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/27 15:23:56 $
  * $Source: /cvsroot/dda/ntdda/src/blockhandler.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
-//#include"analysis.h"
 #include<stdlib.h>
 #include<assert.h>
 #include "ddamemory.h"
-//#include "compilecontrol.h"
 #include "geometrydata.h"
 
 
@@ -28,8 +23,8 @@
  * will have to be completely rewritten.
  */
 Geometrydata * 
-readBlocks(FILEPATHS *filepath)
-{
+readBlocks(FILEPATHS *filepath) {
+
    FILE * blocksInFile;
    Geometrydata * bdn;  /*  i.e., block data in */
    int ** vindex = NULL;

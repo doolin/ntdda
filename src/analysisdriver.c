@@ -7,6 +7,11 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.19  2002/05/27 15:23:56  doolin
+ * * More general hardening of user space.
+ *
+ * * Started cleaning up ddaml handling code.
+ *
  * Revision 1.18  2002/05/26 23:47:24  doolin
  * Large amounts of cleanup and some redundant code
  * removed.
@@ -117,8 +122,8 @@ int
 ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
    Geometrydata * GData = dda_get_geometrydata(dda);
+   Analysisdata * AData = dda_get_analysisdata(dda);
 
-   Analysisdata * AData;
    Contacts * CTacts;
 
    clock_t start, stop;
@@ -187,19 +192,19 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
    doublesize = sizeof(double);
 
-   AData = analysisInput(filepath->afile, GData);   
-   if (AData == NULL) {
-      return 0;
-   }
+   //AData = analysisInput(filepath->afile, GData);   
+   //if (AData == NULL) {
+   //   return 0;
+   //}
 
   /* FIXME: handle the AData memory in the invoking 
    * function, so that this doesn't have to be dealt
    * with as an extern.
    */
-   AData->display_error = dda_display_error;
-   AData->display_warning = dda_display_warning;
+   //AData->display_error = dda_display_error;
+   //AData->display_warning = dda_display_warning;
    
-   dda_set_analysisdata(dda,AData);
+   //dda_set_analysisdata(dda,AData);
 
 
 

@@ -5,12 +5,14 @@
 #endif
 
 #include <string.h>
+#include <math.h>
 #include <assert.h>
+
 #include "analysisdata.h"
 #include "analysis.h"
 #include "ddamemory.h"
 #include "gravity.h"
-#include <math.h>
+#include "ddaml.h"
 
 
 //extern InterFace * iface;
@@ -570,20 +572,18 @@ adata_delete(Analysisdata * ad) {
 
 
 
-Analysisdata *
-analysisInput(char * analysisFile, Geometrydata * gd)
-{
-   IFT afv;
-   Analysisdata * AData;
+void
+adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
+                      int pointcount, int numloadpoints) {
 
-   afv = getFileType(analysisFile);
+   IFT afv;
+
+   afv = getFileType(infilename);
 
    switch(afv)
    {
        case ddaml:
-          /* FIXME: change to ddaml_parse_analysis_file() */
-          AData = XMLparseDDA_Analysis_File(analysisFile);
-          assert(AData != NULL);
+          ddaml_read_analysis_file((void*)ad,infilename);
           break;
           
        case extended: 
@@ -601,18 +601,17 @@ analysisInput(char * analysisFile, Geometrydata * gd)
           */
        case original:
        default:          
-          AData = analysisReader1(analysisFile, gd);  
-          AData->display_warning("Obsolete geometry file detected");
+          analysisReader1(ad, infilename, numfixedpoints,pointcount,numloadpoints);  
+          ad->display_warning("Obsolete geometry file detected");
+          break;
    }
-
-   return AData;
 }  
 
 
 
 void 
-freeLoadpoints(LOADPOINT * lp)
-{
+freeLoadpoints(LOADPOINT * lp) {
+
    if (lp->vals)
       free2DMat((void**)lp->vals,lp->loadpointsize1);
    free(lp);

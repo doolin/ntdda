@@ -4,13 +4,14 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:26 $
+ * $Date: 2002/05/27 15:23:57 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 #include "analysisdlg.h"
 #include "ddamemory.h"
+#include "ddaml.h"
 
  
 /* Static variables declared outside of function calls
@@ -632,15 +633,18 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
    * but ddaml input, or by trapping other formats and 
    * refusing to proceed.
    */
-   ad = XMLparseDDA_Analysis_File(filepath.afile);
-   assert (ad != NULL);
+   //ad = XMLparseDDA_Analysis_File(filepath.afile);
+   //assert (ad != NULL);
+
+   ad = adata_new();
+   ddaml_read_analysis_file(ad,filepath.afile);
+
 
   /* Kludge: if not ddaml, then inform the user and kill
    * the dialog box...
    */
 
-   if(ad->fileformat != ddaml)
-   {
+   if(ad->fileformat != ddaml) {
       MessageBox(hDlg,"Analysis interface only supports\n the Berkeley DDAML input format.","Error",MB_OK);
       //SendMessage(hDlg,WM_QUITDIALOG,0,0);
    }
