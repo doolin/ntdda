@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/05/21 10:53:23 $
+ * $Date: 2001/06/15 20:11:20 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
@@ -373,7 +373,6 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
       sprintf(xycoordstext,"\t(%.3f,%.3f)\t",p.x,p.y);
       //SendMessage(geomstatus,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
       SendMessage(anastatus,SB_SETTEXT,(WPARAM)9,(LPARAM)xycoordstext);
-
    }
 
   /* FIXME:  This is a kludgy way to handle this. */

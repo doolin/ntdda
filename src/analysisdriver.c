@@ -7,9 +7,9 @@
  * written by GHS.
  * 
  * $Author: doolin $
- * $Date: 2001/05/21 10:53:23 $
+ * $Date: 2001/06/15 20:11:20 $
  * $Source: /cvsroot/dda/ntdda/src/analysisdriver.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
@@ -165,8 +165,8 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
       
    //{FILE*fp=NULL;printLoadPointStruct(AData,fp);}
 
-   writeBlockVertices(GData, 4);
-   writeBlockMasses(AData,GData);
+   //writeBlockVertices(GData, 4);
+   //writeBlockMasses(AData,GData);
   /* If arg 2 is greater than the number of blocks, 
    * we get a crash.
    */
@@ -325,10 +325,10 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
       * FIXME: Put a conditional in front of this.  No need to 
       * call it every time if there are no measured points.
       */
-      writeMeasuredPoints(GData, AData);
-      writeFixedPoints(GData, AData);
-      writeSolutionVector(AData->F, kk, k1, n, GData->nBlocks);
-      writeBlockMasses(AData, GData);
+      //writeMeasuredPoints(GData, AData);
+      //writeFixedPoints(GData, AData);
+      //writeSolutionVector(AData->F, kk, k1, n, GData->nBlocks);
+      //writeBlockMasses(AData, GData);
       //writeBlockStresses(e0,4);
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
