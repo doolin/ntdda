@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/10/14 02:08:39 $
+ * $Date: 2001/11/02 13:38:42 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 
@@ -564,7 +564,8 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          break;
 
       case TITLE:	 	
-         drawTitle(draw_wnd, hdc);
+         handleMainAbout(hwMain);
+         //drawTitle(draw_wnd, hdc);
 		   break;  // end case title
 				
       case NOTHING:

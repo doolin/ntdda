@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/09/15 14:14:35 $
+ * $Date: 2001/11/02 13:38:41 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.16 $
+ * $Revision: 1.17 $
  *
  */
 /*################################################*/
@@ -17,6 +17,12 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.17  2001/11/02 13:38:41  doolin
+ * Gravitational acceleration now a user option, specifically to
+ * allow zero gravity.  Not sure if the tag has any effect at the moment,
+ * because setting density to zero blows up the code while setting unit mass to zero works fine.  Having unit mass non zero doesn't work.  The code should not blow up for zero density, this is a bug.  Also, having both density and unit
+ * mass specified should not be allowed.  Specify one or the other, but not both.  This will be enforced soon.
+ *
  * Revision 1.16  2001/09/15 14:14:35  doolin
  * This has been a very long week.  It is hard to recall exactly
  * what was done last weekend, after the events on Tues. Sept. 11 2001, and
@@ -431,7 +437,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
 
    initReplayFile(gd,ad);
 
-   validateAnalysisdata(ad->this);
+   adata_validate(ad);
 
 }  /*  Close initAnalysis()  */
 

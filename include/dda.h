@@ -1,8 +1,8 @@
 
 
 
-#ifndef _DDA_H_
-#define _DDA_H_
+#ifndef __DDA_H__
+#define __DDA_H__
 
 #include "geometrydata.h"
 #include "analysisdata.h"
@@ -81,6 +81,8 @@ int getFileType(char *);
 /* Pass this around instead of using globals.
  */
 typedef struct _dda_tag DDA;
+typedef struct _dda_gui DDAGui;
+
 
 struct _dda_tag {
 
@@ -96,6 +98,7 @@ struct _dda_tag {
    short ycur;
 
 };
+
 
 
 Geometrydata * dda_get_geometrydata(DDA *);
@@ -128,4 +131,4 @@ int ddanalysis(DDA *, FILEPATHS *, GRAPHICS *);
 void display(Geometrydata * GData, Analysisdata *, GRAPHICS *gg);
 
 
-#endif /* _DDA_H_ */
+#endif /* __DDA_H__ */

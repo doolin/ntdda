@@ -259,15 +259,15 @@ emitBoltMaterials(Analysisdata * ad, FILE * outfile)
  * "fixing" mistakes, and use that instead.
  */
 void
-validateAnalysisdata(Analysisdata * ad)
+adata_validate(Analysisdata * ad)
 {
    int i;
    int nb = ad->nBlockMats;
-   const double grav = 9.81;
+   double grav = ad->gravaccel; 
    double ** materialProps = ad->materialProps;
 
   /* Check to make sure that density and unit weight
-   * are related by 9.81.
+   * are related by the value of gravity.
    */
    for (i=1; i<= nb; i++)
    {
@@ -277,7 +277,7 @@ validateAnalysisdata(Analysisdata * ad)
       if (fabs((grav*materialProps[i][0] - materialProps[i][1])) > 0.01) 
       {
          iface->displaymessage("Density and unit weight are inconsistent");
-         exit(0);
+         //exit(0);
       }
    }  /*  i  */
 
@@ -507,16 +507,17 @@ closeAnalysisFiles()
 
 
 
-
+/*
 void 
-adata_destroy(Analysisdata * ad)
+adata_delete(Analysisdata * ad)
 {
    freeAnalysisData(ad);
 }
+*/
 
 void *
-freeAnalysisData(Analysisdata * ad)
-{
+adata_delete(Analysisdata * ad) {
+
    free2DMat((void **)ad->timeDeps, ad->timedepsize1);
    free2DMat((void **)ad->materialProps, ad->materialpropsize1);
    free2DMat((void **)ad->phiCohesion, ad->phicohesionsize1);
@@ -672,8 +673,7 @@ cloneAnalysisData(Analysisdata * adn)
 
 
 Analysisdata *
-initAnalysisData()
-{
+adata_new() {
   /* According to Kelley and Pohl, the code in 
    * NEWINIT should perform the same initialization
    * functions as the code in OLDINIT.  However,
@@ -695,6 +695,12 @@ initAnalysisData()
    //memset(ado, 0xDA, sizeof(Analysisdata));
 
    ado->this = ado;
+
+   /* Doing this basically introduces a user interface bug.
+    * We need something to note whether the gravity tag is 
+    * seen by the xml parser.  Then this can go away.
+    */
+   ado->gravaccel = -1;
 
    ado->options = 0;
 
@@ -736,21 +742,28 @@ initAnalysisData()
 
   /* Functions */
    ado->dump = dumpDDAMLAnalysisFile;
-   ado->free = freeAnalysisData;
+   ado->free = adata_delete; //freeAnalysisData;
    
    return ado;
 }  /* Close initAnalysisData() */
 
 
 void
-adata_set_contact_damping(Analysisdata * ad, double d)
-{
+adata_set_contact_damping(Analysisdata * ad, double d) {
    ad->contact_damping = d;
 }
 
 double
-adata_get_contact_damping(Analysisdata * ad)
-{
+adata_get_contact_damping(Analysisdata * ad) {
    return ad->contact_damping;
 }
 
+void 
+adata_set_grav_accel(Analysisdata * ad, double grav) {
+   ad->gravaccel = grav;
+}
+
+double 
+adata_get_grav_accel(Analysisdata * ad){
+   return ad->gravaccel;
+}

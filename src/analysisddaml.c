@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/09/15 14:14:34 $
+ * $Date: 2001/11/02 13:38:40 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 #include <stdio.h>
@@ -70,7 +70,7 @@ static void * parseMintimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-
+static void * parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 static JointMat * getNewJointMat(void);
 static BlockMat * getNewBlockMat(void);
@@ -127,6 +127,7 @@ AKWDTAB atab_type[] = {
    {"Maxdisplacement",0,*parseMaxdisplacement},
    {"Timehistory",0,*parseTimehistory},
    {"ContactDamping",0,*parseContactDamping},
+   {"Gravaccel",0,*parseGravaccel},
    {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
 };
 
@@ -275,7 +276,7 @@ parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /*
    * allocate the struct
    */
-   adata = initAnalysisData(); //(Analysisdata *) malloc(sizeof(Analysisdata));
+   adata = adata_new(); //(Analysisdata *) malloc(sizeof(Analysisdata));
 
    if (adata == NULL) 
    {
@@ -351,8 +352,13 @@ parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    //assert(adata != NULL);
 
-  /* kludge this in here for the moment... */
-   adata->gravaccel = 9.81;
+  /* kludge this in here for the moment... 
+   * A better way to do this would be to check to see
+   * whether the gravity tag and attribute are seen
+   * and set properly.
+   */
+   if (adata->gravaccel == -1)
+      adata->gravaccel = 9.81;
 
    return adata;
 
@@ -838,30 +844,42 @@ parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*close parseTimehistory() */
 
 
+void *
+parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
+
+   char * grav_val = xmlGetProp(cur,"value");
+
+   if (grav_val != NULL) {
+      adata_set_grav_accel(adata,atof(grav_val));
+      iface->displaymessage("got a grav value");
+   } else {
+      adata_set_grav_accel(adata,9.81);
+      iface->displaymessage("NULL grav value");
+   }
+
+   return NULL;
+}
 
 void *
-parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    char * step;
 
    fprintf(stdout,"Parsing save interval...\n");
 
-  /* FIXME: Check to see if there is a null retrun value 
-   * before running atoi.
-   */
    step = xmlGetProp(cur,"step");
    
-   if (step != NULL)
-   {
+   if (step != NULL) {
       adata->tsSaveInterval = atoi(step);
-   }
-   else
-   {
+   } else {
      /* Set default value of 10 */
       adata->tsSaveInterval = 10;
      /* And fire off a warning about bad attribute */
      /* FIXME: Handle warning. */
    }
+
+   /* atoi _never_ fails */
+   if (adata->tsSaveInterval == 0)
+      adata->tsSaveInterval = 10;
 
    return NULL;
 

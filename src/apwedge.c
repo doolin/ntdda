@@ -114,7 +114,7 @@ handleInit(HWND hDlg)
 
   /* Grab Geometrydata and Analysisdata structs...
    */
-   adata = initAnalysisData();
+   adata = adata_new();
    gdata = initGeometrydata();
 
    adata->rotationflag = 0;
@@ -129,7 +129,7 @@ handleInit(HWND hDlg)
    //adata->maxDisplacement = .01;
    //adata->g2 = 0.01;
    adata->maxdisplacement = 0.01;
-   adata->gravaccel = 9.81;
+   adata->gravaccel = 9.81;  // constant grav ok here
    adata->nBlockMats = 1;
    adata->nJointMats = 4;
 

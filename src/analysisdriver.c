@@ -7,6 +7,12 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.13  2001/11/02 13:38:41  doolin
+ * Gravitational acceleration now a user option, specifically to
+ * allow zero gravity.  Not sure if the tag has any effect at the moment,
+ * because setting density to zero blows up the code while setting unit mass to zero works fine.  Having unit mass non zero doesn't work.  The code should not blow up for zero density, this is a bug.  Also, having both density and unit
+ * mass specified should not be allowed.  Specify one or the other, but not both.  This will be enforced soon.
+ *
  * Revision 1.12  2001/09/15 14:14:34  doolin
  * This has been a very long week.  It is hard to recall exactly
  * what was done last weekend, after the events on Tues. Sept. 11 2001, and
@@ -453,7 +459,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    deallocateAnalysisArrays(kk,k1,c0,e0,U,n);
 
   /* This should probably be freed in the calling function. */
-   AData = freeAnalysisData(AData);  //adata_destroy(AData);
+   //AData = freeAnalysisData(AData);  //adata_destroy(AData);
+   AData = adata_delete(AData);
    freeDatalog(DLog); //datalog_destroy(DLog);
 
   /* New contacts structure */

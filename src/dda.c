@@ -17,11 +17,12 @@ struct _dda_tag  {
    Analysisdata * analysis;
    FILEPATHS * filepaths;
    int menustate;
-   BOOL toolbarvis;
-   BOOL statusbarvis;
-   BOOL popupvis;
-   BOOL tooltipvis;
-
+   ddaboolean toolbarvis;
+   ddaboolean statusbarvis;
+   ddaboolean popupvis;
+   ddaboolean tooltipvis;
+   short xcur;
+   short ycur;
 };
 */
 
@@ -109,10 +110,9 @@ dda_new()
    return dda;
 }
 
-dda_destroy(DDA * dda)
-{
+dda_delete(DDA * dda) {
    /* These functions have not yet been written. */
-   adata_destroy(dda->analysis);
+   adata_delete(dda->analysis);
    gdata_destroy(dda->geometry);
    //filepaths_destroy(dda->filepaths);
    memset(dda,0xdd,sizeof(DDA));
@@ -120,22 +120,18 @@ dda_destroy(DDA * dda)
 }
 
 int 
-dda_run(DDA * dda)
-{
+dda_run(DDA * dda) {
 
    return 0;
 }
 
 
 ddaboolean
-dda_test()
-{
+dda_test() {
+
    DDA * dda;
-
    dda = dda_new();
-
-   dda_destroy(dda);
-   
+   dda_delete(dda);
    return FALSE;
 }
 

@@ -4,9 +4,9 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2001/08/13 02:58:23 $
+ * $Date: 2001/11/02 13:38:42 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include "analysisdlg.h"
@@ -734,7 +734,7 @@ loadDefaults()
    * we will need it for writing out the data.
    */
 
-   ad = initAnalysisData();
+   ad = adata_new();
 
    ad->nBlockMats = nbmat = 1;
    ad->nJointMats = njmat = 1;
@@ -933,7 +933,7 @@ saveData()
    ad->planestrainflag = planestrain;
    ad->autotimestepflag = autotimestep;
    ad->autopenaltyflag = autopenalty;
-   ad->gravaccel = 9.81;
+   ad->gravaccel = 9.81;  // gravity needs to be a user defined quantity
    ad->nTDPoints = numtdeps;
 
    ad->materialpropsize1 = nbmat+1;

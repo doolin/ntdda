@@ -6,9 +6,9 @@
  * .ana files.
  *
  * $Author: doolin $
- * $Date: 2001/06/25 20:02:29 $
+ * $Date: 2001/11/02 13:38:41 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -45,7 +45,7 @@ analysisReader1(/* HWND hwMain, */char * af, Geometrydata * gd)
    double **c;
 
    //adn = (Analysisdata *)malloc(sizeof(Analysisdata));
-   adn = initAnalysisData();
+   adn = adata_new();
 
   /**************************************************/
   /* k5: index of u0               >=2 time points  */

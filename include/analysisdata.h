@@ -461,15 +461,16 @@ struct _analysisdata_tag
 
 
 /* FIXME: These all need to be a private method */
-void validateAnalysisdata(Analysisdata *);
+void adata_validate(Analysisdata *);
+
 Analysisdata * XMLparseDDA_Analysis_File(char *filename);
 
 
 
 Analysisdata * cloneAnalysisData(Analysisdata * adn);
 
-void * freeAnalysisData(Analysisdata *);
-void adata_destroy(Analysisdata *);
+//void * freeAnalysisData(Analysisdata *);
+void * adata_delete(Analysisdata *);
 
 
 /* FIXME: Loadpoints need to go into their own module. */
@@ -479,9 +480,10 @@ void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
 void freeStresses(GRAPHICS *);
 
 /* Change this to adata_new(); */
-Analysisdata * initAnalysisData(void);
+Analysisdata * adata_init(void);
 Analysisdata * adata_new(void);
 
+/****   Get/Set methods   ****/
 
 void adata_set_output_flag(Analysisdata *, int flag);
 void adata_clear_output_flag(Analysisdata *, int flag);
@@ -489,7 +491,8 @@ void adata_clear_output_flag(Analysisdata *, int flag);
 void adata_set_contact_damping(Analysisdata *, double);
 double adata_get_contact_damping(Analysisdata *);
 
-
+void adata_set_grav_accel(Analysisdata *, double grav);
+double adata_get_grav_accel(Analysisdata *);
 
 #endif /* _ANALYSISDATA_H_ */
 
