@@ -35,6 +35,7 @@ void print2DArray(double **, int, int, FILE *, char *);
 void print1DIntArray(int *, int n, char *);
 void print1DDoubleArray(double *, int n, char *);
 void printLocks(int ** locks, char * location);
+void printLockStates(int lockstates[3][5], char * location);
 void printVindex(Geometrydata *, int ** vindex, char *);
 void printK(double ** K, int k1size, char * location);
 void printDinv(double ** dinv, int block, char * location);

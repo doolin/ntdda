@@ -29,7 +29,7 @@ typedef struct _energy_struct {
  */
 typedef struct datalog_tag {
 
-  /* Clocking variables.  These will ecentually go into 
+  /* Clocking variables.  These will eventually go into 
    * their own struct.
    */
    clock_t analysis_start, analysis_stop;
