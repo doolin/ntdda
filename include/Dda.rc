@@ -110,7 +110,6 @@ BEGIN
         MENUITEM "&Run",                        ANAL_RUN, GRAYED
         MENUITEM "&Pause",                      ANAL_PAUSE, GRAYED
         MENUITEM "&Abort",                      ANAL_ABORT, GRAYED
-        MENUITEM "&Test Prop",                  AD_TESTPROP
     END
     POPUP "&Results"
     BEGIN
