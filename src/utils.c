@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:02:22 $
+ * $Date: 2001/06/25 06:02:12 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 
@@ -710,6 +710,7 @@ initConstants(Analysisdata * ad)
   /* FIXME: This is the wrong place to initialize this value. */
    ad->FPointSpring = ad->contactpenalty;
 
+//assert(ad->constants != NULL);
 
    if (ad->constants == NULL)
    {
@@ -821,7 +822,7 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber)
 {
    int i,j,k;
    int mpsize1 = ad->materialpropsize1;  //  nBlocks
-   int mpsize2 = ad->materialpropsize2;  // 13, indexing from 0
+   int mpsize2 = ad->materialpropsize2;  //  indexing from 0
    double ** e0 = ad->materialProps;
 
    j = 0;

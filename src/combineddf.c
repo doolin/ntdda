@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/06/24 07:37:00 $
+ * $Date: 2001/06/25 06:02:12 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  */
 /*################################################*/
@@ -584,10 +584,13 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    if (ad->gravityflag == 1)
       cohesion = 10000.0;
 
+  /* What is this all about? */
    if (locks[contact][0]==1)  
       e11=cohesion;
    else 
       e11 = 0;
+
+assert(e11 == 0);
 
   /* Moved from after friction block */
    normalforce = fabs(pen_dist2)*(ad->JointNormalSpring);
@@ -939,6 +942,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* if m[i][0] != 0 then there is more than 1 reference 
          * line and we have to go somewhere else first.  MMM 
          * notes something about "skipping shear component."
+         * Basically, I think this means this is a VV contact.
          */
          //if (m[i][0] != 0) 
          //   goto b805;
@@ -968,7 +972,6 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
 
 
         /*****  Block for computing terms e_r, g_r for penalty matrices  ****/
-
         /*
          *  s[1-6]:    er normal, Eq.  Eq. 4.18, Shi 1988
          *  s[7-12]:   gr normal, Eq.  Eq. 4.18, Shi 1988
@@ -1204,6 +1207,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* (GHS: sliding friction force     s4*g0 normal force) */
         /* if 2 ref lines, or current step is not
          * "sliding", we don't need any friction force, so continue on 
+         */
+        /* FIXME: Find out whether the we can have a SLIDING lock when we have a 
+         *  VV contact.  If not, these conditionals can be cleaned up a lot.
          */
          if (contacts[contact][TYPE] != VE || locks[contact][CURRENT] != SLIDING) 
             continue; 
