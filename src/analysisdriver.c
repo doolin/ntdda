@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.38  2002/11/30 14:33:40  doolin
+ * Refactored some of the stress-strain code.
+ *
  * Revision 1.37  2002/11/26 13:13:34  doolin
  * Added code to write out mass matrix for use in
  * computing spectrum.
@@ -239,12 +242,11 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /** Callbacks for really critical stuff, like 
    * integration, motion, etc.
    */
-   TransMap transmap = transplacement_linear;
-   MassMatrix massmatrix = massmatrix_linear;
-   StrainModel strain_model = strain_linear_elastic;
-
-   TransApply transapply = NULL;
-   BoundCond boundary_condition = NULL;
+   TransMap    transmap           = NULL;
+   MassMatrix  massmatrix         = NULL;
+   StrainModel strain_model       = NULL;
+   TransApply  transapply         = NULL;
+   BoundCond   boundary_condition = NULL;
 
    Contacts * CTacts;
 
@@ -272,8 +274,8 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /* e0: block material constants                   */
   /* e0: ma we e0 u0 c11 c22 c12 t-weight           */
   /* e0[nBlocks+1][8]                               */
-  double ** e0; //matprops; // was e0
-  Material * m;
+   double ** e0; //matprops; // was e0
+   Material * m;
 
 
 
@@ -326,13 +328,20 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 
 
    if (AData->planestrainflag == 1) { 
-
       boundary_condition = stress_planestrain;
-
    } else {
-
       boundary_condition = stress_planestress;
+   }
 
+   if (1) {
+      transmap = transplacement_linear;
+      massmatrix = massmatrix_linear;
+      strain_model = strain_linear_elastic;
+   } else { 
+      transmap = transplacement_finite;
+      massmatrix = massmatrix_finite;
+      strain_model = strain_green_lagrange;
+      transapply = transplacement_apply_linear;
    }
 
 
@@ -410,8 +419,8 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 
 
   /* START THE MAIN ANALYSIS LOOP STEPPING OVER TIME */
-   for (AData->cts=1; AData->cts<=AData->nTimeSteps; AData->cts++)
-   {
+   for (AData->cts=1; AData->cts<=AData->nTimeSteps; AData->cts++) {
+
      /* Compute the size of the next time step.
       * FIXME :Give a precis how it it works.
       */

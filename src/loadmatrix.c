@@ -175,14 +175,10 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
       * correctly, the fixed points must at the beginning of the 
       * points array.
       */
-      for (j=1; j<= 6; j++)
-      {
-		       //s[j]=T[1][j]*(points[i][4]+c[i][1])+T[2][j]*(points[i][5]+c[i][2]);
-         //fprintf(fp.logfile,"s[%d] = %.30f, Fpoint: %d:\n",j,s[j],i);
-         s[j] = (T[1][j]*c[i][1]) + (T[2][j]*c[i][2]);
-         //fprintf(fp.logfile,"Fixed point %d,  x: %f, y: %f\n",i,points[i][4],points[i][5]);
+      for (j=1; j<= 6; j++) {
 
-      }  /*  j  */
+         s[j] = (T[1][j]*c[i][1]) + (T[2][j]*c[i][2]);
+      }
       
       
      /* (GHS: for constrained or fixed point)  */
@@ -194,13 +190,12 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
       * point displaced.  The fixed point displacement 
       * is computed and stored in df25().
       */
-      for (j=1; j<= 6; j++)
-      {
-         F[i2][j] += p*s[j];
-         //fprintf(fp.logfile,"F[i2][%d] = %20f, Fpoint: %d:\n",j,F[i2][j],i);
-      }  /*  j  */
+      for (j=1; j<= 6; j++) {
 
-   }  /*  i  */
+         F[i2][j] += p*s[j];
+      }
+
+   }
 
 }  /* Close  df12().  */
 
@@ -331,8 +326,8 @@ void df16(Geometrydata *gd, int *k1, double **F, double **e0,
    double o2;
    int nBlocks = gd->nBlocks;
 
-   for (block=1; block<= nBlocks; block++)
-   {
+   for (block=1; block<= nBlocks; block++) {
+
       i2 = k1[block];
       o1 = 0;
      /* e0[1] needs to be unit weight. 
@@ -354,13 +349,9 @@ void df16(Geometrydata *gd, int *k1, double **F, double **e0,
 } 
 
 /* This was moved from ddanalysis to shorten the size
-
  * of the analysis loop.
-
  */
-
 void
-
 assemble(Geometrydata * gd, Analysisdata * ad,
          int ** locks, double ** e0,
          int * k1, int * kk, int ** n, double ** U,

@@ -297,6 +297,17 @@ test_stress_update(void) {
 }
 
 
+int
+test_strain_green_lagrange() {
+
+   int passed = 1;
+
+   double strain[4] = {0.0};
+   double F[7]      = {0.0, 0.0, 0.0, 0.5, 0.3, 0.2, 0.3};
+   double E[4]      = {
+
+}
+
 
 int
 stress_test_arrays(void) {

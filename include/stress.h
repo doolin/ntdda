@@ -13,14 +13,16 @@ extern "C" {
 
 
 
+
 #ifndef PRINTFUNC
 #define PRINTFUNC
-typedef int (*PrintFunc)(void * stream, const char * format, ...);
+typedef int (*PrintFunc)   (void * stream, const char * format, ...);
 #endif
+
 
 #ifndef BOUNDCOND_FUNC
 #define BOUNCOND_FUNC
-typedef void (*BoundCond)(double * e0, double strain[4]);
+typedef void (*BoundCond)  (double * e0, double strain[4]);
 #endif
 
 
@@ -30,12 +32,17 @@ typedef void (*StrainModel)(double * D, double strain[4]);
 #endif
 
 
-#ifndef PLANESTRESS
-#define PLANESTRESS 0
+#ifndef STIFFMAT_FUNC
+#define STIFFMAT_FUNC
+typedef void (*StiffMat)   (double e[7][7], const double E, const double nu, const double S0);
 #endif
-#ifndef PLANESTRAIN
-#define PLANESTRAIN 1
+
+
+#ifndef STIFFACCUM_FUNC
+#define STIFFACCUM_FUNC
+typedef void (*StiffAccum) (double * K, double e[7][7]);
 #endif
+
 
 
 /**
@@ -76,6 +83,7 @@ void     stress_print_stresses (double * s,
 
 double * stress_clone          (const double * s1);
 
+
 int      stress_equals         (double * d1, 
                                 double * d2, 
                                 double tol);
@@ -83,6 +91,7 @@ int      stress_equals         (double * d1,
 
 void     stress_planestrain    (double * e0,
                                 double strains[4]);
+
 
 void     stress_planestress    (double * e0,
                                 double strains[4]);
@@ -104,13 +113,20 @@ void     stress_initial        (int nBlocks,
                                 const double **moments);
 
 
+void     stiffness_linear_2d   (double * K, 
+                                const double E, 
+                                const double nu, 
+                                const double S0,
+                                int planestrainflag);
+
+
+
 
 /** The strain functions may go into their own module 
  * in the future.  
  */
 void     strain_linear_elastic (double * stress, 
                                 double strain[4]);
-
 
 void     strain_green_lagrange (double * stress, 
                                 double strain[4]);
@@ -128,7 +144,6 @@ void     strain_green_lagrange (double * stress,
  */
 void     stress_rotate      (double * stress, 
                              double r0);
-
 
 
 #ifdef __cplusplus

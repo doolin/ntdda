@@ -1,6 +1,6 @@
 
 /** Every function in this file should be used as 
- * a callback, and NOT called directly.  
+ * a callback. NEVER call these functions directly.  
  */
 
 #include <math.h>
@@ -72,26 +72,26 @@ transplacement_linear(double * moments, double T[][7],
 void 
 
 transplacement_finite(double * moments, double T[][7], 
-                      const double x, const double y) {
+                      const double x1, const double x2) {
 
-   double xb, yb;
+   double x1b, x2b;
    //double u2, v2;
-   double tX, tY;
+   double tX1, tX2;
 
   /* i0 is block number                     */
   /* xb,yb: base point for directors        */
    //xb = moments[i0][2]/moments[i0][1];
    //yb = moments[i0][3]/moments[i0][1];
-   xb = moments[7];
-   yb = moments[8];
+   x1b = moments[7];
+   x2b = moments[8];
    //moments_get_base_point(moments,&xb,&yb);
 
-   tX      = x-xb;
-   tY      = y-yb;
+   tX1 = x1-x1b;
+   tX2 = x2-x2b;
 
   /* An amusing layout. */
-   T[1][1] = 1;   T[1][2] = 0;   T[1][3] = tX;   T[1][4] = 0;    T[1][5] = tX;  T[1][6] = 0;
-   T[2][1] = 0;   T[2][2] = 1;   T[2][3] = 0;    T[2][4] = tY;   T[2][5] = 0;   T[2][6] = tY;
+   T[1][1] = 1;   T[1][2] = 0;   T[1][3] = tX1;   T[1][4] = 0;    T[1][5] = tX2;  T[1][6] = 0;
+   T[2][1] = 0;   T[2][2] = 1;   T[2][3] = 0;    T[2][4] = tX1;   T[2][5] = 0;   T[2][6] = tX2;
 }   
 
 
@@ -99,7 +99,6 @@ transplacement_finite(double * moments, double T[][7],
 
 
 void 
-
 transplacement_apply_linear(double T[][7], double * D, 
                             double * u1, double * u2) {
 
@@ -199,16 +198,20 @@ void
 massmatrix_finite (double T[][7], double m, const double S0, const double S1,
                    const double S2, const double S3) {
 
+   /* Diagonals */
    T[1][1] = m*S0;
    T[2][2] = m*S0;
    T[3][3] = m*S1;
-   T[3][5] = m*S3;
-   T[5][3] = m*S3;
    T[4][4] = m*S1;
-   T[4][6] = m*S3;
-   T[6][4] = m*S3;
    T[5][5] = m*S2;
    T[6][6] = m*S2;
+
+   /* Off-diagonals */
+   T[3][5] = m*S3;
+   T[5][3] = m*S3;
+   T[4][6] = m*S3;
+   T[6][4] = m*S3;
+
 }
 
 
