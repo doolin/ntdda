@@ -17,9 +17,9 @@
  * printer.  This can be done by passing in the device context.
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:06 $
+ * $Date: 2002/07/22 19:02:34 $
  * $Source: /cvsroot/dda/ntdda/src/print.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 
@@ -91,8 +91,8 @@ void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scal
 	  drawPoints(pd.hDC, g, geomdata, geomdata->points);
 
    if (showOrig)
-      drawBolts(pd.hDC, &printPen, geomdata, g, geomdata->origbolts);
-   drawBolts(pd.hDC, &printPen, geomdata, g, geomdata->rockbolts);
+      drawBolts(pd.hDC, &printPen, geomdata, g, geomdata->origbolts, TRUE);
+   drawBolts(pd.hDC, &printPen, geomdata, g, geomdata->rockbolts, FALSE);
 
 	  EndPage(pd.hDC);
 	  EndDoc(pd.hDC);

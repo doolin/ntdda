@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/06/09 15:53:17 $
+ * $Date: 2002/07/22 19:02:36 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.20 $
+ * $Revision: 1.21 $
  */
 
 
@@ -59,7 +59,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.20 2002/06/09 15:53:17 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.21 2002/07/22 19:02:36 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -466,10 +466,10 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          if(showOrig) 
          {
             drawPoints(hdc, g, geomdata, geomdata->origpoints);
-			   drawBolts(hdc, screenPen, geomdata, g, geomdata->origbolts);
+			   drawBolts(hdc, screenPen, geomdata, g, geomdata->origbolts, TRUE);
          }
          drawPoints(hdc, g, geomdata, geomdata->points);
-         drawBolts(hdc, screenPen, geomdata, g, geomdata->rockbolts);
+         drawBolts(hdc, screenPen, geomdata, g, geomdata->rockbolts, FALSE);
          if (0/* g->stresses */)
             drawStresses(hdc, screenPen, geomdata, g);
          break;
@@ -1613,11 +1613,13 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
     
    g->scale = setScale(hwMain, mfdc, g, geomdata->scale);
    drawBlocks(mfdc, hBr, g, geomdata);
-   if(showOrig)
+   if(showOrig) {
       drawJoints(mfdc, screenPen, g, geomdata, geomdata->origvertices, TRUE);
+      drawBolts(mfdc, screenPen, geomdata, g, geomdata->rockbolts, TRUE);
+   }
    drawJoints(mfdc, screenPen, g, geomdata, geomdata->vertices, FALSE);
    drawPoints(mfdc, g, geomdata, geomdata->points);
-   drawBolts(mfdc, screenPen, geomdata, g, geomdata->rockbolts);
+   drawBolts(mfdc, screenPen, geomdata, g, geomdata->rockbolts, FALSE);
 
    hmf = CloseEnhMetaFile(mfdc);
    DeleteEnhMetaFile(hmf);

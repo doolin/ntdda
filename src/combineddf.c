@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/06/23 16:57:17 $
+ * $Date: 2002/07/22 19:02:34 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.26 $
+ * $Revision: 1.27 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.27  2002/07/22 19:02:34  doolin
+ * 3 changes: 1) with "showorig" activated, original bolt positions are drawn in solid black.  2) bolts 2-n no longer fall out of the blocks.  3) bolt stiffness now affects the results.
+ *
  * Revision 1.26  2002/06/23 16:57:17  doolin
  *
  * * Some API changes to move back towards passing primitives
@@ -3130,7 +3133,9 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       ep1 = (int)hb[i][5];
       x = hb[i][1];
       y = hb[i][2];
-      computeDisplacement(moments,T,x,y,ep1);
+      x1=0;  // need to reset to zero each time due to += inside loops
+	  y1=0;
+	  computeDisplacement(moments,T,x,y,ep1);
       for (j=1; j<= 6; j++)
       {
          x1 += T[1][j]*F[ep1][j];
@@ -3145,6 +3150,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       //if (ep1 == ep2) exit(0);
       x = hb[i][3];
       y = hb[i][4];
+	  x1=0;
+	  y1=0;
       computeDisplacement(moments,T,x,y,ep2);
       for (j=1; j<= 6; j++)
       {

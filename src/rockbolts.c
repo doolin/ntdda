@@ -5,9 +5,9 @@
  * by GHS, p.42, 1988.
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:43 $
+ * $Date: 2002/07/22 19:02:34 $
  * $Source: /cvsroot/dda/ntdda/src/Attic/rockbolts.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 
@@ -91,7 +91,7 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
       */
       dl = ( (x1-x2)*(dx1-dx2) + (y1-y2)*(dy1-dy2) );
 
-      s = rockbolt[bolt][8];///boltlength;  /* stiffness */
+      s = rockbolt[bolt][7];///boltlength;  /* stiffness */
      /* FIXME: Non-zero pt produces very strange and 
       * unusual behavior.
       */
@@ -99,7 +99,7 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
      /* Deal with endpoint 1 */
       x = rockbolt[bolt][1];
       y = rockbolt[bolt][2];
-     /* [5] stores the number of the `first' endpoint 
+     /* [5] stores the block number of the `first' endpoint 
       * of a particular rockbolt.
       */
       ep1 = (int)rockbolt[bolt][5];
