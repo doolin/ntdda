@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/09/07 00:26:59 $
+ * $Date: 2002/10/05 22:36:24 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.29 $
+ * $Revision: 1.30 $
  *
  */
 /*################################################*/
@@ -17,6 +17,16 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.30  2002/10/05 22:36:24  doolin
+ * Cleaned up rock bolt material handling.  Bolt
+ * materials are now incomplete types, and accessed through the
+ * bolt API.  Bolt array initialization was rewritten to allow
+ * adding arbitrary elements to the bolt array without messing
+ * up memory.  Now there is a single allocator that should be used.
+ * Derived algorithm for handling pretensioning (which is really
+ * just rolling over stepwise force changes), but it is not
+ * completely implemented yet.
+ *
  * Revision 1.29  2002/09/07 00:26:59  doolin
  * changed output to support Kat & Meagan's studies.  Modified postprocessing to write bolt endpoints to .m and .log files (matlab and excel formats), and block vertices to .m and .log files.
  * Default is to write block vertices for all blocks containing measured points, but "all" flag can be used to write vertices of all blocks.
@@ -416,7 +426,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * in the analysis side.  Have to get the bolt materials
    * into the geometry bolt array, without clashing with 
    * previous file formats.
-   * FIXME: We can only use bolt material right now!  The 
+   * FIXME: We can only use one bolt material right now!  The 
    * "right" way to fix this would be to have the bolt 
    * material type given in the geometry file as it is 
    * given for joints.  Then match the type with material 

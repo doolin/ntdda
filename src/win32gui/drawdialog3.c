@@ -1246,10 +1246,14 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
       return;
    }
 
+   /*
    gd->nBolts = numbolts;
    gd->rockboltsize1 = numbolts+1;
    gd->rockboltsize2 = 14;
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
+   */
+
+   gdata_rockbolt_init(gd, numbolts);
    boltlist_get_array(boltlist,gd->rockbolts);
 
 

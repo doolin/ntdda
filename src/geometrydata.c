@@ -399,11 +399,17 @@ gdata_delete(Geometrydata * gd) {
       free2DMat((void **)gd->origpoints, gd->pointsize1);
    if (gd->matlines)
       free2DMat((void **)gd->matlines, gd->matlinesize1);
+
+
+   /** @todo Change these */
    if (gd->nBolts > 0)
    {
       free2DMat((void **)gd->rockbolts, gd->rockboltsize1);
       free2DMat((void **)gd->origbolts, gd->rockboltsize1);
    }
+
+
+
    if (gd->porepres)
       free2DMat((void **)gd->porepres, gd->porepressize1);
    if (gd->watertable)
@@ -914,3 +920,25 @@ gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
    return;
 }
 
+
+double
+gdata_get_block_area(Geometrydata * gd, int block) {
+
+   double ** moments = gd->moments;
+
+  /* Need a function that will just compute moments for a single block. */
+   computeMoments(gd);
+
+   return moments[block][1]; 
+
+}
+
+
+void
+gdata_rockbolt_init(Geometrydata * gd, int numbolts) {
+
+   gd->nBolts = numbolts;
+   gd->rockboltsize1 = numbolts+1;
+   gd->rockboltsize2 = 17;
+   gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
+}

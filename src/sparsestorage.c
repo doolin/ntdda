@@ -14,12 +14,12 @@
 #include <assert.h>
 
 #include "analysis.h"
-#include "ddamemory.h"
+//#include "ddamemory.h"
 #include "contacts.h"
-#include "datalog.h"
+//#include "datalog.h"
 
 
-extern Datalog * DLog;
+//extern Datalog * DLog;
 extern FILEPOINTERS fp;
 
 static void regUpperTriangle(int ** n, int * k, int * nn0, int ** m, 
@@ -181,7 +181,7 @@ sparsestorage(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts,
    ad->n3 = n[nBlocks][1]+n[nBlocks][2]-1;
 
   /* total storage needed for LDL^T. */
-   DLog->memallocsize[ad->cts] = ad->n3;
+   //DLog->memallocsize[ad->cts] = ad->n3;
 
 }  /* close df08()  */
    
@@ -347,7 +347,7 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
 
       kk[i3] = j0;
 
-   }  /* end register blocks in contact by bolts */
+   }  
 #endif
 
 }  /* close regUpperTriangle() */

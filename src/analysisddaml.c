@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/09/07 00:26:58 $
+ * $Date: 2002/10/05 22:36:24 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.18 $
+ * $Revision: 1.19 $
  */
 
 #include <stdio.h>
@@ -55,7 +55,6 @@ static xmlNsPtr nspace;
 static Jointmat * getNewJointMat(void);
 
 static BlockMat * getNewBlockMat(void);
-static BoltMat * getNewBoltMat(void);
 
 void transferAData(void);
 void transferJointMatlistToAStruct(Analysisdata * adata, JOINTMATLIST * jointmatlist);
@@ -171,27 +170,30 @@ transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
 
    int i = 0;
    int nbmat;
+   double e00, t0, f0;
    BOLTMATLIST * ptr;
-   BoltMat * bmtmp;
+   Boltmat * bmtmp;
   /* WARNING: Type attribute of xml tag is ignored for now.
    * Bolt materials should be listed in order of occurrence
    * in the xml file.
    */
    nbmat = dlist_length(boltmatlist);
-   if (nbmat == 0)
+   if (nbmat == 0) {
       return;
+   }
 
    ad->nBoltMats = nbmat;
    ad->boltmatsize1 = nbmat;
    ad->boltmatsize2 = 3;
    ad->boltmats = DoubMat2DGetMem(adata->boltmatsize1,adata->boltmatsize2);
 
-   M_dl_traverse(ptr, boltmatlist)
-   {
+
+   M_dl_traverse(ptr, boltmatlist) {
       bmtmp = ptr->val;
-      ad->boltmats[i][0] = bmtmp->e00;
-      ad->boltmats[i][1] = bmtmp->t0; 
-      ad->boltmats[i][2] = bmtmp->f0;
+      boltmat_get_props(bmtmp,&e00,&t0,&f0);
+      ad->boltmats[i][0] = e00;
+      ad->boltmats[i][1] = t0; 
+      ad->boltmats[i][2] = f0;
       i++;
    }
 
@@ -829,22 +831,24 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 void 
 parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
-   BoltMat * boltmat;
+   Boltmat * boltmat;
    char * tempstring;
-   double temp[3] = {0.0};
+   //double temp[3] = {0.0};
    int checkval;  
+   double stiffness, strength, pretension;
 
    cur = cur->childs;
   /* Grab a struct for bolt properties */
-   boltmat = getNewBoltMat();
+   boltmat = boltmat_new();
             
    tempstring = xmlNodeListGetString(doc, cur, 1);
    checkval = sscanf(tempstring,"%lf%lf%lf",
-                     &temp[0],&temp[1],&temp[2]);
+                     &stiffness,&strength,&pretension);
    if (checkval == 3) {
-      boltmat->e00 = temp[0];
-      boltmat->t0 = temp[1];
-      boltmat->f0 = temp[2];
+      //stiffness  = temp[0];
+      //strength   = temp[1];
+      //pretension = temp[2];
+      boltmat_set_props(boltmat,stiffness,strength,pretension);
    } else {  
       ddaml_display_error("Wrong number of bolt property values");   
    }
@@ -928,16 +932,8 @@ getNewBlockMat(void)
 
 }  /*  close getNewJointMat() */
 
-static BoltMat *
-getNewBoltMat(void)
-{
-   BoltMat * bm;
-   //fprintf(stdout,"Getting new block mat\n");
-   bm = (BoltMat *)malloc(sizeof(BoltMat));
-   memset(bm,0xDA,sizeof(BoltMat));
-   return bm;
 
-}  /*  close getNewJointMat() */
+
 
 
 

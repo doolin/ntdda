@@ -219,10 +219,16 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
    vertices = DoubMat2DGetMem(gd->vertexsize1,gd->vertexsize2);
    gd->vertices = vertices;
 
+   /*
    gd->rockboltsize1 = gd->nBolts + 1;
    gd->rockboltsize2 = 10;
    rockbolts = DoubMat2DGetMem(gd->rockboltsize1,gd->rockboltsize2);
    gd->rockbolts = rockbolts;
+   */
+   //gdata_rockbolt_init(gd, numbolts);
+   /** @todo  Fix the nasty unprotected access to geomdata */
+   gdata_rockbolt_init(gd, gd->nBolts);
+   rockbolts = gd->rockbolts;
 
   /* Read in the first time step data, make the clones for 
    * original geometry.

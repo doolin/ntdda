@@ -5,18 +5,16 @@
  * by GHS, p.42, 1988.
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:29 $
+ * $Date: 2002/10/05 22:36:25 $
  * $Source: /cvsroot/dda/ntdda/src/Attic/rockbolts.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
-
-
 
 #include <math.h>
 #include <assert.h>
 
 #include "analysis.h"
-#include "bolt.h"
+
 
 /* Attempt to load code for rock bolts. The algorithm
  * is taken from GHS p. 45.
@@ -79,9 +77,7 @@ rockbolts(double ** rockbolt, int numbolts, double ** K,
       assert ( (-1 <= lx) && (lx <= 1));
       assert ( (-1 <= ly) && (ly <= 1));
 
-     /* rockbolt[i][10:14] is
-      * initialized as `rockbolts' in geomreader2, and 
-      * set in df25.
+     /* rockbolt[i][10:14] are set in df25.
       */
       ux1 = rockbolt[bolt][10];
       uy1 = rockbolt[bolt][11];

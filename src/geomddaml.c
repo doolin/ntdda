@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:29 $
+ * $Date: 2002/10/05 22:36:25 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  */
 
 /**
@@ -943,10 +943,15 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
 
    fprintf(stdout,"Number of bolts: %d\n",numbolts);
 
+   /*
    gd->nBolts = numbolts;
    gd->rockboltsize1 = numbolts+1;
-   gd->rockboltsize2 = 14;
+   gd->rockboltsize2 = 15;
    gd->rockbolts = DoubMat2DGetMem(gd->rockboltsize1, gd->rockboltsize2);
+   */
+
+   gdata_rockbolt_init(gd, numbolts);
+
    boltlist_get_array(boltlist,gd->rockbolts);
 
    gd->origbolts = clone2DMatDoub(gd->rockbolts, gd->rockboltsize1, gd->rockboltsize2);

@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:31 $
+ * $Date: 2002/10/05 22:36:25 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  */
 
 
@@ -39,6 +39,7 @@
 #include "statusbar.h"
 #include "runstates.h"
 
+
 /* Win32 calling conventions. */
 #ifndef CALLBACK
 #define CALLBACK
@@ -51,6 +52,7 @@
 #define BLOCKS 2
 #define TITLE 3
 
+
 /*  Whole bunch of global variables that need to disappear fast. */
 char szAppName[] = "Berkeley DDA for Windows";
 char mess[80];  /* mess appears to be a temporary variable.  Might be able to get rid of it. */
@@ -59,7 +61,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.22 2002/08/03 14:42:31 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.23 2002/10/05 22:36:25 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -73,10 +75,14 @@ int whatToDraw = TITLE;
 
 int showOrig = FALSE;
 
+
+
 /* Used by mouse handler to scroll around the screen. */
 int xoff = 2500;
 int yoff = 2500;
 long zoom = 25000;
+
+
 
 /* These set the cursor location on a mouse button down 
  * or mouse button up.  These should be moved into DDA 
@@ -315,7 +321,7 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 static int
 handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
-   char mess[80];
+   char message[80];
    int vkcode;
    int xnew, ynew;
    int blocknumber;
@@ -340,9 +346,23 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
             blocknumber = gdata_get_block_number(geomdata,p.x,p.y);
             if (blocknumber != 0) {
                gdata_get_block_centroid(geomdata,blocknumber,centroid);
-               sprintf(mess,"Block %d centroid: (%lf,%lf)",
+               sprintf(message,"Block %d centroid: (%lf,%lf)",
                              blocknumber,centroid[0],centroid[1]);
-               MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
+               dda_display_info(message);
+               //MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
+            }
+       }
+       break;
+
+       case 'a': {
+            double blockarea;
+            p = DPtoPP(hwMain, xnew,ynew);
+            blocknumber = gdata_get_block_number(geomdata,p.x,p.y);
+            if (blocknumber != 0) {
+               blockarea = gdata_get_block_area(geomdata,blocknumber);
+               sprintf(message,"Block %d area: %lf",blocknumber,blockarea);
+               dda_display_info(message);
+               //MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
             }
        }
        break;

@@ -17,17 +17,9 @@ typedef int (*PrintFunc)(void * stream,const char * format,...);
 
 typedef struct _bolt Bolt;
 typedef struct _boltlist Boltlist; 
-typedef struct _boltmat BoltMat;
+typedef struct _boltmat Boltmat;
 
-/** @todo Move boltmat struct into bolt.c,
- * write the necessary accessor methods to 
- * ensure it remains an incomplete type.
- */
-struct _boltmat{
-   double e00;
-   double t0;
-   double f0;
-};
+
 
 
 
@@ -73,6 +65,21 @@ void       bolt_get_endpoints  (Bolt * b,
 double     bolt_length         (Bolt * b);
 
 
+
+/** Boltmat methods, which may go into their own header
+ * file in the future.
+ */
+Boltmat *  boltmat_new         (void);
+
+void       boltmat_set_props   (Boltmat * bm, 
+                                double stiffness, 
+                                double strength, 
+                                double pretension);
+
+void       boltmat_get_props   (Boltmat * bm, 
+                                double * stiffness, 
+                                double * strength, 
+                                double * pretension);
 
 /** Boltlist methods, which may go into their own
  * header file in the future.

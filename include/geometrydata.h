@@ -255,10 +255,15 @@ int            gdata_get_block_number      (Geometrydata *,
                                             double x, 
                                             double y);
 
-void           gdata_get_block_centroid    (Geometrydata *, 
+void           gdata_get_block_centroid    (Geometrydata * gd, 
                                             int block, 
                                             double [2]);
 
+double         gdata_get_block_area        (Geometrydata * gd, 
+                                            int block);
+
+void           gdata_rockbolt_init         (Geometrydata * gd, 
+                                            int numbolts);
 /**
  * gdata_read_input_file wraps all of the file format ugliness
  * behind a single call.  If there is a recoverable problem,

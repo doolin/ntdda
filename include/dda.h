@@ -113,7 +113,8 @@ int            dda_get_menu_state     (DDA *);
 void           dda_set_menu_state     (DDA *, int);
 
 int            dda_get_menu_state     (DDA * dda);
-void           dda_set_menu_state     (DDA * dda, int state);
+void           dda_set_menu_state     (DDA * dda, 
+                                       int state);
 
 
 int            dda_get_xcur           (DDA * dda);

@@ -42,6 +42,14 @@ struct _bolt {
 };
 
 
+
+struct _boltmat{
+   double e00;  // stiffness
+   double t0;   // strength
+   double f0;   // pretension
+};
+
+
 struct _boltlist {
    DList * list;
 };
@@ -139,6 +147,35 @@ bolt_length(Bolt * b) {
 }
 
 
+
+Boltmat *
+boltmat_new(void) {
+   Boltmat * bm;
+   //fprintf(stdout,"Getting new block mat\n");
+   bm = (Boltmat *)malloc(sizeof(Boltmat));
+   memset(bm,0xDA,sizeof(Boltmat));
+   return bm;
+
+}
+
+void
+boltmat_set_props(Boltmat * bm, double stiffness, double strength, double pretension) {
+   bm->e00 = stiffness;
+   bm->t0  = strength;
+   bm->f0  = pretension;
+}
+
+
+void
+boltmat_get_props(Boltmat * bm, double * stiffness, double * strength, double * pretension) {
+  *stiffness  = bm->e00;
+  *strength   = bm->t0;
+  *pretension = bm->f0;
+}
+
+
+
+
 Boltlist * 
 boltlist_new() {
 
@@ -190,7 +227,7 @@ boltlist_get_array(Boltlist * boltlist, double ** array) {
       array[i][2] = y1; 
       array[i][3] = x2;
       array[i][4] = y2;
-      //array[i+1][5] = btmp->type;
+      array[i][15] = bolt_length(btmp);
       i++;
    }
 }
