@@ -321,6 +321,7 @@ redrawJoint(Joint * jp)
    endp2y = jp->d2.y; 
    
    MoveToEx(hdc, endp1x, endp1y, NULL);
+
    LineTo(hdc, endp2x, endp2y);
    if (jp->is_selected)
       drawJointHandles(jp);

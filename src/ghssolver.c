@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 20:58:43 $
+ * $Date: 2001/06/24 07:37:01 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  */
 #include <assert.h>
@@ -178,6 +178,12 @@ saveState(Analysisdata * ad, double ** c0, int nBlocks)
    }  /*  i  */
 
   /* save f[]          add friction loading to f[] */
+  /* There is some very strange stuff going on in this 
+   * next block of code.  The Fcopy array has to be set 
+   * exactly where it is right now, or the analyses will 
+   * not work correctly.  This was changed in either in 
+   * 1.5.117 or 1.5.118.  
+   */
    for (i=1; i<= nBlocks; i++)
    {
       for (j=1; j<=  6; j++)
@@ -188,7 +194,7 @@ saveState(Analysisdata * ad, double ** c0, int nBlocks)
          * on this saved F vector.  Or at least check the 
          * performance against adaptive time stepping.
          */
-         //Fcopy[i][j]  =  F[i][j];
+         Fcopy[i][j]  =  F[i][j];
         /* Frictional terms from c0 get transferred into
          * the "Force" vector, and we have no further use
          * of c0 until the next round of open/close 
@@ -199,11 +205,6 @@ saveState(Analysisdata * ad, double ** c0, int nBlocks)
          * should be moved into df18().
          */
          F[i][j] += c0[i][j];
-
-        /* This is just a temporary hack and assumes the timestep 
-         * will not be cut.
-         */
-         Fcopy[i][j]  =  F[i][j];
       }  /*  j  */
    }  /*  i  */
 

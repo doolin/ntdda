@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:02:11 $
+ * $Date: 2001/06/24 07:37:00 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  */
 /*################################################*/
@@ -695,7 +695,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       c0[j2][j] +=  shearforce*s[j+24];  // was s4
    }  
 
-   if (0)  //writecontacts == TRUE
+   if (1)  //writecontacts == TRUE
       fprintf(fp.cforce,"%d %f %f\n",ad->currTimeStep,normalforce,shearforce);
 
 }  /* close setFrictionForces() */
