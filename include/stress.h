@@ -16,6 +16,15 @@ typedef int (*PrintFunc)(void * stream, const char * format, ...);
 #define __PRINTFUNC__
 #endif
 
+
+#ifndef PLANESTRESS
+#define PLANESTRESS 0
+#endif
+#ifndef PLANESTRAIN
+#define PLANESTRAIN 1
+#endif
+
+
 /**
  *
  *
@@ -33,11 +42,11 @@ typedef int (*PrintFunc)(void * stream, const char * format, ...);
  *
  * @return void.
  */
-void stress_update   (double ** e0, 
-                      double ** D, 
-                      int * k1, 
-                      int numblocks,
-                      int planestrainflag);
+void stress_update          (double ** e0, 
+                             double ** D, 
+                             int * k1, 
+                             int numblocks,
+                             int planestrainflag);
 
 
 
@@ -55,13 +64,17 @@ void stress_update   (double ** e0,
  *
  * @return void.
  */
- void stress_update_a (double * e0, 
-                       double * D, 
-                       int planestrainflag);
+ void stress_update_a       (double * e0, 
+                             double * D, 
+                             int planestrainflag);
 
-void  stress_print    (double * s, 
-                       PrintFunc printer, 
-                       void * stream);
+void  stress_print          (double * s, 
+                             PrintFunc printer, 
+                             void * stream);
+
+void  stress_print_stresses (double * s, 
+                             PrintFunc printer, 
+                             void * stream);
 
 
 
