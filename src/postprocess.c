@@ -5,21 +5,23 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/09/07 00:27:00 $
+ * $Date: 2002/09/09 03:20:32 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 #include <malloc.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 #include <time.h>
+
 #include "analysis.h"
-#include "math.h"
 #include "ddamemory.h"
 #include "printdebug.h"
 #include "postprocess.h"
 #include "dda.h"
+#include "bolt.h"
 
 
 
@@ -534,20 +536,27 @@ writeAllBlockVerticesMatrix(Geometrydata *gd, Analysisdata *ad)
    * set up the headers for each block of vertex 
    * data and set the positions of the end of blocks.
    */ 
+mary:
+   /* I am checking cts == 1 for a similar function.
+    * If we can get all of these to check against the 
+    * same time step, this code can probably be turned
+    * into a function.
+    */
    if (ad->cts == 0)
    {
      /* Get memory for an array of pointers to the current end 
       * of each block.  Array size is the number of blocks specified.
       * Warning: these may be initialized from a gravity phase.
       */
-      if(vertexfp_pos == NULL)
+      if(vertexfp_pos == NULL) {
          vertexfp_pos = (long *)malloc(sizeof(long)*(gd->nBlocks + 1));
+      }
 
 	  /* at i = 1, we are at the start of the file.
-	  */
-	  vertexfp_pos[1] = 0;
-      for (i=1; i<=gd->nBlocks; i++)
-      {
+	   */
+	   vertexfp_pos[1] = 0;
+      for (i=1; i<=gd->nBlocks; i++) {
+
         /* construct the variable name, e.g., "block1" */
          sprintf(tempstring, headerstring, i);
         /* this size changes, e.g., might have "block10" */
@@ -561,10 +570,10 @@ writeAllBlockVerticesMatrix(Geometrydata *gd, Analysisdata *ad)
          */
          vertexfp_pos[i] = ftell(fp.vertexfile);
          // determine the position of the next block by adding (rowsize)*(numrows)
-		 numvertices = gd->vindex[i][2] - gd->vindex[i][1] +1;
+		   numvertices = gd->vindex[i][2] - gd->vindex[i][1] +1;
          rowsize = intwidth + (doublewidth + 1) * (1 + numvertices * 2) + 3;
-		 blocksize = rowsize*(ad->nTimeSteps+1);
-		 vertexfp_pos[i+1] =  vertexfp_pos[i] + (blocksize + trailersize);
+	  	   blocksize = rowsize*(ad->nTimeSteps+1);
+		   vertexfp_pos[i+1] =  vertexfp_pos[i] + (blocksize + trailersize);
       }  /* i */
    }  /* end if first time step */
 
@@ -572,8 +581,9 @@ writeAllBlockVerticesMatrix(Geometrydata *gd, Analysisdata *ad)
    * but unfortunately causes a segfault b/c nothing gets
    * initialized otherwise.
    */
-   if(ad->gravityflag == 1)
+   if(ad->gravityflag == 1) {
       return;
+   }
 
   /* Then, write the data to the file as we go. 
    */
@@ -740,8 +750,15 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
    * point data and set the positions of the end of
    * blocks.
    */ 
-   if (ad->cts == 1)
-   {
+   /* This is a kludge.  These files should be initialized
+    * when they are first opened.
+    */
+mary:
+   /* Same comment here as above, hopefully this stuff can 
+    * be pulled out into a separate, easy-to-test function.
+    */
+   if (ad->cts == 1){
+
      /* Get memory for an array of pointers to the current end 
       * of each block.  Array size is the number of measured
       * points specified.  Warning: these may be initialized
@@ -980,17 +997,28 @@ writeBlockStresses(double ** e0, int block)
 // each bolt has 2 pairs of x,y coordinates
 // semicolons separate data for each bolt
 void 
-writeBoltLog(Geometrydata * gd, Analysisdata *ad)
-{
-	int i;
-	double ** hb = gd->rockbolts;
+//writeBoltLog(Geometrydata * gd, Analysisdata *ad) {
+writeBoltLog(double ** hb, int numbolts, int cts, double elapsedTime) {
 
-	if(ad->cts == 0) fprintf(fp.boltlogfile, "This analysis contains %d bolt(s)\n", gd->nBolts);
-	fprintf(fp.boltlogfile, "%lf:", ad->elapsedTime);
-	for (i=0; i < gd->nBolts; i++) {
+	int i;
+//	double ** hb = gd->rockbolts;
+   
+//   if(ad->cts == 0) {
+   if(cts == 0) {
+//      fprintf(fp.boltlogfile, "This analysis contains %d bolt(s)\n", gd->nBolts);
+      fprintf(fp.boltlogfile, "This analysis contains %d bolt(s)\n", numbolts);
+   }
+
+//	fprintf(fp.boltlogfile, "%lf:", ad->elapsedTime);
+	fprintf(fp.boltlogfile, "%lf:", elapsedTime);
+
+//   for (i=0; i < gd->nBolts; i++) {
+   for (i=0; i < numbolts; i++) {
 		fprintf(fp.boltlogfile, " %.12f,%.12f %.12f,%.12f;", hb[i][1], hb[i][2], hb[i][3], hb[i][4]);
 	}  // end for each bolt
+
 	fprintf(fp.boltlogfile,"\n");
+
 }  /* close writeBoltLog() */
 
 

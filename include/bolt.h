@@ -2,7 +2,6 @@
 #ifndef __BOLT_H__
 #define __BOLT_H__
 
-#include "ddadlist.h"
 
 #ifdef __cplusplus
 extern "C" {

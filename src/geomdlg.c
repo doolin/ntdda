@@ -2,7 +2,15 @@
 #define STRICT
 #include <windows.h>
 #include <stdio.h>
-#include "geomdlg.h"
+
+
+/** @todo Remove the geomdlg.h file, 
+ * or turn it into something useful.
+ */
+//#include "geomdlg.h"
+#include "dda.h"
+#include "resource.h"
+#include "geometrydata.h"
 #include "ddamemory.h"
 #include "joint.h"
 

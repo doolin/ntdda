@@ -7,6 +7,17 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.24  2002/09/09 03:20:32  doolin
+ *
+ * Cosmetic changes only, mostly comments.
+ *
+ * Changed the argument list for one of the log files
+ * to take c language primitives instead of the derived
+ * types Geometrydata and Analysisdata.  The short story
+ * here is that using derived types makes more work
+ * in the long term, and is harder to test.  The long
+ * answer is a couple of pages of explanation.
+ *
  * Revision 1.23  2002/09/07 00:26:59  doolin
  * changed output to support Kat & Meagan's studies.  Modified postprocessing to write bolt endpoints to .m and .log files (matlab and excel formats), and block vertices to .m and .log files.
  * Default is to write block vertices for all blocks containing measured points, but "all" flag can be used to write vertices of all blocks.
@@ -274,7 +285,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    }  // end if
    
    if (AData->options & BOLTS) {
-         writeBoltLog(GData, AData);
+        //writeBoltLog(GData, AData);
+        writeBoltLog(GData->rockbolts,GData->nBolts, AData->cts, AData->elapsedTime);
 	     writeBoltMatrix(GData, AData);
    }  // end if
 
@@ -483,7 +495,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          writeMoments(GData, AData->cts, AData->nTimeSteps);
 
 	  if (AData->options & BOLTS) {
-         writeBoltLog(GData, AData);
+         //writeBoltLog(GData, AData);
+        writeBoltLog(GData->rockbolts, GData->nBolts, AData->cts, AData->elapsedTime);
 	     writeBoltMatrix(GData, AData);
       }  // end if
 

@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:25 $
- * $Revision: 1.6 $
+ * $Date: 2002/09/09 03:20:32 $
+ * $Revision: 1.7 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -18,7 +18,15 @@
  * library, which will be a pain in the butt
  * with respect to headers.
  */
+/** @note: Previous comment with respect to 
+ * headers can be mitigated by passing primitives
+ * instead of Geometrydata and Analysisdata.
+ */
 
+/** @todo Change the output to xml, perhaps a 
+ * ddaml-specific output, with an xslt ruleset
+ * and css for display.
+ */
 
 //#include "compilecontrol.h"
 #include <stdio.h>

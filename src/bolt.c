@@ -1,5 +1,5 @@
 
-
+#include <stdio.h>
 #include <stdlib.h>
 /* memset */
 #include <string.h>  
@@ -22,6 +22,7 @@ extern "C" {
 
 struct _bolt {
 
+   int number;
    int type;
    int b1,b2;
    double x1,y1,x2,y2;
@@ -99,17 +100,20 @@ bolt_equals(Bolt * b1, Bolt * b2) {
   }
 }
 
+
 void
 bolt_print(Bolt * b, PrintFunc printer, void * stream) {
 
   printer(stream,"Bolt printing not yet implemented.\n");
 }
 
+
 int
 bolt_get_type(Bolt * b) {
    
    return b->type;
 }
+
 
 void 
 bolt_set_type(Bolt * b, int type) {
@@ -213,6 +217,7 @@ boltlist_print(Boltlist * bl, PrintFunc printer, void * stream) {
 
 
 
+/** This doesn't work very well. */
 #if 0
 bolt_load_matrix(Bolt * bolt, double ** K, 
           int * k1, int * kk, int ** n, double ** blockArea,  double ** F) {
@@ -350,8 +355,9 @@ bolt_load_matrix(Bolt * bolt, double ** K,
         /* find Kij */
          for (j=n[ji][1]; j<= n[ji][1]+n[ji][2]-1; j++) {
             i3=j;
-            if (kk[j]==j2) 
+            if (kk[j]==j2) {
                break;
+            }
          } 
          
         /* submatrix ij  s01-06 i normal s07-12 i shear   */
