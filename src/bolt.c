@@ -183,7 +183,7 @@ bolt_get_length_a(double * bolt) {
  * Since we can't rewrite, use the array
  * in lieu of bolt struct.
  *
- * @todo This method needs to idempotent 
+ * @todo This method needs to be idempotent 
  *  per each bolt.
  *
  * @todo Add code to ensure that the pretension is 
