@@ -314,11 +314,11 @@ drawJointHandle(Joint * jp, int num)
 static void //trg
 redrawJoint(Joint * jp)
 {
-  double endp1x,endp1y,endp2x,endp2y; 
-   endp1x = jp->d1.x;
-   endp1y = jp->d1.y;
-   endp2x = jp->d2.x;
-   endp2y = jp->d2.y; 
+  int endp1x,endp1y,endp2x,endp2y; 
+   endp1x = (int)jp->d1.x;
+   endp1y = (int)jp->d1.y;
+   endp2x = (int)jp->d2.x;
+   endp2y = (int)jp->d2.y; 
    
    MoveToEx(hdc, endp1x, endp1y, NULL);
 

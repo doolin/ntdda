@@ -7,6 +7,13 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.7  2001/08/24 22:56:22  doolin
+ * Started work on abstracting data output code to
+ * make it easier to handle different types of output data
+ * depending on the geometry and the analysis file.  This will be
+ * tedious because of the messy code interfacing windows to the
+ * numerical back end.
+ *
  * Revision 1.6  2001/08/17 03:29:19  doolin
  * Found a bug in namespace handling for geometry files.
  *
@@ -145,6 +152,7 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
       return 0;
 
 
+
 /* The invoking program, whether windows or not, is going to 
  * have to grab an AData and send it various signals.  Here,
  * we set the output options directly.  This stuff is not in 
@@ -152,14 +160,17 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
  * I want to get rid of compilecontrol asap.
  */
 AData->options |= VERTICES;
-
-
+AData->options |= FIXEDPOINTS;
+AData->options |= SOLUTIONVECTOR;
+AData->options |= BLOCKMASSES;
+//AData->options |= BLOCKSTRESSES;
+AData->options |= CONTACTFORCES;
 
 
   /* Hardwired parameters that need to go into 
    * user input files in the future.
    */
-   compilecontrol(AData);
+   //compilecontrol(AData);
 
   /* Copy this pointer to extern so that we can access the 
    * analysis data from the analysis dialog box.
@@ -350,11 +361,19 @@ AData->options |= VERTICES;
       * FIXME: Put a conditional in front of this.  No need to 
       * call it every time if there are no measured points.
       */
-      writeMeasuredPoints(GData, AData);
-      //writeFixedPoints(GData, AData);
-      //writeSolutionVector(AData->F, kk, k1, n, GData->nBlocks);
-      //writeBlockMasses(AData, GData);
-      //writeBlockStresses(e0,4);
+      writeMeasuredPoints(GData, AData); 
+  
+      if (AData->options & FIXEDPOINTS)
+         writeFixedPoints(GData, AData);
+
+      if (AData->options & SOLUTIONVECTOR)
+         writeSolutionVector(AData->F, kk, k1, n, GData->nBlocks);
+
+      if (AData->options & BLOCKMASSES)
+         writeBlockMasses(AData, GData);
+
+      if (AData->options & BLOCKSTRESSES)
+         writeBlockStresses(e0,4);
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1)

@@ -109,10 +109,6 @@ SOURCE=.\src\combineddf.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\compile.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\contact.c
 # End Source File
 # Begin Source File

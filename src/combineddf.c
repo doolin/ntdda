@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/23 12:54:49 $
+ * $Date: 2001/08/24 22:56:23 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  *
  */
 /*################################################*/
@@ -17,6 +17,13 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.13  2001/08/24 22:56:23  doolin
+ * Started work on abstracting data output code to
+ * make it easier to handle different types of output data
+ * depending on the geometry and the analysis file.  This will be
+ * tedious because of the messy code interfacing windows to the
+ * numerical back end.
+ *
  * Revision 1.12  2001/07/23 12:54:49  doolin
  * Added stuff to the contact handling code.
  * The whole build is broken, don't know why.  Examples don't
@@ -825,7 +832,8 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       c0[j2][j] +=  shearforce*s[j+24];  // was s4
    }  
 
-   if (1)  //writecontacts == TRUE
+   //if (1)  //writecontacts == TRUE
+   if (ad->options & CONTACTFORCES)
    {
       char mess[80];
       sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,shearforce);

@@ -6,6 +6,16 @@
 #ifndef _POSTPROCESS_H_
 #define _POSTPROCESS_H_
 
+/* Set the mask for the stuff we want to look at in an
+ * output file.
+ */
+#define VERTICES        1 << 0
+#define FIXEDPOINTS     1 << 1
+#define SOLUTIONVECTOR  1 << 2
+#define BLOCKMASSES     1 << 3
+#define BLOCKSTRESSES   1 << 4  
+#define CONTACTFORCES   1 << 5    
+
 
 /******************** Post-processing code ******************/
 void writeCentroids(Analysisdata *, GRAPHICS *, int numblocks);

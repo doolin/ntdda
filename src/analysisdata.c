@@ -691,6 +691,27 @@ initAnalysisData()
   /* NULL flag is useful. */
    ado->timehistory = NULL;
 
+/*****  Options ***********/
+  /* These need to be options put into the DDAML DTD */
+  /* These options moved in here from compilecontrol.c */
+   //AData->seismicflag = 0; //FALSE;
+   ado->solvetype = lu;
+  /* Not really implemented yet...  Next step is to set the
+   * initialize the lagrange variables before the open-close
+   * iteration starts for any particular time step.
+   */
+   //AData->contactmethod = auglagrange; 
+   ado->contactmethod = penalty; 
+   ado->integrator = constant;
+  /* TODO: Set this from the xml file at least. */
+   ado->tsSaveInterval = 1;
+   ado->frictionlaw = tpmc;
+
+  /* Desparate kludge */
+   ado->writemfile = TRUE;
+
+/**************************/
+
   /* FIXME: Set up the private functions.  These can be moved in the
    * future to the analysis initialization function.
    */

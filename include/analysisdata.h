@@ -5,8 +5,6 @@
 #define _ANALYSISDATA_H_
 
 
-#define VERTICES 1 << 0
-
 #include "ddafile.h"
 #include "graphics.h"
 #include "gravity.h"
@@ -15,8 +13,12 @@
 
 typedef struct _analysisdata_tag Analysisdata;
 typedef struct _thresholds_tag Thresholds;
-typedef struct _options_tag OPTIONS;
 
+
+/* FIXME: Get rid of this contraption, move everything
+ * to bit fields for handling boolean values.
+ */
+typedef struct _options_tag OPTIONS;
 struct _options_tag {
   /* Booleans for controlling output.  These probably need to 
    * into a different struct.  These need to go into a project
@@ -33,6 +35,8 @@ struct _options_tag {
    int blockareas;
 
 };
+
+
 
 /* Kludge kludge kludge kludge kludge 
  * This is for separating load points

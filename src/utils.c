@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/08/13 02:39:05 $
+ * $Date: 2001/08/24 22:56:23 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 
@@ -1080,7 +1080,8 @@ computeMass(Geometrydata * gd, Analysisdata * ad, double ** e0)
 {
    int i;
    double ** moments = gd->moments;
-   double initialarea,currentarea,thickness,density;
+   //double initialarea;
+   double currentarea,thickness,density;
 
    for (i=1; i<=gd->nBlocks; i++)
    {
