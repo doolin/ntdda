@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:19 $
+ * $Date: 2003/06/10 20:09:02 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  */
 
 /**
@@ -537,7 +537,12 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
       if ((!strcmp(cur->name, "Bolt"))) {
 
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         // mmm: modified/added code to recognize bolt type in geom file
+		 bolt = bolt_new();
+		 checkval = atoi(xmlGetProp(cur, "type"));
+		 bolt_set_type(bolt, checkval);
+
+		 tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          if (tempstring == NULL) {
            
             ddaml_display_error("Empty Bolt element.");
@@ -547,7 +552,8 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
                               &temp[0],&temp[1],&temp[2], &temp[3]); 
             if (checkval == 4) {
              
-               bolt = bolt_new();
+               // mmm 
+			   // bolt = bolt_new();
                bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
                boltlist_append(boltlist,bolt);
                /** @todo Postpone setting gdata until list transfer. */

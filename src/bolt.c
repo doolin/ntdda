@@ -278,7 +278,7 @@ bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime,
 
 	printer(stream, "%lf:", elapsedTime);
 
-	// mmm: added tension to printout
+	// mmm: added bolt force ("tension") to printout
    for (i=0; i < numbolts; i++) {
 		printer(stream, " %.12f,%.12f %.12f,%.12f %.12f;", 
                                hb[i][1], hb[i][2], hb[i][3], hb[i][4], hb[i][9]);
