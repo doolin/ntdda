@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:22 $
+ * $Date: 2001/11/05 02:59:49 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 
@@ -566,6 +566,8 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
    double ** moments = gd->moments;
    int nb = ad->nBlockMats;
 
+   double gravaccel = adata_get_grav_accel(ad);
+
   /* materialProps: ma we e0 u0 s11 s22 s12 t1 t2 t12 vx vy vr */
   /* (GHS: e0: ma we e0 u0 c11 c22 c12 t-weight)  */
   /* (GHS: v0: velocity of u v r ex ey gxy parameters) */
@@ -591,7 +593,12 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
 
       i1 = vindex[i][0];
       e0[i][0] = materialProps[i1][0]; /* density; unit mass */
-      e0[i][1] = materialProps[i1][1]; /* unit weight */
+      //e0[i][1] = materialProps[i1][1]; /* unit weight */
+      /* Unit weight is now set with respect to user specified 
+       * gravitational acceleration.  The tag needs to be deprecated
+       * in the runtime files.
+       */
+      e0[i][1] = materialProps[i1][0]*gravaccel; /* unit weight */
       e0[i][2] = materialProps[i1][2]; /* Young's modulus */
       e0[i][3] = materialProps[i1][3]; /* Poisson's ratio */
      /* This is marked as a possible error in Mary's 

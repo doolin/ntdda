@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/11/02 13:38:40 $
+ * $Date: 2001/11/05 02:59:49 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #include <stdio.h>
@@ -851,10 +851,10 @@ parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    if (grav_val != NULL) {
       adata_set_grav_accel(adata,atof(grav_val));
-      iface->displaymessage("got a grav value");
+      //iface->displaymessage("got a grav value");
    } else {
       adata_set_grav_accel(adata,9.81);
-      iface->displaymessage("NULL grav value");
+      //iface->displaymessage("NULL grav value");
    }
 
    return NULL;

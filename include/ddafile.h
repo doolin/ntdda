@@ -40,6 +40,7 @@ char dfile[FNAME_BUFSIZE]; // deformation (solution) vector
 char eqfile[FNAME_BUFSIZE];
 char fpointfile[FNAME_BUFSIZE];
 char cforce[FNAME_BUFSIZE];
+char fforce[FNAME_BUFSIZE];
 char stressfile[FNAME_BUFSIZE];
 /* Note that the rootname contains the entire path.  This 
  * is probably not real good, but is messy to handle 
@@ -69,6 +70,7 @@ typedef struct file_pointers {
    FILE * eqfile;
    FILE * fpointfile;
    FILE * cforce;
+   FILE * fforce;
    FILE * stressfile;
 } FILEPOINTERS;
 

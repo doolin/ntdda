@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/11/02 13:38:41 $
+ * $Date: 2001/11/05 02:59:49 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.18  2001/11/05 02:59:49  doolin
+ * Unit weights now set from density.  Showstopper bug in
+ * open-close, not clear what the problem is.
+ *
  * Revision 1.17  2001/11/02 13:38:41  doolin
  * Gravitational acceleration now a user option, specifically to
  * allow zero gravity.  Not sure if the tag has any effect at the moment,
@@ -188,14 +192,12 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    int **vindex = gd->vindex;
    int nBlocks = gd->nBlocks;
    extern DATALOG * DLog;
-   //double ** blockArea = gd->moments;
     
   /* This will be reset if adaptive time-stepping
    * is enabled.
    */
    ad->delta_t = ad->maxtimestep;
 
-   //g->initstresses(ad, g, nBlocks);
 
   /* Scale the problem domain so that the GUI will 
    * show all the action.  ac->w0 is scaled from the 
@@ -211,11 +213,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    //ad->this = ad;
    ad->isRunning = TRUE;
 
-  /* FIXME: The xml input file has this as a user controlled 
-   * parameter.  8 is default value from GHS code.
-   */
-   if (ad->OCLimit == 0)
-      ad->OCLimit = 6+2;
+
 
 
 
@@ -868,7 +866,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    {
       char mess[80];
       sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,frictionforce);
-      fprintf(fp.cforce,mess);
+      fprintf(fp.fforce,mess);
       //iface->displaymessage(mess);
    }
 
@@ -1290,7 +1288,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* FIXME: Change this to use the tested macro in macrotest.c 
          */         
         /* PREVIOUS is 1, CURRENT is 2  */
-         //if ( (QQ[0][PREVIOUS] != 0)  || (QQ[0][CURRENT] != 0) ) 
+         //if ( (QQ[0][PREVIOUS] != 0)  || (QQ[0][CURRENT] != 0) ) goto b809;
          if ( (QQ[PREVIOUS] != OPEN)  || (QQ[CURRENT] != OPEN) ) 
          {   
            /* location (?) of Kii (?) MMM */
@@ -1391,6 +1389,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             {
                double damping[7] = {0};
                extern double ** __V0;
+
               /* load term of normal & shear  s1 s2 coefficient */
               /* Add penetration penalty load to Fi and Fj:
                * Chapter 4, p. 175, Eq. 4.43-4.46, but check to 
@@ -1430,6 +1429,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                   }
                   F[j2][j] += -lockstate[1][2]*((p*sheardisp/s2n_ratio)*s[j+18]-damping[j]);
                }
+
             }
             else if (ad->contactmethod == auglagrange)
             {
@@ -1442,11 +1442,10 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                 */
             }  /* End penalty chooser */
 
-            if (ad->options & PENALTYFORCES)
-            {
+            if (ad->options & PENALTYFORCES) {
                normalforce = -lockstate[1][1]*(p*pen_dist);
                shearforce = -lockstate[1][2]*(p*sheardisp/s2n_ratio);  // T in docs
-               fprintf(fp.logfile,"%d  %f  %f\n",ad->currTimeStep, normalforce,shearforce);
+               fprintf(fp.cforce,"%d  %f  %f\n",ad->currTimeStep, normalforce,shearforce);
             }
 
          } /* end if penalty terms (b809): */

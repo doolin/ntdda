@@ -467,7 +467,9 @@ Analysisdata * XMLparseDDA_Analysis_File(char *filename);
 
 
 
-Analysisdata * cloneAnalysisData(Analysisdata * adn);
+//Analysisdata * cloneAnalysisData(Analysisdata * adn);
+Analysisdata * adata_close(Analysisdata *);
+
 
 //void * freeAnalysisData(Analysisdata *);
 void * adata_delete(Analysisdata *);
@@ -479,7 +481,6 @@ void freeLoadpoints(LOADPOINT *);
 void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
 void freeStresses(GRAPHICS *);
 
-/* Change this to adata_new(); */
 Analysisdata * adata_init(void);
 Analysisdata * adata_new(void);
 

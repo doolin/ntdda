@@ -179,9 +179,7 @@ emitAConstants(Analysisdata * ad, FILE * outfile)
 
 
 static void 
-emitLoadpoints(Analysisdata * ad, FILE * outfile)
-{
-
+emitLoadpoints(Analysisdata * ad, FILE * outfile) {
 
 
 }  /* close emitLoadpoints() */
@@ -382,6 +380,10 @@ openAnalysisFiles(FILEPATHS * filepath)
    strcat(temp, "_cforce.m");
    strcpy(filepath->cforce, temp);
 
+   strcpy(temp, filepath->rootname);
+   strcat(temp, "_fforce.m");
+   strcpy(filepath->fforce, temp);
+
   /* Copied in from geometry driver. */
    strcpy(temp, filepath->rootname);
    strcat(temp, ".blk");
@@ -436,6 +438,11 @@ openAnalysisFiles(FILEPATHS * filepath)
 
    fp.cforce = fopen(filepath->cforce, "w");
    fprintf(fp.cforce,"contactforces = [\n");
+
+   fp.fforce = fopen(filepath->fforce, "w");
+   fprintf(fp.fforce,"frictionforces = [\n");
+
+
    
    fp.spyfile1 = fopen(filepath->spyfile1, "w");
    fp.spyfile2 = fopen(filepath->spyfile2, "w");
@@ -482,6 +489,9 @@ closeAnalysisFiles()
 
    fprintf(fp.cforce,"];\n");
    fclose(fp.cforce);
+
+   fprintf(fp.fforce,"];\n");
+   fclose(fp.fforce);
 
    fclose(fp.spyfile1);
    fclose(fp.spyfile2);
@@ -631,8 +641,9 @@ adata_clear_output_flag(Analysisdata * ad, int flag)
  * they are in the correct header files.
  */
 Analysisdata *
-cloneAnalysisData(Analysisdata * adn)
-{
+//cloneAnalysisData(Analysisdata * adn) {
+adata_clone(Analysisdata * adn) {
+
    int i;
 
    Analysisdata * ado;  /* i.e, ad out */
@@ -743,7 +754,14 @@ adata_new() {
   /* Functions */
    ado->dump = dumpDDAMLAnalysisFile;
    ado->free = adata_delete; //freeAnalysisData;
-   
+
+
+  /* FIXME: The xml input file has this as a user controlled 
+   * parameter.  8 is default value from GHS code.
+   */
+   if (ado->OCLimit == 0)
+      ado->OCLimit = 6+2;
+
    return ado;
 }  /* Close initAnalysisData() */
 
