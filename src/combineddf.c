@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/14 23:13:44 $
+ * $Date: 2001/07/15 00:04:30 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.11  2001/07/15 00:04:30  doolin
+ * Minor changes.
+ *
  * Revision 1.10  2001/07/14 23:13:44  doolin
  * Added a contact unit test, more comments in open close fns.
  *
@@ -820,7 +823,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       char mess[80];
       sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,shearforce);
       fprintf(fp.cforce,mess);
-      iface->displaymessage(mess);
+      //iface->displaymessage(mess);
    }
 
 }  /* close setFrictionForces() */

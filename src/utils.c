@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/06/25 06:02:12 $
+ * $Date: 2001/07/15 00:04:30 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
@@ -303,23 +303,28 @@ void dist(void)
 /* dspl: block displacement matrix           0001 */
 /*************************************************/
 /* x10  y10  u2  v2  t[][]               i0  x  y */
+/* Using X,Y etc to reflect that T is constructed with 
+ * respect to the reference configuration.
+ */
 void 
-computeDisplacement(double **moments, double T[][7], double x, double y, int i0)
+computeDisplacement(double **moments, double T[][7], double X, double Y, int i0)
 {
-   double x0, y0;
-   double u2, v2;
+  /* Location of centroid */
+   double X_0, Y_0;
+  /* \tilde X, \tilde Y */
+   double tX, tY;
    
   /* i0 is block number                         */
   /* x10,y10:center of gravity of the block         */
-   x0 = moments[i0][2]/moments[i0][1];
-   y0 = moments[i0][3]/moments[i0][1];
+   X_0 = moments[i0][2]/moments[i0][1];
+   Y_0 = moments[i0][3]/moments[i0][1];
 
 
   /* u2 and v2 are temporary variables to handle linear 
    * rotation and strains.
    */
-   u2      = x-x0;
-   v2      = y-y0;
+   tX = X-X_0;
+   tY = Y-X_0;
 
   /* Translations. */
    T[1][1] = 1;
@@ -327,16 +332,16 @@ computeDisplacement(double **moments, double T[][7], double x, double y, int i0)
    T[1][2] = 0;
    T[2][2] = 1;
   /* Linear rotations. */
-   T[1][3] = -v2;
-   T[2][3] = u2;
+   T[1][3] = -tY;
+   T[2][3] = tX;
   /* Principal strains. */
-   T[1][4] = u2;
+   T[1][4] = tX;
    T[2][4] = 0;
    T[1][5] = 0;
-   T[2][5] = v2;
+   T[2][5] = tY;
   /* Shear strains. */
-   T[1][6] = v2/2;
-   T[2][6] = u2/2;
+   T[1][6] = tY/2;
+   T[2][6] = tX/2;
 
 }   /*  Close dspl()  */
 
@@ -711,6 +716,7 @@ initConstants(Analysisdata * ad)
    ad->FPointSpring = ad->contactpenalty;
 
 //assert(ad->constants != NULL);
+
 
    if (ad->constants == NULL)
    {

@@ -194,7 +194,8 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
   /* k00 = 0 means we haven't yet done a linear solve for the 
    * system.
    */
-   if (currTimeStep > 1 && ad->k00 == 0) 
+   //if (currTimeStep > 1 && ad->k00 == 0) 
+   if (currTimeStep > 1 && ad->m9 == 0) 
    {
       for (i=1; i<= nBlocks; i++)
       {
@@ -390,7 +391,8 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    pts = ad->delta_t;
 
   /* Total kinetic energy
-   */   if (ad->k00 == 0) 
+   */   
+   if (ad->m9 == 0) 
    {
       DLog->energy[tstep].ke = 0.5*(DLog->energy[tstep].KEcentroid + DLog->energy[tstep].KEdeform);
    }
