@@ -30,7 +30,7 @@
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.4 2001/08/26 02:15:44 doolin Exp $\n", \
+              "$Id: winmain.h,v 1.5 2001/08/26 03:16:23 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -86,7 +86,7 @@ BOOL CALLBACK  UnitDlgProc (HWND, UINT, WPARAM, LPARAM);
 //VOID DisableOpenGL (HWND hwMain, HDC hDC, HGLRC hRC);
 //VOID GLlines (HDC * hdc);
 
-void printGeom(HWND, PSTR, double [], GRAPHICS *);
+void printGeom(HWND, PSTR, Geometrydata *, double [], GRAPHICS *);
 void fileBrowse(HWND, OPENFILENAME *, LPCTSTR *, char *, char *, char *);
 void loadNotepad(PARAMBLOCK *, char *);  /* Should return an int for error checking.  */
 void stub();

@@ -214,6 +214,8 @@ void cloneBlockMasses(Geometrydata *, Geometrydata *);
 void freeBlockMasses(Geometrydata *);
 
 Geometrydata * initGeometrydata(void);
+Geometrydata * gdata_new(void);
+
 void dumpGeometrydata(Geometrydata *, FILE *);
 
 /* Moved from geometry.h */

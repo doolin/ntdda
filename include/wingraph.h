@@ -22,9 +22,9 @@ int drawJoints(HDC, HPEN[9], GRAPHICS *, Geometrydata *, double ** vertices, int
 
 int drawPoints(HDC, GRAPHICS *, Geometrydata *, double **);
 int drawBlocks(HDC, HBRUSH [6], GRAPHICS *, Geometrydata *);
-int drawBolts(HDC, HPEN [6], GRAPHICS *, double **);
-int drawCentroids(HDC, HPEN [9], GRAPHICS *, DATALOG *);
-int drawStresses(HDC, HPEN [9], GRAPHICS *);
+int drawBolts(HDC, HPEN [6], Geometrydata *, GRAPHICS *, double **);
+int drawCentroids(HDC, HPEN [9], Geometrydata *, GRAPHICS *, DATALOG *);
+int drawStresses(HDC, HPEN [9], Geometrydata *, GRAPHICS *);
 void printTime(HDC, GRAPHICS *);
 
 

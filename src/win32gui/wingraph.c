@@ -420,13 +420,13 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd)
 
 
 int 
-drawBolts(HDC hdc, HPEN hpen[6], GRAPHICS * g, double ** b) 
+drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata, GRAPHICS * g, double ** b) 
 {
    int i;
    POINT p1, p2;
 
   /* FIXME: Get rid of this extern */
-   extern Geometrydata * geomdata;
+   //extern Geometrydata * geomdata;
    int numbolts = geomdata->nBolts;
 
    double scale = g->scale;
@@ -480,7 +480,7 @@ printTime(HDC hdc, GRAPHICS * g)
 
 
 int 
-drawCentroids(HDC hdc, HPEN hpen[9], GRAPHICS * g, DATALOG * dl)
+drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, DATALOG * dl)
 {   
    int i, j;
    POINT p1, p2;
@@ -488,7 +488,7 @@ drawCentroids(HDC hdc, HPEN hpen[9], GRAPHICS * g, DATALOG * dl)
    POINT offset = g->offset;
    DPoint ** c = g->centroids;
    int ts = g->timestep;
-   extern Geometrydata * geomdata;
+  //extern Geometrydata * geomdata;
  
    SelectObject(hdc, hpen[5]);
    for (i = 1; i< g->numtimesteps-1; i++) 
@@ -509,7 +509,7 @@ drawCentroids(HDC hdc, HPEN hpen[9], GRAPHICS * g, DATALOG * dl)
 
 
 int 
-drawStresses(HDC hdc, HPEN hpen[9], GRAPHICS * g)
+drawStresses(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g)
 {   
    int j;
    POINT p1, p2;
@@ -517,7 +517,7 @@ drawStresses(HDC hdc, HPEN hpen[9], GRAPHICS * g)
    POINT offset = g->offset;
    PStress ** s = g->stresses;
    int ts = g->timestep;
-   extern Geometrydata * geomdata;
+   //extern Geometrydata * geomdata;
  
    if(ts == 0)
      return 1;

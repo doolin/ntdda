@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 02:15:50 $
+ * $Date: 2001/08/26 03:16:27 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 
@@ -85,8 +85,11 @@ HICON g_hIcon1 = NULL;		// User icon 1, handle return by parser when 'Icon1' key
 OPTIONS options;
 FILEPATHS filepath;
 FILEPOINTERS fp;
-Geometrydata * geomdata = NULL;
+
+//Geometrydata * geomdata = NULL;
 Geometrydata * geometry2draw;
+
+
 GRAPHICS * g = NULL;
 
 
@@ -325,6 +328,7 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
    char xycoordstext[STATUSBAR_TEXT_WIDTH];
    DPoint p;
    DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
    mousepos = MAKEPOINTS(lParam);
    xnew = mousepos.x;
@@ -445,8 +449,9 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    HDC hdc; 
    PAINTSTRUCT ps;
    RECT rectClient;
-
+   Geometrydata * geomdata;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+
   /* This is what it will take to get rid of all the silly 
    * externs.
    */
@@ -459,6 +464,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    switch (whatToDraw)
    {
       case LINES:
+         geomdata = dda_get_geometrydata(dda);
          g->scale = setScale(draw_wnd, hdc, g, geomdata->scale);
 			//drawLines(hdc, screenPen, g->scale, g->offset, g->joints, geomdata->nJoints, TRUE);
          drawJoints(hdc, screenPen, g, geometry2draw, geometry2draw->vertices, FALSE);
@@ -466,6 +472,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
 	      break;
 
       case BLOCKS:
+         geomdata = dda_get_geometrydata(dda);
          g->scale = setScale(draw_wnd, hdc, g, geomdata->scale);
          drawBlocks(hdc, hBr, g, geometry2draw);
         /* All this code here does is draw outlines of the
@@ -487,12 +494,12 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          if(showOrig) 
          {
             drawPoints(hdc, g, geomdata, geometry2draw->origpoints);
-			   drawBolts(hdc, screenPen, g, geometry2draw->origbolts);
+			   drawBolts(hdc, screenPen, geometry2draw, g, geometry2draw->origbolts);
          }
          drawPoints(hdc, g, geomdata, geometry2draw->points);
-         drawBolts(hdc, screenPen, g, geometry2draw->rockbolts);
+         drawBolts(hdc, screenPen, geometry2draw, g, geometry2draw->rockbolts);
          if (0/* g->stresses */)
-            drawStresses(hdc, screenPen, g);
+            drawStresses(hdc, screenPen, geometry2draw, g);
          break;
 
       case TITLE:	 	
@@ -521,6 +528,8 @@ handleGeomApply(HWND hwMain, double scale_params[])
 {
 
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
+
 
    //updateMainMenu(hwMain, geomstate*runningstate);
 
@@ -531,10 +540,14 @@ handleGeomApply(HWND hwMain, double scale_params[])
   /* These calls need to be changed to function pointers 
    * to get headers under control.
    */
+  /* Don't worry about freeing the geometry data for now. */
+   /*
    if (geomdata != NULL)
    {
       freeGeometrydata(geomdata);
    }
+   */
+
    //if (g != NULL)
    //{
    freeGraphicStruct(g);
@@ -545,6 +558,7 @@ handleGeomApply(HWND hwMain, double scale_params[])
    //geomhwnd = hwMain;
 
    geomdata = ddacut(&filepath, g);
+   dda_set_geometrydata(dda,geomdata);
 
    geometry2draw = geomdata;
 
@@ -708,7 +722,8 @@ handleGeomPrintGraphics(HWND hwMain)
 {
    HINSTANCE hInst;
    //DLGPROC lpfnDlgProc;
-
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
    PSTR szDocName = "DDA: Original Configuration";
 	//options.results = 0;
 
@@ -724,7 +739,7 @@ handleGeomPrintGraphics(HWND hwMain)
    * value instead of reference b/c it is not changed in 
    * the printGeom function.
    */
-	printGeom(hwMain, szDocName, geomdata->scale, g);
+	printGeom(hwMain, szDocName, geometry2draw, geomdata->scale, g);
 
   /* FIXME: Check the return value */
    return 0;
@@ -881,7 +896,8 @@ handleAnalNew(HWND hwMain, LPARAM lParam)
 {
    HINSTANCE hInst;
    //DLGPROC lpfnDlgProc;
-
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
    strcpy(filepath.oldfile, filepath.afile);
 	filepath.afile[0] = '\0';
 	sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", 
@@ -919,6 +935,9 @@ static void
 handleAnalEditDialog(HWND hwMain, LPARAM lParam)
 {
    HINSTANCE hInst;
+
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
@@ -978,7 +997,8 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
 {
    HINSTANCE hInst;
    //DLGPROC lpfnDlgProc;
-
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
    PSTR szDocName = "DDA - Results";
 
 	hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
@@ -990,7 +1010,7 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
    * instead of by reference b/c printGeom doesn't change 
    * the value.
    */
-   printGeom(hwMain, szDocName, geomdata->scale, g);
+   printGeom(hwMain, szDocName, geometry2draw, geomdata->scale, g);
 
   /* FIXME: Check the return value */
    return 0;
@@ -1149,6 +1169,8 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
    POINT pt;
    HINSTANCE hInst;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
+
 
    if(dda->popupvis == 0)
       return;
@@ -1230,6 +1252,8 @@ displayPhysicalCoordinates(HWND hwMain, WPARAM wParam, LPARAM lParam)
   /* Temporary, prints into messagebox */
    char mess[180];
    DPoint p;
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
   /* Segfaults if there is nothing to look at. 
    * FIXME: Add some error code in here to keep track
@@ -1355,6 +1379,9 @@ displayBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
    DPoint p;
    int blocknum;
 
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
+
   /* Segfaults if there is nothing to look at. 
    * FIXME: Add some error code in here to keep track
    * of whats going on.
@@ -1383,6 +1410,9 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
    char mess[180];
    DPoint p;
    int blocknum;
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
+
 
   /* Segfaults if there is nothing to look at. 
    * FIXME: Add some error code in here to keep track
@@ -1423,6 +1453,8 @@ updateStatusBar(HWND hwMain) //, WPARAM wParam, LPARAM lParam)
 {
 
    char nblock[10];
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
    switch(whatToDraw)
    {
@@ -1461,6 +1493,8 @@ updateGeometryStatusBar(HWND hwMain)
 {
    HINSTANCE hInst;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
+
   /* This is ill-advised, and is only a kludge until 
    * status text size can be computed.
    */
@@ -1510,8 +1544,9 @@ updateAnalysisStatusBar(HWND hwMain)
 {
    HICON redoff;
    HINSTANCE hInst;
-   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
 
   /* This is ill-advised, and is only a kludge until 
@@ -1809,6 +1844,8 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
    extern HPEN drawPen[10];
    extern HPEN screenPen[10];
    extern HBRUSH hBr[6];
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
    hdcmain = GetDC(hwMain);  
    GetClientRect(hwMain, &mfrect);
@@ -1825,7 +1862,7 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
       drawJoints(mfdc, screenPen, g, geometry2draw, geometry2draw->origvertices, TRUE);
    drawJoints(mfdc, screenPen, g, geometry2draw, geometry2draw->vertices, FALSE);
    drawPoints(mfdc, g, geomdata, geometry2draw->points);
-   drawBolts(mfdc, screenPen, g, geometry2draw->rockbolts);
+   drawBolts(mfdc, screenPen, geometry2draw, g, geometry2draw->rockbolts);
 
    hmf = CloseEnhMetaFile(mfdc);
    DeleteEnhMetaFile(hmf);
@@ -1843,6 +1880,8 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
    static OPENFILENAME ofn;
    //static HINSTANCE hInst;
    static PARAMBLOCK pb;
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+   Geometrydata * geomdata = dda_get_geometrydata(dda);
 
    switch (wParam)
  	{

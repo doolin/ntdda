@@ -7,6 +7,13 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.10  2001/08/26 03:16:26  doolin
+ * One extern out, 2 more to go.  Lots of small API argument
+ * changes.  Also, the formerly externally declared var was a struct,
+ * so we are now leaking sizeof(Geometrydata) for each geometry, possibly
+ * for each run.  This will be dealt with from the console after all the
+ * externs are done.
+ *
  * Revision 1.9  2001/08/26 02:15:49  doolin
  * Some minor changes leading up to a major memory overhaul to eliminate externs.  This commit will be tagged as 1.5.126
  *
@@ -59,7 +66,7 @@ extern InterFace * iface;
 /* FIXME: externs, necessary evil right now.
  * This MUST be cleaned up later.
  */
-extern Geometrydata * geomdata;
+//extern Geometrydata * geomdata;
 extern Geometrydata * geometry2draw;
 extern Analysisdata * ad;
 
@@ -78,7 +85,8 @@ DDAError ddaerror;
 int	
 ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
 {
-   Geometrydata * GData;
+   Geometrydata * GData = dda_get_geometrydata(dda);
+
    Analysisdata * AData;
    Contacts * CTacts;
 
@@ -151,7 +159,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
   /* FIXME: Find a way to get rid of this and have only one
    * geometry data structure at a time.
    */
-   GData = cloneGeometrydata(geomdata);
+   //GData = cloneGeometrydata(geomdata);
    geometry2draw = GData;
 
    doublesize = sizeof(double);
@@ -439,10 +447,12 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    * need to interact with win32 to draw on the screen.  Hopefully,
    * this does not leak any memory.
    */
-   freeGeometrydata(geomdata);
-   geomdata = cloneGeometrydata(GData);
-   geometry2draw = geomdata;
-   freeGeometrydata(GData);
+   //freeGeometrydata(geomdata);
+   //geomdata = cloneGeometrydata(GData);
+   //geometry2draw = geomdata;
+   //freeGeometrydata(GData);
+
+
    AData = freeAnalysisData(AData);
    freeDatalog(DLog);
 

@@ -549,10 +549,12 @@ cloneGeometrydata(Geometrydata * gdn)
 
    if (gdn->points)
       gdo->points = clone2DMatDoub(gdn->points,gdn->pointsize1,gdn->pointsize2);
+
    if (gdn->prevpoints)
       gdo->prevpoints = clone2DMatDoub(gdn->prevpoints,gdn->pointsize1,gdn->pointsize2);
    else  /* copy the points over */
       gdo->prevpoints = clone2DMatDoub(gdn->points,gdn->pointsize1,gdn->pointsize2);
+
    if (gdn->origpoints)
       gdo->origpoints = clone2DMatDoub(gdn->origpoints,gdn->pointsize1,gdn->pointsize2);
    else  /* copy the points over */
@@ -732,6 +734,13 @@ getBlockNumberFromCursor(Geometrydata * gd, double x, double y)
 
 }  /* close getBlockNumberFromCursor() */
 
+
+
+Geometrydata *
+gdata_new()
+{
+   return initGeometrydata();
+}
 
 /* The Geometrydata struct is built in the 
  * geometry code and contains blocks, points

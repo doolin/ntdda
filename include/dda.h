@@ -8,12 +8,7 @@
 #include "analysisdata.h"
 #include "ddatypes.h"
 
-/* Need to strip out all windows specific code from 
- * from the numerical engine, if possible.  PEEK defines
- * a PeekMessageLoop for aborting geometry procedures.
- * The code doesn't work anyway.
- */
-#define METAFILE 0
+
 #define WINDOWS 1
 /* FIXME: Move these to winmain.h */
 #define WINGRAPHICS 1

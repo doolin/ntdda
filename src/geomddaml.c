@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/08/17 03:29:19 $
+ * $Date: 2001/08/26 03:16:26 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
@@ -1148,6 +1148,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    //gd->pointsize1 = numpoints+1;
    gd->pointsize2 = 9;
    gd->points = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
+   gd->prevpoints = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
 
   /* Massive kludgery here induced by the way that the 
    * points are ordered in the points array.  The order
@@ -1237,6 +1238,9 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    */
    if (gd->nSPoints > 0)
       gd->seispoints = spointlist;
+
+   gd->origpoints = clone2DMatDoub(gd->points,gd->pointsize1,gd->pointsize2);
+
 
 }  /* close transferPointlistToGeomStruct()  */
 
