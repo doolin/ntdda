@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/05/20 21:02:51 $
+ * $Date: 2001/05/21 10:53:23 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 
@@ -362,6 +362,17 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
       sprintf(xycoordstext,"\t(%.3f,%.3f)\t",p.x,p.y);
       SendMessage(geomstatus,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
       SendMessage(geomstatus,SB_SETTEXT,(WPARAM)5,(LPARAM)xycoordstext);
+
+   }
+
+   if (dda->menustate == (ANA_STATE | FINISHED) )
+   {
+      p = DPtoPP(hwMain, xnew,ynew);
+      //blocknumber = geomdata->getblocknumber(geomdata->this,p.x,p.y);
+      //sprintf(blocknumtext,"BN: %d",blocknumber);
+      sprintf(xycoordstext,"\t(%.3f,%.3f)\t",p.x,p.y);
+      //SendMessage(geomstatus,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
+      SendMessage(anastatus,SB_SETTEXT,(WPARAM)9,(LPARAM)xycoordstext);
 
    }
 
