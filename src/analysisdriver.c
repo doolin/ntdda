@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.25  2002/10/10 15:05:31  doolin
+ * More tests for stress.
+ *
  * Revision 1.24  2002/09/09 03:20:32  doolin
  *
  * Cosmetic changes only, mostly comments.
@@ -299,6 +302,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */
    //writeBlockStresses(e0,4);
 
+
   /* START THE MAIN ANALYSIS LOOP STEPPING OVER TIME */
    for (AData->cts=1; AData->cts<=AData->nTimeSteps; AData->cts++)
    {
@@ -475,9 +479,12 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       * FIXME: Buffer this to be written out after the analysis.
       * FIXME: move to a dda_log_step_data() function.
       */
-
-      if (AData->options & MEASPOINTS)
-         writeMeasuredPoints(GData, AData); 
+     /* FIXME: The function has a bottleneck in it somewhere
+      * which slows down the initial time step tremendously.
+      */
+      if (AData->options & MEASPOINTS) {
+         writeMeasuredPoints(GData, AData);
+      }
   
       if (AData->options & FIXEDPOINTS)
          writeFixedPoints(GData, AData);

@@ -1,4 +1,5 @@
 
+
 #ifndef __STRESS_H__
 #define __STRESS_H__
 
@@ -28,9 +29,10 @@ typedef int (*PrintFunc)(void * stream, const char * format, ...);
 /**
  *
  *
- * @param D
+ * @param D deformation variables resulting from an increment
+ *  of motion in DDA.
  * 
- * @param e0
+ * @param e0 material properties and stress vector for blocks.
  *
  * @param k1 stores the index for the ith block deformation 
  *  values in D.
@@ -47,7 +49,6 @@ void stress_update          (double ** e0,
                              int * k1, 
                              int numblocks,
                              int planestrainflag);
-
 
 
 /** For this function, the looping is done elsewhere.
@@ -68,20 +69,28 @@ void stress_update          (double ** e0,
                              double * D, 
                              int planestrainflag);
 
+
+
 void  stress_print          (double * s, 
                              PrintFunc printer, 
                              void * stream);
+
 
 void  stress_print_stresses (double * s, 
                              PrintFunc printer, 
                              void * stream);
 
 
+double * stress_clone       (const double * s1);
+
+int      stress_equals      (double * d1, 
+                             double * d2, 
+                             double tol);
+
 
 #ifdef __cplusplus
 }
 #endif
-
 
 
 #endif  /* __STRESS_H__ */

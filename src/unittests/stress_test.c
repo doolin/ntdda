@@ -10,9 +10,9 @@
  * something to compare to:
  */
 /*
+% Plane stress
 
 a1 = E/(1-(nu*nu));
-
 k = a1*[
         1 nu 0 
         nu 1 0 
@@ -123,7 +123,7 @@ static void set_strains(double * D, double e1, double e2, double e12) {
 
 
 int 
-test_stress_update(void) {
+test_stress_update_a(void) {
 
    int passed = 1;
    int testval; 
@@ -133,11 +133,10 @@ test_stress_update(void) {
    double s2[13] = {0.0};
    double s3[13] = {0.0};
 
-   print_header_string(stdout,"Stress update test");
+   print_header_string(stdout,"stress_update_a test");
  
 
    stress_init_props(s1,2.71, 25.4,1000.0,0.49);
-   stress_init_props(s2,2.71, 25.4,1000.0,0.49);
    set_strains(D,0.001,0.001,0.0001);
 
    stress_init_sigma(s3,
@@ -150,27 +149,33 @@ test_stress_update(void) {
    testval = array_equals_double(s1,s3,4,3);
 
    if (testval == 0) { 
-      fprintf(stdout,"Stress update failed (plane stress).\n");
+      fprintf(stdout,"stress_update_a failed (plane stress).\n");
       passed = 0;
    } else {
-      fprintf(stdout,"Stress update passed (plane stress).\n");
+      fprintf(stdout,"stress_update_a passed (plane stress).\n");
    }
 
     
+   stress_init_props(s2,2.71, 25.4,1000.0,0.25);
+   stress_init_sigma(s3,
+                     1.6,
+                     1.6,
+                     0.04);
+
    stress_update_a(s2,D,1);
  
    testval = array_equals_double(s2,s3,4,3);
 
    if (testval == 0) { 
-      fprintf(stdout,"Stress update failed (plane strain).\n");
+      fprintf(stdout,"stress_update_a failed (plane strain).\n");
       passed = 0;
    } else {
-      fprintf(stdout,"Stress update passed (plane strain).\n");
+      fprintf(stdout,"stress_update_a passed (plane strain).\n");
    }
 
     
 
-   stress_print(s1,(PrintFunc)fprintf,stdout);
+   //stress_print(s2,(PrintFunc)fprintf,stdout);
 
    return 0;
 }
@@ -222,10 +227,59 @@ test_zero_strain() {
 
 }
 
+int 
+test_stress_equals() {
+
+   int passed = 1;
+   int testval;
+
+   double s1[13] = {0.0};
+   double * s2;
+
+   print_header_string(stdout,"stress_equals test");
+
+   stress_init_all(s1,2.71, 25.4,1000.0,0.49,0,0,0,0,0,0,0,0,0);
+
+   s2 = stress_clone(s1);
+   
+   testval = stress_equals(s1,s2,0.0000001);
+
+   if (testval == 0) { 
+      fprintf(stdout,"Stress equals failed.\n");
+      passed = 0;
+   } else {
+      fprintf(stdout,"Stress equals passed.\n");
+   }
+   
+
+   return passed;
+}
+
+
+int 
+test_stress_update(void) {
+
+   int passed = 1;
+
+   int testval;
+ 
+  /* Permutation vector. */
+   int k1[4]      = {0.0};
+   double * D[4]  = {0,0,0,0};
+   double * e0[4] = {0,0,0,0};
+   
+  /* blocks */
+   double s1[13],s2[13],s3[13];
+
+   print_header_string(stdout,"stress_update test");
+
+   return passed;
+}
+
 
 
 int
-stress_test_arrays() {
+stress_test_arrays(void) {
 
   /* Factor these out later. */
 
@@ -266,11 +320,10 @@ stress_test_arrays() {
 
    //stress_print(s1,(PrintFunc)fprintf,stdout);
 
-
-   test_stress_update();
-
-
+   test_stress_equals();
+   test_stress_update_a();
    test_zero_strain();
+   test_stress_update();
 
    return 0;
 }

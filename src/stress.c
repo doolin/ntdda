@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include "stress.h"
@@ -54,8 +55,36 @@ static const int _v1_    = 10;
 static const int _v2_    = 11;
 static const int _v3_    = 12;
 
+static const int _size_  = 13;
+
+
+int
+stress_equals(double * d1, double * d2, double tol) {
+
+  int i;
+
+  for (i=0; i<_size_; i++) {
+    if (fabs(d1[i]-d2[i]) > tol) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+
+double *
+stress_clone(const double * s1) {
+
+   double * s2;
+
+   s2 = (double*)(malloc(sizeof(double)*_size_));
+   memcpy(s2,s1,sizeof(double)*_size_);
+   return s2;
+}
+
 void
-stress_update(double ** e0, double ** D, int * k1, int numblocks, int planestrainflag) {
+stress_update(double ** e0, double ** D, int * k1, 
+              int numblocks, int planestrainflag) {
 
    int i, i1;
 
@@ -67,7 +96,9 @@ stress_update(double ** e0, double ** D, int * k1, int numblocks, int planestrai
 }
 
 
-
+/**
+ * Plain strain from MacLaughlin 1997, p. 20
+ */
 void
 stress_update_a(double * stress, double * D, int planestrainflag) {
 
@@ -146,6 +177,9 @@ stress_print_stresses(double * s, PrintFunc printer, void * stream) {
    printer(stream,"sigma = [ %f %f  \n          %f %f ];\n", 
                    s[_s11_],s[_s12_],s[_s12_],s[_s22_]);
 }
+
+
+
 
 
 #ifdef __cplusplus

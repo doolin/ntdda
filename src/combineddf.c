@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/09 01:46:39 $
+ * $Date: 2002/10/10 15:05:31 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.31 $
+ * $Revision: 1.32 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.32  2002/10/10 15:05:31  doolin
+ * More tests for stress.
+ *
  * Revision 1.31  2002/10/09 01:46:39  doolin
  * Lots of clean up and fix it work on this commit.
  * Details are in the diffs  ;)
@@ -2798,14 +2801,18 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
 }  /*  Close df24()  */
 
 
-static void 
-updateStresses(Geometrydata * gd, Analysisdata * ad,
-               double ** e0, int * k1)
-{
-   int nBlocks = gd->nBlocks;
-   double ** D = ad->F;
-   double ** moments = gd->moments;
-   int cts = ad->cts;
+//static void 
+//updateStresses(Geometrydata * gd, Analysisdata * ad,
+//               double ** e0, int * k1)
+//{
+static void
+updateStresses(double ** e0, double ** D, int * k1, int numblocks, int planestrainflag) {
+
+   
+   //int nBlocks = gd->nBlocks;
+   //double ** D = ad->F;
+   //double ** moments = gd->moments;
+   //int cts = ad->cts;
 
    int i, i1;
    double a1;
@@ -2817,7 +2824,8 @@ updateStresses(Geometrydata * gd, Analysisdata * ad,
    * at some point.
    */
   /* (GHS: compute updating stresses)  */
-   for (i=1; i<= nBlocks; i++)
+   //for (i=1; i<= nBlocks; i++)
+   for (i=1; i<=numblocks; i++)
    {
       double E = e0[i][2];
       double nu = e0[i][3];
@@ -2827,7 +2835,8 @@ updateStresses(Geometrydata * gd, Analysisdata * ad,
       c = cos(gamma_0);
       s = sin(gamma_0);
 
-      if(ad->planestrainflag == 1)
+      //if(ad->planestrainflag == 1)
+      if(planestrainflag == 1)
       {
          a1 = E/(1 + nu);
          e0[i][4] += a1*( ((D[i1][4]*(1-nu))/(1-2*nu)) + ((D[i1][5]*nu)/(1-2*nu)) );
@@ -2876,20 +2885,21 @@ updateStresses(Geometrydata * gd, Analysisdata * ad,
 
 
      /* Virtual work performed by stresses given at the start of 
-      * the time step through the time step.  See Doolin, p. ???
-      * 200?.
+      * the time step through the time step.
       */
      /* It would also be reall cool to track this on a per block per
       * time step basis, but that would be lots of dereferencing
       * and ram usage.  To see how that would work, change timestep
       * to `i' to see the stress for each block.
       */
-      
+      /* This needs to be done elsewhere. */
+      /*
       DLog->energy[cts].istress += moments[i][1]*(D[i1][4]*e0[i][4] 
                                  + D[i1][5]*e0[i][5] + D[i1][6]*e0[i][6]);
+       */
    }  
 
-}  /* close updateStresses() */
+}  
 
 
 /**************************************************/
@@ -2933,11 +2943,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 
    /* This is for keeping track of displacements */
    extern double ** __D;
-   clock_t start, stop;
 
-   //int timestep = ad->currTimeStep;
 
-   start = clock();
 
   /* (GHS: change to new deformed block shape  u[][] df24) */
   /* In df24(), U gets over-written with vertex locations 
@@ -3101,20 +3108,28 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /* Huge kludge: Since GHS put all of the points into a
    * single array  bah.  bah. 
    */
-   for (i=nFPoints+nLPoints+1; i<=nFPoints+nLPoints+nMPoints; i++)
-   {
+   for (i=nFPoints+nLPoints+1; i<=nFPoints+nLPoints+nMPoints; i++) {
+
      /* delta x I hope */
       points[i][5] = points[i][1] - prevpoints[i][1];
      /* accumulate x displacement */
       points[i][7] += points[i][1] - prevpoints[i][1];
+
      /* delta y */
       points[i][6] = points[i][2] - prevpoints[i][2];
+     /* accumulate y displacement */
+     /* FIXME: Is this a typo or what???  Looks like a 
+      * cut-n-paste blunder.  If not, explain why the 
+      * y displacements accumulate the same as the 
+      * x displacements.
+      */
       points[i][8] += points[i][1] - prevpoints[i][1];
 
    }  /* close cloning loop */
    
 
-   updateStresses(gd, ad, e0, k1);
+   //updateStresses(gd, ad, e0, k1);
+   updateStresses(e0, ad->F, k1, gd->nBlocks, ad->planestrainflag);
 
    
 {
@@ -3122,14 +3137,11 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /*------------------------------------------------*/
   /* compute s sx sy sxx syy sxy    g0 of this step */
    avgarea = computeMoments(gd); //, moments);
-   if (avgarea == 0)
-   {
+   if (avgarea == 0) {
       ad->abort(ad);
-      /* Not the right way to do this. */
-      //ddaerror.error = __ZERO_MOMENT_ERROR__;
-
       dda_display_error("Zero block area");
-   }
+   } 
+
    ad->avgArea[ad->cts] = avgarea;
    computeMass(gd->mass,gd->moments, e0, gd->nBlocks);
 }
@@ -3138,8 +3150,12 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /* Compute rock bolt end displacements.  Note that no
    * rotation correction is supplied here.
    */
-   for (i=0; i<gd->nBolts; i++) 
-   {
+  /* Move this whole loop into the bolts.c file, 
+   * supplying a callback or something for the 
+   * transplacement map function.
+   */
+   for (i=0; i<gd->nBolts; i++) {
+
       double u1,v1,u2,v2;
 
      /* Deal with one endpoint at a time,
@@ -3198,18 +3214,12 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       bolt_set_length_a(hb[i]);
       
       bolt_set_pretension_a(hb[i]);
-
    }  
-
 
 
   /* FIXME: This looks stupid.  There has to be a better way...
    */
    ad->elapsedTime = ad->globalTime[ad->cts][0];
 
-   stop = clock();
-
-   DLog->update_runtime += stop - start;
-
-} /*  Close df25(). */
+} 
 
