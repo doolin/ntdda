@@ -1,0 +1,887 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+TOOLBAR_DDA_MAIN        BITMAP  MOVEABLE PURE   "..\\resources\\Toolbar.bmp"
+TITLE                   BITMAP  MOVEABLE PURE   "..\\resources\\DDAWIN.BMP"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+TOOLBAR_DDA_MAIN TOOLBAR DISCARDABLE  16, 16
+BEGIN
+    BUTTON      TOOLBAR_NEW_GEOM
+    BUTTON      TOOLBAR_NEW_ANALYSIS
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_BUTTON40024
+    BUTTON      ICON_ABORT_ANALYSIS
+    BUTTON      ICON_GEOM_APPLY
+    BUTTON      ID_BUTTON40035
+    BUTTON      TOOLBAR_ZOOMIN
+    BUTTON      TOOLBAR_ZOOMOUT
+    SEPARATOR
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_OPTION_GRIDLINES
+    BUTTON      ID_OPTION_DRAW
+    BUTTON      TOOLBAR_SWITCHOFF
+    BUTTON      TOOLBAR_SWITCHON
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+DDAAPMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&About",                      MAIN_ABOUT
+        MENUITEM SEPARATOR
+        POPUP "&Export"
+        BEGIN
+            MENUITEM "&EMF",                        EXPORT_EMF
+        END
+        MENUITEM "E&xit",                       MAIN_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Tool Bar",                   VIEW_TBAR, CHECKED
+        MENUITEM "&Status Bar",                 VIEW_SBAR, CHECKED
+        MENUITEM "&Enable Pop-up",              VIEW_POPUP, CHECKED
+        MENUITEM "T&ool Tips",                  VIEW_TOOLTIPS, CHECKED
+    END
+    POPUP "&Geometry"
+    BEGIN
+        MENUITEM "&New...",                     GEOM_NEW
+        MENUITEM "&Open...",                    GEOM_BROWSE
+        MENUITEM SEPARATOR
+        MENUITEM "View/Edit Text (&Dialog Box)", GEOM_EDITTXTD, GRAYED
+        MENUITEM "View/Edit &Text (Notepad)",   GEOM_EDITTXTN, GRAYED
+        MENUITEM "VisualEditor",                GEOM_EDIT_VE, GRAYED
+        MENUITEM "View &Graphics",              GEOM_VIEWGRF, GRAYED
+        MENUITEM "&Print Graphics",             GEOM_PGRF, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Draw GL",                     GEOMDRAW
+        MENUITEM SEPARATOR
+        MENUITEM "&Apply",                      GEOM_APPLY, GRAYED
+        MENUITEM "&Cancel",                     GEOM_CANCEL, GRAYED
+    END
+    POPUP "&Analysis"
+    BEGIN
+        MENUITEM "&New...",                     ANAL_NEW, GRAYED
+        MENUITEM "&Open...",                    ANAL_BROWSE, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "View/Edit Analysis Parameters (&Dialog Box)", 
+                                                ANAL_EDITPARAMD, GRAYED
+        MENUITEM "View/&Edit Analysis Parameters (Notepad)", ANAL_EDITPARAMN
+        , GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Run",                        ANAL_RUN, GRAYED
+        MENUITEM "&Pause",                      ANAL_PAUSE, GRAYED
+        MENUITEM "&Abort",                      ANAL_ABORT, GRAYED
+        MENUITEM "&Test Prop",                  AD_TESTPROP
+    END
+    POPUP "&Results"
+    BEGIN
+        MENUITEM "Replay",                      RES_REPLAY, GRAYED
+        MENUITEM "View &Graphics...",           RES_VGRF, GRAYED
+        MENUITEM "View &Text...",               RES_VTXT
+        MENUITEM SEPARATOR
+        MENUITEM "&Print Graphics",             RES_PGRF, GRAYED
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&Original geometry",          OPTIONS_ORIGGEOM
+        , CHECKED, GRAYED
+        MENUITEM "&Spy plot",                   OPTIONS_SPYPLOTS
+        MENUITEM "&Flag states",                OPTIONS_FLAGSTATES
+        MENUITEM "&Timing",                     OPTIONS_TIMING
+        MENUITEM "&Parameters",                 OPTIONS_PARAMETERS
+        MENUITEM "Fi&xed points",               OPTIONS_FIXEDPOINTS
+        MENUITEM "&Block areas",                OPTIONS_BLOCKAREAS
+        MENUITEM "&Measured points",            OPTIONS_MEASUREDPOINTS
+    END
+    POPUP "\a&Help"
+    BEGIN
+        MENUITEM "&Overview",                   DDAHELP_OVERVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "&Index\aShift+F1",            DDAHELP_INDEX
+        MENUITEM "DDA &Tutorial",               DDAHELP_TUTORIAL
+        MENUITEM "&Search",                     DDAHELP_SEARCH
+        MENUITEM "DDA &Geometry",               DDAHELP_GEOMETRY
+        MENUITEM "DDA &Analysis",               DDAHELP_ANALYSIS
+        MENUITEM "&Post processing",            DDAHELP_POSTPROCESS
+        MENUITEM SEPARATOR
+        MENUITEM "About &DDA",                  DDAHELP_ABOUTDDA
+    END
+END
+
+IDR_CHILDCONTEXT MENU DISCARDABLE 
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM SEPARATOR
+        MENUITEM "Open Geometry",               POPUP_GEOMETRY
+        MENUITEM "Open Analysis",               POPUP_ANALYSIS
+        MENUITEM "Replay",                      POPUP_REPLAY
+        MENUITEM "Abort Analysis",              POPUP_ABORT
+        MENUITEM "Exit",                        POPUP_EXIT
+        MENUITEM SEPARATOR
+    END
+END
+
+IDR_MENU1 MENU DISCARDABLE 
+BEGIN
+    POPUP "EPS"
+    BEGIN
+        MENUITEM "Item 1",                      ID_POPUP_ITEM1
+        MENUITEM "Item 2",                      ID_POPUP_ITEM2
+        MENUITEM "Item3",                       ID_POPUP_ITEM3
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+ICON_DDAMAIN            ICON    DISCARDABLE     "..\\resources\\dda.ico"
+ICON_DDA_ALT            ICON    DISCARDABLE     "..\\resources\\geom.ico"
+ICON_REDLEDON           ICON    DISCARDABLE     "..\\resources\\redledon.ico"
+ICON_REDLEDOFF          ICON    DISCARDABLE     "..\\resources\\redledoff.ico"
+ICON_GREENLEDOFF        ICON    DISCARDABLE     "..\\resources\\greenledoff.ico"
+ICON_GREENLEDON         ICON    DISCARDABLE     "..\\resources\\greenledon.ico"
+ICON_YELLLOWLEDOFF      ICON    DISCARDABLE     "..\\resources\\yellowledoff.ico"
+ICON_YELLOWLEDON        ICON    DISCARDABLE     "..\\resources\\yellowledon.ico"
+ICON_SWITCHOFF          ICON    DISCARDABLE     "..\\resources\\logoff.ico"
+ICON_SWITCHON           ICON    DISCARDABLE     "..\\resources\\logon.ico"
+ICON_ROCKBOLT           ICON    DISCARDABLE     "..\\resources\\rockbolt.ico"
+ICON_EARTHQUAKE         ICON    DISCARDABLE     "..\\resources\\earthquake.ico"
+ICON_LOADPOINT          ICON    DISCARDABLE     "..\\resources\\loadpoint.ico"
+ICON_CONTACT            ICON    DISCARDABLE     "..\\resources\\contact.ico"
+ICON_JOINTTYPE          ICON    DISCARDABLE     "..\\resources\\jointtype.ico"
+ICON_BLOCKMATERIALS     ICON    DISCARDABLE     "..\\resources\\blockmaterials.ico"
+ICON_STOPWATCH          ICON    DISCARDABLE     "..\\resources\\stopwatch.ico"
+ICON_FLAGS              ICON    DISCARDABLE     "..\\resources\\flag.ico"
+ICON_GRAVITY            ICON    DISCARDABLE     "..\\resources\\gravity.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+DRAWDLG DIALOGEX 10, 65500, 417, 372
+STYLE DS_LOCALEDIT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "New Geometry"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Save",IDOK,321,5,33,14
+    PUSHBUTTON      "Cancel",IDCANCEL,359,5,31,14
+    CONTROL         "Type 1 (black)",DD_J1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,323,96,62,12
+    CONTROL         "Type 2 (red)",DD_J2,"Button",BS_AUTORADIOBUTTON,323,109,
+                    62,12
+    CONTROL         "Type 3 (blue)",DD_J3,"Button",BS_AUTORADIOBUTTON,323,
+                    122,62,12
+    CONTROL         "Type 4 (green)",DD_J4,"Button",BS_AUTORADIOBUTTON,323,
+                    135,62,12
+    CONTROL         "Type 5 (purple)",DD_J5,"Button",BS_AUTORADIOBUTTON,323,
+                    148,62,12
+    CONTROL         "Type 6 (yellow)",DD_J6,"Button",BS_AUTORADIOBUTTON,323,
+                    161,62,12
+    CONTROL         "Type 7 (brown)",DD_J7,"Button",BS_AUTORADIOBUTTON,323,
+                    174,62,12
+    CONTROL         "Type 8 (olive)",DD_J8,"Button",BS_AUTORADIOBUTTON,323,
+                    187,62,12
+    CONTROL         "Fixed (open triangle)",DD_FP,"Button",
+                    BS_AUTORADIOBUTTON,320,231,77,12
+    CONTROL         "Measured (open circle)",DD_MP,"Button",
+                    BS_AUTORADIOBUTTON,320,242,85,12
+    CONTROL         "Load (filled triangle)",DD_LP,"Button",
+                    BS_AUTORADIOBUTTON,320,253,77,12
+    CONTROL         "Hole (filled circle)",DD_HP,"Button",BS_AUTORADIOBUTTON,
+                    320,264,77,12
+    CONTROL         "Bolt ",DD_BOLT1,"Button",BS_AUTORADIOBUTTON,330,315,29,
+                    12
+    GROUPBOX        "Points",DD_POINTS,317,218,95,77
+    GROUPBOX        "Joints",DD_JOINTS,317,87,95,131
+    CTEXT           "0",DD_X,323,40,28,8,SS_CENTERIMAGE | SS_SUNKEN
+    CTEXT           "0",DD_Y,358,40,28,8,SS_CENTERIMAGE | SS_SUNKEN
+    LTEXT           ",",-1,345,40,8,8
+    GROUPBOX        "Current Coordinates",IDC_GROUPBOX3,317,26,95,30
+    CONTROL         "On",DD_GRON,"Button",BS_AUTORADIOBUTTON | WS_GROUP,329,
+                    68,25,12
+    CONTROL         "Off",DD_GROFF,"Button",BS_AUTORADIOBUTTON,354,68,24,12
+    GROUPBOX        "Grid",IDC_GROUPBOX4,317,59,95,26
+    PUSHBUTTON      "Remove Last",DD_REMJ,322,203,50,11
+    PUSHBUTTON      "Remove Last",DD_REMP,323,280,62,11
+    GROUPBOX        "Bolts",DD_BOLTS,320,300,46,32
+    CONTROL         "",IDC_DRAWSPACE,"Static",SS_WHITERECT,0,0,316,315
+    EDITTEXT        IDC_MINX,28,321,23,14,ES_RIGHT | ES_AUTOHSCROLL
+    CTEXT           "Min. x",IDC_TMINX,5,325,20,8,SS_CENTERIMAGE
+    CTEXT           "Min. y",IDC_TMINY,57,325,20,8,SS_CENTERIMAGE
+    EDITTEXT        IDC_MINY,80,321,23,14,ES_RIGHT | ES_AUTOHSCROLL | 
+                    WS_GROUP | NOT WS_TABSTOP
+    EDITTEXT        IDC_MAXX,136,321,23,14,ES_RIGHT | ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAXY,193,321,23,14,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "Max. x",IDC_TMAXX,111,325,20,8
+    LTEXT           "Max. y",IDC_TMAXY,168,325,20,8
+    LTEXT           "Grid Spacing",IDC_GRIDSP,225,325,40,8
+    EDITTEXT        IDC_GRID,270,321,23,14,ES_RIGHT | ES_NUMBER
+    CONTROL         "Select",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,13,353,36,10
+    CONTROL         "Joints",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,65,353,
+                    34,10
+    CONTROL         "Points",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,119,353,
+                    35,10
+    CONTROL         "Bolts",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,167,353,
+                    31,10
+END
+
+UNITDLG DIALOG DISCARDABLE  0, 0, 152, 87
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Printing Scale: 1 in or 1 cm = "
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "English (ft)",IDC_ENGLISH,"Button",BS_AUTORADIOBUTTON,
+                    20,32,47,10
+    CONTROL         "MKS (meters)",IDC_METRIC,"Button",BS_AUTORADIOBUTTON,20,
+                    50,56,10
+    GROUPBOX        "Please Select Units for Printing",IDC_STATIC,7,14,111,
+                    56
+    PUSHBUTTON      "OK",IDC_OK,85,28,27,14
+END
+
+GEOMDLG1 DIALOG DISCARDABLE  19, 40, 332, 210
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Geometry Data"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        GD_NJOI,159,25,31,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_NFP,69,145,19,12,ES_RIGHT
+    EDITTEXT        GD_NMP,69,160,19,12,ES_RIGHT
+    EDITTEXT        GD_NLP,69,175,19,12,ES_RIGHT
+    EDITTEXT        GD_NHP,69,190,19,12,ES_RIGHT
+    EDITTEXT        GD_J1X1,42,52,31,12,ES_RIGHT | ES_NUMBER | WS_GROUP
+    EDITTEXT        GD_J1Y1,75,52,31,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J1X2,108,52,31,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J1Y2,141,52,31,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J1T,174,52,17,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J2X1,42,66,31,12,ES_RIGHT | WS_GROUP
+    EDITTEXT        GD_J2Y1,75,66,31,12,ES_RIGHT
+    EDITTEXT        GD_J2X2,108,66,31,12,ES_RIGHT
+    EDITTEXT        GD_J2Y2,141,66,31,12,ES_RIGHT
+    EDITTEXT        GD_J2T,174,66,17,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J3X1,42,80,31,12,ES_RIGHT | WS_GROUP
+    EDITTEXT        GD_J3Y1,75,80,31,12,ES_RIGHT
+    EDITTEXT        GD_J3X2,108,80,31,12,ES_RIGHT
+    EDITTEXT        GD_J3Y2,141,80,31,12,ES_RIGHT
+    EDITTEXT        GD_J3T,174,80,17,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J4X1,42,94,31,12,ES_RIGHT | WS_GROUP
+    EDITTEXT        GD_J4Y1,75,94,31,12,ES_RIGHT
+    EDITTEXT        GD_J4X2,108,94,31,12,ES_RIGHT
+    EDITTEXT        GD_J4Y2,141,94,31,12,ES_RIGHT
+    EDITTEXT        GD_J4T,174,94,17,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_J5X1,42,108,31,12,ES_RIGHT | WS_GROUP
+    EDITTEXT        GD_J5Y1,75,108,31,12,ES_RIGHT
+    EDITTEXT        GD_J5X2,108,108,31,12,ES_RIGHT
+    EDITTEXT        GD_J5Y2,141,108,31,12,ES_RIGHT
+    EDITTEXT        GD_J5T,174,108,17,12,ES_RIGHT | ES_NUMBER
+    EDITTEXT        GD_P1X,116,157,31,12,ES_RIGHT
+    EDITTEXT        GD_P1Y,149,157,31,12,ES_RIGHT
+    EDITTEXT        GD_P2X,116,171,31,12,ES_RIGHT
+    EDITTEXT        GD_P2Y,149,171,31,12,ES_RIGHT
+    EDITTEXT        GD_P3X,116,185,31,12,ES_RIGHT
+    EDITTEXT        GD_P3Y,149,185,31,12,ES_RIGHT
+    GROUPBOX        "Joint Data",IDC_GROUPBOX1,5,15,206,114
+    PUSHBUTTON      "Save",GD_SAVE,230,20,41,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,280,20,41,14
+    LTEXT           "Number of Joints:",IDC_STATIC,95,28,60,8
+    CTEXT           "(x1, y1)",IDC_STATIC,63,41,26,8
+    CTEXT           "(x2, y2)",IDC_STATIC,128,41,26,8,WS_TABSTOP
+    CTEXT           "Type",IDC_STATIC,173,41,19,8,WS_TABSTOP
+    LTEXT           "# Fixed Points:",IDC_STATIC,7,147,60,8
+    LTEXT           "# Measured Points:",IDC_STATIC,7,161,60,8
+    LTEXT           "# Load Points:",IDC_STATIC,7,176,60,8
+    LTEXT           "# Hole Points:",IDC_STATIC,7,192,60,8
+    SCROLLBAR       GD_JSCROLL,200,32,8,96,SBS_VERT
+    RTEXT           "1",GD_JLAB1,11,53,19,8
+    RTEXT           "2",GD_JLAB2,11,67,19,8
+    RTEXT           "3",GD_JLAB3,11,81,19,8
+    RTEXT           "4",GD_JLAB4,11,95,19,8
+    RTEXT           "5",GD_JLAB5,11,109,19,8
+    CTEXT           "#",IDC_STATIC,17,42,23,8
+    CTEXT           "(x, y)",IDC_STATIC,137,146,26,8
+    CTEXT           "Type",IDC_STATIC,179,146,18,8,WS_TABSTOP
+    GROUPBOX        "Point Data",IDC_GROUPBOX2,95,134,116,70
+    SCROLLBAR       GD_PSCROLL,201,139,8,65,SBS_VERT
+    RTEXT           "1",GD_PLAB1,99,159,12,8
+    RTEXT           "2",GD_PLAB2,99,173,12,8
+    RTEXT           "3",GD_PLAB3,99,187,12,8
+    CTEXT           "#",IDC_STATIC,102,147,12,8
+    CTEXT           "",GD_P1T,182,158,13,12
+    CTEXT           "",GD_P2T,182,173,13,12
+    CTEXT           "",GD_P3T,182,187,13,12
+    COMBOBOX        GD_BOLTNUMBER,290,100,25,32,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        GD_BOLTX1,255,120,31,12,ES_RIGHT | ES_READONLY
+    EDITTEXT        GD_BOLTY1,285,120,31,12,ES_RIGHT | ES_READONLY
+    EDITTEXT        GD_BOLTX2,255,135,31,12,ES_RIGHT | ES_READONLY
+    EDITTEXT        GD_BOLTY2,285,135,31,12,ES_RIGHT | ES_READONLY
+    EDITTEXT        GD_BOLTSTIFFNESS,285,155,31,12,ES_RIGHT
+    EDITTEXT        GD_BOLTSTRENGTH,285,170,31,12,ES_RIGHT
+    EDITTEXT        GD_BOLTPRETENSION,285,185,31,12,ES_RIGHT
+    GROUPBOX        "Rock Bolts",IDC_STATIC,220,70,105,135
+    LTEXT           "Bolt stiffness",IDC_STATIC,230,155,40,8,SS_CENTERIMAGE
+    LTEXT           "Tensile strength",IDC_STATIC,230,170,51,8,
+                    SS_CENTERIMAGE
+    LTEXT           "Pre-tension",IDC_STATIC,230,185,36,8,SS_CENTERIMAGE
+    LTEXT           "Bolt",IDC_STATIC,265,100,13,8
+    LTEXT           "(x1,y1)",IDC_STATIC,230,120,22,8,SS_CENTERIMAGE
+    LTEXT           "(x2,y2)",IDC_STATIC,230,135,22,8,SS_CENTERIMAGE
+    LTEXT           "Number of Bolts",IDC_STATIC,230,85,51,8
+    EDITTEXT        GD_NUMBOLTS,290,85,25,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+APWEDGED DIALOG DISCARDABLE  0, 0, 332, 161
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Active/Passive Wedge Analysis"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Save",APWEDGE_SAVE,90,10,60,14
+    PUSHBUTTON      "Cancel",IDCANCEL,205,10,50,14
+    EDITTEXT        APWEDGE_A1,60,60,40,14,ES_AUTOHSCROLL
+    EDITTEXT        APWEDGE_A2,60,80,40,14,ES_AUTOHSCROLL
+    EDITTEXT        APWEDGE_A3,60,100,40,14,ES_AUTOHSCROLL
+    EDITTEXT        APWEDGE_A4,60,125,40,14,ES_AUTOHSCROLL
+    LTEXT           "Joint 1",IDC_STATIC,130,80,22,8
+    LTEXT           "Joint 2",IDC_STATIC,130,100,22,8
+    LTEXT           "Joint 3",IDC_STATIC,130,125,22,8
+    EDITTEXT        APWEDGE_JF1,160,76,40,14,ES_AUTOHSCROLL
+    EDITTEXT        APWEDGE_JC1,210,76,40,14,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        APWEDGE_JT1,265,76,40,15,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        APWEDGE_JF2,160,98,40,14,ES_AUTOHSCROLL
+    EDITTEXT        APWEDGE_JC2,210,100,40,14,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        APWEDGE_JT2,265,100,40,14,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        APWEDGE_JF3,160,121,40,14,ES_AUTOHSCROLL
+    EDITTEXT        APWEDGE_JC3,210,121,40,14,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        APWEDGE_JT3,265,121,40,14,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Friction",IDC_STATIC,165,60,24,8
+    LTEXT           "Cohesion",IDC_STATIC,215,60,30,8
+    LTEXT           "Tensile Strength",IDC_STATIC,260,60,52,8
+    LTEXT           "alpha",IDC_STATIC,20,65,18,8
+    LTEXT           "beta",IDC_STATIC,20,85,15,8
+    LTEXT           "psi",IDC_STATIC,20,105,10,8
+    LTEXT           "delta",IDC_STATIC,20,125,16,8
+    GROUPBOX        "Angles",IDC_STATIC,5,45,105,100
+    GROUPBOX        "Joint properties",IDC_STATIC,120,45,195,100
+END
+
+IDD_BLOCKPROPS DIALOG DISCARDABLE  0, 0, 238, 167
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        AD_BMAT,41,26,23,35,CBS_DROPDOWNLIST | WS_DISABLED | 
+                    WS_VSCROLL
+    EDITTEXT        AD_DENS,69,52,39,12
+    EDITTEXT        AD_WT,69,66,39,12
+    EDITTEXT        AD_YMOD,173,53,39,12
+    EDITTEXT        AD_POIS,173,66,39,12
+    EDITTEXT        AD_ISSX,35,98,39,12,ES_RIGHT
+    EDITTEXT        AD_ISSY,35,112,39,12,ES_RIGHT
+    EDITTEXT        AD_ISSXY,35,126,39,12,ES_RIGHT
+    EDITTEXT        AD_ISTX,97,98,39,12,ES_RIGHT
+    EDITTEXT        AD_ISTY,97,112,39,12,ES_RIGHT
+    EDITTEXT        AD_ISTXY,97,126,39,12,ES_RIGHT
+    EDITTEXT        AD_IVELX,157,98,39,12,ES_RIGHT
+    EDITTEXT        AD_IVELY,157,112,39,12,ES_RIGHT
+    EDITTEXT        AD_IVELR,157,126,39,12,ES_RIGHT
+    LTEXT           "Number of Block Material Types:",IDC_STATIC,69,27,104,9,
+                    NOT WS_GROUP
+    LTEXT           "Mass Density:",IDC_STATIC,21,56,46,8
+    LTEXT           "Unit Weight:",IDC_STATIC,21,68,42,8
+    LTEXT           "Young's Modulus:",IDC_STATIC,113,56,56,8
+    LTEXT           "Poisson's Ratio:",IDC_STATIC,117,66,51,8
+    LTEXT           "Initial Stresses",IDC_STATIC,25,85,60,8
+    LTEXT           "Initial Strains",IDC_STATIC,87,85,60,8
+    LTEXT           "Initial Velocities",IDC_STATIC,149,85,51,8
+    LTEXT           "x:",IDC_STATIC,25,102,10,8
+    LTEXT           "y:",IDC_STATIC,25,114,10,8
+    LTEXT           "xy:",IDC_STATIC,25,126,10,8
+    LTEXT           "x:",IDC_STATIC,85,103,10,8
+    LTEXT           "y:",IDC_STATIC,85,115,10,8
+    LTEXT           "xy:",IDC_STATIC,85,127,10,8
+    LTEXT           "x:",IDC_STATIC,147,103,8,8
+    LTEXT           "y:",IDC_STATIC,147,115,8,8
+    LTEXT           "r:",IDC_STATIC,147,127,8,8
+    LTEXT           "Block Type:",IDC_STATIC,13,14,45,11
+    PUSHBUTTON      "-",AD_BMINUS,197,24,13,12,WS_DISABLED | NOT WS_TABSTOP
+    PUSHBUTTON      "+",AD_BPLUS,209,24,13,12,WS_DISABLED | NOT WS_TABSTOP
+    RTEXT           "",AD_NBMAT,177,24,15,11,SS_SUNKEN | WS_DISABLED | NOT 
+                    WS_GROUP
+    GROUPBOX        "Block properties",IDC_STATIC,13,41,208,107
+END
+
+IDD_JOINTPROPS DIALOG DISCARDABLE  0, 0, 242, 130
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        AD_JMAT,56,63,23,32,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    EDITTEXT        AD_FRIC,159,50,39,12,ES_RIGHT
+    EDITTEXT        AD_COH,159,65,39,12,ES_RIGHT
+    EDITTEXT        AD_TENS,159,79,39,12,ES_RIGHT
+    LTEXT           "Number of Joint Material Types:",IDC_STATIC,46,30,104,8,
+                    NOT WS_GROUP
+    LTEXT           "Joint Type",IDC_STATIC,51,52,37,11
+    LTEXT           "Friction Angle:",IDC_STATIC,97,52,50,8
+    LTEXT           "Cohesion:",IDC_STATIC,97,68,37,8
+    LTEXT           "Tensile Strength:",IDC_STATIC,97,81,59,8
+    PUSHBUTTON      "-",AD_JMINUS,175,30,13,12
+    PUSHBUTTON      "+",AD_JPLUS,188,30,13,12
+    CONTROL         "",AD_NJMAT,"Static",SS_LEFTNOWORDWRAP | SS_SUNKEN | 
+                    WS_TABSTOP,156,31,15,8
+    GROUPBOX        "Joint properties",IDC_STATIC,20,15,200,90
+END
+
+IDD_BOLTPROPERTIES DIALOG DISCARDABLE  0, 0, 186, 121
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Propeties of rock bolts"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        BPD_BOLTTYPE,108,20,31,32,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    EDITTEXT        IDC_EDIT1,108,39,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT2,108,60,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT3,108,81,40,14,ES_AUTOHSCROLL
+    LTEXT           "Strength",IDC_STATIC,41,45,28,8
+    LTEXT           "Pretension",IDC_STATIC,41,66,34,8
+    LTEXT           "?????",IDC_STATIC,41,87,21,8
+    LTEXT           "Bolt type",IDC_STATIC,41,24,28,8
+    GROUPBOX        "Bolt properties",IDC_STATIC,15,10,160,100
+END
+
+IDD_SEISMIC DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Seismic parameters"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Time history format",IDC_STATIC,17,16,139,64
+    CONTROL         "Shake 91",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,30,32,
+                    47,10
+    CONTROL         "Matlab",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,30,47,37,
+                    10
+END
+
+IDD_TIMESTEP DIALOGEX 0, 0, 224, 164
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Time step parameters"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        AD_NTS,156,50,31,12,ES_RIGHT
+    EDITTEXT        AD_MAXDISP,156,70,31,12,ES_RIGHT
+    LTEXT           "&Number of Timesteps:",IDC_STATIC,79,52,70,8,NOT 
+                    WS_GROUP
+    LTEXT           "&Max Displacement per Timestep:",IDC_STATIC,45,73,104,8,
+                    NOT WS_GROUP
+    EDITTEXT        AD_SAVEINT,115,116,25,12,ES_RIGHT
+    LTEXT           "Timestep(s)",IDC_STATIC,149,120,38,8,NOT WS_GROUP
+    GROUPBOX        "Ti me step parameters",IDC_STATIC,25,20,173,123
+    LTEXT           "&Save Data Every",IDC_STATIC,50,120,58,8,NOT WS_GROUP
+    LTEXT           "&Time step:",IDC_STATIC,116,33,33,8
+    EDITTEXT        IDC_EDIT1,156,30,31,12,ES_AUTOHSCROLL,WS_EX_RIGHT
+    CONTROL         "&Adaptive Time Stepping",IDC_CHECK1,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,96,95,91,10
+END
+
+IDD_AFLAGS DIALOG DISCARDABLE  0, 0, 217, 181
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Analysis flags"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Analysis runtime flags",IDC_STATIC,30,10,150,150
+    CONTROL         "Static",AD_STATIC,"Button",BS_AUTORADIOBUTTON | 
+                    BS_LEFTTEXT | WS_GROUP | WS_TABSTOP,105,50,41,12
+    CONTROL         "Dynamic",AD_DYNAMIC,"Button",BS_AUTORADIOBUTTON | 
+                    BS_LEFTTEXT | WS_TABSTOP,105,35,41,12
+    CONTROL         "Plane stress",AD_PSTRESS,"Button",BS_AUTORADIOBUTTON | 
+                    BS_LEFTTEXT | WS_GROUP | WS_TABSTOP,101,124,53,12
+    CONTROL         "Plane strain",AD_PSTRAIN,"Button",BS_AUTORADIOBUTTON | 
+                    BS_LEFTTEXT | WS_TABSTOP,101,139,53,12
+    CONTROL         "Rotation correction",AD_ROTATION,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,78,109,76,10
+    CONTROL         "Gravity phase",AD_GRAVITY,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,95,94,59,10
+    GROUPBOX        "Analysis type",IDC_STATIC,61,25,95,45
+END
+
+IDD_LOADPOINTS DIALOG DISCARDABLE  0, 0, 257, 161
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Load Points"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        AD_TIMEDEPS,42,57,23,32,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    SCROLLBAR       AD_TDSCROLL,202,37,8,75,SBS_VERT
+    LTEXT           "Load Point",IDC_STATIC,36,42,37,11
+    CTEXT           "Start time",IDC_STATIC,82,37,35,8
+    CTEXT           "Force x",IDC_STATIC,122,37,37,8
+    CTEXT           "Force y",IDC_STATIC,162,37,30,8
+    EDITTEXT        AD_STARTTIME1,82,47,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX1,122,47,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY1,162,47,39,12,ES_RIGHT
+    EDITTEXT        AD_STARTTIME2,82,62,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY2,162,62,39,12,ES_RIGHT
+    EDITTEXT        AD_STARTTIME3,82,77,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX3,122,77,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY3,162,77,39,12,ES_RIGHT
+    EDITTEXT        AD_STARTTIME4,82,92,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX4,122,92,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY4,162,92,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX2,122,62,39,12,ES_RIGHT
+    GROUPBOX        "Load point values",IDC_STATIC,20,20,210,110
+END
+
+IDD_GRAVITY DIALOG DISCARDABLE  0, 0, 185, 135
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Gravity"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Gravity parameters",IDC_STATIC,19,13,144,97
+    LTEXT           "Gravity time steps",IDC_STATIC,27,30,56,8
+    LTEXT           "Normal force tol:",IDC_STATIC,27,73,52,8
+    LTEXT           "Load residual tol:",IDC_STATIC,27,52,54,8
+    LTEXT           "Shear force tol:",IDC_STATIC,27,93,49,8
+    EDITTEXT        IDC_GRAVTIMESTEPS,99,27,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOADRESIDUAL,99,48,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NORMALFORCETOL,99,69,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SHEARFORCETOL,99,90,40,14,ES_AUTOHSCROLL
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "UNITDLG", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 118
+        TOPMARGIN, 14
+        BOTTOMMARGIN, 70
+    END
+
+    "APWEDGED", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 325
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_BLOCKPROPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 231
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 160
+    END
+
+    IDD_JOINTPROPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 109
+    END
+
+    IDD_BOLTPROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_SEISMIC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_TIMESTEP, DIALOG
+    BEGIN
+        LEFTMARGIN, 3
+        RIGHTMARGIN, 217
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+
+    IDD_AFLAGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 210
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 174
+    END
+
+    IDD_LOADPOINTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 250
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_GRAVITY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 128
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+DDAAPACCEL ACCELERATORS DISCARDABLE 
+BEGIN
+    VK_F1,          MENU_HELPINDEX,         VIRTKEY, SHIFT, NOINVERT
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+ANALDLG2 DIALOG DISCARDABLE  13, 70, 362, 255
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "ANALYSIS DATA 2"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Static",AD_STAT,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
+                    WS_TABSTOP | 0x10,212,13,41,12
+    CONTROL         "Dynamic",AD_DYNAM,"Button",BS_AUTORADIOBUTTON | 
+                    WS_TABSTOP,212,27,41,12
+    EDITTEXT        AD_NTS,319,53,31,12,ES_RIGHT
+    EDITTEXT        AD_MAXDISP,319,67,31,12,ES_RIGHT
+    COMBOBOX        AD_JMAT,210,134,23,32,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    EDITTEXT        AD_FRIC,313,121,39,12,ES_RIGHT
+    EDITTEXT        AD_COH,313,135,39,12,ES_RIGHT
+    EDITTEXT        AD_TENS,313,149,39,12,ES_RIGHT
+    COMBOBOX        AD_BMAT,19,50,23,35,CBS_DROPDOWNLIST | WS_DISABLED | 
+                    WS_VSCROLL
+    EDITTEXT        AD_DENS,147,37,39,12
+    EDITTEXT        AD_WT,147,51,39,12
+    EDITTEXT        AD_YMOD,147,65,39,12
+    EDITTEXT        AD_POIS,147,79,39,12
+    EDITTEXT        AD_ISSX,25,119,39,12,ES_RIGHT
+    EDITTEXT        AD_ISSY,25,133,39,12,ES_RIGHT
+    EDITTEXT        AD_ISSXY,25,147,39,12,ES_RIGHT
+    EDITTEXT        AD_ISTX,86,119,39,12,ES_RIGHT
+    EDITTEXT        AD_ISTY,86,133,39,12,ES_RIGHT
+    EDITTEXT        AD_ISTXY,86,147,39,12,ES_RIGHT
+    EDITTEXT        AD_IVELX,147,119,39,12,ES_RIGHT
+    EDITTEXT        AD_IVELY,147,133,39,12,ES_RIGHT
+    EDITTEXT        AD_IVELR,147,147,39,12,ES_RIGHT
+    PUSHBUTTON      "Save",AD_SAVE,270,10,40,15,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,315,10,40,15
+    LTEXT           "Number of Timesteps:",-1,236,56,78,8,NOT WS_GROUP
+    LTEXT           "Number of Block Material Types:",-1,8,10,122,9,NOT 
+                    WS_GROUP
+    LTEXT           "Number of Joint Material Types:",-1,200,100,104,8,NOT 
+                    WS_GROUP
+    LTEXT           "Max Displacement per Timestep:",-1,202,70,111,8,NOT 
+                    WS_GROUP
+    LTEXT           "Joint Type",-1,205,122,37,11
+    LTEXT           "Friction Angle:",-1,251,123,50,8
+    LTEXT           "Cohesion:",-1,251,138,37,8
+    LTEXT           "Tensile Strength:",-1,251,151,59,8
+    LTEXT           "Mass Density:",-1,83,40,60,8
+    LTEXT           "Unit Weight:",-1,83,53,60,8
+    LTEXT           "Young's Modulus:",-1,83,66,60,8
+    LTEXT           "Poisson's Ratio:",-1,83,79,60,8
+    LTEXT           "Initial Stresses",-1,15,106,60,8
+    LTEXT           "Initial Strains",-1,77,106,60,8
+    LTEXT           "Initial Velocities",-1,139,106,51,8
+    LTEXT           "x:",-1,14,123,10,8
+    LTEXT           "y:",-1,14,135,10,8
+    LTEXT           "xy:",-1,14,147,10,8
+    LTEXT           "x:",-1,74,124,10,8
+    LTEXT           "y:",-1,74,136,10,8
+    LTEXT           "xy:",-1,74,148,10,8
+    LTEXT           "x:",-1,137,124,7,8
+    LTEXT           "y:",-1,137,136,7,8
+    LTEXT           "r:",-1,137,148,7,8
+    LTEXT           "Block Type",-1,15,37,37,11
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,200,115,155,50
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,6,29,188,136
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,200,10,60,35
+    PUSHBUTTON      "-",AD_JMINUS,329,100,13,12
+    PUSHBUTTON      "+",AD_JPLUS,342,100,13,12
+    PUSHBUTTON      "-",AD_BMINUS,166,9,13,12,WS_DISABLED | NOT WS_TABSTOP
+    PUSHBUTTON      "+",AD_BPLUS,179,9,13,12,WS_DISABLED | NOT WS_TABSTOP
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,307,100,21,12
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,144,9,21,12
+    RTEXT           "",AD_NBMAT,147,10,15,11,SS_SUNKEN | WS_DISABLED | NOT 
+                    WS_GROUP
+    CONTROL         "",AD_NJMAT,"Static",SS_LEFTNOWORDWRAP | SS_SUNKEN | 
+                    WS_TABSTOP,310,102,15,8
+    LTEXT           "Save Data Every",-1,202,84,58,8,NOT WS_GROUP
+    EDITTEXT        AD_SAVEINT,264,82,39,12,ES_RIGHT
+    LTEXT           "Timestep(s)",-1,310,84,42,8,NOT WS_GROUP
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,199,49,157,48
+    CONTROL         "Plane stress",AD_PSTRESS,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,17,213,53,12
+    CONTROL         "Plane strain",AD_PSTRAIN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_TABSTOP,17,227,53,12
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,5,210,80,35
+    CONTROL         "Rotation correction",AD_ROTATION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,20,175,76,10
+    CONTROL         "Gravity phase",AD_GRAVITY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,190,59,10
+    COMBOBOX        AD_TIMEDEPS,185,195,23,32,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    SCROLLBAR       AD_TDSCROLL,345,175,8,75,SBS_VERT
+    LTEXT           "Load Point",-1,180,180,37,11
+    CTEXT           "Start time",-1,225,175,35,8
+    CTEXT           "Force x",-1,265,175,37,8
+    CTEXT           "Force y",-1,305,175,30,8
+    CONTROL         "",-1,"Static",SS_BLACKFRAME,170,170,185,80
+    EDITTEXT        AD_STARTTIME1,225,185,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX1,265,185,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY1,305,185,39,12,ES_RIGHT
+    EDITTEXT        AD_STARTTIME2,225,200,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX2,265,200,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY2,305,200,39,12,ES_RIGHT
+    EDITTEXT        AD_STARTTIME3,225,215,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX3,265,215,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY3,305,215,39,12,ES_RIGHT
+    EDITTEXT        AD_STARTTIME4,225,230,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEX4,265,230,39,12,ES_RIGHT
+    EDITTEXT        AD_FORCEY4,305,230,39,12,ES_RIGHT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "ANALDLG2", DIALOG
+    BEGIN
+        BOTTOMMARGIN, 204
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,125 @@
+\documentclass{article}
+\usepackage{chicago}
+\newcommand{\model}[1]{{\sc #1}}
+\begin{document}
+
+\title{Release notes for Version 1.6 of DDA
+for Windows NT}
+\date{\today}
+\author{}
+\maketitle
+
+\section*{DDA for Windows}
+
+DDA for Windows release 1.6 is scheduled to have the following
+features implemented.
+
+%Anything added to the feature list
+%costs not just implementation time, but adds to the time required 
+%for debugging, to generate test cases, and actually test those cases.  
+
+
+\begin{itemize}
+
+
+\item File format changes to support rotation 
+correction, plane stress or plane strain,
+gravitational pre-loading and rockbolts.
+
+\item Exact rotation post-correction~\cite{maclaughlin:mm97}.
+For the user, rotation post-correction is implemented as a flag 
+in the input file to switch between linear rotations and exact trig 
+post-corrected rotations. 
+
+\item Maclaughlin's~\citeyear{maclaughlin:mm97} gravitation phase
+model.
+
+\item Rock bolts using Gen-Hua Shi's spring model.
+
+\item  ``Preliminary'' time dependent loading.  
+This actually seems to work
+as of 1.5.26, but it has not been subject to any verification 
+testing whatsoever.  Propose sending this out to 
+users for feedback.
+
+%\item GL graphics with full double-buffering.
+
+\end{itemize}
+
+
+\section*{Pre-release issues}
+
+An considerable amount of work still needs to be done to get this 
+release ready to ship.   
+
+\begin{enumerate}
+
+\item Problems with gravity turn-on:
+
+1. Using the same number of steps for both gravity convergence
+and analysis results in the analysis not being run after the 
+gravity phase runs to step limit.  
+
+2. Contact forces will not converge if a contact length is
+equal to zero.   This is probably a bug.  Fixing will require 
+finding where contact lengths are set.  The problem seems to
+be with the implementation of the gravity algorithm, because
+analyses work otherwise.  The current trap is set at 
+label {\tt c207} in function {\tt df22()}.
+
+\item New bitmap for v1.6.
+
+\item Gravity code is (mostly) in, and runs without 
+seg faulting, but does not do anything.  That is,
+the accumulated forces are not assigned to the appropriate
+variables at the end of the gravity phase.
+
+\item Issues for rock bolts:
+
+Rock bolt endpoints are probably being updated correctly,
+modulo rotation correction,
+but the graphics code is not displaying the updates.  This 
+is minor and should be easily fixed. 
+
+\item Manual needs to be updated with text explaining new file
+formats and screenshots of the visual editor.  The inclined 
+plane problem should be written up as a tutorial style
+example problem.  Users should be advised to verify that 
+DDA runs the other example problems (if any) correctly,
+and to submit a bug report if not.
+
+
+\end{enumerate}
+
+
+\section*{Unresolved problems and bugs}
+
+Items in this list do not interfere with using DDA according 
+to the programmers intentions.  Since users intentions rarely
+overlap the programmers intentions, many combinations of 
+interface actions will produce seg faults.  Most of these
+can be fixed relatively quickly, when it becomes necessary
+to do so.  In the interim, the behavior can be documented,
+and fixed on user demand.
+
+\begin{itemize}
+
+
+\item For time loads, giving the same time value twice in a 
+row will segfault.  This could be documented in the user
+manual.  Or caught in the input code.
+
+\item  Bad geometry file will segfault DDA.   Try and launch 
+notepad to fix.
+
+
+\item Anlysis files used with wrong geometry files will 
+invariably segfault.  Should probably try and trap this.
+
+\end{itemize}
+
+
+\bibliographystyle{chicago}
+\bibliography{dda}
+
+\end{document}

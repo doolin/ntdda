@@ -1,0 +1,11 @@
+del *.dvi 
+del *.aux
+del *.ps
+del *.log
+del *.bbl
+del *.blg
+del *.toc
+del *.ind
+del *.idx
+del *.ilg
+del *~

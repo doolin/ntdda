@@ -1,0 +1,6 @@
+/*
+ *
+ */
+
+
+int lexmotion(char * filename);
