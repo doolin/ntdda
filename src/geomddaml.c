@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2003/06/10 20:09:02 $
+ * $Date: 2003/06/10 22:19:45 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.18 $
+ * $Revision: 1.19 $
  */
 
 /**
@@ -526,7 +526,7 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
   /* Make the compiler link the floating point libraries. */
    double temp[4] = {0.0};
    char * tempstring;
-   int checkval;
+   int checkval, bolt_type;
 
   /** @todo postpone setting gdata field until transfer. */
    gdata->nBolts = 0;
@@ -539,8 +539,22 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
          // mmm: modified/added code to recognize bolt type in geom file
 		 bolt = bolt_new();
-		 checkval = atoi(xmlGetProp(cur, "type"));
-		 bolt_set_type(bolt, checkval);
+		 tempstring = xmlGetProp(cur, "type");
+		 if (tempstring == NULL) {
+            fprintf(stdout,"Warning: No bolt type specified, using default\n");
+			bolt_type = 1;  // defaults to bolt type 1 (GHS bolt)
+         } else {
+			checkval = atoi(tempstring);
+			// should probably check for a valid type number before assigning...
+			// right now, hardwire 2 for max type (should change this later)
+			if (checkval < 1 || checkval > 2) {
+				fprintf(stdout,"Warning: Invalid bolt type specified, using default\n");
+				bolt_type = 1;  // defaults to bolt type 1 (GHS bolt)
+			} else {
+				bolt_type = checkval;
+			} // end if 			
+		 } // end if
+		 bolt_set_type(bolt, bolt_type);
 
 		 tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          if (tempstring == NULL) {
@@ -552,7 +566,7 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
                               &temp[0],&temp[1],&temp[2], &temp[3]); 
             if (checkval == 4) {
              
-               // mmm 
+               // mmm: needed to move this several lines up
 			   // bolt = bolt_new();
                bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
                boltlist_append(boltlist,bolt);
