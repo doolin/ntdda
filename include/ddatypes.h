@@ -4,7 +4,7 @@
 #ifndef __DDATYPES_H_
 #define __DDATYPES_H_
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <sys/types.h>
 
 /* The reason 
@@ -15,6 +15,18 @@
  * is an invitation to disaster.
  */
 typedef int ddaboolean;
+
+
+/** Standard typedefs for constructing callbacks. */
+#ifndef PRINTFUNC
+#define PRINTFUNC
+typedef int  (*PrintFunc)(void *, const char *, const char *);
+#endif
+
+#ifndef DISPLAYFUNC
+#define DISPLAYFUNC
+typedef int  (*DisplayFunc)(const char * message);
+#endif
 
 /* TODO: collect all the enums for the program to right here
  * for the time being.  Later, a more rational plan can be 
@@ -161,7 +173,7 @@ struct _ddarfile {
    char * headerstring;
    char * trailerstring;
    char path[256];
-   FILE * fp;
+   //FILE * fp;
    void (*open)(DDARFile *);
    void (*appand)(DDARFile *);
    void (*close)(DDARFile *);

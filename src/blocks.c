@@ -9,9 +9,9 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:01:28 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 
@@ -1512,7 +1512,7 @@ b102:;
    {
       if ( points[i][3] != 0 ) 
          continue;  // goto b103;
-      iface->displaymessage("Point outside of block");
+      dda_display_warning("Point outside of block");
       fprintf(ddacutlog,"fixed load measured point outside all blocks %d \n",i);
       fprintf(ddacutlog,"%f , %f \n",points[i][1],points[i][2]);
 //b103:;

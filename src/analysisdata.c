@@ -1,4 +1,9 @@
 
+
+#ifdef WIN32
+#pragma warning( disable : 4115 )        
+#endif
+
 #include <string.h>
 #include <assert.h>
 #include "analysisdata.h"
@@ -9,15 +14,15 @@
 #include <math.h>
 
 
-extern InterFace * iface;
+//extern InterFace * iface;
 
 #define I1 "   "
 #define I2 "      "
 
 
+/** FIXME: Get rid of these prototypes. */
 static void dumpDDAMLAnalysisFile(Analysisdata *, FILE * outfilestream);
-static void emitAConstants(Analysisdata *, FILE *);
-static void emitLoadpoints(Analysisdata *, FILE *);
+static void emitAConstants(CONSTANTS *, FILE *);
 static void emitBlockMaterials(Analysisdata *, FILE *);
 static void emitJointMaterials(Analysisdata *, FILE *);
 
@@ -141,9 +146,9 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
    fprintf(outfile,I1"<!-- These used to be hard-wired into the\n"); 
    fprintf(outfile,I1"     DDA source code.  Not currently used -->\n");
 
-   emitAConstants(ad, outfile);
+   emitAConstants(ad->constants, outfile);
 
-   emitLoadpoints(ad, outfile);
+   //emitLoadpoints(ad, outfile);
 
    emitBlockMaterials(ad, outfile);
 
@@ -158,16 +163,17 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
 
 
 static void 
-emitAConstants(Analysisdata * ad, FILE * outfile)
-{
+emitAConstants(CONSTANTS * constants, FILE * outfile) {
 
-   CONSTANTS * constants = ad->constants;
+   //CONSTANTS * constants = ad->constants;
+
 
   /* FIXME:  Actually use the constants instead of the 
    * hardwired default values here.
    */
    fprintf(outfile,I1"<AConstants>\n");
-   fprintf(outfile,I2"<Openclose value=\"0.0002\"/>\n");
+   //fprintf(outfile,I2"<Openclose value=\"0.0002\"/>\n");
+   fprintf(outfile,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
    fprintf(outfile,I2"<Opencriteria value=\"0.0000002\"/>\n");
    fprintf(outfile,I2"<Domainscale value=\"0.0004\"/>\n");
    fprintf(outfile,I2"<NormSpringPen value=\"derived\"/>\n");
@@ -180,12 +186,12 @@ emitAConstants(Analysisdata * ad, FILE * outfile)
 }  /* close emitAConstants() */
 
 
+/** FIXME: Implement this function. */
+/*
 static void 
 emitLoadpoints(Analysisdata * ad, FILE * outfile) {
-
-
-}  /* close emitLoadpoints() */
-
+}  
+*/
 
 static void 
 emitBlockMaterials(Analysisdata * ad, FILE * outfile)
@@ -246,31 +252,31 @@ emitJointMaterials(Analysisdata * ad, FILE * outfile)
 
 }  /* close emitJointMaterials() */
 
+
+
+/*
 static void
-emitBoltMaterials(Analysisdata * ad, FILE * outfile)
-{
+emitBoltMaterials(Analysisdata * ad, FILE * outfile) {
+}  
+*/
 
-
-
-}  /* close emitBoltMaterials() */
 
 
 /* TODO: Instead of exit(0), construct an API for 
  * "fixing" mistakes, and use that instead.
  */
 void
-adata_validate(Analysisdata * ad)
-{
+adata_validate(Analysisdata * ad) {
+
    int i;
    int nb = ad->nBlockMats;
-   double grav = ad->gravaccel; 
-   double ** materialProps = ad->materialProps;
+   //double grav = ad->gravaccel; 
+   //double ** materialProps = ad->materialProps;
 
   /* Check to make sure that density and unit weight
    * are related by the value of gravity.
    */
-   for (i=1; i<= nb; i++)
-   {
+   for (i=1; i<= nb; i++) {
      /* That is, set the initial spring stiffness
       * equal to the highest Young's modulus...
       */
@@ -292,11 +298,13 @@ adata_validate(Analysisdata * ad)
    * interval in the time series matches the analysis time 
    * step.
    */
-   if (ad->timehistory != NULL)
-   {
-      if (th_get_delta_t(ad->timehistory) != ad->delta_t)
-      {
-         iface->displaymessage("Analysis time step must be equal to time interval in time history.");
+   if (ad->timehistory != NULL) {
+      if (th_get_delta_t(ad->timehistory) != ad->delta_t) {
+
+         //iface->displaymessage("Analysis time step must be equal to time interval in time history.");
+         ad->printer("Analysis time step must be equal to time interval in time history.");
+
+
          exit(0);
       }
    }
@@ -581,8 +589,9 @@ analysisInput(char * analysisFile, Geometrydata * gd)
           break;
           
        case extended: 
-          iface->displaymessage("Extended analysis file format deprecated");
-          exit(0);
+          //iface->displaymessage("Extended analysis file format deprecated");
+          //AData->printer(NULL,"Warning","Extended analysis file format deprecated");
+          //exit(0);
          /*
           AData = analysisReader2(analysisFile, gd->pointCount);
           if (!AData)
@@ -594,8 +603,9 @@ analysisInput(char * analysisFile, Geometrydata * gd)
           */
        case original:
        default:          
-          iface->displaymessage("Obsolete geometry file detected" /* "Warning" */);
+          //iface->displaymessage("Obsolete geometry file detected" /* "Warning" */);
           AData = analysisReader1(analysisFile, gd);  
+          AData->printer("Obsolete geometry file detected");
    }
 
   /* Lets set `this' here, because inputAnalysis is the pipe through 
@@ -605,7 +615,7 @@ analysisInput(char * analysisFile, Geometrydata * gd)
    
    return AData;
 
-}  /* close analysisInput() */
+}  
 
 
 
@@ -650,7 +660,6 @@ adata_clear_output_flag(Analysisdata * ad, int flag)
  * they are in the correct header files.
  */
 Analysisdata *
-//cloneAnalysisData(Analysisdata * adn) {
 adata_clone(Analysisdata * adn) {
 
    int i;

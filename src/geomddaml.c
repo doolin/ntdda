@@ -1,6 +1,5 @@
 
 /*
- * parseGeometry.c 
  *
  * An example program for DDA input file  XML format
  *
@@ -9,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/08/26 03:16:26 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 
@@ -27,6 +26,8 @@
 #include "ddamemory.h"
 #include "geometrydata.h"
 #include "interface.h"
+
+#include "ddaml.h"
 
 extern InterFace * iface;
 
@@ -54,7 +55,7 @@ static xmlNsPtr nspace;
 
 //static enum pointtype {fixed=0,measured,load,hole} pointtype;
 
-static Geometrydata * parseGeometry(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
+static void  parseGeometry(Geometrydata *, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 static void * parseEdgenodedist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
@@ -116,33 +117,21 @@ GKWDTAB gtab_type[] = {
 };
 
 
+
 Geometrydata * gdata;
 
-#ifdef STANDALONE
-int 
-main(int argc, char **argv) 
-{
-   int i;
-   fprintf(stderr,"Parsing geometry data from geometry main\n");
-
-   for (i = 1; i < argc ; i++) 
-   {
-	     gdata = XMLparseDDA_Geometry_File(argv[i]);
-   }
-
-   return(0);
-}  /* close main() */
-
-#endif /* STANDALONE */
 
 
-Geometrydata *
-XMLparseDDA_Geometry_File(char *filename) 
-{
+
+//Geometrydata *
+//XMLparseDDA_Geometry_File(Geometrydata *, char *filename) 
+void
+ddaml_read_geometry_file(void * userdata, char *filename) {
+
    xmlDocPtr doc;
    xmlNsPtr ns;
    xmlNodePtr cur;
-   Geometrydata * gd;
+   Geometrydata * gd = (Geometrydata *)userdata;
 
    xmlDoValidityCheckingDefaultValue = 1;
 
@@ -155,7 +144,7 @@ XMLparseDDA_Geometry_File(char *filename)
 
   /* This is where we need an exception */
    if (doc == NULL)
-     return NULL;
+     return;// NULL;
 
   /* FIXME: Handle a null document, which means that there
    * is a messed up tag or something.
@@ -177,9 +166,10 @@ XMLparseDDA_Geometry_File(char *filename)
    */
    cur = cur->childs->next;
 
-   gd = parseGeometry(doc, ns, cur); 
+   //gd = parseGeometry(gd,doc, ns, cur); 
+   parseGeometry(gd,doc, ns, cur); 
 
-   return(gd);
+   //return(gd);
 
 }  /* close XMLparseDDA_Analysis_File() */
 
@@ -246,8 +236,8 @@ checkGeometryDoc(xmlDocPtr doc)
 }  /* close checkGeometryDoc() */
 
 
-static Geometrydata *
-parseGeometry(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+static void
+parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    int i = 0;
    //FILE * outtestfile;
@@ -267,12 +257,17 @@ parseGeometry(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    */
    //gdata = (Geometrydata *) malloc(sizeof(Geometrydata));
 
-   gdata = initGeometrydata();
+   //gdata = initGeometrydata();
+   //gdata = gdata_new();
+
+/** This is global and not thread safe. */
+gdata = gd;
+
 
    if (gdata == NULL) 
    {
       fprintf(stderr,"out of memory\n");
-     	return(NULL);
+     	return;//(NULL);
    }
    
    //memset(gdata, 0, sizeof(Geometrydata));
@@ -328,9 +323,9 @@ parseGeometry(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /* Now clean everything up. */
    //freeDlistsAndStuff();
 
-   return(gdata);
+   //return(gdata);
 
-}  /* close parseGeometry() */
+}  
 
 
 void 
@@ -870,7 +865,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    int checkval;
 
 #if _DEBUG
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
    fprintf(stdout, "Parsing Matline list\n");
    //iface->displaymessage("Parsing Matline list");
 #endif
@@ -910,7 +905,8 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             }
             else  /* Throw an error or warning */
             {
-               iface->displaymessage("Warning: Malformed material lines tag.\n");
+               //iface->displaymessage("Warning: Malformed material lines tag.\n");
+               dda_display_warning("Warning: Malformed material lines tag.\n");
             }
          } 
       }
@@ -919,7 +915,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
          */         
-         iface->displaymessage("Validation failure in material lines parsing."  
+         dda_display_error("Validation failure in material lines parsing."  
                                       " Contact author.\n");
 
       }
@@ -1346,3 +1342,19 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
 }  /* close transferMatlinelistToGeomStruct() */
 
 
+#ifdef STANDALONE
+int 
+main(int argc, char **argv) 
+{
+   int i;
+   fprintf(stderr,"Parsing geometry data from geometry main\n");
+
+   for (i = 1; i < argc ; i++) 
+   {
+	     gdata = XMLparseDDA_Geometry_File(argv[i]);
+   }
+
+   return(0);
+}  /* close main() */
+
+#endif /* STANDALONE */

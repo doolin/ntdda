@@ -1,7 +1,7 @@
 
 
-#ifndef __TIMEHISTORY_H_
-#define __TIMEHISTORY_H_
+#ifndef __TIMEHISTORY_H__
+#define __TIMEHISTORY_H__
 
 typedef struct _TimeHistory TimeHistory;
 typedef enum _format{ shake, matlab } format;
@@ -19,5 +19,5 @@ void * destroyTimeHistory(TimeHistory *);  // returns NULL
 /* TODO: */
 //cloneTimeHistory(TimeHistory *);
 
-#endif /* __TIMEHISTORY_H_ */
+#endif /* __TIMEHISTORY_H__ */
 

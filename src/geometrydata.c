@@ -23,6 +23,8 @@
 #include "ddamemory.h"
 #include "interface.h"
 
+#include "ddaml.h"
+
 
 #define I1 "   "
 #define I2 "      "
@@ -375,21 +377,16 @@ deleteBlock(Geometrydata * gd, int blocknumber)
 }  /* close deleteBlock() */
 
 
-void 
-gdata_destroy(Geometrydata * gd)
-{
-   freeGeometrydata(gd);
-}
 
 /* Code to specifically free the geometry data structure 
  * passed in to the analysis procedure.  This code should 
  * be changed to take advantage of 2D matrix freeing code.
  */
-int
-freeGeometrydata(Geometrydata * gd)
-{
+void
+gdata_delete(Geometrydata * gd) {
+
    if (gd == NULL)
-      return 0;
+      return;
 
    /* FIXME: At some place in the code, there is a memory overwrite
     * on block masses that is producing an out of bounds error when
@@ -431,16 +428,16 @@ freeGeometrydata(Geometrydata * gd)
    free (gd);
    gd = NULL;
 
-   return 0;
-}  // Close freeGeometrydata()
+   return;
+}  
 
 
 
 Geometrydata *
-geometryInput(char * geomfile )
+geometryInput(Geometrydata * geomdata, char * geomfile )
 {
    IFT gfv;
-   Geometrydata * geomdata;
+   //Geometrydata * geomdata;
  
    assert(geomfile != NULL);
 
@@ -449,10 +446,11 @@ geometryInput(char * geomfile )
    switch(gfv)
    {
        case ddaml:
-          geomdata = XMLparseDDA_Geometry_File(geomfile);
+          //geomdata = XMLparseDDA_Geometry_File(geomfile);
+          ddaml_read_geometry_file(geomdata,geomfile);
          break;
        case extended: 
-          iface->displaymessage("Extended geometry file format obsolete");
+          dda_display_warning("Extended geometry file format obsolete");
           exit(0);
           //geomdata = geometryReader2(geomfile);
           //if (!geomdata) 
@@ -463,7 +461,7 @@ geometryInput(char * geomfile )
           break;
        case original:
        default:
-          iface->displaymessage("Obsolete geometry file detected" /* "Warning" */);
+          dda_display_warning("Obsolete geometry file detected");
           geomdata = geometryReader1(geomfile);  
    }
 
@@ -522,10 +520,11 @@ computeBoundingBox(Geometrydata * gd)
    
 }  /* close computeBoundingBox() */
 
-
+/** FIXME: This needs to be set as an object method.
+ */
 Geometrydata *
-cloneGeometrydata(Geometrydata * gdn)
-{
+//cloneGeometrydata(Geometrydata * gdn)
+gdata_clone(Geometrydata * gdn) {
    int i;
    /* There should be a way to initialize this
     * in the type declaration and pass back the
@@ -535,10 +534,10 @@ cloneGeometrydata(Geometrydata * gdn)
 
    Geometrydata * gdo;
 
-   gdo = initGeometrydata(); //(Geometrydata *)malloc(sizeof(Geometrydata));
+   //gdo = initGeometrydata(); //(Geometrydata *)malloc(sizeof(Geometrydata));
+   gdo = gdata_new();
 
    memcpy((void*)gdo,(void*)gdn,sizeof(Geometrydata));
-   gdo->this = gdo; //gdn->this;
 
 
    //gdo->getblocknumber = gdn->getblocknumber;
@@ -716,31 +715,32 @@ void computeDomainscale(Geometrydata *gd)
 }  /* Close dc02().  */
 
   
-static int 
-getBlockNumberFromCursor(Geometrydata * gd, double x, double y)
-{
+int 
+gdata_get_block_number(Geometrydata * gd, double x, double y) {
+
   int i;
   int flag;
 
-  for (i=1; i<=gd->nBlocks; i++)
-  {
+  for (i=1; i<=gd->nBlocks; i++) {
+
       flag = pointinpoly(i, x, y, gd->vindex, gd->vertices);
-      
-      if (flag == 1)
+
+      if (flag == 1) {
          return i;
+      }
   }
 
   return 0;
-
-}  /* close getBlockNumberFromCursor() */
-
-
-
-Geometrydata *
-gdata_new()
-{
-   return initGeometrydata();
 }
+
+
+int
+gdata_get_number_of_blocks(Geometrydata * gd) {
+   return gd->nBlocks;
+}
+
+
+
 
 /* The Geometrydata struct is built in the 
  * geometry code and contains blocks, points
@@ -750,27 +750,29 @@ gdata_new()
  * line wrapper that drives an analysis.
  */
 Geometrydata *
-initGeometrydata(void)
-{
+//initGeometrydata1(void) {
+gdata_new(void) {
 
    Geometrydata * gdo;
 
   /* Change to a malloc, memset everything to garbage */
    gdo = (Geometrydata *)calloc(1,sizeof(Geometrydata));
 
-   gdo->this = gdo;
 
    gdo->deleteblock = deleteBlock;
    gdo->dumptofile = dumpDDAMLGeometryFile;
    gdo->computeBBox = computeBoundingBox;
-   gdo->getblocknumber = getBlockNumberFromCursor;
+   //gdo->getblocknumber = getBlockNumberFromCursor;
 
   /* Why is this here? */
    //assert(gdo->joints == NULL);
 
    return gdo;
 
-} /* close initGeometrydata() */
+} 
+
+
+
 
 
 /**************************************************/
@@ -858,7 +860,7 @@ computeMoments(Geometrydata * gd) {
       {
          char mess[80];
          sprintf(mess,"Block %d has negative area",block);
-         iface->displaymessage(mess);
+         dda_display_error(mess);
       }
                      
 
@@ -930,7 +932,7 @@ void freeBlockMasses(Geometrydata * gd)
 
 
 void 
-gd_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
+gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
 
    double x0,y0;
    double ** moments = gd->moments;

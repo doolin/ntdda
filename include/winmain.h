@@ -31,7 +31,7 @@
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.7 2001/10/14 02:08:37 doolin Exp $\n", \
+              "$Id: winmain.h,v 1.8 2002/05/25 14:49:39 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -128,10 +128,8 @@ void handleOptionsMenu(HWND hwMain, WPARAM wParam, OPTIONS * o);
 /* FIXME: Definitely move this out of this 
  * header file.
  */
-//#if WINDOWS
 BOOL CALLBACK DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam);
 BOOL CALLBACK APWEDGEDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam);
-//#endif
 
 int handleAPWEDGE(HWND);
 

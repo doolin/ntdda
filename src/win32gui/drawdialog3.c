@@ -9,7 +9,9 @@
 #include <gl/glut.h>
 #endif  
 
-
+#ifdef WIN32
+#pragma warning( disable : 4115 )        
+#endif
 
 static int gridSp=10;
 
@@ -879,17 +881,21 @@ handleSave(HWND hDlg)
             return 0;
       }
 
-      geomstruct = initGeometrydata(); 
+      //geomstruct = initGeometrydata();
+      geomstruct = gdata_new();
+
+
       transferJointlistToGeomStruct(geomstruct, jointlist); 
       transferPointlistToGeomStruct(geomstruct, pointlist);  
       transferBoltlistToGeomStruct(geomstruct, boltlist);  
       //fp = fopen(filepath.gpath, "w+");
 
-      geomstruct->dumptofile(geomstruct->this, filepath.gpath);
+      geomstruct->dumptofile(geomstruct, filepath.gpath);
       //dumpGeometrydata(geomstruct, fp);
 
       //fclose(fp);
-      freeGeometrydata(geomstruct); 
+      //freeGeometrydata(geomstruct);
+      gdata_delete(geomstruct); 
 
      /* FIXME: These functions are segfaulting. */
       //freeJointList(); 

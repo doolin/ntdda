@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/12/29 06:01:06 $
+ * $Date: 2002/05/25 14:49:41 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  */
 
 
@@ -790,7 +790,8 @@ initConstants(Analysisdata * ad)
    if (d0 < d9)
    {
       ad->constants->norm_extern_dist = d0 = d9;
-      iface->displaymessage("d0 < d9 in initConstants()");
+      //iface->displaymessage("d0 < d9 in initConstants()");
+      dda_display_warning("d0 < d9 in initConstants()");
    }
 
   /* FIXME: check the return value from this call, throw an error

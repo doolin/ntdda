@@ -1,10 +1,20 @@
 
 /* There should be no windows dependencies in this file. */
-#ifndef _GEOMETRYDATA_H_
-#define _GEOMETRYDATA_H_
+#ifndef __GEOMETRYDATA_H__
+#define __GEOMETRYDATA_H__
 
 
-#include <stdio.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
+#ifdef WIN32
+#pragma warning( disable : 4115 )        
+#endif
+
 #include "ddadlist.h"
 #include "ddatypes.h"
 #include "graphics.h"
@@ -25,7 +35,10 @@ typedef struct _geo_data_tag Geometrydata;
 struct _geo_data_tag {
 
   /* We might need to point at ourself... */
-   Geometrydata * this;
+   //Geometrydata * this;
+
+
+   PrintFunc printer;
 
   /* These will eventually get moved out to a more
    * appropriate structure.  In the original GHS code,
@@ -179,7 +192,7 @@ struct _geo_data_tag {
    * is located.  Units are physical, so need to 
    * translate device->logical->physical.
    */
-   int (*getblocknumber)(Geometrydata * this, double x, double y);
+   //int (*getblocknumber)(Geometrydata * this, double x, double y);
    
   /* Add comments and code to initialize and colne geometry structs */
    void (*deleteblock)(Geometrydata * this, int blocknum);
@@ -199,29 +212,26 @@ struct _geo_data_tag {
 Geometrydata * geometryReader1(char *);
 //Geometrydata * geometryReader2(char *);
 
-/* This needs to be an interface function. */
-Geometrydata * geometryInput(char *);
 
 Geometrydata * XMLparseDDA_Geometry_File(char *filename);
 
-Geometrydata * cloneGeometrydata(Geometrydata *);
-int freeGeometrydata(Geometrydata *);
+//Geometrydata * cloneGeometrydata(Geometrydata *);
+//int freeGeometrydata(Geometrydata *);
 
-Geometrydata * ddacut(FILEPATHS *, GRAPHICS *);
+void ddacut(Geometrydata *,FILEPATHS *, GRAPHICS *);
 
 void initBlockMasses(Geometrydata *);
 void cloneBlockMasses(Geometrydata *, Geometrydata *);
 void freeBlockMasses(Geometrydata *);
 
-Geometrydata * initGeometrydata(void);
-Geometrydata * gdata_new(void);
+//Geometrydata * initGeometrydata(void);
 
-void gd_get_block_centroid(Geometrydata *, int block, double [2]);
 
-void dumpGeometrydata(Geometrydata *, FILE *);
+void dumpGeometrydata(Geometrydata *, void *);
 
 /* Moved from geometry.h */
-int pointinpoly(int blocknumber, double x11, double y11,int ** vindex, double ** vertices);
+int pointinpoly(int blocknumber, double x11, double y11,
+                int ** vindex, double ** vertices);
 
 /* Moved from analysisdata.h */
 double computeMoments(Geometrydata *);  //, double ** moments);
@@ -235,6 +245,49 @@ double computeMoments(Geometrydata *);  //, double ** moments);
  */
 void computeDomainscale(Geometrydata *);  // was dc02()
 
-void gdata_destroy(Geometrydata *);
 
-#endif /* _GEOMETRYDATA_H_ */
+/* All the new code added will follow the Peter Mattis
+ * convention for syntactic structure.  It's about the 
+ * most readable way to write c code.
+ */
+Geometrydata * gdata_new                   (void);
+Geometrydata * gdata_clone                 (Geometrydata *);
+
+void           gdata_delete                (Geometrydata *);
+
+int            gdata_get_number_of_blocks  (Geometrydata *);
+
+int            gdata_get_block_number      (Geometrydata *, 
+                                            double x, 
+                                            double y);
+
+void           gdata_get_block_centroid    (Geometrydata *, 
+                                            int block, 
+                                            double [2]);
+
+/**
+ * gdata_read_input_file wraps all of the file format ugliness
+ * behind a single call.  If there is a recoverable problem,
+ * the Geometrydata * will come back NULL, and the memory freed
+ * internally somewhere.  
+ *
+ * @param Geometrydata * points to a preallocated struct.
+ * @param void * filestream needs to be cast in the actual
+ *        file reading function to a FILE *.
+ *
+ * @return NULL Geometrydata * (with freed memory).
+ */
+void           gdata_read_input_file       (Geometrydata *, 
+                                            char * filename);
+
+/* This needs to be an interface function. */
+Geometrydata * geometryInput(Geometrydata *, char *);
+
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __GEOMETRYDATA_H__ */

@@ -5,9 +5,9 @@
  * from a set of lines (fracture traces).
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 02:15:50 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/geomdriver.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 #include <stdio.h>
@@ -19,26 +19,52 @@
 #include "interface.h"
 
 
-extern InterFace * iface;
 
 FILE * ddacutlog;
 FILE * pnpfile;
+
+void dc04(Geometrydata *, int **, /* int **, */ double **, double **);
+void dc05(Geometrydata *, int **, int **, int **, int **, double **, double **, double **);
+void dc06(Geometrydata *, int **, int **, double **);
+void dc07(Geometrydata *, int **, int **, int **, int **, double **, double **);
+
+/* Part of what dc08 does is determine the 
+ * number of blocks in the problem domain.
+ * Need to free **aa after this call.
+ */
+void dc08(Geometrydata *, int **, int **, int **, int **, int **, 
+          double **, double **, double **);
+
+void dc09(Geometrydata *, int **, int *, double **);
+void dc10(Geometrydata *, int **, double **);
+void dc11(Geometrydata *, int **, double **, double **);
+void dc12(Geometrydata *, int **, double **);
+void dc13(Geometrydata *, int **, double **, double **);
+void dc14(Geometrydata *, int **, double **, double **);
+void dc16(Geometrydata *, int **, double **, double **);
+void dc17(Geometrydata *, int **, double **);
+void dc19(Geometrydata *, int **, double **);
+
 
 /* 
  * ddacut is the driver routine for all of the dc code
  * functions.
  */
-Geometrydata * 
-ddacut(FILEPATHS *filestruct, GRAPHICS * graphics)
+void
+ddacut(Geometrydata *geomdata, FILEPATHS *filestruct, GRAPHICS * graphics)
 {
   
    //HWND hwMain = geomhwnd;
    
   /* Get rid of one of these, keep the other.
    */
-   Geometrydata *geomdata;  
+   //Geometrydata *geomdata;  
    Geometrydata *returnGeom;   
-   char  *geomfile = filestruct->gfile;
+
+
+   //char  *geomfile; //= filestruct->gfile;
+
+
    int **aa;
    int **k;
    int **r;
@@ -62,15 +88,17 @@ ddacut(FILEPATHS *filestruct, GRAPHICS * graphics)
    ddacutlog = fopen("cut.log", "w");
    pnpfile = fopen("pnp.log","w");
 
+
+
+/*
+   geomfile = filestruct->gfile;
    assert(geomfile != NULL);
    geomdata = geometryInput(geomfile);
-   if (!geomdata) 
-   {
-      iface->displaymessage("Error in geometry file" /* Error */);
+   if (!geomdata)  {
+       dda_display_error("Error in geometry file");
          return NULL;
    }
-
-   geomdata->this = geomdata;
+*/
 
    assert(geomdata != NULL);
 
@@ -168,7 +196,9 @@ ddacut(FILEPATHS *filestruct, GRAPHICS * graphics)
    fclose(ddacutlog);
    fclose(pnpfile);
 
-   return returnGeom;
+
+   //return returnGeom;
+   geomdata = returnGeom;
 
 }   /* Close geom()  */
 

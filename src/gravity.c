@@ -23,9 +23,9 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:21 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 //#include "compilecontrol.h"
 #include<math.h>
@@ -262,19 +262,13 @@ checkGravityConvergence(Gravity * grav, Geometrydata * gd, Analysisdata * ad)
       else
          sprintf(tempstring,"Gravity step limit (%d) reached", grav->gravTurnonLimit);
 
-   /* FIXME: Generate a platform independent message handling system
-    * that will deal with either Windows or command line.
-    */
-//#if WINDOWS
-//            MessageBox(hwMain, tempstring, "Gravity Phase", MB_OK);
-//#else
-//            fprintf(stderr, "%s\n",tempstring);
-//#endif
-#if DDA_FOR_WINDOWS
-         iface->displaymessage(tempstring);
-#endif
-           /* now free the gravity stuff */
+      dda_display_info(tempstring);
+           
+     /* now free the gravity stuff */
+
    }
+
+
   /* May have to do a bunch of other stuff in here if gravity is not 
    * converged yet.
    */

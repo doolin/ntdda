@@ -6,7 +6,8 @@
 #include"ddamemory.h"
 #include "interface.h"
 
-extern InterFace * iface;
+
+
 extern FILEPATHS filepath;
 
 static int nj = 3, np, nfp = 3, nmp = 0, nlp = 0, nhp = 0;
@@ -100,7 +101,6 @@ GeomDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 static BOOLEAN
 handleInit(HWND hDlg)
 {
-   iface->setdisplay((unsigned int)hDlg);
 
    if(filepath.gfile[0] != '\0') 
       loadFromFile2(hDlg);
@@ -436,7 +436,7 @@ loadFromFile2(HWND hDlg)
    // read in data from file blocks.out <--- (!?)
    hFile = OpenFile(filepath.gfile, &of, OF_READ);
 
-   gd = geometryInput(filepath.gfile);
+   gd = geometryInput(gd, filepath.gfile);
 
   /* Now transfer the data to the local structs. */      
    nj = gd->nJoints;
@@ -474,7 +474,7 @@ loadFromFile2(HWND hDlg)
    if (numbolts > 0)
       bolts = clone2DMatDoub(gd->rockbolts, gd->rockboltsize1, gd->rockboltsize2);
 
-}  /* close loadFromFile2() */
+}  
 
 
 

@@ -53,9 +53,9 @@ getNewIFace()
     iface = (InterFace*)calloc(1,sizeof(InterFace));
     if (iface)
     {  
-       iface->rungeometry = ddacut;
+       //iface->rungeometry = ddacut;
        //iface->runanalysis = ddanalysis;
-       iface->displaymessage = displayMessage;
+       //iface->displaymessage = displayMessage;
        iface->setdisplay = setDisplay;
        iface->setafetext = setAnalysisFText;
 	    iface->updatedisplay = updateDisplay;
@@ -139,7 +139,6 @@ getCurrentHWND(void)
 static void
 setAnalysisFText(char * text)
 {
-   //SendMessage(anastatus,SB_SETICON,9,(LPARAM)0);
 
    SendMessage(anastatus,SB_SETTEXT,(WPARAM)(9|SBT_NOBORDERS),
                (LPARAM)text);
@@ -197,8 +196,7 @@ updateStatusBar(int bar)
  * in the status bar.
  */
 static void
-displayWarning(char * message)
-{
+displayWarning(char * message) {
    HICON warning_icon;
    HINSTANCE hInst;
    HWND hwMain;
@@ -216,6 +214,8 @@ displayWarning(char * message)
                (LPARAM)message);
 
 }  /* close displayWarning() */
+
+
 
 void
 updateDisplay(void)

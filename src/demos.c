@@ -3,7 +3,7 @@
 #include "compilecontrol.h"
 #include "dda.h"
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
 #define STRICT
 #include <windows.h>
 /* Take the pragma out if not using VC++

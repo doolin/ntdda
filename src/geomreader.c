@@ -17,9 +17,9 @@
  * http://www.cyclic.com.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 20:59:56 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/geomreader.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -31,7 +31,8 @@
 #include "ddamemory.h"
 #include "interface.h"
 
-extern InterFace * iface;
+///extern InterFace * iface;
+
 
 /**************************************************/
 /* geometryReader:  geometric data input          */
@@ -62,7 +63,8 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    assert (geomInFile != NULL);
   /* initialize the geometry struct...
    */
-   gid = initGeometrydata();
+   //gid = initGeometrydata();
+   gid = gdata_new();
 
 
   /* Input geometric data.  All of this needs to 
@@ -85,7 +87,7 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    {
 //#if WINDOWS
       //MessageBox(hwMain, "Rock bolts are not yet implemented.", "Rock bolts", MB_OK);
-      iface->displaymessage("Rock bolts are not yet implemented" /* "Warning" */);
+      dda_display_warning("Rock bolts are not yet implemented" /* "Warning" */);
 //#else
 //      printf("Rock bolts are not yet implemented.\n");
 //#endif
@@ -98,7 +100,7 @@ Geometrydata * geometryReader1(char *geometryInputFile)
    {
 //#if WINDOWS
       //MessageBox(hwMain, "Load points not available in this file format.", "Load points", MB_OK);
-      iface->displaymessage("Load points no available in this file format" /* "Warning" */);
+      dda_display_warning("Load points not available in this file format" /* "Warning" */);
 //#else
 //      printf("Load points not avaiable in this file format.\n");
 //#endif

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/19 16:43:02 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  *
  */
 /*################################################*/
@@ -17,6 +17,11 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.23  2002/05/25 14:49:40  doolin
+ * Many changes in gui and file handling code to help
+ * ease memory management and control of flow problems.
+ * Callback framework for event handlers started.
+ *
  * Revision 1.22  2002/05/19 16:43:02  doolin
  * More general source cleanup.
  *
@@ -140,7 +145,6 @@
 extern FILEPOINTERS fp;
 extern DATALOG * DLog;
 extern InterFace * iface;
-//extern DDAError ddaerror;
 
 /**************************************************/
 /* df01: input geometric data                     */
@@ -201,13 +205,12 @@ double  df01(Geometrydata * bd)
  * dissimilar areas of code and help handle variable scoping.
  */
 void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
-      /* double **blockArea,*/ FILEPATHS * filepath, GRAPHICS * g)
-{
+                     FILEPATHS * filepath) {
    int i, j, i1, i2;
    double ** vertices = gd->vertices;
    int nJointMats = ad->nJointMats;
    int **vindex = gd->vindex;
-   int nBlocks = gd->nBlocks;
+   //int nBlocks = gd->nBlocks;
    extern DATALOG * DLog;
     
   /* This will be reset if adaptive time-stepping
@@ -229,11 +232,6 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
   /* Moved to inputAnalysis() */
    //ad->this = ad;
    ad->isRunning = TRUE;
-
-
-
-
-
   
    //if (ad->c = NULL)
    //{
@@ -1714,7 +1712,8 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             }
             else if (ad->contactmethod == auglagrange)
             {
-                iface->displaymessage("Lagrange multipliers not currently implemented");
+                //iface->displaymessage("Lagrange multipliers not currently implemented");
+                dda_display_warning("Lagrange multipliers not currently implemented");
             }
             else  // Big trouble
             {
@@ -2513,7 +2512,8 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    }
    else if (ad->contactmethod == auglagrange)
    {
-      iface->displaymessage("Aug. Lagrange not currently implemented");
+      //iface->displaymessage("Aug. Lagrange not currently implemented");
+      dda_display_warning("Aug. Lagrange not currently implemented");
    }
    else  // bad news...
    {
@@ -2858,7 +2858,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    extern double ** __D;
    clock_t start, stop;
 
-   int timestep = ad->currTimeStep;
+   //int timestep = ad->currTimeStep;
 
    start = clock();
 
@@ -3050,7 +3050,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       ad->abort(ad->this);
       /* Not the right way to do this. */
       //ddaerror.error = __ZERO_MOMENT_ERROR__;
-      iface->displaymessage("Zero block area");
+      //iface->displaymessage("Zero block area");
+      dda_display_error("Zero block area");
    }
    ad->avgArea[ad->currTimeStep] = avgarea;
    computeMass(gd, ad, e0);

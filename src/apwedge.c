@@ -115,7 +115,8 @@ handleInit(HWND hDlg)
   /* Grab Geometrydata and Analysisdata structs...
    */
    adata = adata_new();
-   gdata = initGeometrydata();
+   //gdata = initGeometrydata();
+   gdata = gdata_new();
 
    adata->rotationflag = 0;
    adata->gravityflag = 0;

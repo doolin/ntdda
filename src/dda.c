@@ -10,13 +10,13 @@
 /* This doesn't work yet, because the get/sets aren't 
  * written.
  */
-/*
+
 struct _dda_tag  {
 
    Geometrydata * geometry;
    Analysisdata * analysis;
    FILEPATHS * filepaths;
-   int menustate;
+   int menu_state;
    ddaboolean toolbarvis;
    ddaboolean statusbarvis;
    ddaboolean popupvis;
@@ -24,7 +24,37 @@ struct _dda_tag  {
    short xcur;
    short ycur;
 };
-*/
+
+int 
+dda_get_menu_state(DDA * dda) {
+   return dda->menu_state;
+}
+
+void 
+dda_set_menu_state(DDA * dda, int state) {
+   dda->menu_state = state;
+}
+
+
+int 
+dda_get_xcur(DDA * dda) {
+   return dda->xcur;
+}
+
+void 
+dda_set_xcur(DDA * dda, int xcur) {
+   dda->xcur = xcur;
+}
+
+int 
+dda_get_ycur(DDA * dda) {
+   return dda->ycur;
+}
+
+void 
+dda_set_ycur(DDA * dda, int ycur) {
+   dda->ycur = ycur;
+}
 
 ddaboolean
 dda_get_toolbarvis(DDA * dda) {
@@ -94,17 +124,22 @@ dda_new() {
    DDA * dda;
    dda = (DDA*)malloc(sizeof(DDA));
    memset(dda,0xda,sizeof(DDA));
+
+   dda->geometry = gdata_new();
+
    return dda;
 }
 
+void
 dda_delete(DDA * dda) {
    /* These functions have not yet been written. */
-   adata_delete(dda->analysis);
-   gdata_destroy(dda->geometry);
-   //filepaths_destroy(dda->filepaths);
+   //adata_delete(dda->analysis);
+   //gdata_delete(dda->geometry);
+   //filepaths_delete(dda->filepaths);
    memset(dda,0xdd,sizeof(DDA));
    free(dda);
 }
+
 
 int 
 dda_run(DDA * dda) {

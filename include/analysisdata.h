@@ -1,8 +1,12 @@
 
 /* There should be no windows dependencies in this file. */
 
-#ifndef _ANALYSISDATA_H_
-#define _ANALYSISDATA_H_
+#ifndef __ANALYSISDATA_H__
+#define __ANALYSISDATA_H__
+
+#ifdef WIN32
+#pragma warning( disable : 4115 )        
+#endif
 
 
 #include "ddafile.h"
@@ -10,6 +14,7 @@
 #include "gravity.h"
 #include "timehistory.h"
 #include "dda_error.h"
+
 
 
 typedef struct _analysisdata_tag Analysisdata;
@@ -95,6 +100,8 @@ struct _analysisdata_tag
    * of which are boolean anyway. 
    */
    unsigned int options;
+
+   DisplayFunc printer;
 
   /* Analysis state information.  This is useful for handling 
    * more sophisticated user interface features.
@@ -437,11 +444,6 @@ struct _analysisdata_tag
    Thresholds * threshold;
 
 
-   /* Error struct allows platform independent output to screen 
-    * console, whatever.
-    */
-   Error * error;
-
   /* Private functions accessed through function pointers. */
    void (*abort)(Analysisdata *);
    Analysisdata * (*newanalysis)(void);
@@ -468,18 +470,9 @@ struct _analysisdata_tag
 
 
 /* FIXME: These all need to be a private method */
-void adata_validate(Analysisdata *);
 
 Analysisdata * XMLparseDDA_Analysis_File(char *filename);
 
-
-
-//Analysisdata * cloneAnalysisData(Analysisdata * adn);
-Analysisdata * adata_close(Analysisdata *);
-
-
-//void * freeAnalysisData(Analysisdata *);
-void * adata_delete(Analysisdata *);
 
 
 /* FIXME: Loadpoints need to go into their own module. */
@@ -488,19 +481,45 @@ void freeLoadpoints(LOADPOINT *);
 void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
 void freeStresses(GRAPHICS *);
 
-Analysisdata * adata_init(void);
-Analysisdata * adata_new(void);
 
-/****   Get/Set methods   ****/
 
-void adata_set_output_flag(Analysisdata *, int flag);
-void adata_clear_output_flag(Analysisdata *, int flag);
 
-void adata_set_contact_damping(Analysisdata *, double);
-double adata_get_contact_damping(Analysisdata *);
+Analysisdata * adata_new                 (void);
+Analysisdata * adata_init                (void);
+void *         adata_delete              (Analysisdata *);
 
-void adata_set_grav_accel(Analysisdata *, double grav);
-double adata_get_grav_accel(Analysisdata *);
 
-#endif /* _ANALYSISDATA_H_ */
+Analysisdata * adata_clone               (Analysisdata *);
+void           adata_validate            (Analysisdata *);
+
+
+void           adata_set_output_flag     (Analysisdata *, int flag);
+void           adata_clear_output_flag   (Analysisdata *, int flag);
+
+void           adata_set_contact_damping (Analysisdata *, double);
+double         adata_get_contact_damping (Analysisdata *);
+
+void           adata_set_grav_accel      (Analysisdata *, double grav);
+double         adata_get_grav_accel      (Analysisdata *);
+
+
+/**
+ * adata_read_input_file wraps all of the file format ugliness
+ * behind a single call.  If there is a recoverable problem,
+ * the Analysisdata * will come back NULL, and the memory freed
+ * internally somewhere.  
+ *
+ * @param Analysisdata * points to a preallocated struct.
+ * @param void * filestream needs to be cast in the actual
+ *        file reading function to a FILE *.
+ *
+ * @return NULL Analysisdata * (with freed memory).
+ */
+void           adata_read_input_file      (Analysisdata *, 
+                                           char * filename);
+
+
+
+
+#endif /* __ANALYSISDATA_H__ */
 

@@ -8,12 +8,15 @@ extern "C" {
 
 typedef struct _error Error;
 
-typedef void  (*Print_Func)(void *, const char *, const char *);
+#ifndef PRINTFUNC
+#define PRINTFUNC
+typedef int  (*PrintFunc)(void *, const char *, const char *);
+#endif
 
 Error * error_new();
 void error_delete(Error *);
 
-void error_register_handler(Error * e, void * stream, Print_Func callback, const char * title);
+void error_register_handler(Error * e, void * stream, PrintFunc callback, const char * title);
 
 void error_display(Error * e, const char * message);
 

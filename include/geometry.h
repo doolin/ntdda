@@ -5,9 +5,9 @@
  * General header file for the numerical geometry routines.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:03:43 $
+ * $Date: 2002/05/25 14:49:39 $
  * $Source: /cvsroot/dda/ntdda/include/geometry.h,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include"dda.h"
@@ -40,34 +40,9 @@ void allocateGeometryArrays(Geometrydata *, int *** aa, int *** k,
                             double *** verticesdc);
 
 
-void dc04(Geometrydata *, int **, /* int **, */ double **, double **);
-void dc05(Geometrydata *, int **, int **, int **, int **, double **, double **, double **);
-void dc06(Geometrydata *, int **, int **, double **);
-void dc07(Geometrydata *, int **, int **, int **, int **, double **, double **);
-
-/* Part of what dc08 does is determine the 
- * number of blocks in the problem domain.
- * Need to free **aa after this call.
- */
-void dc08(Geometrydata *, int **, int **, int **, int **, int **, 
-          double **, double **, double **);
-
-void dc09(Geometrydata *, int **, int *, double **);
-void dc10(Geometrydata *, int **, double **);
-void dc11(Geometrydata *, int **, double **, double **);
-void dc12(Geometrydata *, int **, double **);
-void dc13(Geometrydata *, int **, double **, double **);
-void dc14(Geometrydata *, int **, double **, double **);
-void dc16(Geometrydata *, int **, double **, double **);
-void dc17(Geometrydata *, int **, double **);
-void dc19(Geometrydata *, int **, double **);
-
-
 void deallocateGData(Geometrydata *, int **, int **, int **, int **, int **, int *, 
                      double **, double **, double **);
-//void setGZero(Geometrydata *);
 
-//int CancelOrAbort(HWND, MSG);
 
 int crr(Geometrydata *, double, double, int **, double **, double **);
 //int crr(double w0, double, double, int **, double **, double **);

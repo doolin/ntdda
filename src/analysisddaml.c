@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/12/29 06:01:05 $
+ * $Date: 2002/05/25 14:49:39 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 #include <stdio.h>
@@ -25,11 +25,16 @@
 #include "timehistory.h"
 //#include "ddatypes.h"
 
+/** Get rid of this later. 
+ * The way to get rid of it is to define 
+ * ddaml_display_* functions, then set them
+ * to the dda_display_* functions.
+ */
+#include "dda.h"
+
 /* Mostly for debugging windows. */
 static char mess[180];
 
-/*  GAAAKKK!!!  */
-extern InterFace * iface;
 
 
 typedef DList LOADPOINTLIST;
@@ -169,7 +174,7 @@ XMLparseDDA_Analysis_File(char *filename)
 
    if(!checkAnalysisDoc(doc))
    {
-      iface->displaymessage("Bad DDAML document");
+      dda_display_error("Bad DDAML document");
       return NULL;
    }
 
@@ -206,10 +211,9 @@ checkAnalysisDoc(xmlDocPtr doc)
 {
    xmlNodePtr cur;
     
-   if (doc == NULL) 
-   {
+   if (doc == NULL)  {
      /* Log an error, then */
-      iface->displaymessage("NULL DDAML document, probably malformed XML.  Check tags");
+      dda_display_error("NULL DDAML document, probably malformed XML. Check tags");
       return FALSE;
    }
 
@@ -221,7 +225,7 @@ checkAnalysisDoc(xmlDocPtr doc)
    if (cur == NULL) 
    {
       fprintf(stderr,"empty analysis document\n");
-      iface->displaymessage("Empty DDAML document");
+      dda_display_error("Empty DDAML document");
 	   xmlFreeDoc(doc);
 	   return FALSE;
    }
@@ -246,7 +250,7 @@ checkAnalysisDoc(xmlDocPtr doc)
    if (nspace == NULL) 
    {
       fprintf(stderr,"Namespace error, check URL\n");
-      iface->displaymessage("DDAML namespace error, check URL");
+      dda_display_error("DDAML namespace error, check URL");
 	   xmlFreeDoc(doc);
 	   return FALSE;
    }
@@ -254,7 +258,7 @@ checkAnalysisDoc(xmlDocPtr doc)
    if (strcmp(cur->name, "DDA")) 
    {
       fprintf(stderr,"document of the wrong type, root node != DDA");
-      iface->displaymessage("Bad root node, file is not a DDAML.");
+      dda_display_error("Bad root node, file is not a DDAML.");
 	   xmlFreeDoc(doc);
 	   return FALSE;
    }
@@ -280,7 +284,7 @@ parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    if (adata == NULL) 
    {
-      fprintf(stderr,"out of memory for analysis data\n");
+      dda_display_error("out of memory for analysis data");
      	return(NULL);
    }
    
@@ -693,8 +697,8 @@ parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    if (pfactor == NULL)
    {
-      sprintf(mess,"Penalty factor missing from Autopenalty element");
-      iface->displaymessage(mess);
+      sprintf(mess,"Warning","Penalty factor missing from Autopenalty element");
+      dda_display_warning(mess);
    }
    else 
    {
@@ -838,7 +842,7 @@ parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    else if (!strcmp(fileformat,"matlab"))
       adata->timehistory = getTimeHistory(filename,matlab);
    else // blow up
-      iface->displaymessage("Bad motion file format");
+      dda_display_error("Bad motion file format");
 
    return NULL;
 }  /*close parseTimehistory() */
@@ -1046,7 +1050,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    if (!gotdamping)
    {
-      iface->displaymessage("Damping tag not found in BlockMaterials");
+      dda_display_error("Damping tag not found in BlockMaterials");
       exit(0);
    }
 

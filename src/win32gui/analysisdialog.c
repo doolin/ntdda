@@ -4,9 +4,9 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2001/11/02 13:38:42 $
+ * $Date: 2002/05/25 14:49:42 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 #include "analysisdlg.h"
@@ -634,7 +634,6 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
    * but ddaml input, or by trapping other formats and 
    * refusing to proceed.
    */
-   //ad = analysisInput(filepath.afile, geomdata);
    ad = XMLparseDDA_Analysis_File(filepath.afile);
    assert (ad != NULL);
 

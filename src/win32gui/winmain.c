@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/05/19 02:31:20 $
+ * $Date: 2002/05/25 14:49:42 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  */
 
 
@@ -88,8 +88,7 @@ OPTIONS options;
 FILEPATHS filepath;
 FILEPOINTERS fp;
 
-//Geometrydata * geomdata = NULL;
-//Geometrydata * geometry2draw;
+
 
 
 GRAPHICS * g = NULL;
@@ -155,12 +154,28 @@ InterFace * iface;
 
 
 int
-handle_error(void * stream, const char * title, const char * message) {
+dda_display_error(const char * message) {
 
-   MessageBox((HWND)stream,title,message,MB_OK);
+   MessageBox(NULL,message,"Error",MB_OK | MB_ICONERROR);
 
    return 0;
+}
 
+int
+dda_display_warning(const char * message) {
+
+   MessageBox(NULL,message,"Warning",MB_OK | MB_ICONWARNING);
+
+   return 0;
+}
+
+
+int
+dda_display_info(const char * message) {
+
+   MessageBox(NULL,message,"Info",MB_OK | MB_ICONINFORMATION);
+
+   return 0;
 }
 
 /* TODO: Flesh out a preferences API.  The 
@@ -336,9 +351,9 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
  * status text size can be computed.
  */
 #define STATUSBAR_TEXT_WIDTH 25
-static 
-void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
-{
+static void 
+handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+
    POINTS mousepos;
    char mess[80];
    int wparamlo, wparamhi;
@@ -357,8 +372,10 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
    xnew = mousepos.x;
    ynew = mousepos.y;
 
-   dda->xcur = mousepos.x;
-   dda->ycur = mousepos.y;
+   //dda->xcur = mousepos.x;
+   //dda->ycur = mousepos.y;
+   dda_set_xcur(dda,mousepos.x);
+   dda_set_ycur(dda,mousepos.y);
 
   /* Horrid kludge */
   /* FIXME: Get rid of this kludge, redesign, anything...
@@ -370,10 +387,12 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
    * vindex arrays to pass into this block.  Not sure where or why this
    * is happening. in the meantime, try this instead... 
    */
-   if (dda->menustate == (GEOM_STATE | FINISHED) )
+   //if (dda->menustate == (GEOM_STATE | FINISHED) )
+   if (dda_get_menu_state(dda) == (GEOM_STATE | FINISHED) )
    {
       p = DPtoPP(hwMain, xnew,ynew);
-      blocknumber = geomdata->getblocknumber(geomdata->this,p.x,p.y);
+      //blocknumber = geomdata->getblocknumber(geomdata,p.x,p.y);
+      blocknumber = gdata_get_block_number(geomdata,p.x,p.y);
       sprintf(blocknumtext,"BN: %d",blocknumber);
       sprintf(xycoordstext,"\t(%.3f,%.3f)\t",p.x,p.y);
       SendMessage(geomstatus,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
@@ -381,7 +400,8 @@ void handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    }
 
-   if (dda->menustate == (ANA_STATE | FINISHED) )
+   //if (dda->menustate == (ANA_STATE | FINISHED) )
+   if (dda_get_menu_state(dda) == (ANA_STATE | FINISHED) )
    {
       p = DPtoPP(hwMain, xnew,ynew);
       //blocknumber = geomdata->getblocknumber(geomdata->this,p.x,p.y);
@@ -470,8 +490,11 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
    DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
-   xnew = dda->xcur;
-   ynew = dda->ycur;
+   //xnew = dda->xcur;
+   //ynew = dda->ycur;
+   xnew = dda_get_xcur(dda);
+   ynew = dda_get_ycur(dda);
+
 
    /* FIXME:  This is a kludgy way to handle this. */
    if (whatToDraw == LINES || whatToDraw == BLOCKS) {
@@ -482,12 +505,15 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
             double centroid[2] = {0};
             //displayPhysicalCoordinates(hwMain,wParam,lParam);
             p = DPtoPP(hwMain, xnew,ynew);
-            blocknumber = geomdata->getblocknumber(geomdata->this,p.x,p.y);
-            gd_get_block_centroid(geomdata,blocknumber,centroid);
-            sprintf(mess,"Block %d centroid: (%lf,%lf)",blocknumber,centroid[0],centroid[1]);
-            MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
-                }
-            break;
+            blocknumber = gdata_get_block_number(geomdata,p.x,p.y);
+            if (blocknumber != 0) {
+               gdata_get_block_centroid(geomdata,blocknumber,centroid);
+               sprintf(mess,"Block %d centroid: (%lf,%lf)",
+                             blocknumber,centroid[0],centroid[1]);
+               MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
+            }
+       }
+       break;
 
       case VK_F1:
          MessageBox(NULL,NULL,NULL,MB_OK);
@@ -513,7 +539,7 @@ static void
 handleTitle(HWND hwMain) { 
 
      /* Just draw it once in lieu of splash screen */
-     /* FIXME: Make this is a handleSplash function. */
+     /* FIXME: Make this a handleSplash function. */
            static int draw = 1;
            if (draw == 1) {
                handleMainAbout(hwMain);
@@ -612,10 +638,7 @@ handleGeomApply(HWND hwMain, double scale_params[])
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
-
-   //updateMainMenu(hwMain, geomstate*runningstate);
-
-   dda->menustate = GEOM_STATE | RUNNING;
+   dda_set_menu_state(dda,GEOM_STATE | RUNNING);
 
    whatToDraw = LINES;
 
@@ -623,55 +646,56 @@ handleGeomApply(HWND hwMain, double scale_params[])
    * to get headers under control.
    */
   /* Don't worry about freeing the geometry data for now. */
-   /*
+  /*
    if (geomdata != NULL)
    {
-      freeGeometrydata(geomdata);
+      //freeGeometrydata(geomdata);
+      gdata_delete(geomdata);
    }
    */
 
-   //if (g != NULL)
-   //{
    freeGraphicStruct(g);
-   //g = initGraphicStruct(geomdata, ad, g);
    g = initGraphicStruct();
-   //}
 
-   //geomhwnd = hwMain;
-
-   geomdata = ddacut(&filepath, g);
-   dda_set_geometrydata(dda,geomdata);
-
-   //geometry2draw = geomdata;
+   geomdata = geometryInput(geomdata,filepath.gfile);
+   //gdata_read_input_file();
 
   /* This handles having a bad geometry file.  An alternative 
    * would be to have it come back to the geometry dialog,
    * but we would then need to handle the `cancel' button 
    * event from the dialog.  Smarter than your average bear...
-   */
-   if (!geomdata) 
-   { 
-      whatToDraw = NOTHING;
-	   InvalidateRect(hwMain, NULL, TRUE);
-		UpdateWindow(hwMain);
-      return 0;
+   */   
+   if (geomdata == NULL)  {
+       dda_display_error("Error in geometry file");
+       whatToDraw = NOTHING;
+	    InvalidateRect(hwMain, NULL, TRUE);
+		 UpdateWindow(hwMain);
+       return 0;   
    }
 
-   if(geomdata->nBlocks>0) 
-   {
+   dda_set_geometrydata(dda,geomdata);
+   ddacut(geomdata, &filepath, g);
+
+
+   if(geomdata->nBlocks>0) {
+
       whatToDraw = BLOCKS;
-      //updateMainMenu(hwMain, geomstate*finishedstate);
-      dda->menustate = GEOM_STATE | FINISHED;
+      dda_set_menu_state(dda,GEOM_STATE | FINISHED);
       updateGeometryStatusBar(hwMain);
-	} 
-   else 
-   {
+
+	} else {
+
+     /** Nothing wrong with the geometry file, but there
+      *  are no blocks defined.
+      *  FIXME: Define this case as an error, and move the 
+      *  code for handling it into the geometry cutting 
+      *  functions.
+      */      
       whatToDraw = NOTHING;
 		filepath.gfile[0] = '\0';
 		sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
 		SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
-      //updateMainMenu(hwMain, geomstate*abortedstate);
-      dda->menustate = GEOM_STATE | ABORTED;
+      dda_set_menu_state(dda,GEOM_STATE | ABORTED);
    }
 
    InvalidateRect(hwMain, NULL, TRUE);
@@ -765,8 +789,8 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
 
       SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
       //updateMainMenu(hwMain, geomstate);
-      dda->menustate = GEOM_STATE;
-      //updateMainMenu(hwMain, GEOM_STATE);
+      //dda->menustate = GEOM_STATE;
+      dda_set_menu_state(dda,GEOM_STATE);
 
      /* Initialize the path. Note that the .geo file is already loaded into 
       * the struct, so it doesn't have to be reloaded.
@@ -864,7 +888,8 @@ handleAnalBrowse(HWND hwMain, LPARAM lParam)
 	
       SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
       //updateMainMenu(hwMain, anastate*readystate);
-      dda->menustate = ANA_STATE | READY_STATE;
+      //dda->menustate = ANA_STATE | READY_STATE;
+      dda_set_menu_state(dda,ANA_STATE | READY_STATE);
 
       switch ( MessageBox( hwMain, "Edit analysis data before running?", "Analysis", MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2) )
 		{
@@ -895,7 +920,9 @@ handleAnalRun(HWND hwMain)
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    int retval;
 
-   dda->menustate = ANA_STATE | RUNNING;
+   //dda->menustate = ANA_STATE | RUNNING;
+   dda_set_menu_state(dda,ANA_STATE | RUNNING);
+
    /* FIXME: Move the toolbar code to a handler
     */
     SendMessage(hToolBar, TB_SETSTATE,ANAL_ABORT,MAKELPARAM(TBSTATE_ENABLED,0));
@@ -942,7 +969,7 @@ handleAnalRun(HWND hwMain)
       return 0;  /* maybe not so smart... */
    }
 
-   dda->menustate = ANA_STATE | FINISHED;
+   dda_set_menu_state(dda,ANA_STATE | FINISHED);
 
   /* FIXME: Move the following code to a handler.
    */
@@ -951,7 +978,7 @@ handleAnalRun(HWND hwMain)
    SendMessage(hToolBar, TB_SETSTATE, GEOM_NEW, MAKELPARAM(TBSTATE_ENABLED,0));
    SendMessage(hToolBar, TB_SETSTATE, GEOM_BROWSE, MAKELPARAM(TBSTATE_ENABLED,0));
    SendMessage(hToolBar, TB_SETSTATE, ANAL_NEW, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar,TB_SETSTATE,ANAL_ABORT,MAKELPARAM(0,0));
+   SendMessage(hToolBar, TB_SETSTATE, ANAL_ABORT,MAKELPARAM(0,0));
 
    showOrig = TRUE;  /*  showOrig is a global int masquerading as a boolean. */
    whatToDraw = BLOCKS;
@@ -1262,7 +1289,8 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
    Geometrydata * geomdata = dda_get_geometrydata(dda);
    Analysisdata * ad = dda_get_analysisdata(dda);
 
-   if(dda->popupvis == 0)
+/* kludgy */
+   if(dda_get_popupvis(dda) == 0)
       return;
 
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
@@ -1481,7 +1509,8 @@ displayBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    p = DPtoPP(hwMain, xcursor, ycursor);
 
-   blocknum = geomdata->getblocknumber(geomdata->this, p.x, p.y);
+   //blocknum = geomdata->getblocknumber(geomdata, p.x, p.y);
+   blocknum = gdata_get_block_number(geomdata, p.x, p.y);
 
    sprintf(mess,"Block number %d", blocknum);
    MessageBox(hwMain, mess, "Block number", MB_OK);
@@ -1513,13 +1542,13 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    p = DPtoPP(hwMain, xcursor, ycursor);
 
-   blocknum = geomdata->getblocknumber(geomdata->this, p.x, p.y);
+   blocknum = gdata_get_block_number(geomdata, p.x, p.y);
 
    /* FIXME: Confirmation code does not work. */
    sprintf(mess,"Confirm delete block number %d", blocknum);
    MessageBox(hwMain, mess, "Delete block", MB_OK);
 
-   geomdata->deleteblock(geomdata->this, blocknum);
+   geomdata->deleteblock(geomdata, blocknum);
 
 
    updateGeometryStatusBar(hwMain);
@@ -1623,7 +1652,7 @@ updateGeometryStatusBar(HWND hwMain)
 
    ShowWindow(readystatus, SW_HIDE);
    ShowWindow(anastatus, SW_HIDE);
-   if(dda->statusbarvis == 1)
+   if(dda_get_statusbarvis(dda) == 1)
       ShowWindow(geomstatus, SW_MAXIMIZE);
 
 }  /* close updateGeometryStatusBar() */
@@ -1676,7 +1705,7 @@ updateAnalysisStatusBar(HWND hwMain)
 
    ShowWindow(readystatus, SW_HIDE);
    ShowWindow(geomstatus, SW_HIDE);
-   if(dda->statusbarvis)
+   if(dda_get_statusbarvis(dda))
       ShowWindow(anastatus, SW_MAXIMIZE);
 
 }  /* close updateAnalysisStatusBar() */
@@ -1707,7 +1736,8 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    lpToolTipText = (LPTOOLTIPTEXT)(lParam);
  
-   if(lpToolTipText->hdr.code == TTN_NEEDTEXT  && dda->tooltipvis == 1)
+   if(lpToolTipText->hdr.code == TTN_NEEDTEXT  && 
+      dda_get_tooltipvis(dda) == 1)
    {
      /* FIXME: Set up a winprint function */
       //fprintf(wintest,"From MsgNotify, tool tip ID: %d\n",lpToolTipText->hdr.idFrom);
@@ -1766,6 +1796,39 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
+void
+handle_toggle(DDA * dda,
+              HWND hwindow,
+              WPARAM wParam,
+              SetToggleFunc set_toggle,  //callback
+              GetToggleFunc get_toggle,  //callback
+              HMENU hSubMenu,
+              const char * menuchars) {
+
+   if (get_toggle(dda)) {
+
+      if (hwindow != NULL) {
+         ShowWindow(hwindow, SW_HIDE);
+      }
+
+      set_toggle(dda,FALSE);
+     /* Very kludgy.  This should send a message to get 
+      * the current text of the menu item.
+      */
+      ModifyMenu(hSubMenu, wParam, MF_BYCOMMAND | MF_UNCHECKED,wParam, menuchars);
+
+   } else {
+
+       if (hwindow != NULL) {
+          ShowWindow(hwindow, SW_SHOWNORMAL);
+       }
+       set_toggle(dda,TRUE);
+       ModifyMenu(hSubMenu, wParam, MF_BYCOMMAND | MF_CHECKED,wParam,menuchars);
+   }
+}
+
+
+
 /* Toggles the view state of tool bar, status bar, etc. 
  * FIXME: All this stuff needs to go into the menu handling 
  * function for WM_INITMENUPOPUP.
@@ -1775,7 +1838,6 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
    HMENU hMainMenu, hSubMenu;
    int submenuposition;
-   //enum mmenu { mainmenu=0,viewmenu,geometrymenu, analysismenu, resultsmenu};
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
             
    hMainMenu = GetMenu(hwMain);
@@ -1786,75 +1848,23 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
    switch (wParam)
    {
       case VIEW_TBAR:
-         //hSubMenu = GetSubMenu(hMainMenu, viewmenu);
-         if (dda->toolbarvis == TRUE)
-         {
-            ShowWindow(hToolBar, SW_HIDE);
-            dda->toolbarvis = FALSE;
-           /* Very kludgy.  This should send a message to get 
-            * the current text of the menu item.
-            */
-            ModifyMenu(hSubMenu, VIEW_TBAR, MF_BYCOMMAND | MF_UNCHECKED,VIEW_TBAR,"&Tool Bar");
-         }
-         else
-         {
-            ShowWindow(hToolBar, SW_SHOWNORMAL);
-            dda->toolbarvis = TRUE;
-            ModifyMenu(hSubMenu, VIEW_TBAR, MF_BYCOMMAND | MF_CHECKED,VIEW_TBAR,"&Tool Bar");
-         }
+         handle_toggle(dda,hToolBar,wParam,dda_set_toolbarvis,
+                       dda_get_toolbarvis,hSubMenu,"&Tool Bar");
          break;
 
       case VIEW_SBAR:
-         //hSubMenu = GetSubMenu(hMainMenu, viewmenu);
-         if (dda->statusbarvis == TRUE)
-         {
-            ShowWindow(readystatus, SW_HIDE);
-            dda->statusbarvis = FALSE;
-           /* Very kludgy.  This should send a message to get 
-            * the current text of the menu item.
-            */
-            ModifyMenu(hSubMenu, VIEW_SBAR, MF_BYCOMMAND | MF_UNCHECKED,VIEW_SBAR,"&Status Bar");
-         }
-         else
-         {
-            ShowWindow(readystatus, SW_SHOWNORMAL);
-            dda->statusbarvis = TRUE;
-            ModifyMenu(hSubMenu, VIEW_SBAR, MF_BYCOMMAND | MF_CHECKED,VIEW_SBAR,"&Status Bar");
-         }
+         handle_toggle(dda,readystatus,wParam,dda_set_statusbarvis,
+                       dda_get_statusbarvis,hSubMenu,"&Status Bar");
          break;
-
+     
       case VIEW_POPUP:
-         //hSubMenu = GetSubMenu(hMainMenu, viewmenu);
-         if (dda->popupvis == TRUE)
-         {
-            dda->popupvis = FALSE;
-           /* Very kludgy.  This should send a message to get 
-            * the current text of the menu item.
-            */
-            ModifyMenu(hSubMenu, VIEW_POPUP, MF_BYCOMMAND | MF_UNCHECKED,VIEW_POPUP,"&Enable Pop-up");
-         }
-         else
-         {
-            dda->popupvis = TRUE;
-            ModifyMenu(hSubMenu, VIEW_POPUP, MF_BYCOMMAND | MF_CHECKED,VIEW_POPUP,"&Enable Pop-up");
-         }
+         handle_toggle(dda,NULL,wParam,dda_set_popupvis,
+                       dda_get_popupvis,hSubMenu,"&Enable Pop-up");
          break;
 
       case VIEW_TOOLTIPS:
- 		   //hSubMenu = GetSubMenu(hMainMenu, viewmenu);
-         if (dda->tooltipvis == TRUE)
-         {
-            dda->tooltipvis = FALSE;
-           /* Very kludgy.  This should send a message to get 
-            * the current text of the menu item.
-            */
-            ModifyMenu(hSubMenu, VIEW_TOOLTIPS, MF_BYCOMMAND | MF_UNCHECKED,VIEW_TOOLTIPS,"T&ool Tips");
-         }
-         else
-         {
-            dda->tooltipvis = TRUE;
-            ModifyMenu(hSubMenu, VIEW_TOOLTIPS, MF_BYCOMMAND | MF_CHECKED,VIEW_TOOLTIPS,"T&ool Tips");
-         }
+         handle_toggle(dda,NULL,wParam,dda_set_tooltipvis,
+                       dda_get_tooltipvis,hSubMenu,"T&ool Tips");
          break;      
 
       default:
@@ -2172,6 +2182,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 		case MAIN_EXIT:
 			whatToDraw = NOTHING;
+         dda_delete(dda);
 		   DestroyWindow( hwMain );
 		   break;
 
@@ -2244,7 +2255,7 @@ WndProc (HWND hwMain, UINT message,
          * here to set the state of all the menus.
          * Also, change name to handleWMInitMenuPopup()
          */
-         updateMainMenuA(hwMain, dda->menustate);
+         updateMainMenuA(hwMain, dda_get_menu_state(dda));
          break;
 
 
@@ -2369,12 +2380,16 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
    MSG         msg;
    HANDLE      hAccel;	
    int checkval;
-   DDA dda;
+
+   /* Move this code to the WM_CREATE or initializeDDA
+    * functions to maintain symmetry in memory handling.
+    */
+   DDA * dda = dda_new();
 
   /* FIXME: Add code to uninitialize */
    HtmlHelp(NULL,NULL,HH_INITIALIZE,(DWORD)&dwHTMLCookie); 
 
-   memset(&dda,0xDA,sizeof(DDA));
+   //memset(&dda,0xDA,sizeof(DDA));
 
    filepath.rootname[0] = '\0';
 
@@ -2382,16 +2397,17 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
    hwMain = createDDAMainWindow(hInstance);
 
-   checkval = SetWindowLong(hwMain,GWL_USERDATA,(LONG)&dda);
-
   /* Move this stuff into the dda.ini file,which 
    * should be read in the initialization function.
    */
-   dda.toolbarvis = 1;
-   dda.statusbarvis = 1;
-   dda.popupvis = 1;
-   dda.tooltipvis = 1;
-   dda.menustate = READY_STATE;
+   dda_set_toolbarvis(dda,TRUE);
+   dda_set_statusbarvis(dda,TRUE);
+   dda_set_popupvis(dda,TRUE);
+   dda_set_tooltipvis(dda,TRUE);
+   dda_set_menu_state(dda,READY_STATE);   
+   checkval = SetWindowLong(hwMain,GWL_USERDATA,(LONG)dda);
+
+
 
    hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE( DDAAPACCEL ));
 

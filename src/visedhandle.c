@@ -7,7 +7,7 @@
 
 
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
 #ifndef STRICT
 #define STRICT
 #endif

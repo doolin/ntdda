@@ -8,7 +8,7 @@ extern "C" {
 
 struct _error {
 
-  Print_Func printer;
+  PrintFunc printer;
   void * stream;
   const char * win_frame_title;
   char * error_string;
@@ -52,7 +52,7 @@ error_delete(Error * e) {
 void 
 error_register_handler(Error * e,
 		       void * stream,
-		       Print_Func printer,
+		       PrintFunc printer,
 		       const char * title) {
   e->stream = stream;
   e->printer = printer;

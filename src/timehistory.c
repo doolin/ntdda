@@ -5,9 +5,9 @@
  * used with SHAKE.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:40 $
+ * $Date: 2002/05/25 14:49:41 $
  * $Source: /cvsroot/dda/ntdda/src/timehistory.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include<stdio.h>
@@ -129,11 +129,11 @@ th_get_data_value(TimeHistory * th, int timestep)
 
 
 static void
-handleBadFileName(char * filename)
-{
+handleBadFileName(char * filename) {
+
    char mess[80];
    sprintf(mess,"Time history file %s does not exist\n",filename);
-   iface->displaymessage(mess);
+   dda_display_error(mess);
    //edit the file
    exit(-1);
 }  /* close handleBadFileName(0 */
@@ -263,7 +263,7 @@ getTimeHistory(char * filename, format fileformat)
          break;
        
        default:
-          iface->displaymessage("Warning: need a file format to parse\n");
+          dda_display_warning("Warning: need a file format to parse\n");
           break;       
    }
 

@@ -1044,7 +1044,8 @@ handleSave(HWND hDlg)
       //dumpGeometrydata(geomstruct, fp);
 
       //fclose(fp);
-      freeGeometrydata(geomstruct); 
+      //freeGeometrydata(geomstruct); 
+      gdata_delete(geomstruct);
 
      /* FIXME: These functions are segfaulting. */
       //freeJointList(); 

@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2002/05/19 16:43:03 $
- * $Revision: 1.3 $
+ * $Date: 2002/05/25 14:49:41 $
+ * $Revision: 1.4 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -28,7 +28,8 @@
 #include "analysisdata.h"
 #include "geometrydata.h"
 #include "graphics.h"
-#if DDA_FOR_WINDOWS
+
+#ifdef WIN32
 #include "winmain.h"
 #endif
 //#include "ddaerror.h"
@@ -45,7 +46,8 @@ static char bgcolor[20];
 
 extern FILEPATHS filepath;
 extern FILEPOINTERS fp;
-#if DDA_FOR_WINDOWS
+
+#ifdef WIN32
 extern OPTIONS options;
 #endif
 //extern DDAError ddaerror;
@@ -219,7 +221,7 @@ writeHTMLBody(GRAPHICS * g, Analysisdata * ad, FILE * htmlfile)
    fprintf(htmlfile,"Total number of open-close iterations was %d over %d time steps",
            g->totaloc_count,ad->nTimeSteps);
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
    if (options.spyplots)
    {
       printBarTable("Spy plots",htmlfile);

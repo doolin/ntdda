@@ -5,9 +5,9 @@
  * on the unix side.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 20:58:49 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/ddamain.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #define OPTIONS 0
@@ -112,7 +112,9 @@ rundda(int argc, char ** argv)
 
    exportfig(geomdata);
 
-   freeGeometrydata (geomdata);
+   //freeGeometrydata (geomdata);
+   gdata_delete(geomdata);
+
    freeGraphicStruct (g);
 
    return 0;

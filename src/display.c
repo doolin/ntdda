@@ -13,9 +13,8 @@
 #include <stdio.h>
 
 
-
-
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
+#pragma warning( disable : 4201 )        
 #ifndef STRICT 
 #define STRICT
 #endif
@@ -29,7 +28,8 @@
  */
 extern InterFace * iface;
 
-#if DDA_FOR_WINDOWS
+
+#ifdef WIN32
 extern HWND anahwnd;
 extern HDC anahdc;
 extern HWND anastatus;
@@ -42,16 +42,14 @@ extern HWND anastatus;
 //void updateAnalysisStatusBar();
 
 void
-//display(HWND hwMain, HDC hdc, Geometrydata * GData, Analysisdata * AData, 
-//         GRAPHICS *gg)
 display(Geometrydata * GData, Analysisdata * AData, GRAPHICS *gg)
 {
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
    MSG winMess;
    extern HWND hprogbar;  // yuck
    //HWND hwMain = anahwnd;
-   HDC hdc = anahdc;
+   //HDC hdc = anahdc;
 #endif
 
   /* FIXME: This is a kludge.  Need to get a proper header file for this. */
@@ -64,30 +62,31 @@ display(Geometrydata * GData, Analysisdata * AData, GRAPHICS *gg)
    //computeStresses(GData, AData, e0, moments, gg);
 
 
-#if DDA_FOR_WINDOWS     
+#ifdef WIN32
 
   /* FIXME: Move all of this stuff into the analysis status bar 
    * updating function.
    */
-   if (AData->currTimeStep == 1 && AData->gravityflag == 0)
-   {
+   if (AData->currTimeStep == 1 && AData->gravityflag == 0) {
       SendMessage(hprogbar,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,AData->nTimeSteps));
    }
-   if (AData->currTimeStep > 1 && AData->gravityflag == 0)
-   {
+   
+   if (AData->currTimeStep > 1 && AData->gravityflag == 0) {
       SendMessage(hprogbar,PBM_SETPOS,(WPARAM)AData->currTimeStep,(LPARAM)0);
-
    }
 
 
+
+/** FIXME: gg can be removed because AData should be 
+ *  initialized back in the windows part, and accessed 
+ *  through the DDA struct.
+ */
    gg->numcontacts = AData->nCurrentContacts;
   /* FIXME: This only has to be set once, it is set here 
    * on every time step because this is a kludge.
    */
    gg->numtimesteps = AData->nTimeSteps;
-  /* FIXME: Change gg->timestep to gg->delta_t */
    gg->timestep = AData->currTimeStep;
-   //gg->currenttime = AData->currentTime;
    gg->elapsedtime = AData->elapsedTime;
    gg->openclosecount = AData->m9;
 

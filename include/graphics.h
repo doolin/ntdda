@@ -4,11 +4,10 @@
 
 //#include "dda.h"
 //#include "compilecontrol.h"
-#define DDA_FOR_WINDOWS 1
 #include  "ddatypes.h"
 
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
 #ifndef STRICT
 #define STRICT
 #endif
@@ -50,7 +49,7 @@ struct _graphics_tag {
    double update_runtime;
 
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
    POINT offset;
 #endif
    double radius;

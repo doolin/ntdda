@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/05/19 16:43:03 $
+ * $Date: 2002/05/25 14:49:41 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 #include <malloc.h>
@@ -21,6 +21,7 @@
 #include "graphics.h"
 #include "printdebug.h"
 #include "postprocess.h"
+#include "dda.h"
 
 extern InterFace * iface;
 
@@ -68,16 +69,8 @@ postProcess(Geometrydata * GData, Analysisdata * AData, GRAPHICS * g)
    sprintf(temp, "Penalty run time: %2.3f seconds\n", g->openclose_runtime-g->solve_runtime);
    strcat(mess, temp);
 
-#if DDA_FOR_WINDOWS
-   iface->displaymessage(mess);
-#endif
+   dda_display_info(mess);
 
-//#if WINDOWS
-//   strcat(mess, "\nClick to continue.");
-//			MessageBox(hw, mess, "Analysis", MB_ICONINFORMATION );
-//#else
-//   fprintf(stdout,"%s",mess);
-//#endif
 
   /* writeMeasuredPoints must called after df25().
    * We could remainder arithmetic to save this every

@@ -16,7 +16,7 @@ struct iface_tag {
    */
    Geometrydata * (*rungeometry)(FILEPATHS *, 
                                  GRAPHICS *);
-   void (*displaymessage)(char *);
+   //void (*displaymessage)(char *);
    void (*setdisplay)(unsigned int);  // In windows, HWND is a long...
    void (*setafetext)(char *);
    void (*updatedisplay)(void);

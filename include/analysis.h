@@ -6,19 +6,13 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2001/09/03 03:45:36 $
+ * $Date: 2002/05/25 14:49:38 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 #include"dda.h"
-//#include "analysisdata.h"
-//#include "geometrydata.h"
-
 #include "datalog.h"
-
-//#include"georeader.h"
-
 #include "contacts.h"
 
 
@@ -281,7 +275,7 @@ void  openAnalysisFiles(FILEPATHS *);
 
 /******************** Initialization code *******************/
 void initNewAnalysis(Geometrydata *, Analysisdata *, double **,
-            /* double **, */ FILEPATHS * filepath, GRAPHICS *);
+            /* double **, */ FILEPATHS * filepath);
 void initAnalysisOld(Geometrydata *, Analysisdata *, double **, double **,
             double **, GRAPHICS *);
 /* density, unit weight etc, includes stress, strain */

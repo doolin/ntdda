@@ -7,6 +7,11 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.15  2002/05/25 14:49:40  doolin
+ * Many changes in gui and file handling code to help
+ * ease memory management and control of flow problems.
+ * Callback framework for event handlers started.
+ *
  * Revision 1.14  2002/05/19 16:43:02  doolin
  * More general source cleanup.
  *
@@ -90,22 +95,10 @@
 #include "postprocess.h"
 
 
-/* This should be the only allowable extern. */
-extern InterFace * iface;
-
-
-
-extern FILEPOINTERS fp;
-
 DATALOG * DLog;
-//DDAError ddaerror;
 
 
-
-/* TODO: Change parameter list to take a geometry data 
- * pointer and a char * for the path and file name of
- * the analysis file.  End goal: No externs, no memory
- * leaks.
+/* @todo: Get rid of FILEPATHS and GRAPHICS.
  */
 int	
 ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
@@ -182,8 +175,16 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    doublesize = sizeof(double);
 
    AData = analysisInput(filepath->afile, GData);   
-   if (AData == NULL)
+   if (AData == NULL) {
       return 0;
+   }
+
+  /* FIXME: handle the AData memory in the invoking 
+   * function, so that this doesn't have to be dealt
+   * with as an extern.
+   */
+   AData->printer = dda_display_error;
+
    dda_set_analysisdata(dda,AData);
 
 
@@ -214,7 +215,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    allocateAnalysisArrays(GData, &kk, &k1, &c0, &e0, &U, &n);
 
   /* FIXME: document function. */
-   initNewAnalysis(GData, AData, e0, filepath,gg);
+   initNewAnalysis(GData, AData, e0, filepath);
 
   /* New contact handling struct */
    CTacts = getNewContacts(GData->nBlocks);
@@ -352,9 +353,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
             //AData->first_openclose_iteration = FALSE;
             AData->m9++;
             AData->n9++;  // total oc count
-#if DDA_FOR_WINDOWS
-            iface->setoc_count(AData->m9);
-#endif
+
            /* (GHS: Contact judge after iteration.)*/
            /* df22 is where open-close convergence is checked.  To implement
             * augmented lagrangian, there will need to be some code modified
@@ -434,7 +433,10 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    {
       writeMFile(AData->K, AData->Fcopy, AData->F, kk, k1, n, GData->nBlocks);
       //printK(AData->K, AData->ksize1, "Analysis driver");
-      fflush(fp.mfile);
+
+/* FIXME: This fflush call may need to be moved somewhere else. */
+      //fflush(fp.mfile);
+
       //fflush(fp.logfile);  
       //exit(0);    
       //congrad(AData->K, AData->F, kk, k1, n, GData->nBlocks);
@@ -463,7 +465,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
 
   /* This should probably be freed in the calling function. */
    //AData = freeAnalysisData(AData);  //adata_destroy(AData);
-   AData = adata_delete(AData);
+   //AData = adata_delete(AData);
    freeDatalog(DLog); //datalog_destroy(DLog);
 
   /* New contacts structure */

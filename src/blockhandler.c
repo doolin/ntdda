@@ -10,9 +10,9 @@
  * geometry routine in the DDA for Windows code.
  *
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:21 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/blockhandler.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 //#include"analysis.h"
@@ -67,7 +67,7 @@ readBlocks(FILEPATHS *filepath)
    blocksInFile = fopen("block.in","r");
    
 
-#if DDA_FOR_WINDOWS
+#ifdef WIN32
 #else
    printf("Blockfile name (blockreader):  %s\n", filepath->blockfile);
 #endif

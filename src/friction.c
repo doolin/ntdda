@@ -2,9 +2,9 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2002/05/19 16:43:03 $
+ * $Date: 2002/05/25 14:49:40 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -167,7 +167,7 @@ computeVFriction(Geometrydata *gd, Analysisdata * ad,
       else  /* ad->units == english */
       {
         /* TODO: Set these all up for english units. */
-         iface->displaymessage("English units are not yet implemented");
+         dda_display_warning("English units are not yet implemented");
       }
 
      /* Once the values are set according to the system

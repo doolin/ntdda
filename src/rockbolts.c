@@ -5,9 +5,9 @@
  * by GHS, p.42, 1988.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:26 $
+ * $Date: 2002/05/25 14:49:41 $
  * $Source: /cvsroot/dda/ntdda/src/Attic/rockbolts.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 
@@ -242,7 +242,6 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
  */
 int 
 rockboltContacts(Geometrydata *bd, Analysisdata *ad, int *kk, 
-                 int *k3, double **u)
-{
+                 int *k3, double **u) {
 return 0;
 } /* close rockboltContacts() */
