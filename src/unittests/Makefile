@@ -11,4 +11,4 @@ matmulttest:
 
 
 clean:
-	rm -f *.exe *~
+	rm -f *.exe *~  *.stackdump

@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/06/30 23:19:46 $
+ * $Date: 2001/07/14 15:39:37 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  */
 #include <assert.h>
@@ -637,9 +637,7 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
 /* l1  l2  l3  t[][]  qq[][]                       */
 void mult(double t[][7], double e[][7], double qq[][7])
 {
-  /* Array indices.  Should be renamed i, j, k just to 
-   * conform to accepted practice.
-   */
+  /* Array indices.  */
    int i, j, k;
    
    for (i=1; i<= 6; i++)
@@ -726,20 +724,15 @@ void multnew(double e[][7], double qq[][7])
 
 
 
-/* This is mutlnew with a bit of different
- * initialization and memcpy.
+/**
+ * 6-by-6 gemm taking arrays as arguments, not 
+ * pointers to arrays.  Second argument is 
+ * overwritten as a return value.
  */
 void
 multnewnew(double e[][7], double qq[][7])
 {
-  /* Array indices.  Should be renamed i, j, k just to 
-   * conform to accepted practice.
-   */
    int i, j, k;
-  /* FIXME: Explain why t needs to be static?
-   * FIXME: Init t[7][7] = {{0}} here instead of in
-   * the loop.
-   */
    double t[7][7] = {0};
    
    for (i=1; i<= 6; i++)
@@ -749,29 +742,10 @@ multnewnew(double e[][7], double qq[][7])
          for (k=1; k<= 6; k++)
          {
             t[i][j] += qq[i][k]*e[k][j];
-         }  /*  l3 */
-      }  /*  l2 */
-   }  /*  l1 */
-      
-
-  /* This appears to be a simple cloning loop.
-   * FIXME: Check to see if we can get rid of 
-   * the t array in the previous, and just use
-   * the qq array.
-   */
-  /* FIXME: If this can't be removed, change to 
-   * a memcpy.
-   */
-  /*
-   for (i=1; i<= 6; i++)
-   {
-      for (j=1; j<= 6; j++)
-      {
-         qq[i][j]=t[i][j];
-      }  
-   }  
-   */
-      
+         }  
+      } 
+   }
+   
    memcpy(qq,t,sizeof(t));
 
 }  /* Close multnewnew() */
@@ -780,6 +754,9 @@ multnewnew(double e[][7], double qq[][7])
 /* invr: inverse of 6*6 matrix               0002 */
 /**************************************************/
 /* jj  j  l  l1  e[][]  qq[][]                     */
+/* WARNING!!!  e is overwritten for return, but 
+ * q is also overwritten.
+ */
 void invr(double e[][7], double qq[][7])
 {
 
@@ -787,10 +764,13 @@ void invr(double e[][7], double qq[][7])
 
    //printf2Dmat(qq, 7, 7, " from invr");
 
-  /* (GHS: E=I as n=6 free term colomns)  */
+  /* (GHS: E=I as n=6 free term columns)  */
   /* This loop zeroing out the matrix may be unnecessary 
    * if the matrix is initialized to zero.  Leave the loop 
    * for now.
+   */
+  /* FIXME: do a memset to 0, then a single loop to 
+   * initialize the diagonals to 1.
    */
    for (j=1; j<= 6; j++)
    {

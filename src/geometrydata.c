@@ -621,6 +621,9 @@ cloneGeometrydata(Geometrydata * gdn)
  * these 2 very similar functions.  In fact, they are almost 
  * identical.  And both are the same as computeBoundingBox,
  * so there are 3 functions doing the same task here.
+ * This function is called from geomdriver.  The way to do this
+ * is to call the bounding box function from here, then set
+ * the scale from the results of the bounding box computation.
  */
 void computeDomainscale(Geometrydata *gd)
 

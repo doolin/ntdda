@@ -19,7 +19,8 @@ extern DATALOG * DLog;
 
 static char mess[80];
 
-static void df04(Geometrydata *, Analysisdata *, int *, int *, double **, double **  /* , CONSTANTS * */);
+static void df04(Geometrydata *, Analysisdata *, int *, int *, double **, 
+                 double **);
 static void df05(Geometrydata *, Analysisdata *, int **, int *, 
             int *, int *, double **);
 
@@ -106,13 +107,12 @@ freeContactTempArrays(void)
  * finding is described in Shi 1988, Chapter 4, pp. 139-188
  * (for df04, df05, df06, df07).  
  */
+/* FIXME: Try and make c0 go local to this file, and rename 
+ * the other instance of c0 for friction forces.
+ */
 void 
 findContacts(Geometrydata * GData, Analysisdata * AData, Contacts * ctacts,
-                    /*int ** contacts, int ** locks,*/
-                    /*int ** prevcontacts,*/
-                    /*double ** contactlength,*/
-                    /*int ** m1,*/ int * kk, int * k1,
-                    int ** n, double ** c0)
+                    int * kk, int * k1, int ** n, double ** c0)
 {
 
    clock_t start, stop;
@@ -338,6 +338,8 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
    {
      /* Zero out the locks array.
       * FIXME: what is locks and where is it set?
+      * FIXME: If this init loop is needed, unroll it instead of 
+      * making a memset call.
       */
       for (i=1; i<= bd->nContacts; i++)
       {
@@ -401,6 +403,9 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
 
 /**************************************************/
 /* df04: contact finding by distance criteria     */
+/* FIXME: Remove bbox array from this argument list,
+ * make it local to this contact file.
+ */
 void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3, 
           double **bbox_c0, double **u)
 {
@@ -438,6 +443,10 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
    * in conjunction with the next block of code to 
    * determine whether 2 blocks are close enough to 
    * investigate a contact relationship.
+   */
+  /* FIXME: Remove the bounding box code and turn it 
+   * into a function that can be tested given an array
+   * of vertices.
    */
    for (block=1; block<= nBlocks; block++)  
    {
@@ -1342,6 +1351,10 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **lock
 /* j l d1 i0 s[] x1 y1 x2 y2 x3 y3                */
 /* v1, v2, v3 are the vertex numbers implicated in
  * this contact.
+ */
+/* FIXME: c_length[][2] or c_length[][3] are what gets set for 
+ * "return values."  There should be some way of rewriting this
+ * function in a much cleaner way.
  */
 void proj(double ** vertices, double domainscale, double **c_length, int *kk, 
           int i, int v1, int v2, int v3, int i4)

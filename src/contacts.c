@@ -4,6 +4,16 @@
 
 
 
+/*  This might help track contacts states... */
+//typedef enum contactstate { openopen, opensliding, openlocked,
+//                    slidingopen, slidingsliding, slidinglocked,
+//                    lockedopen, lockedsliding, lockedlocked };
+
+/* TODO: Change some of these ** arrays to arrays
+ * of structs, where the members have descriptive 
+ * variable names.
+ */
+
 struct _contacts {
 
   /**************************************************/
@@ -44,6 +54,53 @@ struct _contacts {
 
 };
 
+
+/* This will be how the new contacts work. */
+struct _C {
+
+   enum {vertex_edge, vertex_vertex} contact_type;
+
+   /* These will point into the vertex arrays. 
+    * The contents of the vertex arrays should not be 
+    * modified directly, just use these to assign values
+    * to temporary variables in df22() 
+    */
+   double * x1,y1,x2,y2,x3,y3;
+
+   /* Shear locking point */
+   double x0,y0;
+
+   double contact_length;
+
+   double pen_dist;
+   double shear_motion;
+   double cohesion_length;
+
+  /* If the contact is a vertex_vertex contact, we have to 
+   * check which vertex penetrates the most.  If the second
+   * vertex penetrates more than the first vertex, then the
+   * "reorder" member needs to be non-zero.  Else it is zero
+   * and the first vertex penetrates more than the second
+   * vertex.
+   */
+   int reorder; //boolean
+   int tension; //boolean? See locks[][0] or m0[][0]
+
+   /* Should be between 0 and 1 */
+   double omega;
+
+   /* State of contact for open-close iteration.  May not use these,
+    * but could be very useful.  Delete if not necessary.
+    */
+   enum { openopen, opensliding, openlocked,
+          slidingopen, slidingsliding, slidinglocked,
+          lockedopen, lockedsliding, lockedlocked } modechange;
+
+   enum { open, sliding, locked } previous_state, current_state;
+
+   /* Not yet implemented... */
+   //Block * block_i, block_j;
+};
 
 /***********  PUBLIC Methods **************/
 

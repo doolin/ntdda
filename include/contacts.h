@@ -17,6 +17,10 @@
  */
 typedef struct _contacts Contacts;
 
+/* Struct for each contact. */
+typedef struct _C C;
+
+
 Contacts * getNewContacts(int nblocks);
 
 int ** get_contacts(Contacts *);

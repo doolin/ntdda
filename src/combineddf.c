@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/01 22:43:54 $
+ * $Date: 2001/07/14 15:39:37 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.9  2001/07/14 15:39:37  doolin
+ * Worked in df18 and df22 on contact and locking.
+ *
  * Revision 1.8  2001/07/01 22:43:54  doolin
  * Rewrote the logic in the getLockStates function.
  * The previous logic is saved in the getLockStatesOld function.
@@ -540,6 +543,9 @@ getLockStates(int ** locks, int lockstate[3][5], int contact)
         /* This initializes qq as a 2 x 4 matrix, e.g.,:
          * lockstate =  [ 0 0 1 0 ]
          *              [ 1 1 0 0 ].
+         * Evidently the 1 & 2 slots track the previous and current states
+         * for a VE vertex and the first vertex in a VV contact.
+         * The 3 & 4 slots for the second vertex in a VV contact.
          */
          lockstate[j][1]=lockstate[j][2]=lockstate[j][3]=lockstate[j][4]=0;
         /* When locks[i][j] = 0, (OPEN) no springs are turned on.
@@ -582,7 +588,13 @@ getLockStates(int ** locks, int lockstate[3][5], int contact)
          {
             lockstate[j][PREVIOUS] = OPEN;
             lockstate[j][CURRENT] = OPEN;
+           /* FIXME: Explain why 3 is set here and not anywhere
+            * else when it looks like this code is never reached.
+            * But it is reached in vaiont, in the first time step,
+            * at open-close count 4.
+            */
             lockstate[j][3] = CLOSED;
+            //iface->displaymessage("Reached the last else block in getLockStates");
          }
         /* Else locks[i][j] = 3, and the sliding 
          * "ref line -> 2 normal spring on"
@@ -604,6 +616,7 @@ getLockStates(int ** locks, int lockstate[3][5], int contact)
 
 
 }  /* close getLockStates() */
+
 
 
 static void 
@@ -832,7 +845,13 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
   /* p is penalty parameter, so named to maintain compatibility 
    * GHS 1988 notation.
    */
+  /* FIXME: Change to TCK notation kn */
    double p = ad->contactpenalty;
+  /* FIXME: The shear spring uses a different penalty value.
+   * Since the springs are global, the shear spring value
+   * can be set here, instead of in all of the inner loops.
+   */
+   //ks = kn/s2n_ratio;
 
 
    int ** contacts = get_contacts(ctacts);
@@ -902,7 +921,6 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    * QQ = 0  :  The contact lock state has not changed.
    * QQ = 1  :  Lock state was {open,closed}, now {closed,open}
    */
-
   /* FIXME: QQ should probably be initted to {0} when 
    * df18() is entered.
    */
@@ -910,7 +928,10 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
   /* This should further be broken down into two variables taking
    * an enumeration value.
    */
-   /* has to index 1 and 2 for const var to match lock values. */
+  /* has to index 1 and 2 for const var to match lock values. */
+  /* Get rid of Q completely for state tracking, so that P and Q can
+   * be used in the same way as TCK.
+   */
    int QQ[3];
 
   /* FIXME: Make this proveable 3x7, then change to 2x6. */
@@ -991,7 +1012,10 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          * which get tested for in the following block.
          */
         /* FIXME: Use the tested macro in macrotest.c */
-
+        /* FIXME: Explain: If the contact is open in both states, but the contact 
+         * is a vertex-vertex contact, it still has tobe checked
+         * and possibly a penalty constructed because ????
+         */
          if ( (QQ[PREVIOUS] == OPEN) && (QQ[CURRENT] == OPEN)) 
          {
             if (contacts[contact][TYPE]==VE)
@@ -1087,6 +1111,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             */
            /* FIXME: Add an assert here for omega < 1 */
             omega = c_length[contact][2];
+            assert (omega < 1);
            /* Eq. 58, TCK 1995, p. 1239.  sheardisp is denoted by 
             * s0 in this paper.
             */
@@ -1099,11 +1124,11 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
 
         /*****  Block for computing terms e_r, g_r for penalty matrices  ****/
         /*
-         *  s[1-6]:    er normal, Eq.  Eq. 4.18, Shi 1988
-         *  s[7-12]:   gr normal, Eq.  Eq. 4.18, Shi 1988
+         *  s[1-6]:    er normal, Eq.  4.18, Shi 1988
+         *  s[7-12]:   gr normal, Eq.  4.18, Shi 1988
          *  s[13-18]:  er shear,  Eq.  59a, TCK 1995
          *  s[19-24]:  gr shear,  Eq.  59b, 59c, TCK 1995
-         *  s[25-31]:  friction,  Eq.  FIXME
+         *  s[25-30]:  friction,  Eq.  FIXME
          */
 
         /* i0 old block number         s13-s18 i friction */
@@ -1473,7 +1498,9 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    * shear contacts, but not sure about that yet.  The 
    * value satisfies ratio \in [0,1]
    */ 
-   double ratio;
+   //double ratio;
+   double omega;
+
    double  phi, cohesion, tstrength;  // were t1, t2, t3
   /* q1, q2 are used to determine shear locks and shear
    * directions.  q1 ends up being -1 or 1, q2 a normalized (?)
@@ -1587,11 +1614,10 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
             */
             qq[i][1]  = x  = vertices[vertexnumber][1];
             qq[i][2]  = y  = vertices[vertexnumber][2];
-            //qq[i][1]  = x;
-            //qq[i][2]  = y;
 
             computeDisplacement(moments,T,x,y,blocknumber);
 
+           /* FIXME: Use a memset on this outside of the loop. */
             p[i][1]  = 0;
             p[i][2]  = 0;
            /* Find memory location associated with the 
@@ -1707,9 +1733,6 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
             phi = computeVFriction(gd, ad, phi);
          else 
             phi=phiCohesion[joint_type][0];
-
-         //cohesion=phiCohesion[joint_type][1]*c_length[contact][3];
-         //tstrength=phiCohesion[joint_type][2]*c_length[contact][3];
       }
       else if (ad->frictionlaw == negexp)
       {
@@ -1725,16 +1748,10 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
             phi = computeFriction(gd, ad,joint_type);
          else 
             phi=phiCohesion[joint_type][0];
-
-         //cohesion=phiCohesion[joint_type][1]*c_length[contact][3];
-         //tstrength=phiCohesion[joint_type][2]*c_length[contact][3];
-
       }
       else if (ad->frictionlaw == tpmc)
       {
          phi=phiCohesion[joint_type][0];
-         //cohesion=phiCohesion[joint_type][1]*c_length[contact][3];
-         //tstrength=phiCohesion[joint_type][2]*c_length[contact][3];
       }
       else 
       {
@@ -1885,20 +1902,24 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
          x6 = x3+t0*p[3][1]; y6 = y3+t0*p[3][2];
         /* If t0 = 0, b2 = S0? */
          b2 = (x6-x5)*(x6-x5) + (y6-y5)*(y6-y5);
-        /* If t0 = 0, the following equals unity? */
+        /* If t0 = 0, the following equals unity? 
+         * c_length[contact][2] is the omega shear locking parameter.
+         */
          c_length[contact][2] = ((x4-x5)*(x6-x5) + (y4-y5)*(y6-y5))/b2;
       }  /* close if (previously OPEN contacts) */
        
      /* FIXME: What is this? */
      /* If the previous lock was closed, c_length[contact][2] will 
-      * already be set.
+      * already be set. (omega)
       */
-      ratio = c_length[contact][2];
+      //ratio = c_length[contact][2];
+      omega = c_length[contact][2];
      /* ratio \in [0,1] , but not always... it is probably a mistake if 
       * ratio is not in the unit interval.  
       * FIXME: Find out why ratio is sometimes < 0 or > 1.
       */
       //assert(0.0 <= ratio  && ratio <= 1.0);
+      assert(0.0 <= omega  && omega <= 1.0);
       //fprintf(fp.logfile,"ratio: %f\n",ratio);
 
      /* (GHS: case e-v sliding distance   a1: previous) */
@@ -1906,12 +1927,20 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
       * old contact points.
       */
      /* FIXME: Add more comments */
-      x0 = (1 - ratio)*x2 + ratio*x3;
-      y0 = (1 - ratio)*y2 + ratio*y3;
+      //x0 = (1 - ratio)*x2 + ratio*x3;
+      //y0 = (1 - ratio)*y2 + ratio*y3;
      /* Delta (???) contact point coords due to displacement increment.
       */
-      x4 = (1 - ratio)*p[2][1] + ratio*p[3][1];
-      y4 = (1 - ratio)*p[2][2] + ratio*p[3][2];
+      //x4 = (1 - ratio)*p[2][1] + ratio*p[3][1];
+      //y4 = (1 - ratio)*p[2][2] + ratio*p[3][2];
+
+     /* FIXME: Add more comments */
+      x0 = (1 - omega)*x2 + omega*x3;
+      y0 = (1 - omega)*y2 + omega*y3;
+     /* Delta (???) contact point coords due to displacement increment.
+      */
+      x4 = (1 - omega)*p[2][1] + omega*p[3][1];
+      y4 = (1 - omega)*p[2][2] + omega*p[3][2];
 
      /* FIXME: Comment profusely */
      /* Perpendicular offset of (x1,y1) from the line through (x0,y0)
@@ -2051,6 +2080,13 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
 
    }  /*  (contact, was i)  end loop for each contact */
    
+
+
+
+
+
+
+
 /**************  End of VE, Shear locking block  *******************/
 
 
