@@ -27,7 +27,7 @@ HWND statusbar;
 HICON g_hIcon0 = NULL;		
 HICON g_hIcon1 = NULL;		
 
-HWND hprogbar;
+//HWND hprogbar;
 
 /** 
  * @todo Move these into a statusbar struct that 
@@ -44,6 +44,16 @@ static int anaparts[SB_ANAL_PARTS];
 
 static int visibility;
 
+typedef struct _progbar {
+   HWND hwnd;
+   u_int ulx;   //230,5,117,12,  // ulx, uly, xwidth, ywidth
+   u_int uly;// = 5;
+   u_int xwidth;// = 117;
+   u_int ywidth;// = 12;
+
+} Progbar;
+
+Progbar progbar;
 
 #if 0
 static int
@@ -99,22 +109,67 @@ statusbar_set_text(WPARAM wParam, LPARAM lParam) {
 
 
 
+void 
+progressbar_move(Progbar * pb, u_int ulx, u_int xwidth) {
+
+   /*
+BOOL MoveWindow(
+  HWND hWnd,      // handle to window
+  int X,          // horizontal position
+  int Y,          // vertical position
+  int nWidth,     // width
+  int nHeight,    // height
+  BOOL bRepaint   // repaint flag
+);
+*/
+
+   MoveWindow(pb->hwnd,
+              ulx,
+              pb->uly,
+              xwidth,
+              pb->ywidth,
+              TRUE);
+ 
+}
+
+
 void
 statusbar_set_analysis_parts() {
 
+   u_int field0,field1,field2,field3,field4,field5,field6;
+   u_int field7,field8,field9;
+   int offset = 10;
+
   /* These field stops need to be handled with a finite state
    * machine after font metric handling is implemented.
-   */
-   anaparts[0] = 45;  // afs[0] = field stop 0
-   anaparts[1] = 110;
-   anaparts[2] = 180;
-   anaparts[3] = 225;
-   anaparts[4] = 350;
-   anaparts[5] = 400;
-   anaparts[6] = 450;
-   anaparts[7] = 490;
-   anaparts[8] = 560;
-   anaparts[9] = -1;
+   */   
+   
+   field0 = 60;
+   field1 = field0 + 90;
+   field2 = field1 + 90;
+   field3 = field2 + 45;
+   field4 = field3 + 145;
+   field5 = field4 + 60;
+   field6 = field5 + 60;
+   field7 = field6 + 60;
+   field8 = field7 + 60;
+   field9 = -1;
+
+
+   progressbar_move(&progbar,
+                    field3 + offset,
+                    field4- (field3 + 2*offset));
+
+   anaparts[0] = field0; 
+   anaparts[1] = field1;
+   anaparts[2] = field2;
+   anaparts[3] = field3;
+   anaparts[4] = field4;
+   anaparts[5] = field5;
+   anaparts[6] = field6;
+   anaparts[7] = field7;
+   anaparts[8] = field8;
+   anaparts[9] = field9;
 
    SendMessage(statusbar,SB_SETPARTS,(WPARAM)SB_ANAL_PARTS,(LPARAM)anaparts);
 }
@@ -123,18 +178,28 @@ statusbar_set_analysis_parts() {
 void
 statusbar_set_geometry_parts() {
 
+   u_int field0,field1,field2,field3,field4,field5,field6;
+
   /* These field stops need to be handled with a finite state
    * machine after font metric handling is implemented.  The 
    * (x,y) coordinates field can be computed using domain 
    * scaling width g0.
    */
-   geomparts[0] = 45+45; // gfs[0] field stop 0
-   geomparts[1] = 90+45;
-   geomparts[2] = 140+45;
-   geomparts[3] = 200+45;
-   geomparts[4] = 250+45;
-   geomparts[5] = 350+85;  // This is the (x,y) field
-   geomparts[6] = -1;
+   field0 = 90;
+   field1 = field0 + 90;
+   field2 = field1 + 60;
+   field3 = field2 + 90;
+   field4 = field3 + 90;
+   field5 = field4 + 120;
+   field6 = -1;
+
+   geomparts[0] = field0;
+   geomparts[1] = field1;
+   geomparts[2] = field2;
+   geomparts[3] = field3;
+   geomparts[4] = field4;
+   geomparts[5] = field5;  // This is the (x,y) field
+   geomparts[6] = field6;
 
    SendMessage(statusbar,SB_SETPARTS,(WPARAM)SB_GEOM_PARTS,(LPARAM)geomparts);
 
@@ -166,12 +231,14 @@ statusbar_set_state(unsigned int state) {
    
       case (GEOM_STATE | FINISHED):
          statusbar_set_geometry_parts();
-         ShowWindow(hprogbar, SW_HIDE);
+         //ShowWindow(hprogbar, SW_HIDE);
+         ShowWindow(progbar.hwnd, SW_HIDE);
       break;
 
       case (ANA_STATE | RUNNING):
          statusbar_set_analysis_parts();
-         ShowWindow(hprogbar, SW_SHOWNORMAL);
+         //ShowWindow(hprogbar, SW_SHOWNORMAL);
+         ShowWindow(progbar.hwnd, SW_SHOWNORMAL);
       break;
 
       case (ANA_STATE | FINISHED):
@@ -181,6 +248,12 @@ statusbar_set_state(unsigned int state) {
       break;
    }
 
+}
+
+void 
+statusbar_set_progbar_range(unsigned short value) {
+
+   SendMessage(progbar.hwnd,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,value));
 }
 
 
@@ -245,6 +318,7 @@ statusbar_update_analysis(int numblocks, double elapsedtime,
    SendMessage(statusbar,SB_SETTEXT,(WPARAM)2,(LPARAM)currtimesteptext);
    SendMessage(statusbar,SB_SETTEXT,(WPARAM)3,(LPARAM)oc_contactext);
   /* Progress bar in slot 4 */
+   SendMessage(statusbar,SB_SETTEXT,(WPARAM)4,(LPARAM)NULL);
    SendMessage(statusbar,SB_SETTEXT,(WPARAM)5,(LPARAM)rcondtext);
 
    //redoff = LoadImage(hInst,MAKEINTRESOURCE(ICON_REDLEDOFF),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
@@ -255,14 +329,10 @@ statusbar_update_analysis(int numblocks, double elapsedtime,
 void
 statusbar_update_progbar(unsigned int wparam) {
 
-   SendMessage(hprogbar,PBM_SETPOS,(WPARAM)wparam,(LPARAM)0);
+   SendMessage(progbar.hwnd,PBM_SETPOS,(WPARAM)wparam,(LPARAM)0);
 }
 
-void 
-statusbar_set_progbar_range(unsigned short value) {
 
-   SendMessage(hprogbar,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,value));
-}
 
 
 void
@@ -292,11 +362,23 @@ statusbar_init(HWND hwMain) {
    * Initialization needs to take location parameters computed
    * according to size of status bar slot instead of hardwired 
    * as it is here.
-   */
-   hprogbar = CreateWindow(PROGRESS_CLASS, "Prog bar", WS_CHILD|PBS_SMOOTH,
-      230,5,117,12,  // ulx, uly, xwidth, ywidth
-      statusbar,NULL,hInst,NULL);
-   ShowWindow(hprogbar, SW_HIDE);
+   */  
+   //u_int ulx;   //230,5,117,12,  // ulx, uly, xwidth, ywidth
+   progbar.uly = 5;
+   progbar.xwidth = 117;
+   progbar.ywidth = 12;
+   progbar.hwnd = CreateWindow(PROGRESS_CLASS, 
+                               "Prog bar", 
+                               WS_CHILD|PBS_SMOOTH,
+                               230,
+                               progbar.uly,
+                               progbar.xwidth,
+                               progbar.ywidth,
+                               statusbar,
+                               NULL,
+                               hInst,
+                               NULL);
+   ShowWindow(progbar.hwnd, SW_HIDE);
 
    statusbar_set_visibility(1);
    statusbar_set_ready_parts();
