@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/11/01 15:18:07 $
+ * $Date: 2002/11/26 13:13:35 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.46 $
+ * $Revision: 1.47 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.47  2002/11/26 13:13:35  doolin
+ * Added code to write out mass matrix for use in
+ * computing spectrum.
+ *
  * Revision 1.46  2002/11/01 15:18:07  doolin
  * .
  *
@@ -1677,6 +1681,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             if (ad->contactmethod == penalty)
             {
                double damping[7] = {0};
+               /** FIXME Get rid of this extern. */
                extern double ** __V0;
 
               /* load term of normal & shear  s1 s2 coefficient */

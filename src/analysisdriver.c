@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.37  2002/11/26 13:13:34  doolin
+ * Added code to write out mass matrix for use in
+ * computing spectrum.
+ *
  * Revision 1.36  2002/10/28 13:46:58  doolin
  * Refactoring contact handling.
  * Code is highly regressed at the moment.
@@ -229,28 +233,18 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    Geometrydata * GData = dda_get_geometrydata(dda);
    Analysisdata * AData = dda_get_analysisdata(dda);
 
-
   /** Maximum vertex displacement current time step. */
-
    double md_cts;
 
-
   /** Callbacks for really critical stuff, like 
-
    * integration, motion, etc.
-
    */
    TransMap transmap = transplacement_linear;
    MassMatrix massmatrix = massmatrix_linear;
-
    StrainModel strain_model = strain_linear_elastic;
 
-
-
    TransApply transapply = NULL;
-
    BoundCond boundary_condition = NULL;
-
 
    Contacts * CTacts;
 
@@ -280,10 +274,6 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /* e0[nBlocks+1][8]                               */
   double ** e0; //matprops; // was e0
   Material * m;
-
-
-
-
 
 
 
@@ -370,19 +360,13 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    * code.  Most of this function will disappear in the future.
    */
    allocateAnalysisArrays(GData, &kk, &k1, &c0, 
-
                           //&e0, 
-
                           &U, &n);
 
 
   /* Handle the previous e0 */
-
    m = material_new(GData->nBlocks);
-
    e0 = material_get_props(m);
-
-
 
 
   /* FIXME: document function. */
@@ -496,6 +480,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
          * pp. 60-96.  df10()-df16() are called from assemble().
          */
          assemble(GData,AData,get_locks(CTacts),e0,k1,kk,n,U,transmap);
+
         /* The "classical" DDA derived in GHS 1988 used a forward
          * difference formulation to integrate over time.  This 
          * code currently uses a forward difference expansion
@@ -510,6 +495,23 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
            /* Add and subtract contact matrices */
             df18(GData, AData, CTacts, kk,k1,c0,n, transmap);
 
+/*  At the last time step, after the first OCI, save the 
+ * stiffness matrix for spectral examination.
+ * The mass matrix is written out elsewhere and has to 
+ * be subtracted from the generalized stiffness matrix 
+ * here before the eigenvalues are found.
+ */
+#if 1
+   //if ((AData->cts == AData->nTimeSteps) && (AData->m9 == 0)) {
+   if ((AData->cts == 1) && (AData->m9 == 0)) {
+
+      writeMFile(AData->K, AData->Fcopy, AData->F, kk, k1, n, GData->nBlocks);
+      //printK(AData->K, AData->ksize1, "Analysis driver");
+     /* FIXME: This fflush call may need to be moved somewhere else. */
+      //fflush(fp.mfile);
+      AData->writemfile = FALSE;
+   }
+#endif
            /** @brief The saveState() function saves a copy of K and F 
             * because the solver overwrites both, and the OCI
             * uses the original stiffness and forcing vectors each 
@@ -527,7 +529,8 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
                       AData->Fcopy,GData->nBlocks,c0);
 
            /* U = K^{-1}F  df20() and df21() are still called from solve(). 
-            * U is overwritten into F as a result of the LU solver.
+            * U is overwritten into F as a result of the LU solver. 
+            * Parts of K are overwritten by the factorization.
             */
             solve(AData, AData->K, AData->F,kk,k1,n,GData->nBlocks);
 
@@ -630,15 +633,6 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    } /* END OF MAIN ANALYSIS LOOP  */
 
 
-   if (AData->writemfile) {
-
-
-      writeMFile(AData->K, AData->Fcopy, AData->F, kk, k1, n, GData->nBlocks);
-      //printK(AData->K, AData->ksize1, "Analysis driver");
-     /* FIXME: This fflush call may need to be moved somewhere else. */
-      //fflush(fp.mfile);
-      AData->writemfile = FALSE;
-   }
 
 
   /* All of the post-processing crapola goes in here.

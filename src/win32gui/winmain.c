@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/10/27 20:53:32 $
+ * $Date: 2002/11/26 13:13:39 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.27 $
+ * $Revision: 1.28 $
  */
 
 
@@ -61,7 +61,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.27 2002/10/27 20:53:32 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.28 2002/11/26 13:13:39 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -660,6 +660,8 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
       */
       strcpy(temp, filepath.gfile);
       strcpy (filepath.rootname, strtok(temp, "."));
+
+   dda_set_output_directory("output");
 
       switch (MessageBox( hwMain,"Edit geometry data before applying?","Geometry", MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2 ) )
       {   
@@ -1623,6 +1625,10 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    hdcmain = GetDC(hwMain);  
    GetClientRect(hwMain, &mfrect);
+
+   //displayWindowRect(hwMain, wParam, lParam);
+
+
    mfdc = CreateEnhMetaFile(hdcmain,"C:\\mfile.emf",NULL,NULL);
 
 #if _DEBUG
@@ -1631,7 +1637,7 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 #endif
     
    g->scale = setScale(hwMain, mfdc, g, geomdata->scale);
-   drawBlocks(mfdc, hBr, g, geomdata);
+   //drawBlocks(mfdc, hBr, g, geomdata);
    if(showOrig) {
       drawJoints(mfdc, screenPen, g, geomdata, geomdata->origvertices, TRUE);
       drawBolts(mfdc, screenPen, geomdata, g, geomdata->rockbolts, TRUE);

@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/14 16:02:47 $
+ * $Date: 2002/11/26 13:13:36 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  *
  */
 #include <assert.h>
@@ -835,12 +835,12 @@ sp_mult(double * Arow, double * x, double * y, int blocksize, int index)
 /* Writes a matlab file of stiffness and load vectors. */
 void 
 writeMFile(double ** K, double ** F, double ** D,
-                int * kk, int * k1, int ** n, int numblocks)
-{
+           int * kk, int * k1, int ** n, int numblocks) {
+
    int I,J;  // Loop over sub-block
    int row;  // was i
    int colindex, column;  // was j
-int i;
+   int i;
 
    int startrow, stoprow;
    int startcol, stopcol;
@@ -862,8 +862,8 @@ int i;
   /* Now write out diagonal submatrices. */
 
   /* FOR EACH ROW */
-   for (row=1;row<=numblocks;row++)
-   {
+   for (row=1;row<=numblocks;row++) {
+
       startindex = n[row][1];
       stopindex = n[row][1] + n[row][2] - 1;
       
@@ -872,8 +872,8 @@ int i;
 
 
      /* FOR EACH COLUMN IN ROW */
-      for (colindex=startindex;colindex<=stopindex;colindex++)
-      {
+      for (colindex=startindex;colindex<=stopindex;colindex++) {
+
          column = kk[colindex];
 
          startcol = blocksize*(column-1) + 1;
@@ -881,15 +881,16 @@ int i;
 
         /* Write the lower triangular part... */
          fprintf(fp.mfile,"K(%d:%d,%d:%d) = [\n",startrow,stoprow,startcol,stopcol);
-         for (I=1;I<=blocksize;I++)
-         {
-            for (J=1;J<=blocksize;J++)
-            {
+         for (I=1;I<=blocksize;I++) {
+            for (J=1;J<=blocksize;J++) {
+
                fprintf(fp.mfile," %30.16e ",K[colindex][blocksize*(I-1)+J]);
             }         
             fprintf(fp.mfile,"\n");
          }
          fprintf(fp.mfile,"];\n");
+
+
 
         /* and the upper triangular part. */
          fprintf(fp.mfile,"K(%d:%d,%d:%d) = [\n",startcol,stopcol,startrow,stoprow);
@@ -948,6 +949,11 @@ int i;
 
 
 }  /* close writeMFile() */
+
+
+
+
+
 
 /* Writes a matlab file of stiffness and load vectors. */
 void 

@@ -6,6 +6,11 @@
 
 
 #include <stdlib.h>
+#include <string.h>
+#ifdef WIN32
+#include <direct.h>
+#define getcwd _getcwd
+#endif
 
 
 #include "dda.h"
@@ -154,6 +159,60 @@ int
 dda_run(DDA * dda) {
 
    return 0;
+}
+
+
+void
+dda_set_output_directory(const char * dirname) {
+
+#define BUFSIZE 1024
+
+   int checkval;
+   char wdbuf[BUFSIZE];
+   char * outdir;
+   char * outdirenv;
+
+   outdir = malloc(BUFSIZE);
+   outdirenv = malloc(BUFSIZE);
+
+   getcwd(wdbuf,BUFSIZE);
+
+
+   strncpy(outdir,wdbuf,sizeof(wdbuf));
+   strncat(outdir,"\\",sizeof("\\"));
+   strncat(outdir,dirname,sizeof(dirname));
+
+/** This is really crappy. Should use stat or here. 
+ * MS doesn't list errno for stat, so checking to 
+ * see whether the directory already exists will be 
+ * done with mkdir.  Smells like a kludge.
+ */
+   checkval = _mkdir(outdir);
+ 
+
+ /* @todo rewrite all of this because EEXIST
+  * doesn't matter.  Need only check for ENOENT.
+  */
+#if 0
+   if (checkval == 0) {  // 0 is success for this call
+
+      strncpy(outdirenv,"DDA_OUT_DIR",sizeof("DDA_OUT_DIR"));
+      strncat(outdirenv,outdir,sizeof(outdir));
+      _putenv(outdirenv);
+      //_chdir(outdir);
+   } else {
+      
+      dda_display_error("Problem with setting environment");
+   }
+#endif
+
+      strncpy(outdirenv,"DDA_OUT_DIR",sizeof("DDA_OUT_DIR"));
+      strncat(outdirenv,outdir,sizeof(outdir));
+      _putenv(outdirenv);
+
+
+   free(outdir);
+
 }
 
 

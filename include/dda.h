@@ -126,6 +126,8 @@ void           dda_set_ycur           (DDA * dda,
                                        int ycur);
 
 
+void           dda_set_output_directory(const char * dirname);
+
 /** Some platform independent prototypes. */
 void           dda_display_error      (const char * message);
 

@@ -6,7 +6,6 @@
 #include <assert.h>
 
 
-/** This should probably go into ddatypes.h */
 #include "functions.h"
 #include "bolt.h"
 #include "ddadlist.h"

@@ -9,7 +9,6 @@
 
 #include "analysis.h"
 #include "ddamemory.h"
-//#include "datalog.h"
 
 
 /* Time integration temp arrays.  The velocity array
@@ -28,31 +27,80 @@ static int __Dsize1;
 static int __Dsize2;
 double ** __D;
 
-static void df11(Geometrydata *, Analysisdata *, int *, double **,
-            double **, double **, int **, double ** U, MassMatrix massmatrix);
 
-/* Integration constants for Newmark */
-//static double a0c, a1c, a2c,a3c,a4c,a5c,a6c,a7c;
+typedef struct _integrator Integrator;
 
-/* Handy variables for computing kinetic energy */
-/* velocity terms */
-static double d1, d2, d3, d4, d5, d6;
+struct _integrator {
 
-/* Diagonal terms of generalised inertia matrix. */
-//static double E11, E22;
-static double E33, E44, E55, E66;
+   FILE * logfile;
+
+   double ** a;
 
 
-/* Off-diagonal terms of generalized inertia matrix */
-static double E34, E35, E36, E46, E56;
+};
+
+/** This will get moved around a bit. */
+static Integrator * integrator;
+
 
 void
-initIntegrationArrays(Geometrydata * gd, Analysisdata * ad)
-{
+massmatrix_write(double SX0[7][7], double a0, int blocknum) {
+  
+   int i,j;
+   FILE * ofp = integrator->logfile;
+   /* Fix these up later. */
+   int dof = 6;
+   int start, stop;
+
+   start = ((blocknum-1))*dof + 1;
+   stop  = blocknum*dof;
+
+   //fprintf(ofp,"From massmatrix...\n");
+
+   fprintf(ofp,"M(%d:%d,%d:%d) = [\n",start,stop,start,stop);
+   for (i=1; i<=6; i++) {
+      for (j=1; j<=6; j++) {
+         fprintf(ofp,"%30.16f ", a0*SX0[i][j]);
+      }
+      fprintf(ofp,"\n");
+   }
+   fprintf(ofp,"];\n\n");
+}
+
+
+
+Integrator * 
+integrator_new(void) {
+
+   Integrator * i = (Integrator*)malloc(sizeof(Integrator));
+
+   memset(i,0xda,sizeof(Integrator));
+   i->logfile = fopen("massmat.m","w");
+   return i;
+}
+
+
+void 
+integrator_delete(Integrator * i) {
+
+   fclose(i->logfile);
+
+   memset(i,0xdd,sizeof(Integrator));
+   free(i);
+}
+
+   
+
+
+void
+initIntegrationArrays(Geometrydata * gd, Analysisdata * ad) {
+
    int i, i1;
    double ** materialProps = ad->materialProps;
    int nBlocks = gd->nBlocks;
    int ** vindex = gd->vindex;
+
+   integrator = integrator_new();
 
    __Dsize1=nBlocks+1;
    __Dsize2=13;
@@ -80,15 +128,15 @@ initIntegrationArrays(Geometrydata * gd, Analysisdata * ad)
 
    __A0size1=nBlocks+1;
    __A0size2=13;
-
    __A0 = DoubMat2DGetMem(__A0size1, __A0size2);
 
-}  /* close initIntegrationArrays() */
+}
 
 
 void
-freeIntegrationArrays()
-{
+freeIntegrationArrays() {
+
+   integrator_delete(integrator);
 
    if (__A0)
       free2DMat((void **)__A0, __A0size1);
@@ -99,57 +147,61 @@ freeIntegrationArrays()
    if (__D)
       free2DMat((void **)__D, __Dsize1);
 
-}  /* close freeIntegrationArrays() */
+}
 
-/**
- * @warning Only the GHS integrator works.
- * @todo Move the GData->moments dereference into 
- * the relevant functions.
- */
+
+
+
+
+
+/* TCK 1996 p. 324 velocity rotation correction. */
+/* FIXME: This does not appear to work at all. */
 void
-timeintegration(Geometrydata * GData, Analysisdata * AData,
-                double ** matprops, int * k1, /*double ** moments, */ int ** n,
-                double ** U,
+velocity_rotate(double * v, double r) {
 
-                MassMatrix massmatrix) {
+   double c,s;
+   double du0  = v[1];
+   double dv0  = v[2];
+   double dex  = v[4];  // \dot{e}_x
+   double dey  = v[5];
+   double dgxy = v[6];
 
+   c = cos(r);
+   s = sin(r);
 
+  /* Displacements */       
+   v[1] = c*du0 - s*dv0;
+   v[2] = s*du0 + c*dv0;
 
-
-   double ** f = AData->F;
-   //clock_t start, stop;
-   double ** moments = GData->moments;
-
-   //start = clock();
-
-  /* submatrix of inertia */
-  /* df11() works by forward difference as derived in 
-   * offprint of 1st Int DDA Forum, Berkeley, 1996,
-   * pp. 23-27.
-   */
-   //AData->integrator = newmark;
-   switch (AData->integrator)
-   {
-      case constant:
-         df11(GData, AData,k1,f,matprops,moments,n,U,massmatrix);
-         break;
-
-     /* Newmark is from Bathe and Wilson, pp. 322-326, 1976. */
-      case newmark:
-         newmarkIntegration(GData, AData,k1,f,matprops,moments,n,U,massmatrix);
-         break;
-  
-      default:
-        /* Do something bad here */
-         break;
-   }
-   
-   //stop = clock();
-   //DLog->integration_runtime += stop - start;
-
-}  /* close timeintegration() */
+  /* Strains */
+   v[4] = c*c*dex - 2*c*s*dgxy + s*s*dey;
+   v[5] = c*s*(dex+dey) + (c*c-s*s)*dgxy;
+   v[6] = s*s*dex + 2*c*s*dgxy + c*c*dey;
+}
 
 
+void
+newmark_update(double * u, double * v, double * a,
+               double a0, double a2, double a7) {
+
+   int j;
+
+   for (j=1; j<=  6; j++) {
+
+      a[j+6] = a[j];
+      v[j+6] = v[j];
+
+     /*  Test newmark style updates... */
+     //__A0[i][j] = (2*U[i][j])/(pts*pts) - (2/pts)*__V0[i][j+6];
+      v[j] = a0*u[j] - a2*v[j+6];
+      v[j] = a[j+6] + a7*a[j];
+     /* FIXME: Save the previous values to use for 
+      * computing kinetic energy.
+      */
+     /* FIXME: Where are the values of U set? */
+      //__V0[i][j] = (2*U[i][j]/(pts))-__V0[i][j];
+   }  
+}
 
 /**************************************************/
 /* df11: submatrix of inertia                     */
@@ -159,60 +211,60 @@ timeintegration(Geometrydata * GData, Analysisdata * AData,
  * Int. DDA Forum held in Berkeley, 1996.  The relevant
  * material is listed on pages 23-27.
  */
-void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
+void df11(Analysisdata *ad, int nBlocks, int *k1, double **F,
           double ** e0, double **moments, int **n, 
-          double ** U, MassMatrix massmatrix)
-{
+          double ** U, MassMatrix massmatrix) {
+
    int i, j, i1, i2, ji, l;
   /* g6 g5 coefficients of mass and velocity matrix.
    * See Eqs. 2.49 & 2.52, p. 81, Shi 1988.
    */
-   double g5;
+   //double g5;
   /* No longer necessary */
    //double g6;
   /* unit mass density, was o0 */
    double rho;
+
   /* Mass matrix variables:  Eq. 2.57, p. 85,
    * Chapter 2, Shi 1988.
    */
    double S0,S1,S2,S3;
+
   /* x and y coordinates of centroid for each block */
    double x0, y0;
-  /* TT is integrated moments matrix, Eq. 2.57, p. 85.
-   * FIXME: Change this to SX0.
-   */
-   double TT[7][7] = {{0}};
+
+  /* SX0 is integrated moments matrix, Eq. 2.57, p. 85. (was TT). */
+   double SX0[7][7] = {{0}};
+
   /* nBlocks := number of blocks in analysis */
-   int nBlocks = gd->nBlocks;
+   //int nBlocks = gd->nBlocks;
+
   /* STATIC or DYNAMIC  defined in dda.h */
    int analysisType = ad->analysistype;
   /* Stiffness matrix */
    double ** K = ad->K;
-  /* We have to take care of Initial Conditions, too */
-   int currTimeStep = ad->cts;
   /* Delta t time step */
    double ts = ad->delta_t;
-  /* previous time step needed for updating, 
-   * set in df25().  FIXME: Find a way to set this
-   * value in this function instead of df25().
-   */
-   //double pts = ad->pts;  
-   static double pts;
+   int cts = ad->cts;
+
+  /* previous time step needed for updating. */
+   //static double pts;
+
   /* (Delta t)^2, time step squared */
    double tss;
-  /* need to index the kinetic energy */
-   int cts = ad->cts;
+
   /* Viscosity coefficient, GHS 1988 pp.86-88. */
-   double mu;  //ad->mu;
+   double mu;
   /* Convenience value for collecting density, viscosity etc. */
    double coef;
-double alpha = .5;
-double delta = 1.0;
-double a0;
-double a2;
-double a7;
 
-  /* Precompute the squared time step  to save a few cycles */
+   double alpha = .5;
+   double delta = 1.0;
+   double a0;
+   double a2;
+   double a7;
+
+  /* Precompute the squared time step to save a few cycles */
    tss = ts*ts;
 
 /* Try to get the newmark stuff running... */
@@ -231,12 +283,14 @@ double a7;
    * system.
    */
    //if (currTimeStep > 1 && ad->k00 == 0) 
-   if (currTimeStep > 1 && ad->m9 == 0) 
-   {
-      for (i=1; i<= nBlocks; i++)
-      {
-         for (j=1; j<=  6; j++)
-         {
+   if (cts > 1 && ad->m9 == 0) {
+
+      for (i=1; i<= nBlocks; i++) {
+         
+         //newmark_update(U[i],__V0[i],__A0[i],a0,a2,a7);
+#if 1
+         for (j=1; j<=  6; j++) {
+
             __A0[i][j+6] = __A0[i][j];
             __V0[i][j+6] = __V0[i][j];
 
@@ -251,32 +305,17 @@ double a7;
             */
             //__V0[i][j] = (2*U[i][j]/(pts))-__V0[i][j];
          }  
-        /* TCK 1996 p. 324 velocity rotation correction. */
-        /* FIXME: This does not appear to work at all. */
-         if (0) 
-         {
-            double r,c,s;
-            double du0 = __V0[i][1];
-            double dv0 = __V0[i][2];
-            double dex = __V0[i][4];  // dot e_x
-            double dey = __V0[i][5];
-            double dgxy = __V0[i][6];
-            r = U[i][3];
-            c = cos(r);
-            s = sin(r);
-           /* Displacements */       
-            __V0[i][1] = c*du0 - s*dv0;
-            __V0[i][2] = s*du0 + c*dv0;
-           /* Strains */
-            __V0[i][4] = c*c*dex - 2*c*s*dgxy + s*s*dey;
-            __V0[i][5] = c*s*(dex+dey) + (c*c-s*s)*dgxy;
-            __V0[i][6] = s*s*dex + 2*c*s*dgxy + c*c*dey;
+#endif
+
+         if (0) {
+            velocity_rotate(__V0[i], U[i][3]);
          }            
+
       }  
    }
-   //fprintf(fp.logfile,"%f\n",ts);
 
 
+#if 0
   /* g6 g5 coefficients of mass and velocity matrix */
    if ( (analysisType == STATIC) || (ad->gravityflag == TRUE) ) { 
       g5 = 0;  // redundant
@@ -284,35 +323,22 @@ double a7;
       g5=2.0/(ts); 
    }
    //g6=2.0/(tss);
-
+#endif
 
   /*  inertia terms                                 */
   /* g5: only difference of statics and dynamics    */
   /* g6: inertia coefficient                        */
-   for (i=1; i<= nBlocks; i++)
-   {
+   for (i=1; i<= nBlocks; i++) {
+
       rho = e0[i][0];  // density
-     /* Need to compute current density */
-      //rho = (e0[i][9]*e0[i][0])/((1+e0[i][7])*moments[i][1]);
-      mu = e0[i][8];   // damping
+      mu  = e0[i][8];   // damping
 
      /* (GHS: zero terms of mass matrix)  */
-     /* When I get the guts, I will zero this out with memset: */
-      // memset(TT,0x0,sizeof(TT));
-      for (j=1; j<= 6; j++) {
-         for (l=1; l<= 6; l++) {
-            TT[j][l]=0;
-         }  
-      } 
-      
-     /* (GHS: non-zero terms of mass matrix)  */
-     /* Compute centroids.   These are also computed in 
-      * the time step function. 
-      */
-      //x0=moments[i][2]/moments[i][1];  // x0 := x centroid
-      //y0=moments[i][3]/moments[i][1];  // y0 := y centroid
-      gdata_get_centroid(moments[i],&x0,&y0);
+      memset(SX0,0x0,sizeof(SX0));
 
+     /* (GHS: non-zero terms of mass matrix)  */
+
+      gdata_get_centroid(moments[i],&x0,&y0);
 
      /* S0, S1, S2, S3 result from integrals derived on 
       * pp. 83-84, Chapter 2, Shi 1988.
@@ -322,47 +348,18 @@ double a7;
       S2 = moments[i][5]-y0*moments[i][3];
       S3 = moments[i][6]-x0*moments[i][3];
 
+      massmatrix(SX0,rho,S0,S1,S2,S3);
 
-
-      massmatrix(TT,S0,S1,S2,S3);
-
-
-
-     /* Compute the kinetic energy.
-      * FIXME: Rewrite this as a function, then
-      * turn it into a macro 
+     /* Log the mass matrix here, make sure to pass in the block number and 
+      * time step.
       */
-      d1 = __V0[i][1];
-      d2 = __V0[i][2];
-      d3 = __V0[i][3];
-      d4 = __V0[i][4];
-      d5 = __V0[i][5];
-      d6 = __V0[i][6];
-      E33 = (S1+S2);
-      E44 = S1;
-      E55 = S2;
-      E66 = E33/4.0;
-      E34 = -S3;
-      E35 = S3;
-      E36 = (S1-S2)/2.0;
-      E46 = S3/2.0;
-      E56 = S3/2.0;
-     /* FIXME: stash a local var in here to cut down on all this
-      * dereferencing.
-      * FIXME: Add the viscosity potential to this.
-      */
-      /** Change all of this to incomplete type for energy,
-       * hide everything behind a nice interface.
-       */
-      /*
-      if (ad->k00 == 0) 
-      {
-         DLog->energy[cts].KEcentroid += rho*S0*( d1*d1 + d2*d2);
-         DLog->energy[cts].KEdeform += rho*((E33*d3*d3) + (E44*d4*d4) + (E55*d5*d5)
-                                    + (E66*d6*d6) + (2*E34*d3*d4) + (2*E35*d3*d5)
-                                    + (2*E36*d3*d6) + (2*E46*d4*d6) + (2*E56*d5*d6));
+      if (cts == 1) {
+      //if (cts == ad->nTimeSteps) {
+        massmatrix_write(SX0,a0,i);  
       }
-*/
+
+     /* Compute the kinetic energy. */
+      //ke = energy_kinetic(__V0[i],S0,S1,S2,S3);
 
      /* (GHS: add mass matrix to a[][]) */
      /* k1 stores "permutation index",
@@ -372,49 +369,42 @@ double a7;
       i1=k1[i];
       i2=n[i1][1]+n[i1][2]-1;
      
-     /* KLUDGE: The default value of mu is zero (mu=0). If it is 
+     /* The default value of mu is zero (mu=0). If it is 
       * nonzero, it will be set in the ddaml input file.
       */
       coef = 1; //2*( (mu/ts) + (rho/tss) );
       
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {
-            ji=6*(j-1)+l;
-            /* Ok, so here we want to extend to add the viscosity,
-             * which means we may as well move this out of the inner
-             * loop.
-             */
-            //K[i2][ji] += g6*rho*TT[j][l];
-            K[i2][ji] += a0*rho*coef*TT[j][l];
+      for (j=1; j<= 6; j++) {
+         for (l=1; l<= 6; l++) {
 
-         }  /*  l  */
-      }  /*  j  */
+            ji=6*(j-1)+l;
+            K[i2][ji] += a0*coef*SX0[j][l];
+         } 
+      }
 
      /* (GHS: add velocity matrix to f[]) */
      /* FIXME: If we are running a static analysis,
       * is there any need to update accumulate here?
       */
-      if (analysisType == STATIC || ad->gravityflag == TRUE)
+      if (analysisType == STATIC || ad->gravityflag == TRUE) {
          continue;
+      }
 
 
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {      
+      for (j=1; j<= 6; j++) {
+         for (l=1; l<= 6; l++) {
+               
            /* Velocity component of load vector is a
             * matrix-vector product.  BLAS call is DGEMV.
             * FIXME: Move g5 out of this loop.
             */
             /* FIXME: Need to add viscous damping here? */
             //F[i1][j] += g5*rho*TT[j][l]*__V0[i][l];
-            F[i1][j] += rho*TT[j][l]*(a2*__V0[i][l]);
-         }  /*  l  */
-      }  /*  j  */
+            F[i1][j] += SX0[j][l]*(a2*__V0[i][l]);
+         } 
+      }  
 
-   }  /*  i end loop over each block */
+   }  /* i end loop over each block */
 
 
   /* Here is where we want to set the previous time 
@@ -422,18 +412,9 @@ double a7;
    * time, not each change in time step value.  This is 
    * because Delta t may change during a time step.
    */
-   pts = ad->delta_t;
+   //pts = ad->delta_t;
 
-  /* Total kinetic energy
-   */   
-   /*
-   if (ad->m9 == 0) {
-      DLog->energy[cts].ke = 0.5*(DLog->energy[cts].KEcentroid 
-                           + DLog->energy[cts].KEdeform);
-   }
-*/
-
-}  /*  Close df11().  */
+}
 
 
 /**
@@ -575,7 +556,7 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       S3 = moments[i][6]-x0*moments[i][3];
 
 
-      massmatrix(TT,S0,S1,S2,S3);
+      massmatrix(TT,1,S0,S1,S2,S3);
 
 
 
@@ -628,7 +609,49 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
 }  /* close newmark() */
 
 
+/**
+ * @warning Only the GHS integrator works.
+ * @todo Move the GData->moments dereference into 
+ * the relevant functions.
+ */
+void
+timeintegration(Geometrydata * GData, Analysisdata * AData,
+                double ** matprops, int * k1, /*double ** moments, */ int ** n,
+                double ** U,
+                MassMatrix massmatrix) {
 
+   double ** F = AData->F;
+   //clock_t start, stop;
+   double ** moments = GData->moments;
+
+   //start = clock();
+
+  /* submatrix of inertia */
+  /* df11() works by forward difference as derived in 
+   * offprint of 1st Int DDA Forum, Berkeley, 1996,
+   * pp. 23-27.
+   */
+   //AData->integrator = newmark;
+   switch (AData->integrator)
+   {
+      case constant:
+         df11(AData,GData->nBlocks,k1,F,matprops,moments,n,U,massmatrix);
+         break;
+
+     /* Newmark is from Bathe and Wilson, pp. 322-326, 1976. */
+      case newmark:
+         newmarkIntegration(GData, AData,k1,F,matprops,moments,n,U,massmatrix);
+         break;
+  
+      default:
+        /* Do something bad here */
+         break;
+   }
+   
+   //stop = clock();
+   //DLog->integration_runtime += stop - start;
+
+} 
 
 /**************************************************/
 /* step: compute next time interval          0006 */

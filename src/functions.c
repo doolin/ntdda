@@ -171,54 +171,84 @@ transplacement_apply_exact(double T[][7], double * D,
  * Chapter 2, Shi 1988.
  */
 void 
-massmatrix_linear (double T[][7], const double S0, const double S1, 
-                   const double S2, const double S3) {
+massmatrix_linear (double T[7][7], double m, const double S0, 
+                   const double S1, const double S2, const double S3) {
 
-   T[1][1] = S0;
-   T[2][2] = S0;
-   T[3][3] = S1+S2;
-   T[3][4] = -S3;
+   T[1][1] = m*S0;
+   T[2][2] = m*S0;
+   T[3][3] = m*(S1+S2);
+   T[3][4] = -m*S3;
    T[4][3] = T[3][4];
-   T[3][5] = S3;
+   T[3][5] = m*S3;
    T[5][3] = T[3][5];
-   T[3][6] = (S1-S2)/2;
+   T[3][6] = m*((S1-S2)/2);
    T[6][3] = T[3][6];
-   T[4][4] = S1;
-   T[4][6] = S3/2;
+   T[4][4] = m*S1;
+   T[4][6] = m*(S3/2);
    T[6][4] = T[4][6];
-   T[5][5] = S2;
-   T[5][6] = S3/2;
+   T[5][5] = m*S2;
+   T[5][6] = m*(S3/2);
    T[6][5] = T[5][6];
-   T[6][6] = (S1+S2)/4;
+   T[6][6] = m*((S1+S2)/4);
+
 }
 
 
 
 void 
-massmatrix_finite (double T[][7], const double S0, const double S1,
+massmatrix_finite (double T[][7], double m, const double S0, const double S1,
                    const double S2, const double S3) {
 
-   T[1][1] = S0;
-   T[2][2] = S0;
-   T[3][3] = S1;
-   T[3][4] = 0;
-   T[4][3] = 0;
-   T[3][5] = S3;
-   T[5][3] = S3;
-   T[3][6] = 0;
-   T[6][3] = 0;
-   T[4][4] = S1;
-   T[4][6] = S3;
-   T[6][4] = S3;
-   T[5][5] = S2;
-   T[5][6] = 0;
-   T[6][5] = 0;
-   T[6][6] = S2;
+   T[1][1] = m*S0;
+   T[2][2] = m*S0;
+   T[3][3] = m*S1;
+   T[3][5] = m*S3;
+   T[5][3] = m*S3;
+   T[4][4] = m*S1;
+   T[4][6] = m*S3;
+   T[6][4] = m*S3;
+   T[5][5] = m*S2;
+   T[6][6] = m*S2;
 }
 
 
 
 
+/** This function depends on the structure of the 
+ * transplacement map, it should be passed into 
+ * the time integrator as a callback.  
+ */
+double
+energy_kinetic(const double * v, const double rho, const double S0, 
+               const double S1, const double S2, const double S3) {
+            
+   double ke;
+   double d1, d2, d3, d4, d5, d6;
+   double E33, E34, E35, E36, E44, E46, E55, E56, E66;
+
+   d1 = v[1];
+   d2 = v[2];
+   d3 = v[3];
+   d4 = v[4];
+   d5 = v[5];
+   d6 = v[6];
+   E33 = (S1+S2);
+   E44 = S1;
+   E55 = S2;
+   E66 = E33/4.0;
+   E34 = -S3;
+   E35 = S3;
+   E36 = (S1-S2)/2.0;
+   E46 = S3/2.0;
+   E56 = S3/2.0;
+
+   ke = rho*S0*( d1*d1 + d2*d2) 
+        + rho*((E33*d3*d3) + (E44*d4*d4) + (E55*d5*d5)
+        + (E66*d6*d6) + (2*E34*d3*d4) + (2*E35*d3*d5)
+        + (2*E36*d3*d6) + (2*E46*d4*d6) + (2*E56*d5*d6));
+      
+   return ke/2;          
+} 
 
 
 
