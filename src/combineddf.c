@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/01 20:37:56 $
+ * $Date: 2001/07/01 22:43:54 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  *
  */
 /*################################################*/
@@ -17,6 +17,13 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.8  2001/07/01 22:43:54  doolin
+ * Rewrote the logic in the getLockStates function.
+ * The previous logic is saved in the getLockStatesOld function.
+ * All this needs to be verified against the original code.  If there
+ * is a big screw up, just use the original function, and-or back out
+ * the changes from cvs using revision numbers.
+ *
  * Revision 1.7  2001/07/01 20:37:56  doolin
  * Changed dimension on the locks matrix QQ in df18.
  * Note the revision number of this carefully, because these
@@ -443,9 +450,8 @@ allocateK(Analysisdata * ad)
 }  /* close allocateK() */
 
 
-
 static void 
-setLockStates(int ** locks, int lockstate[3][5], int contact)
+getLockStatesOld(int ** locks, int lockstate[3][5], int contact)
 {
    int j;
   /* Helper variables to increase readability of the code. */
@@ -510,7 +516,94 @@ setLockStates(int ** locks, int lockstate[3][5], int contact)
       }  /*  j  */
 
 
-}  /* close setLockStates() */
+}  /* close getLockStatesOld() */
+
+
+static void 
+getLockStates(int ** locks, int lockstate[3][5], int contact)
+{
+   int j;
+  /* Helper variables to increase readability of the code. */
+   const int OPEN = 0;
+   const int CLOSED = 1;
+   const int SLIDING = 1;
+   const int LOCKED = 2;
+   const int PREVIOUS = 1;
+   const int CURRENT = 2;
+     /* For each previous step and current step. Closes with label b804
+      * TODO: This might be changed into a macro.  j takes on the value
+      * 1 for PREVIOUS contact and 2 for CURRENT contact.
+      */
+      for (j=1; j<= 2;  j++)
+      {
+        /* FIXME: say what the following matrix represents. */
+        /* This initializes qq as a 2 x 4 matrix, e.g.,:
+         * lockstate =  [ 0 0 1 0 ]
+         *              [ 1 1 0 0 ].
+         */
+         lockstate[j][1]=lockstate[j][2]=lockstate[j][3]=lockstate[j][4]=0;
+        /* When locks[i][j] = 0, (OPEN) no springs are turned on.
+         * FIXME: Find out where locks are set.
+         */
+         if (locks[contact][j]==OPEN) 
+         {
+            continue; //goto b801;
+         }
+        /* else SLIDING or LOCKED */
+         //lockstate[j][PREVIOUS] = CLOSED;
+         //lockstate[j][CURRENT] = OPEN;
+        /* Else when locks[i][j] = 1, we sliding with the 
+         * normal spring turned on.
+         */
+         else if (locks[contact][j]==SLIDING) 
+         {  //continue; //goto b801;
+            lockstate[j][PREVIOUS] = CLOSED;
+            lockstate[j][CURRENT] = OPEN;
+         }
+
+        /* else NOTSLIDING */
+         //lockstate[j][PREVIOUS] = CLOSED;
+         //lockstate[j][CURRENT] = CLOSED;
+         
+        /*  Else when locks[i][j] = 2, the sliding and shear springs
+         * are locked (or active?).
+         */
+         else if (locks[contact][j]==LOCKED) 
+         {
+            //continue; //goto b801;
+            lockstate[j][PREVIOUS] = CLOSED;
+            lockstate[j][CURRENT] = CLOSED;
+         }
+
+         /* FIXME: I think this piece of is never reached.  Check against 
+          * original code in df18().
+          */
+         else         /* else NOTLOCKED */
+         {
+            lockstate[j][PREVIOUS] = OPEN;
+            lockstate[j][CURRENT] = OPEN;
+            lockstate[j][3] = CLOSED;
+         }
+        /* Else locks[i][j] = 3, and the sliding 
+         * "ref line -> 2 normal spring on"
+         * (notes are incomprehensible here).
+         */ 
+//b801:;
+      }  /*  j  */
+      
+     /* (GHS: set on-off modify coefficient) */
+     /* Difference in current and previous contact springs.
+      * lockstate[1][j] = -1: Spring was on in prev iteration, not in current;
+      * lockstate[1][j] =  0: Spring in current and previous are same (goal?); 
+      * lockstate[1][j] =  1: Spring on in current not in previous.
+      */ 
+      for (j=1; j<= 4; j++)
+      {
+         lockstate[1][j]=(lockstate[CURRENT][j]-lockstate[PREVIOUS][j]);
+      }  /*  j  */
+
+
+}  /* close getLockStates() */
 
 
 static void 
@@ -863,7 +956,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
       if (ad->gravityflag == 1)
          setGravForces(ad,ctacts,contact);
 
-      setLockStates(locks,lockstate,contact);
+      getLockStates(locks,lockstate,contact);
 
      /* (GHS: compute 4 6*6  2 6*1 contact submatrices)       */
      /* (GHS: if sliding force +- changing shear g0/h2 h2= 4) */
@@ -872,9 +965,13 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
       */   
       for (jj=0; jj<= contacts[contact][TYPE]; jj++)
       {
+        /* jj != 0 implies that this is a VV contact. */
          if (jj != 0) 
          {
            /* Else 2d ref line. */
+           /* Consider using the 0 leading slot for storing state
+            * changes between PREVIOUS and CURRENT.
+            */
             lockstate[1][1]=lockstate[1][3];
            /* FIXME:  Where is lockstate[1][4] used? Initialized to 0 */
             lockstate[1][2]=lockstate[1][4];
@@ -1279,15 +1376,27 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
  * implement material in Shi 1988, Chapter 4, p. 157,
  * Section 4.3.
  */
-void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
+/* FIXME: This function needs to be renamed "setLockStates" because that 
+ * is what it does.
+ */
+/* FIXME: Try to get rid of the Geometrydata struct if possible. */
+void 
+df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
 {
    double ** F = ad->F;
    double ** vertices = gd->vertices;
    double ** moments = gd->moments;
+  /* FIXME: Explain what nn0 is and try to get rid of it.  I think it 
+   * is the vertex block point array.
+   */
    int * nn0 = gd->nn0;
    double ** phiCohesion = ad->phiCohesion;
   /* problem domain scaling, was w0 */   
    double domainscale = ad->constants->w0; 
+
+  /* FIXME: This should be stored in the ctacts struct instead of the 
+   * geometry struct.
+   */
    int nContacts = gd->nContacts;
    Gravity * grav = ad->gravity;
 
@@ -1318,13 +1427,18 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    const int PENDIST = 0;
    int i2;
 
-   int j;
+  /* Loop counters. */
+   int i,j,k;
    int joint_type;
   /* These are just loop counters.  Unfortunately, l and 1
    * are almost identical glyphs.  So l -> ell, l0 -> ell0
    * l1 -> ell1. 
    */
-   int ell, ell1;
+  /* FIXME: Change these loop counters to i and k, because 
+   * i and k have not been used in this function yet.
+   */
+   //int ell;
+   //int ell1;
   /* vertexnumber was ell0, was l0 */
    int vertexnumber;
   /* Original contact determinant, Shi 1988, p. 159. 
@@ -1383,12 +1497,10 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    */
    double pendist[3];// = {0};  // was s[]
   /* p is temp storage for contact vertex displacements */
-   double p[4][4];
+   double p[4][4] = {0};
   /* T is the usual, i.e., T \equiv [T] */
    double T[7][7];
-
   /* FIXME: Change this to: */
-
    //double T[3][7] = {0};
   /* x,y are temporary variables used to carry contact vertex
    * locations for computing displacements
@@ -1407,6 +1519,7 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    double x4, x5, x6, y4, y5, y6;
 
    int i7,i8;  // used to test convergence
+
 
   /* Can't do this yet.  Set from the contact spring. */
    //double JointNormalSpring = ad->JointNormalSpring;
@@ -1457,29 +1570,30 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
       */
       for (j=0; j<= CTYPE; j++)
       {  
-        /* The code in this inner loop gets called three times 
+        /* COMPUTE VERTEX DISPLACEMENTS
+         * The code in this inner loop gets called three times 
          * for vertex-edge contact, and 6 times for vertex-vertex
          * contact.  (vertex-vertex needs two triangles)
          */
-         for (ell=1; ell <= 3; ell++)
+         for (i=1; i <= 3; i++)
          {
-            vertexnumber = contactlist[contact][j*3+ell];
+            vertexnumber = contactlist[contact][j*3+i];
            /* nn0 stores the number (label) of the block associated 
             * with vertex ell0.
             */
     		   blocknumber = nn0[vertexnumber];
-            x  = vertices[vertexnumber][1];
-            y  = vertices[vertexnumber][2];
            /* Store the vertex locations temporarily.  qq gets 
             * dereferenced later into x1,x2,x3, y1,x2,y3.
             */
-            qq[ell][1]  = x;
-            qq[ell][2]  = y;
+            qq[i][1]  = x  = vertices[vertexnumber][1];
+            qq[i][2]  = y  = vertices[vertexnumber][2];
+            //qq[i][1]  = x;
+            //qq[i][2]  = y;
 
             computeDisplacement(moments,T,x,y,blocknumber);
 
-            p[ell][1]  = 0;
-            p[ell][2]  = 0;
+            p[i][1]  = 0;
+            p[i][2]  = 0;
            /* Find memory location associated with the 
             * i0th block stored in sparse form.
             * k1 is used only here in this function 
@@ -1488,16 +1602,18 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
            /* p appears to be displacement.  F is deformation
             * unknowns overwritten into the load vector.
             */
-            for (ell1=1; ell1<= 6; ell1++)
+            for (k=1; k<= 6; k++)
             {
-               p[ell][1] += T[1][ell1]*F[i2][ell1];
-               p[ell][2] += T[2][ell1]*F[i2][ell1];
-            }  /*  l1 */
-         }  /*  l  */
+               p[i][1] += T[1][k]*F[i2][k];
+               p[i][2] += T[2][k]*F[i2][k];
+            }  /*  k */
+         }  /*  i  */
 
         /* After transferring values, qq is not used until 
          * the next contact.  The x,y pairs are carried through.
          * x1,y1 is the penetrating vertex (Shi 1988, p. 157, \S 4.3).
+         * NOTE: This assignment is purely convenience to help
+         * match the mathematical exposition.
          */
          x1 = qq[1][1];
          y1 = qq[1][2];
