@@ -59,7 +59,10 @@
 */
 
 
-
+#ifndef DL_FREEFUNC
+#define DL_FREEFUNC
+typedef void (*FreeFunc)(void*);
+#endif
 
 typedef struct dlist {
   struct dlist *flink;
@@ -112,6 +115,7 @@ extern void dl_delete_node(DList *);  /* Deletes and free's a node -- do not
 
 extern void dl_delete_list(DList *);  /* Deletes the entire list from existance.
 		   		       Use only on the head node */
+void        dl_delete (DList *, FreeFunc);
 
 extern void *dl_val(DList *);   /* Returns node->val (used to shut lint up).
 			 	 Do not use on the head node */

@@ -1,7 +1,7 @@
 /* 
  * $Source: /cvsroot/dda/ntdda/src/ddadlist.c,v $
- * $Revision: 1.3 $
- * $Date: 2002/06/01 15:07:47 $
+ * $Revision: 1.4 $
+ * $Date: 2002/06/01 17:37:37 $
  * $Author: doolin $
  */
 
@@ -185,3 +185,21 @@ merge(DList * d1, DList * d2)
 }
 
 
+void
+dl_delete(DList * l, FreeFunc delete) {
+
+  DList * d, * next_node;
+
+  d = l->flink;
+  while(d != l) {
+    next_node = d->flink;
+
+    if (d->val != NULL) {
+      delete(d->val);
+    }
+    free(d);
+    d = next_node;
+  }
+  free(d);
+
+}

@@ -6,19 +6,28 @@
 # under one main target, which could handle all of the 
 # dependencies very nicely.
 
+
 CFLAGS = -g -Wall -DSTANDALONE
 
-all: matmulttest contacttest
+OBJECTS =  bolttest   \
+           matmultest
 
-bolttest: bolttest.c
+all: matmulttest #contacttest
+
+
+
+
+bolttest: bolttest.c 
 	gcc $(CFLAGS)  -o bolttest bolttest.c ../bolt.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
 
 
-matmulttest:
-	gcc -o matmulttest matmulttest.c ../ghssolver.c ../ddamemory.c ../errorhandler.c -I ../../include -lm
 
+matmulttest:
+	gcc -o matmulttest matmulttest.c ../ghssolver.c ../ddamemory.c  -I ../../include -lm
+
+# target is broken, won't link
 contacttest:
-	gcc -o contacttest contacttest.c ../contacts.c ../ddamemory.c ../errorhandler.c -I ../../include -lm
+	gcc -o contacttest contacttest.c ../contacts.c ../ddamemory.c ../utils.c -I ../../include -lm
 
 clean:
-	rm -f *.exe *~  *.stackdump
+	rm -f *.exe *~  *.stackdump $(OBJECTS)
