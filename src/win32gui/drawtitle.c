@@ -6,16 +6,16 @@
  * bit.
  */
 
-
-
-#include "dda.h"
 #define STRICT
 #include <windows.h>
 
 
 
-/* FIXME: ghInstance is declared global in winmain then passed in 
- * here.  Remove the global status from winmain.
+
+/** 
+ * FIXME: Change the name of this function to 
+ * "displayImage" or something.  Then it can be invoked 
+ * from which ever functions need it.
  */
 void 
 drawTitle(HWND hwMain, HDC hdc, HINSTANCE ghInstance)
@@ -26,11 +26,9 @@ drawTitle(HWND hwMain, HDC hdc, HINSTANCE ghInstance)
    HBITMAP hBitmap;
    BITMAP bm;
    RECT rectClient;
-   //extern HINSTANCE ghInstance;
    HINSTANCE hInst;
 
- 		hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
-
+   hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
    GetClientRect( hwMain , &rectClient );
 			nWidth = rectClient.right;    // rectClient.left is 0
@@ -58,3 +56,6 @@ drawTitle(HWND hwMain, HDC hdc, HINSTANCE ghInstance)
    } /* end if */
 
 }  /* Close drawTitle()  */
+
+
+

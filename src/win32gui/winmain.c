@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/05/19 00:08:42 $
+ * $Date: 2002/05/19 02:31:20 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  */
 
 
@@ -154,7 +154,7 @@ int CreateTestPropSheet(HWND hwMain, Analysisdata *);
 InterFace * iface;
 
 
-Print_Func
+int
 handle_error(void * stream, const char * title, const char * message) {
 
    MessageBox((HWND)stream,title,message,MB_OK);
@@ -509,6 +509,19 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
  * convenience.
  */
 
+static void
+handleTitle(HWND hwMain) { 
+
+     /* Just draw it once in lieu of splash screen */
+     /* FIXME: Make this is a handleSplash function. */
+           static int draw = 1;
+           if (draw == 1) {
+               handleMainAbout(hwMain);
+            draw = 0;
+     }
+            //drawTitle(draw_wnd, hdc);
+}
+
 
 /***************  PAINT HANDLERS **********************/
 void
@@ -571,8 +584,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          break;
 
       case TITLE:	 	
-         handleMainAbout(hwMain);
-         //drawTitle(draw_wnd, hdc);
+         handleTitle(hwMain);
 		   break;  // end case title
 				
       case NOTHING:
@@ -1094,8 +1106,8 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
 void
 handleMainAbout(HWND hwMain)
 {
-   char about[560];
-			    		
+   char about[1024];		    		
+
    sprintf(about, "%s\n%s%s%s\n%s\n%s%s%s", aText[0], aText[1], aText[2], 
    aText[3], aText[4], aText[5],  aText[6], aText[7]);
   	MessageBox( hwMain, about, "DDA for Windows", MB_OK );
