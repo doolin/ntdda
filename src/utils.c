@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2001/08/24 22:56:23 $
+ * $Date: 2001/08/25 01:33:43 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 
@@ -165,7 +165,7 @@ double sign(double f2)
    if (f2 < 0) 
       return (-1.0);
 
-   if (f2== 0)
+   if (f2 == 0)
       return ( 0.0);
 
    return (0.0);
