@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:39 $
+ * $Date: 2002/05/26 01:16:07 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 #include <stdio.h>
@@ -838,9 +838,11 @@ parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    //iface->displaymessage(fileformat);
 
    if (!strcmp(fileformat,"shake"))
-      adata->timehistory = getTimeHistory(filename,shake);
+      //adata->timehistory = getTimeHistory(filename,shake);
+      th_read_data_file(adata->timehistory,filename,shake);
    else if (!strcmp(fileformat,"matlab"))
-      adata->timehistory = getTimeHistory(filename,matlab);
+      //adata->timehistory = getTimeHistory(filename,matlab);
+      th_read_data_file(adata->timehistory,filename,matlab);
    else // blow up
       dda_display_error("Bad motion file format");
 

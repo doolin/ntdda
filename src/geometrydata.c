@@ -433,9 +433,10 @@ gdata_delete(Geometrydata * gd) {
 
 
 
-Geometrydata *
-geometryInput(Geometrydata * geomdata, char * geomfile )
-{
+//Geometrydata *
+static void
+geometryInput(Geometrydata * geomdata, char * geomfile ) {
+
    IFT gfv;
    //Geometrydata * geomdata;
  
@@ -469,10 +470,16 @@ geometryInput(Geometrydata * geomdata, char * geomfile )
    * be handled upstream.  FIXME: Find a way to fix this error here,
    * because it will be much more descriptive.
    */
-   return geomdata;
+   //return geomdata;
 
-}  /* close geometryInput() */
+}  
 
+
+void
+gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
+
+   geometryInput(geomdata,geomfile);
+}
 
 
 

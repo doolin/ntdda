@@ -281,7 +281,8 @@ void           gdata_read_input_file       (Geometrydata *,
                                             char * filename);
 
 /* This needs to be an interface function. */
-Geometrydata * geometryInput(Geometrydata *, char *);
+//Geometrydata * geometryInput(Geometrydata *, char *);
+//void geometryInput(Geometrydata *, char *);
 
 
 

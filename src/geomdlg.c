@@ -436,7 +436,9 @@ loadFromFile2(HWND hDlg)
    // read in data from file blocks.out <--- (!?)
    hFile = OpenFile(filepath.gfile, &of, OF_READ);
 
-   gd = geometryInput(gd, filepath.gfile);
+   //gd = geometryInput(gd, filepath.gfile);
+   //geometryInput(gd, filepath.gfile);
+   gdata_read_input_file(gd, filepath.gfile);
 
   /* Now transfer the data to the local structs. */      
    nj = gd->nJoints;

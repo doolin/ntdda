@@ -378,7 +378,6 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
 
    }  /*  i  */
 
-   
 }  /* Close  df12().  */
 
 

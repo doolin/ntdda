@@ -101,7 +101,8 @@ struct _analysisdata_tag
    */
    unsigned int options;
 
-   DisplayFunc printer;
+   DisplayFunc display_warning;
+   DisplayFunc display_error;
 
   /* Analysis state information.  This is useful for handling 
    * more sophisticated user interface features.

@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:42 $
+ * $Date: 2002/05/26 01:16:08 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  */
 
 
@@ -632,33 +632,19 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
 /***************  GEOMETRY HANDLERS *******************/
 
 int
-handleGeomApply(HWND hwMain, double scale_params[])
-{
+handleGeomApply(HWND hwMain, double scale_params[]) {
 
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-   Geometrydata * geomdata = dda_get_geometrydata(dda);
+   Geometrydata * geomdata = gdata_new(); // = dda_get_geometrydata(dda);
 
    dda_set_menu_state(dda,GEOM_STATE | RUNNING);
 
    whatToDraw = LINES;
 
-  /* These calls need to be changed to function pointers 
-   * to get headers under control.
-   */
-  /* Don't worry about freeing the geometry data for now. */
-  /*
-   if (geomdata != NULL)
-   {
-      //freeGeometrydata(geomdata);
-      gdata_delete(geomdata);
-   }
-   */
-
    freeGraphicStruct(g);
    g = initGraphicStruct();
 
-   geomdata = geometryInput(geomdata,filepath.gfile);
-   //gdata_read_input_file();
+   gdata_read_input_file(geomdata,filepath.gfile);
 
   /* This handles having a bad geometry file.  An alternative 
    * would be to have it come back to the geometry dialog,
@@ -709,10 +695,8 @@ handleGeomApply(HWND hwMain, double scale_params[])
    SendMessage(hToolBar, TB_SETSTATE, ANAL_BROWSE, MAKELPARAM(TBSTATE_ENABLED,0));
    SendMessage(hToolBar, TB_SETSTATE, ANAL_NEW, MAKELPARAM(TBSTATE_ENABLED,0));
 
-   //dda->menustate = GEOM_STATE | FINISHED;
-
-	return 0; //end case geom_apply
-}  /* close handleGeomApply() */
+	return 0; 
+}  
 
 
 

@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.16  2002/05/26 01:16:07  doolin
+ * Moved geometry allocation code, cleaned up
+ * time history code.
+ *
  * Revision 1.15  2002/05/25 14:49:40  doolin
  * Many changes in gui and file handling code to help
  * ease memory management and control of flow problems.
@@ -183,8 +187,9 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    * function, so that this doesn't have to be dealt
    * with as an extern.
    */
-   AData->printer = dda_display_error;
-
+   AData->display_error = dda_display_error;
+   AData->display_warning = dda_display_warning;
+   
    dda_set_analysisdata(dda,AData);
 
 

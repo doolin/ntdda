@@ -125,7 +125,7 @@ dda_new() {
    dda = (DDA*)malloc(sizeof(DDA));
    memset(dda,0xda,sizeof(DDA));
 
-   dda->geometry = gdata_new();
+   //dda->geometry = gdata_new();
 
    return dda;
 }

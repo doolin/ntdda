@@ -1,23 +1,42 @@
-
-
 #ifndef __TIMEHISTORY_H__
 #define __TIMEHISTORY_H__
 
-typedef struct _TimeHistory TimeHistory;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
+
+typedef struct _timehistory TimeHistory;
 typedef enum _format{ shake, matlab } format;
 
-TimeHistory * getTimeHistory(char * filename, format);
+#ifndef DISPLAYFUNC
+#define DISPLAYFUNC
+typedef void (*DisplayFunc)(const char * message);
+#endif
 
-int th_get_number_of_datapoints(TimeHistory *);
+TimeHistory *   th_new                       (void);
+TimeHistory *   th_clone                     (TimeHistory *);
+void            th_delete                    (TimeHistory *);
 
-double th_get_delta_t(TimeHistory *);
+void            th_read_data_file            (TimeHistory *,
+                                              char * filename, 
+                                              format);
 
-double th_get_data_value(TimeHistory *, int timestep);
+int             th_get_number_of_datapoints  (TimeHistory *);
 
-void * destroyTimeHistory(TimeHistory *);  // returns NULL 
+double          th_get_delta_t               (TimeHistory *);
 
-/* TODO: */
-//cloneTimeHistory(TimeHistory *);
+double          th_get_data_value            (TimeHistory *, 
+                                              int timestep);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* __TIMEHISTORY_H__ */
 

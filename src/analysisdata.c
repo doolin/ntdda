@@ -302,8 +302,7 @@ adata_validate(Analysisdata * ad) {
       if (th_get_delta_t(ad->timehistory) != ad->delta_t) {
 
          //iface->displaymessage("Analysis time step must be equal to time interval in time history.");
-         ad->printer("Analysis time step must be equal to time interval in time history.");
-
+         ad->display_error("Analysis time step must be equal to time interval in time history.");
 
          exit(0);
       }
@@ -603,18 +602,11 @@ analysisInput(char * analysisFile, Geometrydata * gd)
           */
        case original:
        default:          
-          //iface->displaymessage("Obsolete geometry file detected" /* "Warning" */);
           AData = analysisReader1(analysisFile, gd);  
-          AData->printer("Obsolete geometry file detected");
+          AData->display_warning("Obsolete geometry file detected");
    }
 
-  /* Lets set `this' here, because inputAnalysis is the pipe through 
-   * which all the input data has to flow.
-   */
-   AData->this = AData;
-   
    return AData;
-
 }  
 
 
