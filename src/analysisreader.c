@@ -6,9 +6,9 @@
  * .ana files.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:01:01 $
+ * $Date: 2001/06/25 20:02:29 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -250,6 +250,9 @@ analysisReader1(/* HWND hwMain, */char * af, Geometrydata * gd)
    * to set the multiplier explicitly.
    */
    adn->pfactor = 50.0;
+
+   /* New file format does this automatically. */
+   initConstants(adn);
 
    return adn;
 

@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/06/24 07:37:01 $
+ * $Date: 2001/06/25 20:02:29 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  */
 #include <assert.h>
