@@ -186,7 +186,7 @@ findContacts(Geometrydata * GData, Analysisdata * AData, Contacts * ctacts,
  
    //assert(stop != start);
 
-   DLog->contact_runtime += (stop - start);
+   //DLog->contact_runtime += (stop - start);
    //if (DLog->contact_runtime == 0)  exit(0);
 
 }  /* close findContacts() */

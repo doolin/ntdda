@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2002/09/09 03:20:32 $
- * $Revision: 1.7 $
+ * $Date: 2002/10/10 15:39:32 $
+ * $Revision: 1.8 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -131,10 +131,10 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
    double analysis_runtime;
    double assemble_runtime;
    double integration_runtime;
-   double solve_runtime;
-   double openclose_runtime;
-   double contact_runtime;
-   double update_runtime;
+   //double solve_runtime;
+   //double openclose_runtime;
+   //double contact_runtime;
+   //double update_runtime;
    int totaloc_count;
 
 
@@ -142,12 +142,12 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
  * functions are called.
  */
    analysis_runtime = DLog->analysis_runtime/(double)CLOCKS_PER_SEC;
-   contact_runtime = DLog->contact_runtime/(double)CLOCKS_PER_SEC;
-   update_runtime = DLog->update_runtime/(double)CLOCKS_PER_SEC;
+   //contact_runtime = DLog->contact_runtime/(double)CLOCKS_PER_SEC;
+   //update_runtime = DLog->update_runtime/(double)CLOCKS_PER_SEC;
    assemble_runtime = DLog->assemble_runtime/(double)CLOCKS_PER_SEC;
-   solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
+   //solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
    integration_runtime = DLog->integration_runtime/(double)CLOCKS_PER_SEC;
-   openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
+   //openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
 
    totaloc_count = ad->n9;
 
@@ -224,12 +224,12 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
    fprintf(htmlfile,"<h3>Analysis timing (seconds)</h3>\n");
    fprintf(htmlfile,"<ul>\n");
    fprintf(htmlfile,"<li>Total: %f</li>\n",analysis_runtime);
-   fprintf(htmlfile,"<li>Contacts: %f</li>\n",contact_runtime);
+   //fprintf(htmlfile,"<li>Contacts: %f</li>\n",contact_runtime);
    fprintf(htmlfile,"<li>Assembly: %f</li>\n",assemble_runtime);
    fprintf(htmlfile,"<li>Time integration: %f</li>\n",integration_runtime);
-   fprintf(htmlfile,"<li>Solve: %f</li>\n",solve_runtime);
-   fprintf(htmlfile,"<li>Open-close: %f</li>\n",openclose_runtime);
-   fprintf(htmlfile,"<li>Update: %f</li>\n",update_runtime);
+   //fprintf(htmlfile,"<li>Solve: %f</li>\n",solve_runtime);
+   //fprintf(htmlfile,"<li>Open-close: %f</li>\n",openclose_runtime);
+   //fprintf(htmlfile,"<li>Update: %f</li>\n",update_runtime);
    fprintf(htmlfile,"</ul>\n");
    fprintf(htmlfile,"</td>\n");
    

@@ -45,10 +45,10 @@ typedef struct datalog_tag {
    clock_t analysis_runtime;
    clock_t assemble_runtime;
    clock_t integration_runtime;
-   clock_t solve_runtime;
-   clock_t openclose_runtime;
-   clock_t contact_runtime;
-   clock_t update_runtime;
+   //clock_t solve_runtime;
+   //clock_t openclose_runtime;
+   //clock_t contact_runtime;
+   //clock_t update_runtime;
 
   /* track changing friction angles for disp dep
    * properties.

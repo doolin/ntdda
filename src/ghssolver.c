@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:29 $
+ * $Date: 2002/10/10 15:39:32 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  *
  */
 #include <assert.h>
@@ -49,10 +49,10 @@ void df21(double ** K, double ** F,int *, int **, int numblocks);
 void
 solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, int nBlocks)
 {
-   clock_t startclock, stopclock;
+   //clock_t startclock, stopclock;
    //char message[80];
 
-   startclock = clock();
+   //startclock = clock();
 
 
 
@@ -82,9 +82,9 @@ solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, i
       ; // do something else
    }
 
-   stopclock = clock();
+   //stopclock = clock();
 
-   DLog->solve_runtime += (stopclock - startclock);
+   //DLog->solve_runtime += (stopclock - startclock);
 
 }  /* close solve() */
 

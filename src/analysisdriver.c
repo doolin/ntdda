@@ -7,6 +7,11 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.26  2002/10/10 15:39:32  doolin
+ * Started backing out the datalog structure and methods.
+ * Current implementation is too clunky and not very useful.  Most
+ * of what is being used for should be done with a profiler anyway.
+ *
  * Revision 1.25  2002/10/10 15:05:31  doolin
  * More tests for stress.
  *
@@ -455,7 +460,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
         /* PASSED OPEN CLOSE ITERATION */
 
          stop = clock();
-         DLog->openclose_runtime += (stop - start);
+         //DLog->openclose_runtime += (stop - start);
 
      /* Check the iteration count.  If too high and not converged,
       * recompute time step size or spring stiffness.  Then
