@@ -1,15 +1,4 @@
 
-/**  Description: (add here)
- *
- *
- * Parts of the code in this file are used for 
- * DDAML processing.  Details of DDAML are 
- * available from the author.  
- *
- * @author David M. Doolin dave@mail.gonesilent.com
- */
-
-
 #ifndef __BOLT_H__
 #define __BOLT_H__
 
@@ -46,11 +35,11 @@ typedef struct _boltmat Boltmat;
 
 
 
-Bolt *     bolt_new            (void);
-Bolt *     bolt_new_1          (double x1,
-                                double y1,
-                                double x2,
-				                    double y2);
+Bolt *     bolt_new                (void);
+Bolt *     bolt_new_1              (double x1,
+                                    double y1,
+                                    double x2,
+				                        double y2);
 
 /**
  * This is primarily used for unit testing to ensure that 
@@ -58,34 +47,34 @@ Bolt *     bolt_new_1          (double x1,
  *
  * @return int 1 for passing, 0 for failing.
  */
-int        bolt_equals           (Bolt * b1,
-                             	    Bolt * b2);
+int        bolt_equals             (Bolt * b1,
+                               	   Bolt * b2);
 
-void       bolt_delete           (Bolt *);
+void       bolt_delete             (Bolt *);
 
-int        bolt_test             (void);
+int        bolt_test               (void);
 
 /**
  * @todo  Write the API documentation for this function.
  */
-int        bolt_get_type         (Bolt *);
+int        bolt_get_type           (Bolt *);
 
-void       bolt_set_type         (Bolt *,
-                                  int type);
+void       bolt_set_type           (Bolt *,
+                                    int type);
 
-void       bolt_set_endpoints    (Bolt * b, 
-                                  double x1,
-                                  double y1,
-                                  double x2,
-                                  double y2);
+void       bolt_set_endpoints      (Bolt * b, 
+                                    double x1,
+                                    double y1,
+                                    double x2,
+                                    double y2);
 
-void       bolt_get_endpoints    (Bolt * b, 
-                                  double * x1,
-                                  double * y1,
-                                  double * x2,
-                                  double * y2);
+void       bolt_get_endpoints      (Bolt * b, 
+                                    double * x1,
+                                    double * y1,
+                                    double * x2,
+                                    double * y2);
 
-double     bolt_get_length       (Bolt * b);
+double     bolt_get_length         (Bolt * b);
 
 
 /** All of the function with an appended "_a" indicate that 
@@ -111,28 +100,34 @@ double     bolt_get_length       (Bolt * b);
  * the pointer array.
  */
 // Not implemented
-double *   bolt_new_a            (double size);
+double *   bolt_new_a              (double size);
 
 // Not implemented
-double *   bolt_new_a_1          (double size,
-                                  double x1,
-                                  double y1,
-                                  double x2,
-                                  double y2);
+double *   bolt_new_a_1            (double size,
+                                    double x1,
+                                    double y1,
+                                    double x2,
+                                    double y2);
 
 // Not implemented
-void       bolt_set_endpoints_a  (double * b, 
-                                  double x1,
-                                  double y1,
-                                  double x2,
-                                  double y2);
+void       bolt_set_endpoints_a    (double * b, 
+                                    double x1,
+                                    double y1,
+                                    double x2,
+                                    double y2);
 
 // Not implemented
-void       bolt_get_endpoints_a  (double * b, 
-                                  double * x1,
-                                  double * y1,
-                                  double * x2,
-                                  double * y2);
+void       bolt_get_endpoints_a    (double * b, 
+                                    double * x1,
+                                    double * y1,
+                                    double * x2,
+                                    double * y2);
+
+void       bolt_update_endpoints_a (double * b,
+                                    double u1,
+                                    double v1,
+                                    double u2,
+                                    double v2);
 
 /** bolt_set_length_a should probably go away,
  * and have the bolt length be private.  Then 
@@ -148,6 +143,7 @@ void       bolt_log_a            (double ** rockbolts,
                                   double elapsed_time,
                                   PrintFunc printer,
                                   void * stream);
+
 /**
  * When a bolt is given an initial pretension force,
  * an unstrained length of the bolt must be computed 
@@ -227,7 +223,6 @@ void       boltmat_get_props   (Boltmat * bm,
 /** Boltlist methods, which may go into their own
  * header file in the future.
  */
-
 Boltlist * boltlist_new        (void);
 
 /** Free all of the memory associated with a list 

@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/12/20 05:20:02 $
+ * $Date: 2002/12/21 04:23:54 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  */
 
 #include <malloc.h>
@@ -794,7 +794,10 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
 	  // if verticesflag IS set to 1, the data for all blocks is written to these files
 	  // (see code in analysisdriver.c)
 
-mary: ;/* I am going to rewrite this later anyway. */
+mary: ;/* I am going to rewrite this later anyway.  Just 
+        * change the 0 to 1 to get the code back for now
+        * when you need it.
+        */
 #if 0
 	  if (!ad->verticesflag) {
 	     block = (int) gd->points[i][3];

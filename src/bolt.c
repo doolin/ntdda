@@ -234,8 +234,8 @@ bolt_get_dir_cosine_a(double * bolt, double * lx, double * ly) {
   *lx = (x1-x2)/l;
   *ly = (y1-y2)/l;
 
-  assert ( (-1 <= *lx) && (*lx <= 1));
-  assert ( (-1 <= *ly) && (*ly <= 1));
+   assert ( (-1 <= *lx) && (*lx <= 1));
+   assert ( (-1 <= *ly) && (*ly <= 1));
 
 }
 
@@ -303,19 +303,61 @@ bolt_init_materials(double ** rockbolts, int numbolts, double ** boltmats) {
 }
 
 
+static void
+bolt_stiffness_accumulate(double * K, double s, double * Hj, double * Hl) {
+
+   int j, j1, l;
+
+   for (j=1; j<= 6; j++) {
+      for (l=1; l<= 6; l++) {
+         j1=6*(j-1)+l;
+         K[j1] += s*(Hj[j]*Hl[l]);
+      }  
+   }
+}
+
+
+/**
+ * @param int * n stores pointers for sparse block 
+ *  representation of K.
+ * 
+ * @param int blockloc Memory location for permuted 
+ *  block number.
+ *
+ * @param int * kk 
+ *
+ * @return int i3 is location in K array for off-diagonal
+ *  block.
+ */
+static int
+extract_block_storage(int * n, int blockloc, int * kk) {
+
+   int j, i3;
+
+   for (j=n[1]; j<= n[1]+n[2]-1; j++) {
+      i3=j;
+      if (kk[j] == blockloc) {
+         break;
+      }
+   } 
+   
+   return i3;
+}
+
+
 void
 bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K, 
                  int * k1, int * kk, int ** n, double ** blockArea,  
                       double ** F, TransMap transmap) {  
 
   /* loop counters */   
-   int i, j, l, bolt; 
+   int i, j, bolt; 
 
   /* block indices */
    int i2, i3;
 
   /* storage indices */
-   int ji, j1, j2, j3;
+   int ji, j2;
 
   /* Direction cosines, p. 38  */
    double lx, ly;
@@ -378,24 +420,12 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
       */
       i2=k1[ep1];
       i3=n[i2][1]+n[i2][2]-1;
-
-      for (j=1; j<= 6; j++) {
-         for (l=1; l<= 6; l++) {
-            j1=6*(j-1)+l;
-            K[i3][j1] += s*(E[j]*E[l]);
-         }  
-      }  
+      bolt_stiffness_accumulate(K[i3],s,E,E);
 
      /* Now try the second endpoint for Kjj*/
       i2=k1[ep2];
       i3=n[i2][1]+n[i2][2]-1;
-
-      for (j=1; j<= 6; j++) {
-         for (l=1; l<= 6; l++) {
-            j1=6*(j-1)+l;  /* j1 = 1:36 */
-            K[i3][j1] += s*(G[j]*G[l]);
-         }  
-      }  
+      bolt_stiffness_accumulate(K[i3],s,G,G);
 
      /* For the cross terms of Kij and Kji, we will need
       * access memory allocated from the contact algorithm.
@@ -403,48 +433,21 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
       * i3 for the jth block, or vice versa, to initialize
       * Kij.
       */
-     /* locate j1j2 in a[][] only lower triangle saved */
+     /* locate j1j2 in K[][] only lower triangle saved */
      /* if j2 < j1, add terms to Kij instead of Kji */
+     /* k1 stores permuted order of blocks. */
       ji = k1[ep1];
       j2 = k1[ep2];
 
+     /* Add to Kji or Kij but not both. */
       if (j2<ji) {
 
-        /* find Kij */
-         for (j=n[ji][1]; j<= n[ji][1]+n[ji][2]-1; j++) {
-            i3=j;
-            if (kk[j]==j2) {
-               break;
-            }
-         }  
-         
-        /* submatrix ij  s01-06 i normal s07-12 i shear   */
-        /* Add penetration penalty terms to Kji */
-         for (j=1; j<= 6; j++) {
-            for (l=1; l<= 6; l++) {
-               j3=6*(j-1)+l;  /* j3 = 1:36 */
-               K[i3][j3] += -s*(E[j]*G[l]);
-            }  
-         }  
+         i3 = extract_block_storage(n[ji],j2,kk);
+         bolt_stiffness_accumulate(K[i3],-s,E,G);
+      } else {
 
-     /* Add to Kji or Kij but not both. */
-      }  else  {             /* ji < j2 */
-
-        /* locate j2j1 in a[][] only lower triangle saved */
-         for (j=n[j2][1]; j<= n[j2][1]+n[j2][2]-1; j++) {
-            i3=j;
-            if (kk[j]==ji) {
-               break;
-            }
-         }  
-         
-        /* add bolt terms to K_{ji} */
-         for (j=1; j<= 6; j++) {
-            for (l=1; l<= 6; l++) {
-               j3=6*(j-1)+l;  /* j3 = 1:36 */
-               K[i3][j3] += -s*(G[j]*E[l]);
-            }  
-         }  
+         i3 = extract_block_storage(n[j2],ji,kk);
+         bolt_stiffness_accumulate(K[i3],-s,G,E);
       }  
 
       t = bolt_get_pretension_a(rockbolt[bolt]);
@@ -458,15 +461,32 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
 }  
 
 
+void
+bolt_update_endpoints_a(double * b,double u1, double v1, double u2, double v2) {
+
+   
+   b[10] = u1;
+   b[11] = v1;
+   b[1] +=  u1;
+   b[2] +=  v1;
+
+   b[12] = u2;
+   b[13] = v2;
+   b[3] +=  u2;
+   b[4] +=  v2;
+      
+   bolt_set_length_a(b);
+   bolt_set_pretension_a(b);
+}
 
 
 
-  /** Compute rock bolt end displacements.  Note that no
-   * rotation correction is supplied here.
-   */
-  /** @todo Supply a callback or something for the 
-   * transplacement updating function.
-   */
+/** Compute rock bolt end displacements.  Note that no
+ * rotation correction is supplied here.
+ */
+/** @todo Supply a callback or something for the 
+ * transplacement updating function.
+ */
 void
 bolt_update_a(double ** bolts, int numbolts, double ** F, 
               double ** moments, TransMap transmap,
@@ -480,10 +500,9 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
 
    for (i=0; i<numbolts; i++) {
 
-
      /* Deal with one endpoint at a time,
       * starting with the arbitrarily chosen
-      * `endpoint 1'.  Since hb is a double **,
+      * `endpoint 1'.  Since bolts is a double **,
       * we have to cast the block numbers of the 
       * endpoints.
       */
@@ -491,49 +510,18 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
       x = bolts[i][1];
       y = bolts[i][2];
 	   transmap(moments[ep1],T,x,y);
-
       transapply(T,F[ep1],&u1,&v1);
 
-      bolts[i][10] = u1;
-      bolts[i][11] = v1;
-      //replace
-      bolts[i][1] +=  u1;
-      bolts[i][2] +=  v1;
-
-     /* Now for endpoint 2, the other end of the same bolt.
-      */
       ep2 = (int)bolts[i][6];
-      //if (ep1 == ep2) exit(0);
       x = bolts[i][3];
       y = bolts[i][4];
-	   u2=0;
-	   v2=0;
 	   transmap(moments[ep2],T,x,y);
-
       transapply(T,F[ep2],&u2,&v2);
 
-      bolts[i][12] = u2;
-      bolts[i][13] = v2;
-      //replace
-      bolts[i][3] +=  u2;
-      bolts[i][4] +=  v2;
-
-      /* If we do this instead of accessing the array entries
-       * directly, we get something that is testable, and can 
-       * be used for testing pretension, etc.
-       */
-      //bolt_update_endpoints(hb[i],u1,v1,u2,v2);
-
-      /* This should be fired as a result of the previous 
-       * call to update the endpoints, so remove it from here.
-       */
-      bolt_set_length_a(bolts[i]);
-      
-      bolt_set_pretension_a(bolts[i]);
+      bolt_update_endpoints_a(bolts[i],u1,v1,u2,v2);
    }  
 
 } 
-
 
 
 Boltmat *
