@@ -90,18 +90,50 @@ stress_clone(const double * s1) {
 
 void
 stress_update(double ** e0, double ** D, int * k1, 
-              int numblocks, ConstModel apply_const_model) {
+              int numblocks, BoundCond apply_boundary_cond, StrainModel strain_compute) {
 
    int i, i1;
+   double strain[4] = {0.0};
 
    for (i=1; i<= numblocks; i++) {
 
       i1 = k1[i];
-      apply_const_model(e0[i], D[i1]);
-      //stress_rotate(e0[i],D[i1][3]);
+      strain_compute(D[i1], strain);
+      apply_boundary_cond(e0[i], strain);
    }
 }
 
+
+
+/** A strain identity, assumes D has the small strain 
+ * elements already and does nothing.
+ *
+ * @warning DO NOT DELETE THIS FUNCTION.  Deleting 
+ *  this function will break the callback structure, 
+ *  and will require one or more if statements.
+ */
+void
+strain_linear_elastic(double * D, double strain[4]) {
+
+   strain[1] = D[4];
+   strain[2] = D[5];
+   strain[3] = D[6];
+}
+
+
+
+/** Assume that D carries elements of the tangent map.
+ *
+ * @param D carrying F1, F2, F3, F4.
+ *
+ * @return strains
+ */
+void 
+strain_green_lagrange(double * D, double strain[4]) {
+
+   return;
+
+}
 
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
@@ -109,16 +141,20 @@ stress_update(double ** e0, double ** D, int * k1,
  * Plain strain from MacLaughlin 1997, p. 20
  */
 void
-stress_planestrain(double * stress, double * D) {
+stress_planestrain(double * stress, double strain[4]) {
 
    double a1;
    double E  = stress[_E_];
    double nu = stress[_nu_];
 
    a1             = E/(1 + nu);
-   stress[_s11_] += a1*( ((D[4]*(1-nu))/(1-2*nu)) + ((D[5]*nu)/(1-2*nu)) );
-   stress[_s22_] += a1*((D[4]*nu)/(1-2*nu) + (D[5]*(1-nu)/(1-2*nu)));
-   stress[_s12_] += a1*D[6]/2.0;
+   stress[_s11_] += a1*( ((strain[1]*(1-nu))/(1-2*nu)) + ((strain[2]*nu)/(1-2*nu)) );
+   stress[_s22_] += a1*((strain[1]*nu)/(1-2*nu) + (strain[2]*(1-nu)/(1-2*nu)));
+   stress[_s12_] += a1*strain[3]/2.0;
+
+      
+  //stress_rotate(e0[i],D[i1][3]);
+
 
   /* Now compute e_zz, which should be 0 if we are in plane
    * strain, and will be used for computing mass if in 
@@ -127,21 +163,25 @@ stress_planestrain(double * stress, double * D) {
    * Note: we have to accumulate e_z to use for calculating
    * current thickness of block when calculating mass.
    */
-   stress[7] += -(nu/(1-nu))*(D[4] + D[5]);
+   stress[7] += -(nu/(1-nu))*(strain[1] + strain[2]);
 }
 
 
 void
-stress_planestress(double * stress, double * D) {
+stress_planestress(double * stress, double strain[4]) {
 
    double a1;
    double E  = stress[_E_];
    double nu = stress[_nu_];
 
    a1             = E/(1-(nu*nu));
-   stress[_s11_] += a1*(D[4]    + D[5]*nu);
-   stress[_s22_] += a1*(D[4]*nu + D[5]);
-   stress[_s12_] += a1* D[6]*(1-nu)/2;
+   stress[_s11_] += a1*(strain[1]    + strain[2]*nu);
+   stress[_s22_] += a1*(strain[1]*nu + strain[2]);
+   stress[_s12_] += a1* strain[3]*(1-nu)/2;
+
+
+  //stress_rotate(e0[i],D[i1][3]);
+
 
   /* Now compute stress_zz, which should be 0 if we are in plane
    * stress.
@@ -262,9 +302,9 @@ void stress_initial(int nBlocks, const int *k1, double **F, const double **e0,
 
      /* Compute virtual work from last iteration. */
      /* Add the stresses. e0 is updated in df25() */
-      F[i1][4] += -S0*e0[i][4];
-      F[i1][5] += -S0*e0[i][5];
-      F[i1][6] += -S0*e0[i][6];
+      F[i1][4] += -S0*e0[i][_s11_];
+      F[i1][5] += -S0*e0[i][_s22_];
+      F[i1][6] += -S0*e0[i][_s12_];
    }  
 }  
 

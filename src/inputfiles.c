@@ -2,9 +2,9 @@
 /** Handle different file formats, etc.
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2002/10/25 01:53:38 $
  * $Source: /cvsroot/dda/ntdda/src/inputfiles.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -50,8 +50,7 @@ getFileType(char *infilename) {
    * delimiters.
    */
    if (magicnum == NULL) {
-      dda_display_warning("First line of input file is empty.");
-      exit (0);
+      dda_display_error("First line of input file is empty.");
    }
 
    if (!strncmp(magicnum,"<?",2)) {  

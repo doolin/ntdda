@@ -7,6 +7,11 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.33  2002/10/25 01:53:35  doolin
+ * Lots more clean up.  Some calling conventions changed.
+ * Some dead or nearly code removed.  This commit is Not Yet Ready
+ * For Prime Time.
+ *
  * Revision 1.32  2002/10/24 15:12:33  doolin
  * Point commit to allow some unit testing on unix side.
  * (Much easier to write command line cod ein unix etc.)  Lots and
@@ -220,7 +225,10 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */
    TransMap transmap = transplacement_linear;
    MassMatrix massmatrix = massmatrix_linear;
+   StrainModel strain_model = strain_linear_elastic;
+
    TransApply transapply = NULL;
+   BoundCond boundary_condition = NULL;
 
    Contacts * CTacts;
 
@@ -298,6 +306,12 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       transapply = transplacement_apply_exact;
    } else {
       transapply = transplacement_apply_linear;
+   }
+
+   if (AData->planestrainflag == 1) { 
+      boundary_condition = stress_planestrain;
+   } else {
+      boundary_condition = stress_planestress;
    }
 
 /* The invoking program, whether windows or not, is going to 
@@ -528,7 +542,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
      /* Compute step displacements.  FIXME: See if this function 
       * can be renamed "updateGeometry()".
       */
-      df25(GData, AData,k1,e0,U, transmap, transapply);
+      df25(GData, AData,k1,e0,U, transmap, transapply, boundary_condition,strain_model );
 
      /* writeMeasuredPoints must be called after df25().
       * We could remainder arithmetic to save this every
@@ -618,7 +632,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
                             U,
                             n);
 
-    //Get rid of e0.
+    // free e0.
    material_delete(m);
 
   /* This should probably be freed in the calling function. */

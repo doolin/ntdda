@@ -9,6 +9,7 @@
 
 #include "datalog.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,7 +34,6 @@ extern "C" {
 
 
 /******************** Post-processing code ******************/
-void writeCentroids(Analysisdata *, GRAPHICS *, int numblocks);
 void writeSpringStiffness(Analysisdata *);
 void writeFriction(Datalog *);
 void writeBlocks(Geometrydata *, char *);

@@ -43,6 +43,17 @@ void        loadpoint_print     (Loadpoint *,
                                  PrintFunc printer,
                                  void * stream);
 
+
+void df09(Loadpoint * loadpoints,
+          double ** points,
+          double ** globalTime,
+          double ** timeDeps,
+          int ** tindex,
+          int nfp,
+          int numloadpoints,
+          int cts,
+          double delta_t);
+
 #ifdef __cplusplus
 }
 #endif

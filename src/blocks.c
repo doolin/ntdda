@@ -9,9 +9,9 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2002/10/09 01:46:39 $
+ * $Date: 2002/10/25 01:53:35 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 
@@ -2134,7 +2134,7 @@ geometryToReturn(Geometrydata *gd, int **k0, double **d)
 
    return gd;
 
-}  // close geometryToReturn()
+}  
 
 
 

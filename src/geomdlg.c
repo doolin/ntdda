@@ -568,7 +568,7 @@ saveData(HWND hDlg)
 {
 
    int i;
-   //FILE * fp;
+   FILE * fp;
 
    
    LPCTSTR szFilter[] = 
@@ -636,11 +636,9 @@ saveData(HWND hDlg)
          gd->rockbolts = bolts;
          
 
-      //  fp = fopen(filepath.gfile,"w");
-     /* Extended format no longer used. */
-      //dumpGeometrydata(gd, fp);
-      //fclose(fp);
-      gd->dumptofile(gd,filepath.gfile);
+      fp = fopen(filepath.gfile,"w");
+      gd->dumptofile(gd,fprintf,fp);
+      fclose(fp);
    }
    
   /* FIXME: verify this return value */

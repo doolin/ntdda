@@ -19,18 +19,26 @@ typedef void (*DisplayFunc)(const char * message);
 #endif
 
 TimeHistory *   th_new                       (void);
-TimeHistory *   th_clone                     (TimeHistory *);
-void            th_delete                    (TimeHistory *);
+TimeHistory *   th_clone                     (TimeHistory * th);
+void            th_delete                    (TimeHistory * th);
 
-void            th_read_data_file            (TimeHistory *,
+
+/**
+ * @todo Explain what a valid time history is. 
+ *
+ * @return 1 pass 0 fail
+ */
+int             th_validate                  (TimeHistory * th);
+
+void            th_read_data_file            (TimeHistory * th,
                                               char * filename, 
                                               format);
 
-int             th_get_number_of_datapoints  (TimeHistory *);
+int             th_get_number_of_datapoints  (TimeHistory * th);
 
-double          th_get_delta_t               (TimeHistory *);
+double          th_get_delta_t               (TimeHistory * th);
 
-double          th_get_data_value            (TimeHistory *, 
+double          th_get_data_value            (TimeHistory * th, 
                                               int timestep);
 
 #ifdef __cplusplus

@@ -9,10 +9,8 @@
 #endif
 
 #include "ddatypes.h"
-#include "ddafile.h"
 #include "gravity.h"
 #include "timehistory.h"
-#include "options.h"
 #include "loadpoint.h"
 #include "constants.h"
 
@@ -96,8 +94,8 @@ struct _analysisdata_tag {
    enum rotationtype {linear, secondorder, exact} rotationtype;
    enum solvetype {lu, cg, sor} solvetype;
    enum contactmethod {penalty, auglagrange} contactmethod;
-   enum integrator {constant, newmark, symplectic} integrator;
    enum frictionlaw {tpmc = 0, negexp, voight, druckerprager, bartonjrc} frictionlaw; 
+   enum integrator {constant, newmark, symplectic} integrator;
    enum units {si, english} units;
    int fileformat; //  Should be an enum  {original, extended, ddaml} fileformat;
 
@@ -394,9 +392,7 @@ struct _analysisdata_tag {
    Analysisdata * (*newanalysis)(void);
 //   void (*initialize)(void);
    void (*validate)(void);
-   void (*run)(Analysisdata *);
-   void (*dumptofile)(Analysisdata *);
-   void (*dump)(Analysisdata * ado, FILE * filestream);
+//   void (*run)(Analysisdata *);
 
   /* This function is a bit problematic.  Part of the problem 
    * is deciding where to cut the geometry and analysis functions
@@ -409,7 +405,7 @@ struct _analysisdata_tag {
    */
    void (*deletematerial)(Analysisdata *, int blocknumber);
   /* This might need to send back an integer. */
-   void *(*free)(Analysisdata *);
+   void (*free)(Analysisdata *);
 
 };
 
@@ -419,7 +415,7 @@ Analysisdata * adata_new                 (void);
 
 Analysisdata * adata_init                (void);
 
-void *         adata_delete              (Analysisdata *);
+void           adata_delete              (Analysisdata *);
 
 
 Analysisdata * adata_clone               (Analysisdata *);
@@ -466,6 +462,11 @@ void           adata_read_input_file     (Analysisdata *,
                                           int numfixedpoints,
                                           int pointcount,
                                           int numloadpoints);
+
+void           adata_write_ddaml          (Analysisdata * ad, 
+                                           PrintFunc printer, 
+                                           void * outfile);
+
 
 
 #ifdef __cplusplus

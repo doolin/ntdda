@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/10/24 15:12:39 $
+ * $Date: 2002/10/25 01:53:38 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  */
 
 #include <malloc.h>
@@ -88,7 +88,6 @@ postProcess(Geometrydata * GData, Analysisdata * AData) {
    //exportfig(GData);
 
    //writeAvgArea(AData);
-   //writeCentroids(AData);
    writeTimeInfo(AData);
    /* Both the following functions write to `parfile',
     * which should be reserved for analysis parameters.
@@ -223,33 +222,6 @@ writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
 }  
 
 
-
-
-
-
-
-/* Find a different file to write this information to.
- * logfile is gettting tired.
- */
-void
-writeCentroids(Analysisdata * AData, GRAPHICS * g, int numblocks) {
-
-   int i,j;
-   fprintf(fp.logfile,"\nBegin Centroids\n");
-   for (i=1;i<=AData->nTimeSteps; i++)
-   {
-      fprintf(fp.logfile,"Timestep %d\n",i);
-      for (j=1;j<=numblocks;j++)
-      {
-         fprintf(fp.logfile,"%d  %f   %f\n",
-            j, g->centroids[i][j].x,g->centroids[i][j].y);
-      }
-      fprintf(fp.logfile,"\n");
-   }
-
-   fprintf(fp.logfile,"End Centroids\n\n");
-
-}  
 
 
 /* The spring stiffness appears to be the same for 

@@ -201,25 +201,24 @@ handleInit(HWND hDlg)
 /* Write out the analysis and geometry data into XML 
  * input files.
  */
-static BOOLEAN
+BOOLEAN
 handleSave(HWND hDlg)
 {
   /* Temporary output... */
    FILE * ofp;
 
   /* write a geometry file */
-   //ofp = fopen("apwedge.geo","w");
-  /* Extended file format no longer used. */
-   //dumpGeometrydata(gdata, ofp);
-   gdata->dumptofile(gdata, "apwedge.geo");
-   //fclose(ofp);
-
-  /* write an analysis file */
-   ofp = fopen("apwedge.ana","w");
-   //dumpAnalysisData(adata, ofp);
-   adata->dump(adata,ofp);
+   ofp = fopen("apwedge.geo","w");
+   gdata->dumptofile(gdata, fprintf, ofp);
    fclose(ofp);
 
+  /* write an analysis file */
+  /* Won't link, don't know why. */
+  /*
+   ofp = fopen("apwedge.ana","w");
+   adata_write_ddaml(adata,(PrintFunc)fprintf,ofp);
+   fclose(ofp);
+*/
    //EndDialog (hDlg, 0);   // return 0: don't save data
 
    return 0;

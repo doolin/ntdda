@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/24 15:12:31 $
+ * $Date: 2002/10/25 01:53:33 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.18 $
+ * $Revision: 1.19 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -26,6 +26,7 @@ extern "C" {
 #include "dda.h"
 #include "contacts.h"
 #include "functions.h"
+#include "stress.h"
 
 
 /* These are the old variable names, retained for 
@@ -150,15 +151,6 @@ void sparsestorage(Geometrydata *, Analysisdata *, Contacts *,
                    int *, int **);
 
 
-void df09(Loadpoint * loadpoints,
-          double ** points,
-          double ** globalTime,
-          double ** timeDeps,
-          int ** tindex,
-          int nfp,
-          int numloadpoints,
-          int cts,
-          double delta_t);
 
 /******************  Solver *********************/
 /* FIXME:  All this needs to go into its own header file. */
@@ -191,7 +183,8 @@ double df24(Geometrydata *, Analysisdata *, double ** F,
 
 void df25(Geometrydata *, Analysisdata *, int *, 
             double **, /* double ** moments,*/ double **,
-            TransMap transmap, TransApply transapply);
+            TransMap transmap, TransApply transapply, 
+            BoundCond boundary_conditions, StrainModel strain_compute);
 
 
 
@@ -270,8 +263,6 @@ int inpoly(double **, int, double, double);
 
 int viscosity(Geometrydata *, Analysisdata *, double **, 
               double **, double **);
-int computeStresses(Geometrydata *, Analysisdata *, double **,
-                     double **, GRAPHICS *);
 
 
 /* Friction law stuff */
@@ -294,8 +285,6 @@ void  openAnalysisFiles(FILEPATHS *);
 /******************** Initialization code *******************/
 void initNewAnalysis(Geometrydata *, Analysisdata *, double **,
             /* double **, */ FILEPATHS * filepath);
-void initAnalysisOld(Geometrydata *, Analysisdata *, double **, double **,
-            double **, GRAPHICS *);
 /* density, unit weight etc, includes stress, strain */
 void initBlockProperties(Geometrydata *, Analysisdata *, double **);
 void initContactSpring(Analysisdata *);
@@ -327,12 +316,6 @@ void           analysisReader  (Analysisdata *,
                                 int pointcount,
                                 int numloadpoints);
 
-
-
-Analysisdata * cloneAnalysisData(Analysisdata *);
-void dumpAnalysisData(Analysisdata *, FILE *);
-
-void deleteBlockMaterial(Analysisdata * ad, int blocknumber);
 
 
 /* These defines are a first attempt to impose some 

@@ -17,7 +17,9 @@ extern "C" {
 
 #include "ddadlist.h"
 #include "ddatypes.h"
-#include "graphics.h"
+
+
+
 #include "ddafile.h"
 
 
@@ -195,7 +197,7 @@ struct _geo_data_tag {
   /* Use this to easily control which output function gets
    * called.
    */
-   void (*dumptofile)(Geometrydata *, char *);
+   void (*dumptofile)(Geometrydata *, PrintFunc printer, void * stream);
 
 };  /* End of struct geometry data definition */
 
@@ -228,7 +230,6 @@ void freeBlockMasses(Geometrydata *);
 void dumpGeometrydata(Geometrydata *, void *);
 
 
-double computeMoments(Geometrydata *); 
 
 
 /* Moved from dc02 in blocks.c.  Duplicates df01 */
@@ -257,9 +258,13 @@ int            gdata_get_block_number      (Geometrydata * gd,
                                             double x, 
                                             double y);
 
-void           gdata_get_block_centroid    (Geometrydata * gd,
-                                            int block, 
-                                            double [2]);
+double         gdata_compute_moments       (Geometrydata * gd); 
+
+
+void           gdata_get_centroid          (double * moments, 
+                                            double * x0, 
+                                            double * y0);
+
 
 double         gdata_get_block_area        (Geometrydata * gd, 
                                             int block);

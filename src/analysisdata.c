@@ -4,29 +4,67 @@
 #pragma warning( disable : 4115 )        
 #endif
 
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <assert.h>
 
 #include "analysisdata.h"
-#include "analysis.h"
 #include "ddamemory.h"
-#include "gravity.h"
-#include "ddaml.h"
-#include "constants.h"
 
+/** If these two headers can be removed from this 
+ * file, it would allow unit testing.
+ */
+#include "ddaml.h"
+#include "analysis.h"
 
 
 #define I1 "   "
 #define I2 "      "
 
 
-/** FIXME: Get rid of these prototypes. */
-static void dumpDDAMLAnalysisFile(Analysisdata *, FILE * outfilestream);
+static void adata_write_ddaml(Analysisdata *, PrintFunc printer, void * outfilestream);
 
-static void emitBlockMaterials(Analysisdata *, FILE *);
-static void emitJointMaterials(Analysisdata *, FILE *);
+static void emitBlockMaterials(Analysisdata *, PrintFunc printer, void * stream);
+static void emitJointMaterials(Analysisdata *, PrintFunc printer, void * stream);
 
+static void deleteBlockMaterial(Analysisdata * ad, int blocknumber);
+
+/*
+ * WARNING!!!  This function is invoked through an analysis struct
+ * function pointer that is set when the analysis data is initialized.
+ * It should only be called in tandem with deleteBlock.
+ */
+static void
+deleteBlockMaterial(Analysisdata * ad, int blocknumber)
+{
+   int i,j,k;
+   int mpsize1 = ad->materialpropsize1;  //  nBlocks
+   int mpsize2 = ad->materialpropsize2;  //  indexing from 0
+   double ** e0 = ad->materialProps;
+
+   j = 0;
+   for (i=1;i<=mpsize1;i++)
+   {
+       if (i == blocknumber)
+       {
+          j++;
+          ad->materialpropsize1--;
+          continue;
+       }
+
+       for (k=0;k<=mpsize2;k++)
+       {
+          e0[i-j][k] = e0[i][k];
+       }
+    }
+
+   /* Set the memory in what was the last element to garbage to make
+    * sure it isn't accidently used.
+    */ 
+    memset((void*)e0[mpsize1],0xDA,mpsize2*sizeof(double));
+
+}  /* close deleteMaterial() */
 
 
 static void
@@ -57,30 +95,26 @@ abortAnalysis(Analysisdata * ad) {
 
 
 
-/* FIXME: Change name to ddaml_analysis_write_file() */
-static void
-dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
-{
-   //int i;
-   //FILE * outfile;
+void
+adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
+
+
   /* FIXME: Move the sizing constant to somewhere else.
    */
    char attribute[180];
 
-  /* FIXME: Return an error if this fails. */
-   //outfile = fopen(outfilename,"w");
 
   /* xml header */
-   fprintf(outfile,"<?xml version=\"1.0\" standalone=\"no\"?>\n");
-   fprintf(outfile,"<!DOCTYPE DDA SYSTEM \"analysis.dtd\">\n");
-   fprintf(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~bdoolin/dda\">\n");
+   printer(outfile,"<?xml version=\"1.0\" standalone=\"no\"?>\n");
+   printer(outfile,"<!DOCTYPE DDA SYSTEM \"analysis.dtd\">\n");
+   printer(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~bdoolin/dda\">\n");
 
   /* FIXME:  This is a bogosity.  The parser code is broken
    * because it requires a comment before the <Geometry>
    * or <Analysis> tags.
    */
-   fprintf(outfile,"<!-- Bogus comment to keep ddaml tree-stripping\n");
-   fprintf(outfile,"     from seg faulting on bad child node. -->\n\n");
+   printer(outfile,"<!-- Bogus comment to keep ddaml tree-stripping\n");
+   printer(outfile,"     from seg faulting on bad child node. -->\n\n");
 
 
    if (ad->analysistype == 0)
@@ -88,8 +122,8 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
    else 
       strcpy(attribute,"dynamic");
 
-   fprintf(outfile,"<Analysis type=\"%s\">\n\n",attribute);
-   fprintf(outfile,I1"<Analysistype type=\"%s\"/>\n",attribute);
+   printer(outfile,"<Analysis type=\"%s\">\n\n",attribute);
+   printer(outfile,I1"<Analysistype type=\"%s\"/>\n",attribute);
 
    switch (ad->rotationtype)
    {
@@ -106,7 +140,7 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
         /* FIXME: Throw an error here. */
          break;
    }
-   fprintf(outfile,I1"<Rotation type=\"%s\"/>\n",attribute);
+   printer(outfile,I1"<Rotation type=\"%s\"/>\n",attribute);
 
    
    if (ad->gravityflag == 0)
@@ -114,39 +148,39 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
    else 
       strcpy(attribute,"yes");
 
-   fprintf(outfile,I1"<Gravity flag=\"%s\">\n",attribute);
-   fprintf(outfile,I1"Gravity parameters are currently hardwired.\n");
-   fprintf(outfile,I1"</Gravity>\n\n");
+   printer(outfile,I1"<Gravity flag=\"%s\">\n",attribute);
+   printer(outfile,I1"Gravity parameters are currently hardwired.\n");
+   printer(outfile,I1"</Gravity>\n\n");
 
    if (ad->autotimestepflag == 0)
       strcpy(attribute,"no");
    else 
       strcpy(attribute,"yes");
-   fprintf(outfile,I1"<Autotimestep flag=\"%s\"/>\n",attribute);
+   printer(outfile,I1"<Autotimestep flag=\"%s\"/>\n",attribute);
 
    if (ad->autopenaltyflag == 0)
       strcpy(attribute,"no");
    else 
       strcpy(attribute,"yes");
-   fprintf(outfile,I1"<Autopenalty flag=\"%s\" pfactor=\"50\"/>\n",attribute);
+   printer(outfile,I1"<Autopenalty flag=\"%s\" pfactor=\"50\"/>\n",attribute);
 
 
    if (ad->planestrainflag == 0)
       strcpy(attribute,"no");
    else 
       strcpy(attribute,"yes");
-   fprintf(outfile,I1"<Planestrain flag=\"%s\"/>\n",attribute);
+   printer(outfile,I1"<Planestrain flag=\"%s\"/>\n",attribute);
  
    
-   fprintf(outfile,I1"<Numtimesteps timesteps=\"%d\"/>\n",ad->nTimeSteps);
-   fprintf(outfile,I1"<Maxtimestep maxtimestep=\"%f\"/>\n",ad->maxtimestep);
-   fprintf(outfile,I1"<OCLimit maxopenclose=\"%d\"/>\n",ad->OCLimit);
-   fprintf(outfile,I1"<Maxdisplacement maxdisplacement=\"%f\"/>\n",ad->maxdisplacement);
-   fprintf(outfile,I1"<Saveinterval step=\"%d\"/>\n",ad->tsSaveInterval);
+   printer(outfile,I1"<Numtimesteps timesteps=\"%d\"/>\n",ad->nTimeSteps);
+   printer(outfile,I1"<Maxtimestep maxtimestep=\"%f\"/>\n",ad->maxtimestep);
+   printer(outfile,I1"<OCLimit maxopenclose=\"%d\"/>\n",ad->OCLimit);
+   printer(outfile,I1"<Maxdisplacement maxdisplacement=\"%f\"/>\n",ad->maxdisplacement);
+   printer(outfile,I1"<Saveinterval step=\"%d\"/>\n",ad->tsSaveInterval);
 
 
-   fprintf(outfile,I1"<!-- These used to be hard-wired into the\n"); 
-   fprintf(outfile,I1"     DDA source code.  Not currently used -->\n");
+   printer(outfile,I1"<!-- These used to be hard-wired into the\n"); 
+   printer(outfile,I1"     DDA source code.  Not currently used -->\n");
 
    constants_print_xml(ad->constants, outfile);
 
@@ -155,22 +189,19 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
  */
    //loadpoints_print_xml(ad, outfile);
 
-   emitBlockMaterials(ad, outfile);
+   emitBlockMaterials(ad, printer, outfile);
 
-   emitJointMaterials(ad, outfile);
+   emitJointMaterials(ad, printer, outfile);
 
-   fprintf(outfile,"</Analysis>\n");
-   fprintf(outfile,"</Berkeley:DDA>\n");
+   printer(outfile,"</Analysis>\n");
+   printer(outfile,"</Berkeley:DDA>\n");
 
-   fclose(outfile);
-
-}  /* close dumpDDAMLGeometryFile() */
-
+}  
 
 
 
 static void 
-emitBlockMaterials(Analysisdata * ad, FILE * outfile)
+emitBlockMaterials(Analysisdata * ad, PrintFunc printer, void * outfile)
 {
    int i;
 
@@ -183,31 +214,31 @@ emitBlockMaterials(Analysisdata * ad, FILE * outfile)
 
    for (i=1; i<= ad->nBlockMats; i++) {
 
-      fprintf(outfile,I1"<Blockmaterial  type=\"%d\">\n",i);
+      printer(outfile,I1"<Blockmaterial  type=\"%d\">\n",i);
    
-      fprintf(outfile,I2"<Unitmass> %f </Unitmass>\n",ad->materialProps[i][0]);
-      fprintf(outfile,I2"<Unitweight> %f </Unitweight>\n",ad->materialProps[i][1]);
-      fprintf(outfile,I2"<Youngsmod> %f </Youngsmod>\n",ad->materialProps[i][2]);
-      fprintf(outfile,I2"<Poissonratio> %f </Poissonratio>\n",ad->materialProps[i][3]);
-      fprintf(outfile,I2"<Damping> %f </Damping>\n",ad->materialProps[i][13]);
+      printer(outfile,I2"<Unitmass> %f </Unitmass>\n",ad->materialProps[i][0]);
+      printer(outfile,I2"<Unitweight> %f </Unitweight>\n",ad->materialProps[i][1]);
+      printer(outfile,I2"<Youngsmod> %f </Youngsmod>\n",ad->materialProps[i][2]);
+      printer(outfile,I2"<Poissonratio> %f </Poissonratio>\n",ad->materialProps[i][3]);
+      printer(outfile,I2"<Damping> %f </Damping>\n",ad->materialProps[i][13]);
 
 
       sprintf(stress, "%f  %f  %f", ad->materialProps[i][4],
                            ad->materialProps[i][5],ad->materialProps[i][6]);
-      fprintf(outfile,I2"<Istress> %s </Istress>\n", stress);
+      printer(outfile,I2"<Istress> %s </Istress>\n", stress);
 
       sprintf(velocity, "%f  %f  %f", ad->materialProps[i][10],
                            ad->materialProps[i][11],ad->materialProps[i][12]);
-      fprintf(outfile,I2"<Ivelocity> %s </Ivelocity>\n", velocity);
+      printer(outfile,I2"<Ivelocity> %s </Ivelocity>\n", velocity);
 
       sprintf(strain, "%f  %f  %f", ad->materialProps[i][7],
                            ad->materialProps[i][8],ad->materialProps[i][9]);
-      fprintf(outfile,I2"<Istrain> %s </Istrain>\n", strain);
+      printer(outfile,I2"<Istrain> %s </Istrain>\n", strain);
 
-      fprintf(outfile,I1"</Blockmaterial>\n");
+      printer(outfile,I1"</Blockmaterial>\n");
 
 
-   }  /*  i  */
+   }  
 
 
 }  /* close emitBlockMaterials() */
@@ -215,20 +246,20 @@ emitBlockMaterials(Analysisdata * ad, FILE * outfile)
 
 
 static void 
-emitJointMaterials(Analysisdata * ad, FILE * outfile)
-{
+emitJointMaterials(Analysisdata * ad, PrintFunc printer, void * outfile) {
+
    int i;
 
-   for (i=1; i<= ad->nJointMats; i++)
-   {  
-      fprintf(outfile,I1"<Jointproperties type=\"%d\">\n",i);  
-      fprintf(outfile,I2"<Friction> %.2f</Friction>\n",ad->phiCohesion[i][0]);
-      fprintf(outfile,I2"<Cohesion> %.2f</Cohesion>\n",ad->phiCohesion[i][1]);
-      fprintf(outfile,I2"<Tensile> %.2f</Tensile>\n",ad->phiCohesion[i][2]);
-      fprintf(outfile,I1"</Jointproperties>\n");  
-   }  /*  i  */
+   for (i=1; i<= ad->nJointMats; i++) {
+     
+      printer(outfile,I1"<Jointproperties type=\"%d\">\n",i);  
+      printer(outfile,I2"<Friction> %.2f</Friction>\n",ad->phiCohesion[i][0]);
+      printer(outfile,I2"<Cohesion> %.2f</Cohesion>\n",ad->phiCohesion[i][1]);
+      printer(outfile,I2"<Tensile> %.2f</Tensile>\n",ad->phiCohesion[i][2]);
+      printer(outfile,I1"</Jointproperties>\n");  
+   } 
 
-}  /* close emitJointMaterials() */
+}  
 
 
 
@@ -276,273 +307,23 @@ adata_validate(Analysisdata * ad) {
    * interval in the time series matches the analysis time 
    * step.
    */
+/** FIXME: Replace this with a call to timehistory_validate(); */
+/*
    if (ad->timehistory != NULL) {
       if (th_get_delta_t(ad->timehistory) != ad->delta_t) {
 
-         //iface->displaymessage("Analysis time step must be equal to time interval in time history.");
          ad->display_error("Analysis time step must be equal to time interval in time history.");
-
-         exit(0);
       }
    }
+   */
 
 }  /* close validateAnalysisdata() */
 
 
 
-/** Attempt to handle extern file pointer
- * declarations as a group.  That is, open them 
- * all at the same time, then later close all of the 
- * at the same time.
- * FIXME: replace all strcpy with strncpy for buffer
- * protection when the back end goes networked.
- * FIXME: The code for initializing file names should be split
- * from the code that actually opens the output streams.
- * This will make it easier to control which files should 
- * actually be open at any one time.
- *
- * @todo This is ugly as homemade sin and needs to be completely
- *       redesigned. 
- */
-void
-openAnalysisFiles(FILEPATHS * filepath)
-{
-   char temp[256];
-   extern FILEPOINTERS fp;
-
-	 	strcpy(temp, filepath->gfile);
-
-  /* Note that the rootname contains the entire path.  This 
-   * is probably not real good, but is messy to handle 
-   * otherwise on win32.
-   */
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".replay");
-   strcpy(filepath->replayfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".html");
-   strcpy(filepath->htmlfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_data.m");
-   strcpy(filepath->datafile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".gnu");
-   strcpy(filepath->gnuplotfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".log");
-   strcpy(filepath->logfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_meas.m");
-   strcpy(filepath->measfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".por");
-   strcpy(filepath->porefile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_time.m");
-   strcpy(filepath->timefile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".par");
-   strcpy(filepath->parfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_moments.m");
-   strcpy(filepath->momentfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_mass.m");
-   strcpy(filepath->massfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_defs.m");
-   strcpy(filepath->dfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".grav");
-   strcpy(filepath->gravfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_fpoint.m");
-   strcpy(filepath->fpointfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_cforce.m");
-   strcpy(filepath->cforce, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_fforce.m");
-   strcpy(filepath->fforce, temp);
-   
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_bolt.m");
-   strcpy(filepath->boltfile, temp);
-   
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_bolt.log");
-   strcpy(filepath->boltlogfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_vertices.m");
-   strcpy(filepath->vertexfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_vertices.log");
-   strcpy(filepath->vertexlogfile, temp);
 
 
-
-  /* Copied in from geometry driver. */
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".blk");
-   strcpy(filepath->blockfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".err");
-   strcpy(filepath->errorfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".spy1");
-   strcpy(filepath->spyfile1, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".spy2");
-   strcpy(filepath->spyfile2, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, ".m");
-   strcpy(filepath->mfile, temp);
-
-   strcpy(temp, filepath->rootname);
-   strcat(temp, "_stress.m");
-   strcpy(filepath->stressfile, temp);
-
-  /* Do not get the file name of this yet. */
-   //strcpy(temp, filepath->gpath);
-   //strcat(temp, ".m");
-   strcpy(filepath->eqfile, filepath->gpath);
-
-   fp.replayfile = fopen(filepath->replayfile, "w");
-   fp.measfile = fopen(filepath->measfile, "w");
-   fp.logfile = fopen(filepath->logfile, "w");
-   fp.errorfile = fopen(filepath->errorfile, "w");
-  /* What is dispfile?
-   */
-   //fp.dispfile = fopen(filepath->dispfile, "w");
-   //fp.grffile = fopen(filepath->grffile, "w");
-  /* Cleft pressure file output. */
-   fp.porefile = fopen(filepath->porefile, "w");
-  /* time data */
-   fp.timefile = fopen(filepath->timefile, "w");
-  /* parameter file */
-   fp.parfile = fopen(filepath->parfile, "w");
-  /* block area file */
-   fp.momentfile = fopen(filepath->momentfile, "w");
-   fp.massfile = fopen(filepath->massfile, "w");
-   fp.gravfile = fopen(filepath->gravfile, "w");
-   fp.htmlfile = fopen(filepath->htmlfile, "w");
-   fp.datafile = fopen(filepath->datafile, "w");
-   fp.fpointfile = fopen(filepath->fpointfile, "w");
-
-   fp.boltfile = fopen(filepath->boltfile, "w");
-
-   fp.boltlogfile = fopen(filepath->boltlogfile, "w");
-   fprintf(fp.boltlogfile, "Elapsed Time: bolt1x1,bolt1y1 bolt1x2,bolt1y2; bolt2x1,bolt2y1 bolt2x2,bolt2y2; etc\n");
-
-   fp.vertexfile = fopen(filepath->vertexfile, "w");
-   fp.vertexlogfile = fopen(filepath->vertexlogfile, "w");
-
-
-   fp.cforce = fopen(filepath->cforce, "w");
-   fprintf(fp.cforce,"contactforces = [\n");
-
-   fp.fforce = fopen(filepath->fforce, "w");
-   fprintf(fp.fforce,"frictionforces = [\n");
-
-
-   
-   fp.spyfile1 = fopen(filepath->spyfile1, "w");
-   fp.spyfile2 = fopen(filepath->spyfile2, "w");
-   fp.gnuplotfile = fopen(filepath->gnuplotfile, "w");
-   fp.mfile = fopen(filepath->mfile, "w");
-
-
-   fp.dfile = fopen(filepath->dfile, "w");
-   fprintf(fp.dfile,"deformations = [\n");
-
-   fp.stressfile = fopen(filepath->stressfile, "w");
-   fprintf(fp.stressfile,"stresses = [\n");
-
-  /* Do not open this yet.  The function that parses this
-   * data should handle all the io for the time history.
-   */
-  /*fp.eqfile = fopen(filepath->eqfile,"r");*/
-
-} /* Close openAnalysisFiles() */
-
-
-void
-closeAnalysisFiles()
-{
-   extern FILEPOINTERS fp;
-
-   fclose(fp.replayfile);
-   //fprintf(fp.logfile, "Closed log file.\n");
-   fclose(fp.logfile);
-   //fprintf(fp.errorfile, "Closed error file.\n");
-   fclose(fp.errorfile);
-   //fclose(fp.dispfile);
-   //fclose(fp.grffile);
-   fclose(fp.measfile);
-   fclose(fp.porefile);
-   fclose(fp.timefile);
-   fclose(fp.parfile);
-   fclose(fp.momentfile);
-   fclose(fp.massfile);
-   fclose(fp.gravfile);
-   fclose(fp.htmlfile);
-   fclose(fp.datafile);
-   fclose(fp.fpointfile);
-   fclose(fp.boltfile);
-   fclose(fp.boltlogfile);
-   fclose(fp.vertexfile);
-   fclose(fp.vertexlogfile);
-
-   fprintf(fp.cforce,"];\n");
-   fclose(fp.cforce);
-
-   fprintf(fp.fforce,"];\n");
-   fclose(fp.fforce);
-
-   fclose(fp.spyfile1);
-   fclose(fp.spyfile2);
-   fclose(fp.gnuplotfile);
-   fclose(fp.mfile);
-
-   fprintf(fp.dfile,"];\n");
-   fclose(fp.dfile);
-
-
-  /* FIXME: This is non-portable. */
-   fprintf(fp.stressfile,"];\n");
-   fclose(fp.stressfile);
-
-  /* Cosed in function handling the time history.
-   * Noted for completeness and uniformity.
-   */
-   //fclose(fp.eqfile);
-
-}  /* Close openAnalysisFiles() */
-
-
-
-void *
+void 
 adata_delete(Analysisdata * ad) {
 
    free2DMat((void **)ad->timeDeps, ad->timedepsize1);
@@ -567,7 +348,6 @@ adata_delete(Analysisdata * ad) {
 
    free(ad);
 
-   return NULL;
 }
 
 
@@ -749,8 +529,6 @@ adata_new() {
    ado->abort = abortAnalysis;
    ado->deletematerial = deleteBlockMaterial;
 
-  /* Functions */
-   ado->dump = dumpDDAMLAnalysisFile;
    ado->free = adata_delete; //freeAnalysisData;
 
 

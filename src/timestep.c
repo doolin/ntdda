@@ -295,53 +295,30 @@ double a7;
      /* (GHS: zero terms of mass matrix)  */
      /* When I get the guts, I will zero this out with memset: */
       // memset(TT,0x0,sizeof(TT));
-      for (j=1; j<= 6; j++)
-      {
-         for (l=1; l<= 6; l++)
-         {
+      for (j=1; j<= 6; j++) {
+         for (l=1; l<= 6; l++) {
             TT[j][l]=0;
-         }  /*  l  */
-      }  /*  j  */
+         }  
+      } 
       
      /* (GHS: non-zero terms of mass matrix)  */
      /* Compute centroids.   These are also computed in 
       * the time step function. 
       */
-      x0=moments[i][2]/moments[i][1];  // x0 := x centroid
-      y0=moments[i][3]/moments[i][1];  // y0 := y centroid
-      //x0=moments[i][2]/e0[i][9]; //moments[i][1];  // x0 := x centroid
-      //y0=moments[i][3]/e0[i][9]; //moments[i][1];  // y0 := y centroid
+      //x0=moments[i][2]/moments[i][1];  // x0 := x centroid
+      //y0=moments[i][3]/moments[i][1];  // y0 := y centroid
+      gdata_get_centroid(moments[i],&x0,&y0);
 
-     /* S1, S2, S3 result from integrals derived on 
+     /* S0, S1, S2, S3 result from integrals derived on 
       * pp. 83-84, Chapter 2, Shi 1988.
       */
-      S0=moments[i][1];  // block area/volume
-      //S0=e0[i][9]; //moments[i][1];  // block area/volume
-      S1=moments[i][4]-x0*moments[i][2];
-      S2=moments[i][5]-y0*moments[i][3];
-      S3=moments[i][6]-x0*moments[i][3];
+      S0 = moments[i][1];  // block area/volume
+      S1 = moments[i][4]-x0*moments[i][2];
+      S2 = moments[i][5]-y0*moments[i][3];
+      S3 = moments[i][6]-x0*moments[i][3];
 
 
       massmatrix(TT,S0,S1,S2,S3);
-
-#if 0
-      TT[1][1]=S0;
-      TT[2][2]=S0;
-      TT[3][3]=S1+S2;
-      TT[3][4]= -S3;
-      TT[4][3]=TT[3][4];
-      TT[3][5]=S3;
-      TT[5][3]=TT[3][5];
-      TT[3][6]=(S1-S2)/2;
-      TT[6][3]=TT[3][6];
-      TT[4][4]=S1;
-      TT[4][6]=S3/2;
-      TT[6][4]=TT[4][6];
-      TT[5][5]=S2;
-      TT[5][6]=S3/2;
-      TT[6][5]=TT[5][6];
-      TT[6][6]=(S1+S2)/4;
-#endif
 
      /* Compute the kinetic energy.
       * FIXME: Rewrite this as a function, then

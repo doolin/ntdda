@@ -15,7 +15,7 @@ typedef int ddaboolean;
  * for the time being.  Later, a more rational plan can be 
  * established for restricting scope.
  */
-typedef enum _FrictionLaw {coulomb, druckerprager, voight} FrictionLaw;
+//typedef enum _FrictionLaw {coulomb, druckerprager, voight} FrictionLaw;
 typedef enum _pointtype {fixed=0,measured,load,hole} PointType;
 
 

@@ -875,7 +875,7 @@ handleSave(HWND hDlg)
    int numflushed;
    OPENFILENAME ofn;
    OFSTRUCT of;
-   //FILE *fp;
+   FILE *fp;
    HFILE hFile;
    Geometrydata * geomstruct;
 
@@ -909,20 +909,16 @@ handleSave(HWND hDlg)
             return 0;
       }
 
-      //geomstruct = initGeometrydata();
       geomstruct = gdata_new();
 
 
       transferJointlistToGeomStruct(geomstruct, jointlist); 
       transferPointlistToGeomStruct(geomstruct, pointlist);  
       transferBoltlistToGeomStruct(geomstruct, boltlist);  
-      //fp = fopen(filepath.gpath, "w+");
 
-      geomstruct->dumptofile(geomstruct, filepath.gpath);
-      //dumpGeometrydata(geomstruct, fp);
-
-      //fclose(fp);
-      //freeGeometrydata(geomstruct);
+      fp = fopen(filepath.gpath, "w+");
+      geomstruct->dumptofile(geomstruct, fprintf, fp);
+      fclose(fp);
       gdata_delete(geomstruct); 
 
      /* FIXME: These functions are segfaulting. */

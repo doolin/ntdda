@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/24 15:12:35 $
+ * $Date: 2002/10/25 01:53:36 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.40 $
+ * $Revision: 1.41 $
  *
  */
 /*################################################*/
@@ -17,6 +17,11 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.41  2002/10/25 01:53:36  doolin
+ * Lots more clean up.  Some calling conventions changed.
+ * Some dead or nearly code removed.  This commit is Not Yet Ready
+ * For Prime Time.
+ *
  * Revision 1.40  2002/10/24 15:12:35  doolin
  * Point commit to allow some unit testing on unix side.
  * (Much easier to write command line cod ein unix etc.)  Lots and
@@ -391,7 +396,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * calloc.
    */
    ad->avgArea = (double *)malloc((ad->nTimeSteps+1)*sizeof(double));
-   ad->avgArea[1] = computeMoments(gd);//, blockArea);
+   ad->avgArea[1] = gdata_compute_moments(gd);//, blockArea);
 
   /* Need to save the original area for conserving mass. */
    for (i = 1; i<=gd->nBlocks; i++)
@@ -2497,7 +2502,9 @@ df24(Geometrydata *gd, Analysisdata *ad, double ** F, int *k1,
 void 
 df25(Geometrydata *gd, Analysisdata *ad, int *k1,
           double **e0, double **U, TransMap transmap,
-          TransApply transapply) {
+          TransApply transapply,
+          BoundCond boundary_conditions,
+          StrainModel strain_compute) {
 
    int i, i0, i1, i2;
    int j; 
@@ -2524,6 +2531,8 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    * FIXME: Where is the forcing vector rezeroed?
    */
    double ** F = ad->F;
+
+   double avgarea;
 
    /* This is for keeping track of displacements */
    extern double ** __D;
@@ -2665,33 +2674,15 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    }  /* close cloning loop */
    
 
-  /** @todo instead of switching on the flag, have it dereferenced
-   * from ad, which turns this into a single call.
-   */
-   if (ad->planestrainflag == 1) { 
-      stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestrain);
-   } else {
-      stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestress);
-   }
+   stress_update(e0, ad->F, k1, gd->nBlocks, boundary_conditions, strain_compute);
+   bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,transmap,transapply);
 
 
-
-   
-{
-   double avgarea;
   /*------------------------------------------------*/
   /* compute s sx sy sxx syy sxy    g0 of this step */
-   avgarea = computeMoments(gd); //, moments);
+   avgarea = gdata_compute_moments(gd);
    ad->avgArea[ad->cts] = avgarea;
-}
-
    
-   bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,
-                 transmap, transapply);
-
-
-
-
   /* FIXME: This looks stupid.  There has to be a better way...
    */
    ad->elapsedTime = ad->globalTime[ad->cts][0];

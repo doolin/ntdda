@@ -17,11 +17,10 @@ extern "C" {
 #include "geometrydata.h"
 #include "analysisdata.h"
 
+/** Find a way to get rid of this. */
+#include "graphics.h"
 
-#define WINDOWS 1
-/* FIXME: Move these to winmain.h */
-#define WINGRAPHICS 1
-#define OPENGL 0
+
 
 
 /* The dreaded RPC_ASYNC_STATE warning. */
@@ -47,9 +46,6 @@ extern "C" {
 //void error(char *);
 
 
-enum inputfiletype { original = 0, extended, ddaml };
-
-typedef enum inputfiletype IFT;
 
 
 /* FIXME: move this into a better header. */

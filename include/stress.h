@@ -14,11 +14,21 @@ extern "C" {
 
 
 #ifndef __PRINTFUNC__
-typedef int (*PrintFunc)(void * stream, const char * format, ...);
 #define __PRINTFUNC__
+typedef int (*PrintFunc)(void * stream, const char * format, ...);
 #endif
 
-typedef void (*ConstModel)(double * e0, double * D);
+#ifndef __BOUNDCOND_FUNC__
+#define __BOUNCOND_FUNC__
+typedef void (*BoundCond)(double * e0, double strain[4]);
+#endif
+
+
+#ifndef __STRAINMODEL_FUNC__
+#define __STRAINMODEL_FUNC__
+typedef void (*StrainModel)(double * D, double strain[4]);
+#endif
+
 
 #ifndef PLANESTRESS
 #define PLANESTRESS 0
@@ -50,7 +60,8 @@ void     stress_update         (double ** e0,
                                 double ** D, 
                                 int * k1, 
                                 int numblocks,
-                                ConstModel apply_const_model);
+                                BoundCond apply_boundary_cond,
+                                StrainModel strain_compute);
 
 
 void     stress_print          (double * s, 
@@ -71,10 +82,10 @@ int      stress_equals         (double * d1,
 
 
 void     stress_planestrain    (double * e0,
-                                double * D);
+                                double strains[4]);
 
 void     stress_planestress    (double * e0,
-                                double * D);
+                                double strains[4]);
 
 
 void     stress_stiffness      (int numblocks, 
@@ -92,6 +103,17 @@ void     stress_initial        (int nBlocks,
                                 const double **e0,
                                 const double **moments);
 
+
+
+/** The strain functions may go into their own module 
+ * in the future.  
+ */
+void     strain_linear_elastic (double * stress, 
+                                double strain[4]);
+
+
+void     strain_green_lagrange (double * stress, 
+                                double strain[4]);
 
 
 

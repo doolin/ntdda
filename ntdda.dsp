@@ -503,6 +503,10 @@ SOURCE=.\include\gravity.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\material.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\postprocess.h
 # End Source File
 # Begin Source File

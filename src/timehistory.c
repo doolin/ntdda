@@ -3,9 +3,9 @@
  * used with SHAKE.
  *
  * $Author: doolin $
- * $Date: 2002/10/24 15:12:40 $
+ * $Date: 2002/10/25 01:53:38 $
  * $Source: /cvsroot/dda/ntdda/src/timehistory.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 #include <stdio.h>
@@ -24,6 +24,14 @@ struct _timehistory {
   DisplayFunc display_warning;
   DisplayFunc display_error;
 };
+
+
+/** @todo Implement some validation code. */
+int             
+th_validate (TimeHistory * th) {
+
+   return 0;
+}
 
 
 

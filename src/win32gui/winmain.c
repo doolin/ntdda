@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/10/06 19:17:19 $
+ * $Date: 2002/10/25 01:53:40 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.24 $
+ * $Revision: 1.25 $
  */
 
 
@@ -61,7 +61,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.24 2002/10/06 19:17:19 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.25 2002/10/25 01:53:40 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -340,14 +340,13 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
       switch (vkcode) {
       case 'c': {
-            double centroid[2] = {0};
+            double x0, y0;
             //displayPhysicalCoordinates(hwMain,wParam,lParam);
             p = DPtoPP(hwMain, xnew,ynew);
             blocknumber = gdata_get_block_number(geomdata,p.x,p.y);
             if (blocknumber != 0) {
-               gdata_get_block_centroid(geomdata,blocknumber,centroid);
-               sprintf(message,"Block %d centroid: (%lf,%lf)",
-                             blocknumber,centroid[0],centroid[1]);
+               gdata_get_centroid(geomdata->moments[blocknumber],&x0,&y0);
+               sprintf(message,"Block %d centroid: (%lf,%lf)",blocknumber,x0,y0);
                dda_display_info(message);
                //MessageBox(NULL,mess,"Block centroid coordinates",MB_OK);
             }

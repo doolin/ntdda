@@ -4,6 +4,8 @@
  * and analysis data.
  */
 
+#include <stdlib.h>
+
 #include "dda.h"
 
 /** @todo These are included to handle toggling 

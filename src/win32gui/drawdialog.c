@@ -852,13 +852,10 @@ handleSave(HWND hDlg)
       transferJointlistToGeomStruct(geomstruct, jointlist); 
       transferPointlistToGeomStruct(geomstruct, pointlist);  
       transferBoltlistToGeomStruct(geomstruct, boltlist);  
-      //fp = fopen(filepath.gpath, "w+");
 
+      fp = fopen(filepath.gpath, "w+");
       geomstruct->dumptofile(geomstruct->this, filepath.gpath);
-      //dumpGeometrydata(geomstruct, fp);
-
-      //fclose(fp);
-      //freeGeometrydata(geomstruct); 
+      fclose(fp);
       gdata_delete(geomstruct);
 
      /* FIXME: These functions are segfaulting. */

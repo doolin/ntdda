@@ -5,8 +5,8 @@
  * a geometry struct.  
  */
 
-#include <assert.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #if _DEBUG
 #include "printdebug.h"
@@ -29,137 +29,137 @@ static void deleteBlock(Geometrydata * gd, int blocknumber);
 
 
 static void
-emitJoints(Geometrydata * gd, FILE * outfile)
-{
+emitJoints(Geometrydata * gd, PrintFunc printer, void * stream) {
+
    int i;
 
-   fprintf(outfile,I1"<Jointlist>\n");
-   for (i=1;i<=gd->nJoints;i++)
-   {
-      fprintf(outfile,I2"<Joint type=\"%d\">",(int)gd->joints[i][5]);
-      fprintf(outfile," %14.10f %14.10f %14.10f %14.10f ",
+   printer(stream,I1"<Jointlist>\n");
+
+   for (i=1;i<=gd->nJoints;i++) {
+
+      printer(stream,I2"<Joint type=\"%d\">",(int)gd->joints[i][5]);
+      printer(stream," %14.10f %14.10f %14.10f %14.10f ",
               gd->joints[i][1],gd->joints[i][2],
               gd->joints[i][3],gd->joints[i][4]);
-      fprintf(outfile,"</Joint>\n");
+      printer(stream,"</Joint>\n");
    }
-   fprintf(outfile,I1"</Jointlist>\n\n");
+   printer(stream,I1"</Jointlist>\n\n");
 
-}  /* close emitJoints() */
+}
 
 
 /* FIXME: Completely rewrite point handling code,
  * for the entire project.
  */
 static void
-emitPoints(Geometrydata * gd, FILE * outfile)
-{
+emitPoints(Geometrydata * gd, PrintFunc printer, void * stream) {
+
    int i;
 
 /*************  Fixed points  **************/
 if (gd->nFPoints > 0)
 {
-   fprintf(outfile,"<Fixedpointlist>\n");
-   for(i=1;i<=gd->nFPoints;i++)
-   {
-      fprintf(outfile,"<Line>");
-      fprintf(outfile," %f %f %f %f ",
+   printer(stream,"<Fixedpointlist>\n");
+
+   for(i=1;i<=gd->nFPoints;i++) {
+
+      printer(stream,"<Line>");
+      printer(stream," %f %f %f %f ",
               gd->points[i][1],gd->points[i][2],
               gd->points[i][3],gd->points[i][4]);
-      fprintf(outfile,"</Line>\n");
+      printer(stream,"</Line>\n");
    }
-   fprintf(outfile,"</Fixedpointlist>\n");
+   printer(stream,"</Fixedpointlist>\n");
 }
 
 /************** Load points ****************/
 if (gd->nLPoints > 0)
 {
-   fprintf(outfile,"<Loadpointlist>\n");
+   printer(stream,"<Loadpointlist>\n");
    for(i=gd->nFPoints+1; i<= gd->nFPoints+gd->nLPoints; i++)
    {
-      fprintf(outfile,"<Point>");
-      fprintf(outfile," %f %f ",
+      printer(stream,"<Point>");
+      printer(stream," %f %f ",
               gd->points[i][1],gd->points[i][2]);
-      fprintf(outfile,"</Point>\n");
+      printer(stream,"</Point>\n");
    }
-   fprintf(outfile,"</Loadpointlist>\n");
+   printer(stream,"</Loadpointlist>\n");
 }
 
 /**************** Measured points  ************/
 if (gd->nMPoints > 0)
 {
-   fprintf(outfile,"<Measuredpointlist>\n");      
+   printer(stream,"<Measuredpointlist>\n");      
    for (i=gd->nFPoints+gd->nLPoints+1; i<= gd->nFPoints+gd->nLPoints+gd->nMPoints; i++)
 	{
-      fprintf(outfile,"<Point>");
-      fprintf(outfile," %f %f ",
+      printer(stream,"<Point>");
+      printer(stream," %f %f ",
               gd->points[i][1],gd->points[i][2]);
-      fprintf(outfile,"</Point>\n");
+      printer(stream,"</Point>\n");
    }
-   fprintf(outfile,"</Measuredpointlist>\n");
+   printer(stream,"</Measuredpointlist>\n");
 }
 
 /**************  Hole points ****************/
 if (gd->nHPoints > 0)
 {
-   fprintf(outfile,"<Holepointlist>\n");      
+   printer(stream,"<Holepointlist>\n");      
    for (i=gd->nFPoints+gd->nLPoints+gd->nMPoints+1;i<= gd->nFPoints+gd->nLPoints+gd->nMPoints+gd->nHPoints; i++)
    {
-      fprintf(outfile,"<Point>");
-      fprintf(outfile," %f %f ",
+      printer(stream,"<Point>");
+      printer(stream," %f %f ",
               gd->points[i][1],gd->points[i][2]);
-      fprintf(outfile,"</Point>");
+      printer(stream,"</Point>");
    }
-   fprintf(outfile,"</Holepointlist>\n");
+   printer(stream,"</Holepointlist>\n");
 }
 
-}  /* close emitPoints() */
+} 
 
 
 static void
-emitBolts(Geometrydata * gd, FILE * outfile)
-{
+emitBolts(Geometrydata * gd, PrintFunc printer, void * stream) {
+
    int i;
    
-   fprintf(outfile,"<Boltlist>\n");
+   printer(stream,"<Boltlist>\n");
    for(i=1;i<=gd->nFPoints;i++)
    {
-      fprintf(outfile,"<Bolt>");
-      fprintf(outfile," %f %f %f %f ",
+      printer(stream,"<Bolt>");
+      printer(stream," %f %f %f %f ",
               gd->rockbolts[i][1],gd->rockbolts[i][2],
               gd->rockbolts[i][3],gd->rockbolts[i][4]);
-      fprintf(outfile,"</Bolt>");
+      printer(stream,"</Bolt>");
    }
-   fprintf(outfile,"</Boltlist>\n");
+   printer(stream,"</Boltlist>\n");
 
 
 }  /* close emitBolts() */
 
 
 static void 
-emitMatlines(Geometrydata * gd, FILE * outfile)
-{
+emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
+
    int i;
    
-   fprintf(outfile,"<Matlinelist>\n");
-   for(i=1;i<=gd->nFPoints;i++)
-   {
-      fprintf(outfile,"<Line>");
-      fprintf(outfile," %f %f %f %f %d",
+   printer(stream,"<Matlinelist>\n");
+   for(i=1;i<=gd->nFPoints;i++) {
+
+      printer(stream,"<Line>");
+      printer(stream," %f %f %f %f %d",
               gd->matlines[i][1],gd->matlines[i][2],
               gd->matlines[i][3],gd->matlines[i][4], 
               (int)gd->matlines[i][5]);
-      fprintf(outfile,"</Line>");
+      printer(stream,"</Line>");
    }
-   fprintf(outfile,"</Matlinelist>\n");
+   printer(stream,"</Matlinelist>\n");
+
+}
 
 
-}  /* close emitMatlines() */
+void
+gdata_write_ddaml(Geometrydata * gd, PrintFunc printer, char * outfilename) {
 
-
-static void
-dumpDDAMLGeometryFile(Geometrydata * gd, char * outfilename)
-{
-   //int i;
    FILE * outfile;
 
   /* FIXME: Return an error if this fails. */
@@ -168,29 +168,30 @@ dumpDDAMLGeometryFile(Geometrydata * gd, char * outfilename)
   
 
   /* xml header */
-   fprintf(outfile,"<?xml version=\"1.0\" standalone=\"no\"?>\n");
-   fprintf(outfile,"<!DOCTYPE DDA SYSTEM \"geometry.dtd\">\n");
-   fprintf(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~bdoolin/dda\">\n");
+   printer(outfile,"<?xml version=\"1.0\" standalone=\"no\"?>\n");
+   printer(outfile,"<!DOCTYPE DDA SYSTEM \"geometry.dtd\">\n");
+   printer(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~bdoolin/dda\">\n");
 
   /* FIXME:  This is a bogosity.  The parser code is broken
    * because it requires a comment before the <Geometry>
    * or <Analysis> tags.
    */
-   fprintf(outfile,"<!-- Bogus comment to keep ddaml tree-stripping\n");
-   fprintf(outfile,"from seg faulting on bad child node. -->\n\n");
-   fprintf(outfile,"<Geometry>\n");
-   fprintf(outfile,I1"<Edgenodedist distance=\"%f\"/>\n",gd->e00);
+   printer(outfile,"<!-- Bogus comment to keep ddaml tree-stripping\n");
+   printer(outfile,"from seg faulting on bad child node. -->\n\n");
+   printer(outfile,"<Geometry>\n");
+   printer(outfile,I1"<Edgenodedist distance=\"%f\"/>\n",gd->e00);
 
-   emitJoints(gd, outfile);
-   emitPoints(gd, outfile);
-   if (gd->nBolts > 0)
-      emitBolts(gd, outfile);
+   emitJoints(gd, printer, outfile);
+   emitPoints(gd, printer, outfile);
+
+   if (gd->nBolts > 0) 
+      emitBolts(gd, printer, outfile);
    if (gd->nMatLines > 0)
-      emitMatlines(gd, outfile);
+      emitMatlines(gd, printer, outfile);
 
 
-   fprintf(outfile,"</Geometry>\n");
-   fprintf(outfile,"</Berkeley:DDA>\n");
+   printer(outfile,"</Geometry>\n");
+   printer(outfile,"</Berkeley:DDA>\n");
 
    fclose(outfile);
 
@@ -382,13 +383,18 @@ gdata_delete(Geometrydata * gd) {
 
 
    /** @todo Change these */
-   if (gd->nBolts > 0)
-   {
+   if (gd->nBolts > 0) {
+
       free2DMat((void **)gd->rockbolts, gd->rockboltsize1);
       free2DMat((void **)gd->origbolts, gd->rockboltsize1);
    }
 
-
+// Wasn't freeing the moments...
+/*
+   if (gd->moments) {
+      free2DMat((void **)gd->moments, gd->momentsize1);
+   }
+*/
 
    if (gd->porepres)
       free2DMat((void **)gd->porepres, gd->porepressize1);
@@ -724,7 +730,7 @@ gdata_new(void) {
    gdo = (Geometrydata *)calloc(1,sizeof(Geometrydata));
 
    gdo->deleteblock = deleteBlock;
-   gdo->dumptofile = dumpDDAMLGeometryFile;
+   gdo->dumptofile = gdata_write_ddaml;
    gdo->computeBBox = computeBoundingBox;
 
    return gdo;
@@ -743,6 +749,11 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
 
    int i;
    double f1,x2,x3,y2,y3;
+
+
+   for (i=1; i<=8; i++) {
+      moments[i] = 0;
+   }    
 
    for (i=vindex[1]; i<=vindex[2]; i++) {
 
@@ -782,7 +793,7 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
  * that takes a block number.
  */
 double 
-computeMoments(Geometrydata * gd) {
+gdata_compute_moments(Geometrydata * gd) {
 
   /* FIXME: Need this to track the block 
    * centroids.
@@ -802,6 +813,13 @@ computeMoments(Geometrydata * gd) {
 
    for (block=1; block<=nBlocks; block++) {
 
+
+     /**  @todo replace the following inner loops with a function call
+      * which is much easier to test.
+      */     
+      //moments_compute(moments[block], vertices, vindex[block]);
+
+
      /* This loop to zero the moments matrix may or may not be 
       * necessary.  Leave it in for now, as it is not the 
       * problem affecting the areas.  This could also be moved
@@ -812,13 +830,6 @@ computeMoments(Geometrydata * gd) {
          moments[block][j] = 0;
       }       
       
-
-
-     /**  @todo replace the following inner loop with a function call
-      * which is much easier to test.
-      */     
-      //moments_compute(moments[block], vertices, vindex[block]) {
-
       for (vertex=vindex[block][1]; vertex<=vindex[block][2]; vertex++) {
 
          x2 = vertices[vertex][1];
@@ -861,7 +872,16 @@ computeMoments(Geometrydata * gd) {
 }  
 
 
+void 
+gdata_get_centroid(double * moments, double * x0, double * y0) {
 
+  *x0 = moments[7];   
+  *y0 = moments[8];
+}
+
+
+
+#if 0
 void 
 gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
 
@@ -878,6 +898,7 @@ gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
    centroid[1] = y0;
 
 }
+#endif
 
 
 double
@@ -886,7 +907,7 @@ gdata_get_block_area(Geometrydata * gd, int block) {
    double ** moments = gd->moments;
 
   /* Need a function that will just compute moments for a single block. */
-   computeMoments(gd);
+   gdata_compute_moments(gd);
 
    return moments[block][1]; 
 

@@ -5,9 +5,9 @@
  * from a set of lines (fracture traces).
  * 
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2002/10/25 01:53:38 $
  * $Source: /cvsroot/dda/ntdda/src/geomdriver.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 #include <stdio.h>
@@ -165,6 +165,8 @@ ddacut(Geometrydata *geomdata) {
    * as an option.
    */
    returnGeom = geometryToReturn(geomdata, vindexdc, verticesdc);
+
+   gdata_compute_moments(returnGeom);
 
   /* A better idea would be to free geomdata here.  It is 
    * simple struct.  
