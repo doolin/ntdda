@@ -14,6 +14,7 @@
 #include "gravity.h"
 #include "timehistory.h"
 #include "options.h"
+#include "loadpoint.h"
 
 
 #ifdef __cplusplus
@@ -27,15 +28,7 @@ typedef struct _analysisdata_tag Analysisdata;
 typedef struct _thresholds_tag Thresholds;
 
 
-/* Kludge kludge kludge kludge kludge 
- * This is for separating load points
- * from fixed points.
- */
-typedef struct _loadpoint {
-   int loadpointsize1;
-   int loadpointsize2;  /* = 3 */
-   double ** vals;
-}LOADPOINT;
+
 
 /* Various parameters used during an analysis.
  * All of these appear to be constants set at the 
@@ -58,6 +51,7 @@ double shear_norm_ratio;  /* h2 */
  */
 double min_refline_factor;  
 } CONSTANTS;
+
 
 struct _thresholds_tag {
    double spring;
@@ -157,7 +151,7 @@ struct _analysisdata_tag {
   /* Throw stuff against the wall, see what sticks. 
    * This will have size nLPoints 
    */
-   LOADPOINT * loadpoints;
+   Loadpoint * loadpoints;
   /* The time history stuff has to play with the LoadPoints
    * for the time being.
    */
@@ -451,17 +445,8 @@ struct _analysisdata_tag {
 };
 
 
-
-
-
-
-/* FIXME: Loadpoints need to go into their own module. */
-void freeLoadpoints(LOADPOINT *);
-
 void initStresses(Analysisdata * ad, GRAPHICS * g, int nBlocks);
 void freeStresses(GRAPHICS *);
-
-
 
 
 Analysisdata * adata_new                 (void);

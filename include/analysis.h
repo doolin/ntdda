@@ -6,13 +6,12 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:55 $
+ * $Date: 2002/06/07 15:09:42 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 #include "dda.h"
-#include "datalog.h"
 #include "contacts.h"
 
 
@@ -121,14 +120,11 @@ void setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int *
 void df06(Geometrydata *, Analysisdata *, int **, int **, int **, int **, double **,
             int *, int *, int *);
 
-//void df08(Geometrydata *, Analysisdata *, int **, int **, int *, int *, int *, int *,
-//            int **);
 void sparsestorage(Geometrydata *, Analysisdata *, Contacts *, 
                    /* int **, int ** contactindex,*/ int *, int *, 
                    int *, int **);
 
 void df18(Geometrydata *, Analysisdata *, Contacts *, 
-          /*int ** contacts, int ** locks, int ** prevcontacts, */ 
           /*double **,*/ int *, int *, double **, /* double ** moments, */ int **);
 
 
@@ -144,16 +140,13 @@ void initCGTemp(Geometrydata * gd);
 
 
 void df22(Geometrydata *, Analysisdata *, Contacts *, 
-          /*int ** contacts, int ** locks, int ** prevcontacts,*/
             /*double **,*/ int * /*, double ** moments */);
-//void df22from78(Geometrydata *, Analysisdata *, Contacts *, /*int **,*/ int **, int **,
-//            double **, int *, double **);
 
 
 
 void df24(Geometrydata *, Analysisdata *, 
-          /*Contacts *, int ** contacts, int ** locks,*/ 
           int * /*,double ** moments */);
+
 void df25(Geometrydata *, Analysisdata *, int *, 
             double **, /* double ** moments,*/ double **);
 
@@ -176,7 +169,6 @@ void computeDisplacement(double **, double [7][7], double, double, int);
 
 void findContacts(Geometrydata * GData, Analysisdata * AData, 
                   Contacts * Ctacts,
-            /* int ** contacts, int ** locks, int ** prevcontacts,*/
             /*double ** contactlength,*/ /*int ** m1,*/ int * kk, int * k1,
             int ** n, double ** c0);
 
@@ -197,14 +189,7 @@ void postProcess(Geometrydata * GData, Analysisdata * AData);
 
 /*  Functions for handling sparse storage */
 void initdf08(int ** n,int * kk,int nBlocks);
-void regUpperTriangle(int ** n, int * k, int * nn0, int ** m, 
-            int ** m1, int nBlocks, int numbolts, double ** bolts);
-void regLowerTriangle(int ** n, int * kk, int nBlocks);
-void findMinimumConnections(int ** n, int * kk, int * k1, int * k2, 
-            int * k4, int nBlocks);
-void changetoNewBlockNumber(int ** n, int * kk, int * k1, int nBlocks);
-void changetoLowerTriangle(int **n, int * kk, int * k33, int * k4, int nBlocks);
-void reorderK(int ** n, int * kk, int nBlocks);
+
 
 /* This should eventually go into a solver header file */
 int checkDiagDominance(double ** K, int ** colindex, int numblocks);
@@ -213,10 +198,7 @@ int checkDiagDominance(double ** K, int ** colindex, int numblocks);
 
 Geometrydata * readBlocks(FILEPATHS *);
 
-void deallocateAnalysisArrays(/*int ** contacts,int **,*/ 
-                              /*int **, int ** contactindex,*/ 
-                              /*double ** clength,*/ int *, int *, double **, 
-             double **, /* double ** moments,*/ double**, int ** n);
+void deallocateAnalysisArrays(int *, int *, double **, double **, double**, int ** n);
 
 void vertexInit(Geometrydata *);
 
@@ -246,13 +228,6 @@ double getBlockMass(Geometrydata *, double ** moments, double ** e0, int blocknu
 double computeSpringStiffness(Geometrydata *, Analysisdata *, int **, double **);
       
 int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *);  
-
-
-/******************** Gravity stuff *************************/
-//void checkGravityConvergence(HWND hwMain, Geometrydata * Gdata, Analysisdata * AData);
-//void checkGravityConvergence(Geometrydata * Gdata, Analysisdata * AData);
-//int computeGravityForce(Geometrydata *, Analysisdata *);
-
 
 
 void  openAnalysisFiles(FILEPATHS *);
@@ -288,25 +263,14 @@ void allocateK(Analysisdata *);
 
 CONSTANTS * cloneConstants(CONSTANTS *);
 
-/* These functions will probably have to be moved up to 
- * dda.h.
- */
-LOADPOINT * cloneLoadPoints(Analysisdata *);
 
-/* The original analysis reader depended on counts 
- * read in from the block file.  So we have to keep 
- * geometrydata struct here.
- */
-//Analysisdata * analysisInput(char *, Geometrydata *);
 
-void           analysisReader1 (Analysisdata *,
+
+void           analysisReader  (Analysisdata *,
                                 char *, 
                                 int numfixedpoints,
                                 int pointcount,
                                 int numloadpoints);
-
-
-//Analysisdata * analysisReader2(char *, int pointcount);
 
 
 

@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.20  2002/06/07 15:09:42  doolin
+ * Moved loadpoints into a module, started unit
+ * tests for loadpoints.
+ *
  * Revision 1.19  2002/05/27 15:23:56  doolin
  * * More general hardening of user space.
  *
@@ -118,7 +122,6 @@ Datalog * DLog;
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
  */
 int	
-//ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
 ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
    Geometrydata * GData = dda_get_geometrydata(dda);
@@ -191,21 +194,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    int **n;
 
    doublesize = sizeof(double);
-
-   //AData = analysisInput(filepath->afile, GData);   
-   //if (AData == NULL) {
-   //   return 0;
-   //}
-
-  /* FIXME: handle the AData memory in the invoking 
-   * function, so that this doesn't have to be dealt
-   * with as an extern.
-   */
-   //AData->display_error = dda_display_error;
-   //AData->display_warning = dda_display_warning;
-   
-   //dda_set_analysisdata(dda,AData);
-
 
 
 /* The invoking program, whether windows or not, is going to 
@@ -322,7 +310,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       * and the same time step number, but for a different time
       * difference between the current and last time value.
       */
-      do //newtimestep:  /* the label formerly known as a001: */
+      do 
       {
 
          start = clock();

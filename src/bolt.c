@@ -19,10 +19,12 @@ extern "C" {
 
 struct _bolt {
 
+   int type;
    double x1,y1,x2,y2;
    double strength;
    double pretension;
 };
+
 
 struct _boltlist {
    DList * list;
@@ -88,6 +90,18 @@ bolt_print(Bolt * b, PrintFunc printer, void * stream) {
   printer(stream,"Bolt printing not yet implemented.\n");
 }
 
+int
+bolt_get_type(Bolt * b) {
+   
+   return b->type;
+}
+
+void 
+bolt_set_type(Bolt * b, int type) {
+
+   b->type = type;
+}
+
 void 
 bolt_get_endpoints(Bolt * b,double * x1, double * y1,
                    double *x2,double * y2) {
@@ -147,10 +161,10 @@ boltlist_get_array(Boltlist * boltlist, double ** array) {
       btmp = ptr->val;
 
       bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
-      array[i+1][1] = x1;
-      array[i+1][2] = y1; 
-      array[i+1][3] = x2;
-      array[i+1][4] = y2;
+      array[i][1] = x1;
+      array[i][2] = y1; 
+      array[i][3] = x2;
+      array[i][4] = y2;
       //array[i+1][5] = btmp->type;
       i++;
    }

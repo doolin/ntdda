@@ -562,8 +562,7 @@ adata_delete(Analysisdata * ad) {
       destroyGravity(ad->gravity);
    free(ad->springstiffness);
    free(ad->avgArea);
-   if (ad->loadpoints)
-      freeLoadpoints(ad->loadpoints);
+   loadpoint_delete(ad->loadpoints);
    if(ad->constants)
       free(ad->constants);
    if (ad->initialconstants)
@@ -605,21 +604,12 @@ adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
           */
        case original:
        default:          
-          analysisReader1(ad, infilename, numfixedpoints,pointcount,numloadpoints);  
+          analysisReader(ad, infilename, numfixedpoints,pointcount,numloadpoints);  
           ad->display_warning("Obsolete geometry file detected");
           break;
    }
 }  
 
-
-
-void 
-freeLoadpoints(LOADPOINT * lp) {
-
-   if (lp->vals)
-      free2DMat((void**)lp->vals,lp->loadpointsize1);
-   free(lp);
-}  /* close freeLoadPoints() */
 
 
 
@@ -738,7 +728,7 @@ adata_new() {
 /*****  Options ***********/
   /* These need to be options put into the DDAML DTD */
   /* These options moved in here from compilecontrol.c */
-   //AData->seismicflag = 0; //FALSE;
+   //ado->seismicflag = 0; //FALSE;
    ado->solvetype = lu;
   /* Not really implemented yet...  Next step is to set the
    * initialize the lagrange variables before the open-close

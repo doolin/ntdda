@@ -10,9 +10,10 @@
 CFLAGS = -g -Wall -DSTANDALONE
 
 OBJECTS =  bolttest   \
-           matmultest
+           matmulttest \
+	   loadpointtest
 
-all: matmulttest #contacttest
+all: $(OBJECTS)
 
 
 
@@ -20,6 +21,10 @@ all: matmulttest #contacttest
 bolttest: bolttest.c 
 	gcc $(CFLAGS)  -o bolttest bolttest.c ../bolt.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
 
+
+
+loadpointtest: loadpointtest.c 
+	gcc $(CFLAGS)  -o loadpointtest loadpointtest.c ../loadpoint.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
 
 
 matmulttest:

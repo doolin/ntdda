@@ -20,7 +20,7 @@ typedef enum _boolean { false = 0, true = 1 } boolean;
 /*  These things are really ugly.  Should try and
  * write some sort of logging code like glog.
  */
-DATALOG * DLog = NULL;
+Datalog * DLog = NULL;
 FILEPOINTERS * fp = NULL;
 
 

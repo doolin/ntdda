@@ -410,8 +410,9 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) {
 
 
 int 
-drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata, GRAPHICS * g, double ** b) 
-{
+drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata, 
+          GRAPHICS * g, double ** b) {
+
    int i;
    POINT p1, p2;
 
@@ -422,9 +423,11 @@ drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata, GRAPHICS * g, double *
    double scale = g->scale;
    POINT offset = g->offset;
 
+   //MessageBox(NULL,NULL,NULL,MB_OK);
 
-   for (i = 0; i< numbolts; i++) 
-   {
+
+   for (i = 0; i< numbolts; i++) {
+
      /* Code for changing colors given different 
       * bolt types can be implemented following 
       * similar code in the drawBlocks function.

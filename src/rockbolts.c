@@ -5,9 +5,9 @@
  * by GHS, p.42, 1988.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:41 $
+ * $Date: 2002/06/07 15:09:43 $
  * $Source: /cvsroot/dda/ntdda/src/Attic/rockbolts.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
@@ -54,23 +54,28 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
    double T[7][7];
 
   /* Main loop for constructing matrices. */
-   for (bolt=0; bolt<gd->nBolts; bolt++)
-   { 
+   for (bolt=0; bolt<gd->nBolts; bolt++) {
+    
      /* get x, y coordinates of each endpoints of 
-      * the rockbolt */
+      * the rockbolt 
+      */
       x1 = rockbolt[bolt][1];
       y1 = rockbolt[bolt][2];
       x2 = rockbolt[bolt][3];
       y2 = rockbolt[bolt][4];
       boltlength = sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+      assert(boltlength > 0);
      /* Direction cosines.  Check to make sure these are
       * the correct formulas
       */
       lx = (x1-x2)/boltlength;
       ly = (y1-y2)/boltlength;
-     /* checking the obvious... */
-      assert ( -1 <= lx && lx <= 1);
-      assert ( -1 <= ly && ly <= 1);
+     /* checking the obvious... doesn't seem to work.
+      * FIXME: Write a unit test for these asserts to see
+      * why they didn't fire on a 0 bolt length.
+      */
+      assert ( (-1 <= lx) && (lx <= 1));
+      assert ( (-1 <= ly) && (ly <= 1));
 
      /* rockbolt[i][10:14] is
       * initialized as `rockbolts' in geomreader2, and 
@@ -82,11 +87,11 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
       dy2 = rockbolt[bolt][13];
  
      /* Compute the differential length, from 
-      * Yeung, p.40.  
+      * Yeung  1992, p.40.  
       */
       dl = ( (x1-x2)*(dx1-dx2) + (y1-y2)*(dy1-dy2) );
 
-      s = rockbolt[bolt][8]/boltlength;  /* stiffness */
+      s = rockbolt[bolt][8];///boltlength;  /* stiffness */
      /* FIXME: Non-zero pt produces very strange and 
       * unusual behavior.
       */
@@ -114,7 +119,7 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
       ep2 = (int)rockbolt[bolt][6];
       computeDisplacement(blockArea, T, x,  y, ep2);
      /* Do the inner product to construct Gj:
-      * $G_j = [T_j]^T\cdot \ell. 
+      * $G_j = [T_j]^T\cdot \ell$. 
       */
       for (j=1; j<=6; j++)
       {
@@ -211,7 +216,7 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
          
      }  /* close loops for Kij/Kji */
 
-#if KJHLKJHLKJHLK
+#if 0
      /* FIXME: non-zero pt produces strange and
       * unusual behavior.  This needs to be examined
       * very closely.

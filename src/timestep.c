@@ -4,10 +4,12 @@
 
 
 
-#include"analysis.h"
-#include<math.h>
-#include<assert.h>
+#include <math.h>
+#include <assert.h>
+
+#include "analysis.h"
 #include "ddamemory.h"
+#include "datalog.h"
 
 extern FILEPOINTERS fp;
 extern Datalog * DLog;

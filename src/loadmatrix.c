@@ -3,11 +3,13 @@
  *  Add some comments here!
  */
 
-#include"analysis.h"
-#include<math.h>
-#include<assert.h>
-#include"ddamemory.h"
+#include <math.h>
+#include <assert.h>
+
+#include "analysis.h"
+#include "ddamemory.h"
 #include "ddadlist.h"
+#include "datalog.h"
 
 
 extern Datalog * DLog;
@@ -91,8 +93,8 @@ assemble(Geometrydata * GData, Analysisdata * AData,
      /* submatrix of volume force */
 	   df16(GData,k1,f,matprops,moments);
        
-      if (GData->nBolts > 0)
-      {
+      if (GData->nBolts > 0) {
+
          rockbolts(GData, AData, k1, kk, n, moments,f);
       }
 

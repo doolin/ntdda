@@ -8,14 +8,16 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/06 13:41:55 $
+ * $Date: 2002/06/07 15:09:42 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  */
 
 /**
- * @todo comment handling is fubared, needs to be fixed
- * soon.
+ * @todo sc1 can be opened to a line number in a file
+ * using the syntax "sc1 filename -goto:linenum". 
+ * Implement this using the line number information 
+ * returned from the xml parser on an error.
  */
 
 /* FIXME: Point handling.  If there are no fixed points, the  
@@ -114,11 +116,6 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    ddaml_display_warning = gd->display_warning;
    ddaml_display_error   = gd->display_error;
 
-#if 0
-   ddaml_display_warning("Test warning");
-   ddaml_display_error("Test error");
-#endif
-
    xmlDoValidityCheckingDefaultValue = 1;
 
   /*
@@ -139,41 +136,21 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    cur = doc->root;
    ns = nspace;
 
-  /*
-   * Now, walk the tree.  All the following code will
-   * be replaced with keyscanning.  Initially, do not
-   * check for keyscanning failure.  Let the dtd validator
-   * handle that.  Later, a few simple checks can be added,
-   * just to handle exceptional cases.
-   */
   /* Here, we not only do not want the parent, we want to 
    * bypass the top level node, in this case `DDA',
    * completely to start with the first element in the 
    * geometry part of the document.
    */
-   //cur = cur->childs->next;
-
-  /** @warning There is a serious problem with comment parsing in the
-   * geometry file, which I am going to try and fix below.
-   */
    cur = cur->childs;
 
    while (cur != NULL) {
-         if ( !strcmp( cur->name, "Geometry") )  {
-            cur = cur->childs;
-            parseGeometry(gd,doc, ns, cur); 
-            break;
-         }
-	     cur = cur->next;
+      if ( !strcmp( cur->name, "Geometry") ) {
+         cur = cur->childs;
+         parseGeometry(gd,doc, ns, cur); 
+         break;
+      }
+	   cur = cur->next;
    }
-   
-
-  /* Write it out and see if we can load it... */
-   //dumpGeometrydata(gdata, outtestfile);
-   //fclose(outtestfile);
-  /* Now clean everything up. */
-   //freeDlistsAndStuff();
-
 }  
 
 
@@ -650,8 +627,8 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
  * they are not deallocated, which needs to be fixed.
  */ 
 static void 
-parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
+
    Bolt * bolt;
   /* Make the compiler link the floating point libraries. */
    double temp[4] = {0.0};
@@ -665,8 +642,8 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /* Don't care about parent */
    cur = cur->childs;
 
-   while (cur != NULL)
-   {
+   while (cur != NULL) {
+
       if ((!strcmp(cur->name, "Bolt")) )//&& (cur->ns == ns))
       {
 
@@ -680,19 +657,11 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          else 
          {
             fprintf(stdout,"%s\n", tempstring);
-            checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],
-                              &temp[2], &temp[3]); 
+            checkval = sscanf(tempstring,"%lf%lf%lf%lf",
+                              &temp[0],&temp[1],&temp[2], &temp[3]); 
             if (checkval == 4)
             { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1],temp[2],temp[3]);  
-               /*
-               bolt->epx1 = temp[0];
-               bolt->epy1 = temp[1];
-               bolt->epx2 = temp[2];
-               bolt->epy2 = temp[3];
-               */
                bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
-               //dl_insert_b(boltlist,bolt);
                boltlist_append(boltlist,bolt);
                gdata->nBolts++;
             }
@@ -894,15 +863,13 @@ getNewPoint(void)
 }  /*  close getNewPoint() */
 
 DDALine *
-getNewLine(void)
-{
+getNewLine(void) {
+
    DDALine * l;
-   //fprintf(stdout,"Getting new line\n");
    l = (DDALine *)calloc(1,sizeof(DDALine));
    memset((void *)l,0xDA,sizeof(DDALine));
    return l;
-
-}  /*  close getNewLine() */
+}
 
 
 
@@ -1200,14 +1167,12 @@ static void
 parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    int i = 0;
-   //FILE * outtestfile;
 
    if (cur == NULL) {
-      ddaml_display_warning("Problem parsing ddaml file.");
+      ddaml_display_error("Problem parsing ddaml file.");
       exit(0);
    }
 
-   //outtestfile = fopen("testgeomxml.geo","w");
 
   /* Easiest to parse into a list, then count 
    * and grab array memory, then copy data into 
@@ -1217,37 +1182,15 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    */
    initializeGLists(); 
 
-  /*
-   * allocate the struct
-   */
-   //gdata = (Geometrydata *) malloc(sizeof(Geometrydata));
-
-   //gdata = initGeometrydata();
-   //gdata = gdata_new();
-
   /** This is global and not thread safe. */
    gdata = gd;
 
 
-   if (gdata == NULL) 
-   {
-      fprintf(stderr,"out of memory\n");
-     	return;//(NULL);
-   }
-   
-   //memset(gdata, 0, sizeof(Geometrydata));
+   while (cur != NULL) {
 
-  /* FIXME: This is bogus.  It is only in here because 
-   * of a single comment in front of the the <Geometry>
-   * and <Analysis> tags in the input files.
-   */
-   //cur = cur->childs;
-
-   while (cur != NULL) 
-   {
       i = 0;
-      while (gtab_type[i].kwd)
-      {
+      while (gtab_type[i].kwd) {
+
          if ( ( !strcmp(gtab_type[i].kwd,cur->name) ) )//&&  (cur->ns == ns)  ) 
          {
             fprintf(stderr,"Keyscan loop: Current name %s:\n", cur->name);
@@ -1267,43 +1210,33 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
                default:;
                break;
-            }  /* end switch on node type */
-           /* Should probably have a continue or break in here */
+            }  
             break;
-         }  /* end if strcmp */
+         }  
          i++;
       }   //close key scan loop 
 
-	     cur = cur->next;
-   }  /* end while cur != NULL  */
+	   cur = cur->next;
+   }
    
-  /* Somewhere here there has to be a function for transferring
-   * data from the dlists to the arrays.  Might find something
-   * in the draw dialog box that does this.
-   */
+  /** Transfer list format to array format. */
    transferGData();
-  /* Write it out and see if we can load it... */
-   //dumpGeometrydata(gdata, outtestfile);
-   //fclose(outtestfile);
-  /* Now clean everything up. */
-   //freeDlistsAndStuff();
-
 }  
 
 
 #ifdef STANDALONE
 int 
-main(int argc, char **argv) 
-{
+main(int argc, char **argv) {
+
    int i;
    fprintf(stderr,"Parsing geometry data from geometry main\n");
 
-   for (i = 1; i < argc ; i++) 
-   {
+   for (i = 1; i < argc ; i++)  {
+
 	     gdata = XMLparseDDA_Geometry_File(argv[i]);
    }
 
    return(0);
-}  /* close main() */
+} 
 
 #endif /* STANDALONE */

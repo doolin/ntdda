@@ -36,7 +36,7 @@ Bolt *     bolt_new            (void);
 Bolt *     bolt_new_1          (double x1,
                                 double y1,
                                 double x2,
-				double y2);
+				                    double y2);
 
 /**
  * This is primarily used for unit testing to ensure that 
@@ -50,6 +50,14 @@ int        bolt_equals         (Bolt * b1,
 void       bolt_delete         (Bolt *);
 
 int        bolt_test           (void);
+
+/**
+ * @todo  Write the API documentation for this function.
+ */
+int        bolt_get_type       (Bolt *);
+
+void       bolt_set_type       (Bolt *,
+                                int type);
 
 void       bolt_set_endpoints  (Bolt * b, 
                                 double x1,

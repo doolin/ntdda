@@ -6,12 +6,14 @@
  *
  */
 #include <time.h>
-#include"analysis.h"
-#include"math.h"
-#include"ddamemory.h"
-#include<assert.h>
-#include<malloc.h>
+#include <math.h>
+#include <assert.h>
+#include <malloc.h>
+
+#include "analysis.h"
 #include "contacts.h"
+#include "ddamemory.h"
+#include "datalog.h"
 
 extern Datalog * DLog;
 

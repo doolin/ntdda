@@ -6,7 +6,6 @@
  */
 
 
-#include "analysis.h"
 #include <math.h>
 #include <time.h>
 #include <string.h>
@@ -14,19 +13,23 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "analysis.h"
 #include "ddamemory.h"
 #include "contacts.h"
+#include "datalog.h"
 
-
-/* FIXME: Move the sparse storage function prototypes 
- * into their own header file or declare them static
- * in ths file.  This gets them out of analysis.h and
- * speeds up recompiles among other things.
- */
-//#include "sparsestorage.h"
 
 extern Datalog * DLog;
 extern FILEPOINTERS fp;
+
+static void regUpperTriangle(int ** n, int * k, int * nn0, int ** m, 
+            int ** m1, int nBlocks, int numbolts, double ** bolts);
+static void regLowerTriangle(int ** n, int * kk, int nBlocks);
+static void findMinimumConnections(int ** n, int * kk, int * k1, int * k2, 
+            int * k4, int nBlocks);
+static void changetoNewBlockNumber(int ** n, int * kk, int * k1, int nBlocks);
+static void changetoLowerTriangle(int **n, int * kk, int * k33, int * k4, int nBlocks);
+static void reorderK(int ** n, int * kk, int nBlocks);
 
 /* These used to be globals, then they were passed around as
  * as parameters, now they are static local to this file,
@@ -111,7 +114,6 @@ freeStorageTempArrays(void)
  */
 void 
 sparsestorage(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts,
-             /*int **m, int **m1,*/ 
               int *kk, int *k1, int *nn0, int **n)
 {
 
@@ -324,7 +326,7 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
    * t0 is stiffness for now.  e00 is unknown.
    */
 #if ROCKBOLTSTORAGE
-   for (i=1; i<=numbolts; i++)
+   for (i=0; i<numbolts; i++)
    {
       i2 = (int)rockbolts[i][5];
       j2 = (int)rockbolts[i][6];
@@ -348,8 +350,9 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
    }  /* end register blocks in contact by bolts */
 #endif
 
-
 }  /* close regUpperTriangle() */
+
+
 
 /* Appears to construct Q0 matrix, p. 203 Shi 1988
  */

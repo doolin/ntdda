@@ -3,9 +3,9 @@
  * .ana files in original ghs format
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2002/06/07 15:09:42 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -13,19 +13,14 @@
 #include <stdlib.h>
 #include <assert.h>
 
+//#include "analysisdata.h"
 #include "analysis.h"
 #include "ddamemory.h"
 
-#define BUFSIZE 180
 
 
-
-/** 
- * @todo  The geometry data argument can probably be replaced 
- * by three ints.
- */
 void
-analysisReader1(Analysisdata * adn, char * af, int nfp, int pc, int nlp) {
+analysisReader(Analysisdata * adn, char * af, int nfp, int pc, int nlp) {
 
    FILE * analysisFile;
    int i, j, n7, n8;

@@ -4,9 +4,9 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/06/05 13:19:58 $
+ * $Date: 2002/06/07 15:09:44 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 #include <stdio.h>
@@ -56,7 +56,7 @@ static int autotimestep = 1;
 static int autopenalty = 1;
 static int numtdeps;
 /* The load points are an array of structs */
-static LOADPOINT * lpoints;
+static Loadpoint * lpoints;
 static Analysisdata * ad;
 
 /* Indicates the interval between saving time steps.
@@ -730,7 +730,7 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
    * handling code gets rewritten.
    */
    numtdeps = ad->nTDPoints; //ad->nLPoints;
-   lpoints = cloneLoadPoints(ad);
+   lpoints = loadpoint_clone(ad->loadpoints,ad->nLPoints);
 
 
     // hFile = OpenFile(afile, &of, OF_EXIST);

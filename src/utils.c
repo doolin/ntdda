@@ -6,20 +6,23 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:25 $
+ * $Date: 2002/06/07 15:09:43 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  */
 
 
-#include "analysis.h"
-#include "ddamemory.h"
 #include <math.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "analysis.h"
 #include "contacts.h"
+#include "ddamemory.h"
 #include "utils.h"
+#include "datalog.h"
+
 
 
 extern FILEPOINTERS fp;
@@ -800,29 +803,6 @@ initConstants(Analysisdata * ad)
 
 
 
-LOADPOINT * 
-cloneLoadPoints(Analysisdata * ad)
-{
-   int i,j,m,n;
-   LOADPOINT * lp;
-
-   lp = (LOADPOINT *) calloc(ad->nLPoints,sizeof(LOADPOINT));
-
-   for (i=0;i<ad->nLPoints;i++)
-   {
-      lp[i].loadpointsize1 = n = ad->loadpoints[i].loadpointsize1;
-      lp[i].loadpointsize2 = m = ad->loadpoints[i].loadpointsize2;  
-      lp[i].vals = DoubMat2DGetMem(n,m);
-      for (j=0;j<n;j++)
-      {
-         lp[i].vals[j][0] = ad->loadpoints[i].vals[j][0];
-         lp[i].vals[j][1] = ad->loadpoints[i].vals[j][1];
-         lp[i].vals[j][2] = ad->loadpoints[i].vals[j][2];
-      }
-   }
-
-   return lp;
-}  /* close  CloneLoadPoints() */
 
 
 

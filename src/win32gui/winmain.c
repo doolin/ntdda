@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:57 $
+ * $Date: 2002/06/07 15:09:44 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.18 $
+ * $Revision: 1.19 $
  */
 
 
@@ -59,7 +59,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.18 2002/05/27 15:23:57 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.19 2002/06/07 15:09:44 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -322,6 +322,7 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
    DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
+         MessageBox(NULL,"foo","bar",MB_OK);
 
    xnew = dda_get_xcur(dda);
    ynew = dda_get_ycur(dda);
@@ -347,7 +348,7 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
        break;
 
       case VK_F1:
-         MessageBox(NULL,NULL,NULL,MB_OK);
+         MessageBox(NULL,"foo","bar",MB_OK);
          break;
 
          default:

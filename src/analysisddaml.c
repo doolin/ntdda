@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/06 13:41:55 $
+ * $Date: 2002/06/07 15:09:42 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  */
 
 #include <stdio.h>
@@ -55,7 +55,6 @@ static Jointmat * getNewJointMat(void);
 
 static BlockMat * getNewBlockMat(void);
 static BoltMat * getNewBoltMat(void);
-static LOADPOINT * getNewLoadpoint(void);
 
 void transferAData(void);
 void transferJointMatlistToAStruct(Analysisdata * adata, JOINTMATLIST * jointmatlist);
@@ -221,7 +220,7 @@ transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
    int s1,s2;
    double ** lp;
    
-   LOADPOINT * lptmp;
+   Loadpoint * lptmp;
    LOADPOINTLIST * ptr;
   
    ad->nLPoints = dlist_length(loadpointlist);
@@ -229,7 +228,9 @@ transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
    if (ad->nLPoints == 0)
       return;
 
-   ad->loadpoints = (LOADPOINT *) calloc (ad->nLPoints, sizeof (LOADPOINT));
+   //ad->loadpoints = (Loadpoint *) calloc (ad->nLPoints, sizeof (Loadpoint));
+   ad->loadpoints = loadpoint_new_array(ad->nLPoints);
+
   /* WARNING: This assumes that load points are listed in order 
    * of occurrence in xml file.  
    */
@@ -250,7 +251,7 @@ transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
 
 
 
-void 
+static void 
 transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
 {
 
@@ -866,7 +867,7 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    int i;
    int checkval;
    double temp[3] = {0.0};
-   LOADPOINT * loadpoint;
+   Loadpoint * loadpoint;
    char * timehiststring;
    char * recordstring;
 
@@ -878,7 +879,8 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
       if ((!strcmp(cur->name, "Loadpoint")) ) //&& (cur->ns == ns))
       {
-         loadpoint = getNewLoadpoint();
+         loadpoint = loadpoint_new();
+
         /* Get the size of this thing from the attribute value: */
         /* FIXME: Segfaults if no attribute specified.  Either output
          * from the xml parser must be examined, or the call needs to 
@@ -945,26 +947,19 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    boltmat = getNewBoltMat();
             
    tempstring = xmlNodeListGetString(doc, cur, 1);
-   checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
+   checkval = sscanf(tempstring,"%lf%lf%lf",
+                     &temp[0],&temp[1],&temp[2]);
    if (checkval == 3) {
       boltmat->e00 = temp[0];
       boltmat->t0 = temp[1];
       boltmat->f0 = temp[2];
    } else {  
-      ddaml_display_error("Wrong number of bolt property values");   }
+      ddaml_display_error("Wrong number of bolt property values");   
+   }
 
    dl_insert_b(boltmatlist,(void*)boltmat);
    return NULL;
 }  
-
-
-LOADPOINT *
-getNewLoadpoint(void) {
-   LOADPOINT * l;
-   l = (LOADPOINT *)calloc(1,sizeof(LOADPOINT));
-   return l;
-}  
-
 
 
 static double **
@@ -1062,22 +1057,6 @@ void
 parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    int i = 0;
-   //FILE * outtestfile;
-
-   //outtestfile = fopen("testemxml.ana","w");
-
-   fprintf (stderr,"From parseAnalysis...\n");
-  /*
-   * allocate the struct
-   */
-   //adata = adata_new(); //(Analysisdata *) malloc(sizeof(Analysisdata));
-
-   //if (adata == NULL) {
-   //   dda_display_error("out of memory for analysis data");
-   //  	return(NULL);
-   //}
-   
-   //memset(adata, 0, sizeof(Analysisdata));
 
   /* Easiest to parse into a list, then count 
    * and grab array memory, then copy data into 
@@ -1086,11 +1065,6 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    * be used in the main code.
    */
    initializeALists(); 
-
-   
-
-  /* We don't care what the top level element name is */
-   //cur = cur->childs;
 
    while (cur != NULL) 
    {
@@ -1125,25 +1099,10 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    }  /* end loop over current pointer */
 
-  /* Somewhere here there has to be a function for transferring
-   * data from the dlists to the arrays.  Might find something
-   * in the draw dialog box that does this.
-   */
+  /** Transfer data from list format to array format. */
    transferAData();
-  /* Pushing this into a separate function allows very clean
-   * and robust implementation.  What this function does is
-   * ensure that the data is "reasonable".  Example: negative
-   * time steps would at the very least trigger a warning, if not
-   * out right fail.
-   */
-   //rangecheckAnalysisdata(adata);
-  /* Write it out and see if we can load it... */
-   //dumpAnalysisData1(adata, outtestfile);
-   //fclose(outtestfile);
-  /* Now clean everything up. */
-   //freeDlistsAndStuff();
 
-  /* kludge this in here for the moment... 
+  /* @warning  Gravity kludge, needs to be fixed. 
    * A better way to do this would be to check to see
    * whether the gravity tag and attribute are seen
    * and set properly.
@@ -1151,14 +1110,9 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    if (adata->gravaccel == -1) {
       adata->gravaccel = 9.81;
    }
-
-   //return adata;
 }  
 
 
-
-//Analysisdata *
-//XMLparseDDA_Analysis_File(char *filename) {
 void
 ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
 
@@ -1170,7 +1124,7 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
 
    adata = ad;
 
-  /*
+  /**
    * build an XML tree from the file;
    */
    doc = xmlParseFile(filename);
@@ -1178,12 +1132,8 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    if(!checkAnalysisDoc(doc)) {
 
       dda_display_error("Bad DDAML document");
-      //return NULL;
+      exit(0);
    }
-
-  /* This is where we need an exception */
-   //if (adata == NULL)
-   //return NULL;
 
    cur = doc->root;
    ns = nspace;
@@ -1208,7 +1158,6 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
 	     cur = cur->next;
    }
 
-
    assert(ad != NULL);
 } 
 
@@ -1227,6 +1176,6 @@ main(int argc, char **argv)
    }
 
    return(0);
-}  /* close main() */
+}  
 
 #endif /* STANDALONE */

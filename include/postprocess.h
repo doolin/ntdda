@@ -7,6 +7,8 @@
 #define __POSTPROCESS_H__
 
 
+#include "datalog.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
