@@ -1,20 +1,13 @@
 
 
-#include "analysis.h"
 #include <string.h>
+
+#include "analysis.h"
+
 
 extern FILEPOINTERS fp;
 
 
-
-void 
-printConstants(CONSTANTS * c)
-{
-
-   fprintf(fp.logfile,"From printConstants():\n");
-   fflush(fp.logfile);
-
-} /* close printConstants() */
 
 
 
@@ -390,30 +383,6 @@ printContactIndex(int ** m1, char * location)
 
 } /* close printContacts() */
 
-void printParameters(Analysisdata * ad, char * location)
-{
-
-   CONSTANTS * c = ad->constants;
-
-   if(ad->cts == 1)
-   {
-         fprintf(fp.parfile,"# Analysis parameters\n");
-         fprintf(fp.parfile,"# openclose opencriteria    w0     norm_spring_pen"
-                            " norm_extern_dist norm_pen_dist angle_olap"
-                            " shear_norm_ratio\n");
-   }
-
-   fprintf(fp.parfile,"  %8.5f %10.5f %10.5f     %8.5f   %10.5f %10.5f %10.5f %10.5f\n",
-                       c->openclose/* s0 */, 
-                       c->opencriteria/* f0 */,
-                       c->w0/* related to the physical scale of the model. */,
-                       c->norm_spring_pen /* g3  */,
-                       c->norm_extern_dist /* d0 */,
-                       c->norm_pen_dist  /* d9  */,
-                       c->angle_olap  /*  h1  */,
-                       c->shear_norm_ratio /* h2 */);
-
-}  /* close printParameters() */
 
 void 
 printTimeDeps(double ** timedeps, int m, char * location)
@@ -744,36 +713,6 @@ printPreviousContacts(int ** prevcontacts, char * location)
    fprintf(fp.logfile, "End prevcontacts[][] output\n\n");
 }  /* close printM1() */
 
-#if 0
-void
-printLoadPointStruct (Analysisdata * ad, FILE * bfp)
-{
-   double **lpoints;
-   int i, j, n;
-   FILE * ofp;
-
-   ofp = fopen("loadpoint.log","w");
-
-   fprintf (ofp, "\nLoad point verify\n");
-
-   for (i = 0; i < ad->nLPoints; i++)
-   {
-     	n = ad->loadpoints[i].loadpointsize1;
-     	fprintf (ofp, "loadpointsize1: %d\n", n);
-     	lpoints = ad->loadpoints[i].vals;
-
-     	for (j = 0; j < n; j++)
-   	  {
-	        fprintf (ofp, "%.4f  %.4f  %.4f\n", lpoints[j][0],
-		          lpoints[j][1], lpoints[j][2]);
-	     }
-   }
-
-   fprintf (ofp, "End load point verify\n\n");
-   fclose(ofp);
-
-}				/* close printLoadPointStruct() */
-#endif
 
 
 void 

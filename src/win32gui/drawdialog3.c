@@ -652,8 +652,8 @@ handleInit(HWND hDlg, WPARAM wParam, LPARAM lParam)
 */
 /*  End test code for dialog param passing */
 
-   jointlist = make_dl();
-   pointlist = make_dl();
+   jointlist = dlist_new();
+   pointlist = dlist_new();
    //boltlist = make_dl();
    boltlist = boltlist_new();
 

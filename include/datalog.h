@@ -4,6 +4,14 @@
 
 #include <time.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
 /* Track energy consumption per time step.  Later,
  * each block can grab one of these structs for itself.
  */
@@ -137,13 +145,15 @@ typedef struct datalog_tag {
 } Datalog;
 
 
-void       datalog_delete (Datalog *);
 
-/** 
- * FIXME: Datalog should have no dependence on 
- * either geometry or analysis data structures.
- */
-Datalog * datalog_new     (int numtimesteps, int numjointmats, int numblocks);
+Datalog *  datalog_new     (int numtimesteps, 
+                            int numjointmats, 
+                            int numblocks);
+void       datalog_delete  (Datalog *);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DATALOG_H__ */

@@ -14,6 +14,7 @@
 #include "timehistory.h"
 #include "options.h"
 #include "loadpoint.h"
+#include "constants.h"
 
 
 #ifdef __cplusplus
@@ -23,35 +24,17 @@ extern "C" {
 }
 #endif
 
+
+
 typedef struct _analysisdata_tag Analysisdata;
-typedef struct _thresholds_tag Thresholds;
+//typedef struct _thresholds_tag Thresholds;
 
 
 
 
-/* Various parameters used during an analysis.
- * All of these appear to be constants set at the 
- * beginning of an analysis, and not changed during
- * runtime.
+/** @todo Add some comments to this or delete it.
  */
-typedef struct _constants_tag {
-double openclose;    /*  s0  */
-double opencriteria; /*  f0  */
-double norm_spring_pen; /* g3  */
-//#if 0
-double w0;  /* related to the physical scale of the model. */
-double norm_extern_dist; /* d0 */
-double norm_pen_dist;    /* d9  */
-//#endif
-double angle_olap;      /*  h1  */
-double shear_norm_ratio;  /* h2 */
-/* new, used in contact determination to 
- * prevent division by 0 (in proj()) 
- */
-double min_refline_factor;  
-} CONSTANTS;
-
-
+#if 0
 struct _thresholds_tag {
    double spring;
    double angle;
@@ -60,6 +43,7 @@ struct _thresholds_tag {
    double strainenergy;
    double kineticenergy;
 };
+#endif
 
 
 /* Holds data for a particular instance of an 
@@ -406,8 +390,8 @@ struct _analysisdata_tag {
    * analysis, and if so, record them in an array for 
    * later examination.
    */
-   CONSTANTS * constants;
-   CONSTANTS * initialconstants;
+   Constants * constants;
+   Constants * initialconstants;
 
   /* Letting an analysis run unattended may produce 
    * amazingly bad results.  Previously, "bad" values 
@@ -417,7 +401,7 @@ struct _analysisdata_tag {
    * analysis to shut down "nicely" if bad things such as
    * negative block area or angles out of range occur.
    */
-   Thresholds * threshold;
+   //Thresholds * threshold;
 
 
   /* Private functions accessed through function pointers. */
@@ -464,15 +448,15 @@ void           adata_set_output_flag     (Analysisdata *,
 void           adata_clear_output_flag   (Analysisdata *, 
                                           int flag);
 
+double         adata_get_contact_damping (Analysisdata *);
 void           adata_set_contact_damping (Analysisdata *, 
                                           double);
 
-double         adata_get_contact_damping (Analysisdata *);
 
+double         adata_get_grav_accel      (Analysisdata *);
 void           adata_set_grav_accel      (Analysisdata *, 
                                           double grav);
 
-double         adata_get_grav_accel      (Analysisdata *);
 
 
 /**

@@ -13,6 +13,7 @@
 #include "ddamemory.h"
 #include "gravity.h"
 #include "ddaml.h"
+#include "constants.h"
 
 
 //extern InterFace * iface;
@@ -23,7 +24,7 @@
 
 /** FIXME: Get rid of these prototypes. */
 static void dumpDDAMLAnalysisFile(Analysisdata *, FILE * outfilestream);
-static void emitAConstants(CONSTANTS *, FILE *);
+
 static void emitBlockMaterials(Analysisdata *, FILE *);
 static void emitJointMaterials(Analysisdata *, FILE *);
 
@@ -88,6 +89,7 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
       strcpy(attribute,"static");
    else 
       strcpy(attribute,"dynamic");
+
    fprintf(outfile,"<Analysis type=\"%s\">\n\n",attribute);
    fprintf(outfile,I1"<Analysistype type=\"%s\"/>\n",attribute);
 
@@ -113,6 +115,7 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
       strcpy(attribute,"no");
    else 
       strcpy(attribute,"yes");
+
    fprintf(outfile,I1"<Gravity flag=\"%s\">\n",attribute);
    fprintf(outfile,I1"Gravity parameters are currently hardwired.\n");
    fprintf(outfile,I1"</Gravity>\n\n");
@@ -147,9 +150,12 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
    fprintf(outfile,I1"<!-- These used to be hard-wired into the\n"); 
    fprintf(outfile,I1"     DDA source code.  Not currently used -->\n");
 
-   emitAConstants(ad->constants, outfile);
+   constants_print_xml(ad->constants, outfile);
 
-   //emitLoadpoints(ad, outfile);
+/** 
+ * @todo implement loadpoints_print_xml
+ */
+   //loadpoints_print_xml(ad, outfile);
 
    emitBlockMaterials(ad, outfile);
 
@@ -163,38 +169,7 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
 }  /* close dumpDDAMLGeometryFile() */
 
 
-static void 
-emitAConstants(CONSTANTS * constants, FILE * outfile) {
 
-   //CONSTANTS * constants = ad->constants;
-
-
-  /* FIXME:  Actually use the constants instead of the 
-   * hardwired default values here.
-   */
-   fprintf(outfile,I1"<AConstants>\n");
-   //fprintf(outfile,I2"<Openclose value=\"0.0002\"/>\n");
-   fprintf(outfile,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
-   fprintf(outfile,I2"<Opencriteria value=\"0.0000002\"/>\n");
-   fprintf(outfile,I2"<NormSpringPen value=\"%f\"/>\n",constants->norm_spring_pen);
-   /*
-   fprintf(outfile,I2"<Domainscale value=\"0.0004\"/>\n");
-   fprintf(outfile,I2"<NormExternDist value=\"derived\"/>\n");
-   fprintf(outfile,I2"<NormPenDist value=\"derived\"/>\n");
-   */
-   fprintf(outfile,I2"<AngleOverlap value=\"3.0\"/>\n");
-   fprintf(outfile,I2"<ShearNormRatio value=\"2.5\"/>\n");
-   fprintf(outfile,I1"</AConstants>\n\n");
-
-}  /* close emitAConstants() */
-
-
-/** FIXME: Implement this function. */
-/*
-static void 
-emitLoadpoints(Analysisdata * ad, FILE * outfile) {
-}  
-*/
 
 static void 
 emitBlockMaterials(Analysisdata * ad, FILE * outfile)
@@ -317,7 +292,7 @@ adata_validate(Analysisdata * ad) {
 
 
 
-/* Attempt to handle extern file pointer
+/** Attempt to handle extern file pointer
  * declarations as a group.  That is, open them 
  * all at the same time, then later close all of the 
  * at the same time.
@@ -327,6 +302,9 @@ adata_validate(Analysisdata * ad) {
  * from the code that actually opens the output streams.
  * This will make it easier to control which files should 
  * actually be open at any one time.
+ *
+ * @todo This is ugly as homemade sin and needs to be completely
+ *       redesigned. 
  */
 void
 openAnalysisFiles(FILEPATHS * filepath)
@@ -535,16 +513,6 @@ closeAnalysisFiles()
 
 
 
-
-
-/*
-void 
-adata_delete(Analysisdata * ad)
-{
-   freeAnalysisData(ad);
-}
-*/
-
 void *
 adata_delete(Analysisdata * ad) {
 
@@ -571,7 +539,7 @@ adata_delete(Analysisdata * ad) {
    free(ad);
 
    return NULL;
-}  /* Close freeAnalysisData() */
+}
 
 
 
@@ -675,7 +643,7 @@ adata_clone(Analysisdata * adn) {
       ado->avgArea[i] = adn->avgArea[i];
    }
 
-   ado->initialconstants = cloneConstants(adn->initialconstants);
+   ado->initialconstants = constants_clone(adn->initialconstants);
    
   /* FIXME: clone the timehistory points/array also: */
    //ado->timehistory = cloneTimeHistory(adn->timehistory);

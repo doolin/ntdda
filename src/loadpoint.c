@@ -97,6 +97,30 @@ loadpoint_print (Loadpoint * lp, int numloadpoints,
 }
 
 
+#if 0
+void
+loadpoint_print_xml(Loadpoint * lp, int numloadpoints, 
+                 PrintFunc printer, void * bfp) {
+
+   int i, j, n;
+   double ** lpoints;
+
+   for (i = 0; i < numloadpoints; i++) {
+
+     	n = lp[i].loadpointsize1;
+     	printer (bfp, "loadpointsize1: %d\n", n);
+     	lpoints = lp[i].vals;
+
+     	for (j = 0; j < n; j++) {
+
+	        printer (bfp, "%.4f  %.4f  %.4f\n", 
+                    lpoints[j][0], lpoints[j][1], lpoints[j][2]);
+      }
+   }
+
+}
+#endif
+
 
 #ifdef __cplusplus
 }

@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/09 15:53:16 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  */
 
 /**
@@ -28,6 +28,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+
 #include "ddaml.h"
 #include "ddamemory.h"
 #include "geometrydata.h"
@@ -77,140 +78,28 @@ static void transferMatlinelistToGeomStruct(Geometrydata *, MATLINELIST *);
 static double ** DoubMat2DGetMem(int n, int m);
 
 
-static void  checkGeometryDoc(xmlDocPtr doc);
+//static void  checkGeometryDoc(xmlDocPtr doc);
+
 static void initializeGLists(void);
-
-
-
-/**
- * @todo Move this struct definition into the 
- * ddaml header file and combine with the struct
- * definition in the analysisddaml parsing file.
- */
-#if 0
-typedef struct _gkwdtab {
-
-  /* text of the keyword        */   
-   char *kwd;		
-  /* Token codes can be used to point at the relevant 
-   * function pointer in the union.
-   */
-   enum  tokentype  {node = 0, string, prop} ktok;
-   union {
-      void (*nodeparse)  (xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-      void (*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );	
-      void (*propparse)  (xmlDocPtr doc, xmlNodePtr cur, int );
-   } pparse;
-} GKWDTAB;
-#endif
 
 
 Geometrydata * gdata;
 
- 
-void
-ddaml_read_geometry_file(void * userdata, char *filename) {
-
-   xmlDocPtr doc;
-   xmlNsPtr ns;
-   xmlNodePtr cur;
-   Geometrydata * gd = (Geometrydata *)userdata;
-
-   ddaml_display_warning = gd->display_warning;
-   ddaml_display_error   = gd->display_error;
-
-   xmlDoValidityCheckingDefaultValue = 1;
-
-  /*
-   * build an XML tree from a the file;
-   */
-   doc = xmlParseFile(filename);
-
-   checkGeometryDoc(doc);
-
-  /* This is where we need an exception */
-   if (doc == NULL) {
-      return;
-   }
-
-  /* FIXME: Handle a null document, which means that there
-   * is a messed up tag or something.
-   */
-   cur = doc->root;
-   ns = nspace;
-
-  /* Here, we not only do not want the parent, we want to 
-   * bypass the top level node, in this case `DDA',
-   * completely to start with the first element in the 
-   * geometry part of the document.
-   */
-   cur = cur->childs;
-
-   while (cur != NULL) {
-      if ( !strcmp( cur->name, "Geometry") ) {
-         cur = cur->childs;
-         parseGeometry(gd,doc, ns, cur); 
-         break;
-      }
-	   cur = cur->next;
-   }
-}  
-
-
-
-
-/** @todo  Change calling semantics, put in header so that it
- * can be used by both analysis and geometry (and other)
- * ddaml subparsers.
- */
-/*
- ddaml_check_document(xmlDocPtr doc, const char * name_space, const char * rootname) {
- */
-void 
-checkGeometryDoc(xmlDocPtr doc) {
-
-   if (doc == NULL) {
-      ddaml_display_error("Invalid Geometry document, check geometry file syntax");
-      exit (0);
-   }
-
-   if (doc->root == NULL) {
-       ddaml_display_error("Empty geometry document.");
-	    xmlFreeDoc(doc);
-       exit (0);
-   }
-
-   //nspace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
-   nspace = xmlSearchNsByHref(doc, doc->root, "http://www.tsoft.com/~bdoolin/dda");
- 
-   if (nspace == NULL) {
-        ddaml_display_error("Namespace error, check URL");
-	     xmlFreeDoc(doc);
-        exit (0);
-   }
-    
-   if (strcmp(doc->root->name, "DDA")) {
-	     ddaml_display_error("Document of the wrong type, root node != DDA");
-	     xmlFreeDoc(doc);
-        exit (0);
-   }
-
-}  
 
 
 
 void 
 initializeGLists() {
 
-   jointlist = make_dl();
-   pointlist = make_dl();
-   fpointlist = make_dl();
-   spointlist = make_dl();
+   jointlist = dlist_new();
+   pointlist = dlist_new();
+   fpointlist = dlist_new();
+   spointlist = dlist_new();
 
    /* boltlist = make_dl(); */
    boltlist = boltlist_new();
 
-   matlinelist = make_dl();
+   matlinelist = dlist_new();
 } 
 
 
@@ -1201,6 +1090,58 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /** Transfer list format to array format. */
    transferGData();
 }  
+
+ 
+void
+ddaml_read_geometry_file(void * userdata, char *filename) {
+
+   xmlDocPtr doc;
+   xmlNsPtr ns;
+   xmlNodePtr cur;
+   Geometrydata * gd = (Geometrydata *)userdata;
+
+   ddaml_display_warning = gd->display_warning;
+   ddaml_display_error   = gd->display_error;
+
+   xmlDoValidityCheckingDefaultValue = 1;
+
+  /*
+   * build an XML tree from a the file;
+   */
+   doc = xmlParseFile(filename);
+
+   ddaml_check_document(doc,"http://www.tsoft.com/~bdoolin/dda","DDA");
+
+  /* This is where we need an exception */
+   if (doc == NULL) {
+      return;
+   }
+
+  /* FIXME: Handle a null document, which means that there
+   * is a messed up tag or something.
+   */
+   cur = doc->root;
+   ns = nspace;
+
+  /* Here, we not only do not want the parent, we want to 
+   * bypass the top level node, in this case `DDA',
+   * completely to start with the first element in the 
+   * geometry part of the document.
+   */
+   cur = cur->childs;
+
+   while (cur != NULL) {
+      if ( !strcmp( cur->name, "Geometry") ) {
+         cur = cur->childs;
+         parseGeometry(gd,doc, ns, cur); 
+         break;
+      }
+	   cur = cur->next;
+   }
+}  
+
+
+
 
 
 #ifdef STANDALONE

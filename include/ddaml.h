@@ -7,6 +7,7 @@
 #define __DDAML_H__
 
 #include <gnome-xml/parser.h>
+//#include <libxml/parser.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,9 +38,15 @@ typedef struct _gkwdtab {
    } parsefn;
 } KWDTAB;
 
-void ddaml_read_geometry_file (void * userdata, char * filename);
-void ddaml_read_analysis_file (void * userdata, char * filename);
+void ddaml_read_geometry_file (void * userdata, 
+                               char * filename);
 
+void ddaml_read_analysis_file (void * userdata, 
+                               char * filename);
+
+void ddaml_check_document     (xmlDocPtr doc, 
+                               const char * name_space, 
+                               const char * rootname);
 
 void  (*ddaml_display_warning) (const char * message);
 void  (*ddaml_display_error)   (const char * message);

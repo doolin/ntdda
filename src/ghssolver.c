@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/06/23 16:57:18 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  *
  */
 #include <assert.h>
@@ -184,7 +184,7 @@ void saveState(double ** K, double ** Kcopy, int n3,
    * 1.5.117 or 1.5.118.  
    */
    for (i=1; i<= numblocks; i++) {
-      for (j=1; j<=  6; j++) { 
+      for (j=1; j<=6; j++) { 
         /* If the time step has to be cut during an analysis,
          * we will need the original values again. 
          * FIXME: Take out the dependency in the time step cutting

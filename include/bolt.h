@@ -71,6 +71,9 @@ void       bolt_get_endpoints  (Bolt * b,
                                 double * x2,
                                 double * y2);
 
+double     bolt_length         (Bolt * b);
+
+
 
 /** Boltlist methods, which may go into their own
  * header file in the future.
@@ -113,8 +116,24 @@ void       boltlist_get_array  (Boltlist *,
                                 double ** boltarray);
 
 void       boltlist_print      (Boltlist *,
-				PrintFunc printer,
-				void * stream);
+				                    PrintFunc printer,
+				                    void * stream);
+
+
+
+/***********************************************************/
+/*  Old, nasty stuff that needs to be changed. */
+
+int        rockbolts           (double ** bolts,
+                                int numbolts, 
+                                double ** K, 
+                                int *, 
+                                int * kk, 
+                                int **, 
+                                double **, 
+                                double **);
+
+
 
 #ifdef __cplusplus
 }

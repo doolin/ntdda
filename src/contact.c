@@ -14,6 +14,8 @@
 #include "contacts.h"
 #include "ddamemory.h"
 #include "datalog.h"
+#include "constants.h"
+
 
 extern Datalog * DLog;
 
@@ -434,8 +436,10 @@ void df04(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3,
    double ** vertices = bd->vertices;
    int ** vindex = bd->vindex;
   /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-   double d0 = ad->constants->norm_extern_dist;
-   double d9 = ad->constants->norm_pen_dist;
+   //double d0 = ad->constants->norm_extern_dist;
+   double d0 = constants_get_norm_extern_dist(ad->constants);
+   //double d9 = ad->constants->norm_pen_dist;
+   double d9 = constants_get_norm_pen_dist(ad->constants);
 
   /* (GHS: c0[][] xl xu yl yu)   */
   /* What c0 does is find a box that 
@@ -744,7 +748,8 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
 
    double ** vertices = bd->vertices;
    int ** vindex = bd->vindex;
-   double h1 = ad->constants->angle_olap;
+   //double h1 = ad->constants->angle_olap;
+   double h1 = constants_get_angle_olap(ad->constants);
    double y1, y2;
    double x1, x2;
    int nContacts = bd->nContacts;
@@ -1065,10 +1070,13 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
    int contact;  // was i
    int i1,i2,i3,i4;
    double ** vertices = gd->vertices;
-   double openclose = ad->constants->openclose;
+   //double openclose = ad->constants->openclose;
+   double openclose = constants_get_openclose(ad->constants);
   /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-   double d0 = ad->constants->norm_extern_dist;
-   double w0 = ad->constants->w0;
+   //double d0 = ad->constants->norm_extern_dist;
+   double d0 = constants_get_norm_extern_dist(ad->constants);
+   //double w0 = ad->constants->w0;
+   double w0 = constants_get_w0(ad->constants);
    int nContacts = gd->nContacts;
    Gravity *grav = ad->gravity;
 
@@ -1253,9 +1261,11 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **lock
    double x2,x3,y2,y3;
    double reflinelength; //  was a1;
    double ** vertices = gd->vertices;
-   double openclose = ad->constants->openclose;
+   //double openclose = ad->constants->openclose;
+   double openclose = constants_get_openclose(ad->constants);
   /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-   double d0 = ad->constants->norm_extern_dist;
+   //double d0 = ad->constants->norm_extern_dist;
+   double d0 = constants_get_norm_extern_dist(ad->constants);
    int nContacts = gd->nContacts;
 
   /* Used to index locks array */

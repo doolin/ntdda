@@ -1,7 +1,7 @@
 /* 
  * $Source: /cvsroot/dda/ntdda/src/ddadlist.c,v $
- * $Revision: 1.4 $
- * $Date: 2002/06/01 17:37:37 $
+ * $Revision: 1.5 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Author: doolin $
  */
 
@@ -22,8 +22,9 @@
  * empty, then l->flink = l->blink = l.            
  *---------------------------------------------------------------------*/
 
-DList * make_dl()
-{
+DList * 
+dlist_new(void) {
+
   DList * d;
 
   d = (DList *) calloc (1,sizeof(struct dlist));
@@ -131,7 +132,7 @@ dlist_copy(DList * d1)
 {
    DList * f, * d2;
    //int             i = 0;	/* Debug. */
-   d2 = make_dl();
+   d2 = dlist_new();
 
    f = d1->blink;
    while (f != d1) {
@@ -148,7 +149,7 @@ merge(DList * d1, DList * d2)
   DList *  d3;
   DList *  todo;
  
-  d3 = make_dl();
+  d3 = dlist_new();
   /*
    * While 1st list doesn't point to itself or 2d list doesn't point to
    * itself, do the following:

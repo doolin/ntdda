@@ -325,7 +325,7 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
    * for the fixed, load etc. points are computed.  Assume 
    * t0 is stiffness for now.  e00 is unknown.
    */
-#if ROCKBOLTSTORAGE
+#if 0 //ROCKBOLTSTORAGE
    for (i=0; i<numbolts; i++)
    {
       i2 = (int)rockbolts[i][5];

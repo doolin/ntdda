@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.22  2002/08/03 14:42:29  doolin
+ * More cleanup.  Read diffs for details.
+ *
  * Revision 1.21  2002/06/23 16:57:17  doolin
  *
  * * Some API changes to move back towards passing primitives
@@ -122,6 +125,8 @@
 #include <direct.h>
 #include <assert.h>
 #include <string.h>
+
+
 #include "ddamemory.h"
 #include "printdebug.h"
 #include "gravity.h"
@@ -131,6 +136,7 @@
 
 
 Datalog * DLog;
+extern FILEPOINTERS fp;
 
 
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
@@ -355,7 +361,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             //printKK(kk,n,GData->nBlocks,"Analysis driver");
 
            /** @brief The saveState() function saves a copy of K and F 
-            * because the solver overwrites both, and the OCI needs 
+            * because the solver overwrites both, and the OCI
             * uses the original stiffness and forcing vectors each 
             * OCI trial.  saveState() was moved out of df20().
             *
@@ -402,7 +408,9 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             * it hasn't converged, the state of the stiffness and
             * forcing vector needs to be restored for the next 
             * OCI trial.  restoreState was factored out of df24().
-            */
+            */  
+           /* (GHS: recover  a[][]  f[][] after equation solving) */
+           /* m9 = -1 means iteration finished               */
             if (AData->m9 != -1) {
                restoreState(AData->K,AData->Kcopy,AData->n3,
                             AData->F,AData->Fcopy,GData->nBlocks);
@@ -410,7 +418,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             
         /* close do-while loop for open-close iteration */
         /* while ( HAVETENPEN && ( AData->iterationcount < MaxOpenCloseCount) ) */
-         }  while (0<(AData->m9)  && (AData->m9)< (6+2) );          
+         }  while (0<(AData->m9)  && (AData->m9)< (8) );          
 
         /* PASSED OPEN CLOSE ITERATION */
 
@@ -421,7 +429,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       * recompute time step size or spring stiffness.  Then
       * run the open-close iteration again with new parameters
       */
-      }  while(checkParameters(GData, AData, CTacts));  
+      }  while(checkParameters(GData, AData, CTacts, fp.logfile));  
 
      /* PASSED PARAMETER CHECKS */
 

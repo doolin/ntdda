@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/06/23 16:57:18 $
+ * $Date: 2002/08/03 14:42:30 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  */
 
 
@@ -24,12 +24,9 @@
 #include "datalog.h"
 
 
-
-extern FILEPOINTERS fp;
+/** Maybe only used once in this file.  Try to get rid of it.
+ */
 extern Datalog * DLog;
-
-
-
 
 
 
@@ -41,13 +38,12 @@ extern Datalog * DLog;
  * checkParameters() function.
  */
 int 
-checkParameters(Geometrydata * gd, Analysisdata * ad,
-                Contacts * ctacts
-                /* int ** locks, double ** contactlength*/)
-{
+checkParameters(Geometrydata * gd, Analysisdata * ad, Contacts * ctacts, FILE * fp) {
 
    int ** locks = get_locks(ctacts);
    double ** contactlength = get_contact_lengths(ctacts);
+   double g3 = constants_get_norm_spring_pen(ad->constants);
+
 
   /* after 6+2 interations reduce time interval by .3 */
   	if ((ad->m9) == ad->OCLimit /* (6+2) */ ) 
@@ -57,8 +53,8 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
          //fprintf(fp.logfile, "OC limit reached, cutting time step size (checkparams) from %f ",
          //                     ad->delta_t);
          ad->delta_t *= .3;
-         fprintf(fp.logfile," to %f\n",ad->delta_t);
-         fflush(fp.logfile);
+         fprintf(fp," to %f\n",ad->delta_t);
+         fflush(fp);
 
       
          if(ad->delta_t < ad->maxtimestep/100.0)
@@ -90,19 +86,22 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
    * This parameter is set in df24(). 
    */
   /* FIXME: What inna world is this for? */
-   if (ad->globalTime[ad->cts][1]>3.0) 
-   {
-      fprintf(fp.logfile,"Max displacement passed on timestep %d, cutting time step size from %f ", 
+   if (ad->globalTime[ad->cts][1]>3.0) {
+
+      fprintf(fp,"Max displacement passed on timestep %d, cutting time step size from %f ", 
               ad->cts, ad->delta_t);
       (ad->delta_t)/=sqrt(ad->globalTime[(ad->cts)][1]);
-      fprintf(fp.logfile,"to %f\n",ad->delta_t);
-      fflush(fp.logfile);
+      fprintf(fp,"to %f\n",ad->delta_t);
+      fflush(fp);
 
       DLog->timestepcut[ad->cts]++;
 
      /* Compute a minimum time step. */
-      if(ad->delta_t < ad->maxtimestep/100.0)
+      if(ad->delta_t < ad->maxtimestep/100.0) {
+
          ad->delta_t = ad->maxtimestep/100.0;
+      }
+
 
       return TRUE;
       //goto newtimestep;  /* goto a001; */
@@ -119,7 +118,8 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
    * the time step.
    * FIXME: Change the 2.5 to a user specified value.
    */
-   if (ad->w6/(ad->constants->norm_spring_pen)  > 2.5) 
+   //if (ad->w6/(ad->constants->norm_spring_pen)  > 2.5) 
+   if (ad->w6/g3  > 2.5) 
    {
      /* g0 is spring stiffness */
       //ad->g0 *= 10.0; 
@@ -191,9 +191,9 @@ computeSpringStiffness(Geometrydata *gd, Analysisdata *ad, int **m0, double **o)
   /* g2 is maximum displacement per time step. */
    //double g2 = ad->g2;
    double g2 = ad->maxdisplacement;
-   double g3 = ad->constants->norm_spring_pen;
+   double g3 = constants_get_norm_spring_pen(ad->constants);
   /* w0 is problem domain scaling constant */
-   double w0 = ad->constants->w0;
+   double w0 = constants_get_w0(ad->constants);
   /* temp var storing max value */
    double b1;
   /* temp var storing min value */
@@ -405,7 +405,7 @@ vertexInit(Geometrydata *gd)
 
 }  // Close vertexInit() 
 
-/* FIXME: This function should moved to bewteen the analysis 
+/* FIXME: This function should moved to between the analysis 
  * part and the geometry part.  That way it can be cloned 
  * when the geometry data is cloned at the start of an analysis.
  */
@@ -439,42 +439,21 @@ blockNumberOfVertex(Geometrydata * gd)
 
 
 
-CONSTANTS *
-cloneConstants(CONSTANTS * c_in)
-{
-
-   CONSTANTS * c;
-
-   c = (CONSTANTS *)calloc(1,sizeof(CONSTANTS));
-
-   c->openclose = c_in->openclose;    /*  s0  */
-   c->opencriteria = c_in->opencriteria; /*  f0  */
-   c->w0 = c_in->w0;  /* related to the physical scale of the model. */
-   c->norm_spring_pen = c_in->norm_spring_pen; /* g3  */
-   c->norm_extern_dist = c_in->norm_extern_dist; /* d0 */
-   c->norm_pen_dist = c_in->norm_pen_dist;    /* d9  */
-   c->angle_olap = c_in->angle_olap;      /*  h1  */
-   c->shear_norm_ratio = c_in->shear_norm_ratio;  /* h2 */
-
-   return c;
-
-} /*  close cloneConstants() */
-
 void 
-print2DMat(double mat[7][7], int m, int n, char * location)
-{
+print2DMat(double mat[7][7], int m, int n, char * location, FILE * fp) {
+
    int i, j;
 
    assert ( (m!=0) && (n!=0) && (mat != NULL) );
 
-   for ( i = 1; i < m; i++)
-   {
-      for (j=1; j< n; j++)
-         fprintf(fp.logfile,"%.4f  ", mat[i][j]);
-      fprintf(fp.logfile,"\n");
+   for ( i = 1; i < m; i++) {
+      for (j=1; j< n; j++) {
+         fprintf(fp,"%.4f  ", mat[i][j]);
+      }
+      fprintf(fp,"\n");
    }
 
-}  /* close print2DMat() */
+} 
 
 
 /* Assume that the file pointer is open */
@@ -500,32 +479,32 @@ print2DArray(double ** mat, int m, int n, FILE * fp, char * location)
 
 
 void 
-print1DIntArray(int * mat, int n, char * location)
-{
+print1DIntArray(int * mat, int n, char * location, FILE * fp) {
    int i;
 
    assert ( (n!=0) && (mat != NULL) );
 
-      for (i=0; i< n; i++)
-         fprintf(fp.logfile,"%d  ", mat[i]);
-      fprintf(fp.logfile,"\n");
+   for (i=0; i< n; i++) {
+      fprintf(fp,"%d  ", mat[i]);
+   }
+   fprintf(fp,"\n");
+}  
 
-}  /* close print1DIntArray() */
 
 void 
-print1DDoubleArray(double * mat, int n, char * location)
-{
+print1DDoubleArray(double * mat, int n, char * location, FILE * fp) {
    int i;
 
    assert ( (n!=0) && (mat != NULL) );
 
-   fprintf(fp.logfile,"1 D Array, from %s\n",location);
+   fprintf(fp,"1 D Array, from %s\n",location);
 
-      for (i=0; i< n; i++)
-         fprintf(fp.logfile,"%f  ", mat[i]);
-      fprintf(fp.logfile,"\nEnd 1 D Array print\n\n");
+   for (i=0; i< n; i++) {
+      fprintf(fp,"%f  ", mat[i]);
+   }
 
-}  /* close print1DIntArray() */
+   fprintf(fp,"\nEnd 1 D Array print\n\n");
+}  
 
 
 
@@ -702,110 +681,6 @@ initContactSpring(Analysisdata * ad)
 
 }  /* close initContactSpring() */
 
-void 
-initConstants(Analysisdata * ad)
-{      
-   double g3;  /* normal spring penetration ratio */
-   double d0;
-   double d9;
-   //int m4, m5;
-  /* m4: step    of graphic output                  */
-  /* m5: number  of graphic output                  */
-  /* m4 and m5 are related to the grf1 file, which is not currently 
-   * being compiled to use.
-   */
-		 //m4 = (int) floor(ad->nTimeSteps/20.0-.0001)+1;
-		 //m5 = (int) floor(ad->nTimeSteps/m4  -.0001)+1;
-   //ad->m4 = m4;  
-
-
-  /* (GHS: g4 save g0 for fixed points and 0 contacts)     */
-   //ad->g4=ad->g0;
-   //ad->g4 = ad->contactpenalty;  
-  /* This appears to be the only place FPointSpring 
-   * is set.  Which implies that the contact penalty
-   * has already been initializationed.  Where?
-   */
-  /* FIXME: This is the wrong place to initialize this value. */
-   ad->FPointSpring = ad->contactpenalty;
-
-//assert(ad->constants != NULL);
-
-   if (ad->constants == NULL)
-   {
-      ad->constants = (CONSTANTS *)malloc(sizeof(CONSTANTS));
-      memset((void*)ad->constants,0xda,(size_t)sizeof(CONSTANTS));
-     /* The call to cons() just sets the value of some 
-      * constants that would be better set in this 
-      * procedure, or allowed to be set by the user.
-      * So all this code has now been moved from cons()
-      * which is not ever called again.
-      * FIXME: Move all this stuff somewhere else and 
-      * implement it as an option.
-      */
-     /* pre-defined changeble constants                */
-     /* s0 : criteria of open-close                    */
-     /* f0 : criteria of opening                       */
-     /* g3 : allowable normal spring penetration ratio */
-     /* d0 : normal external    distance for contact   */
-     /* d9 : normal penetration distance for contact   */
-     /* h1 : angle overlapping degrees   for contact   */
-     /* h2 : ratio for shear spring versus normal one  */
-      ad->constants->openclose =  .0002;  /* s0 = .0002  */
-      ad->constants->opencriteria = .0000002;  /* f0 = .0000002;  */
-      g3 = ad->constants->norm_spring_pen = .0004;
-      //g3 = .0004;   /* g3 = .0004;  */
-      ad->constants->angle_olap = 3;   /* h1 = 3; */
-      ad->constants->shear_norm_ratio = 2.5;  /* h2 = 2.5; */   
-   } 
-   else
-   { 
-      //char mess[80];
-      g3 = ad->constants->norm_spring_pen;
-      //sprintf(mess,"g3: %f, w0: %f",g3, ad->constants->w0);
-      //iface->displaymessage(mess);
-   }
-
-  /* g2 is described in the manual as the maximum allowable 
-   *  displacement ratio, recommended between 0.001-0.01.
-   */
-   //ad->constants->norm_extern_dist = 2.5*(ad->constants->w0)*(ad->g2);
-   //d0 = 2.5*(ad->constants->w0)*(ad->g2);
-   //d0 = 2.5*(ad->constants->w0)*(ad->maxdisplacement);
-  /* d0 might be 2\rho on p. 142, GHS 1988 with corresponding
-   * Figure 4.2 on p. 143 (p. 32, Fig. 3.2, p. 55, GHS tech note).
-   */  
-  /* FIXME: Change the 2.5 to 2.0, since it is supposed to be 
-   * 2*\rho anyway.  If this blows everything to pieces, find
-   * out where the problem is and fix it there.
-   */
-   d0 = ad->constants->norm_extern_dist = 2.5*(ad->constants->w0)*(ad->maxdisplacement);
-   //d0 = ad->constants->norm_extern_dist = 2.0*(ad->constants->w0)*(ad->maxdisplacement);
-
-   d9 = ad->constants->norm_pen_dist = 0.3*d0;
-
-   if (d9 < 3.0*g3*(ad->constants->w0))  
-      ad->constants->norm_pen_dist = d9 = 3.0*g3*(ad->constants->w0);
-
-   if (d0 < d9)
-   {
-      ad->constants->norm_extern_dist = d0 = d9;
-      //iface->displaymessage("d0 < d9 in initConstants()");
-      dda_display_warning("d0 < d9 in initConstants()");
-   }
-
-  /* FIXME: check the return value from this call, throw an error
-   * if necessary.
-   */
-   ad->initialconstants = (CONSTANTS *)malloc(sizeof(CONSTANTS));
-   memcpy(ad->initialconstants, ad->constants, sizeof(CONSTANTS));
-
-}  /* close initConstants() */
-
-
-
-
-
 
 
 
@@ -844,12 +719,6 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber)
     memset((void*)e0[mpsize1],0xDA,mpsize2*sizeof(double));
 
 }  /* close deleteMaterial() */
-
-
-
-
-
-
 
 
 
@@ -1013,13 +882,6 @@ void deallocateAnalysisArrays(/*int **contacts, */
    freeIntegrationArrays();
 
 
-   //free2DMat((void **)contacts, __contactsize1);
-   //free2DMat((void **)locks, __locksize1);
-   //free2DMat((void **)m1, __contactindexsize1);
-   //free2DMat((void **)prevcontacts, __prevcontactsize1);
-   //free2DMat((void **)c_length, __contactlengthsize1);
-
-
    if (n)
       free2DMat((void **)n, __nsize1);
 	  if (c0)
@@ -1055,39 +917,22 @@ void deallocateAnalysisArrays(/*int **contacts, */
 }  /* Close deallocateAData() */
 
 
-/* Warning: This function relies on having 
- * computed initial areas first.
- */
-computeInitialMass(Geometrydata * gd)
-{
-   int i;
-   double ** moments = gd->moments;
-   for (i=1; i<=gd->nBlocks; i++)
-   {
-     //bogus value
-      gd->origmass[i] = 2*moments[i][1];
-   }
-
-}  /* close computeInitialMass() */
 
 
-/* FIXME: Remove Analysisdata if possible */
 void
-computeMass(Geometrydata * gd, Analysisdata * ad, double ** e0)
-{
+computeMass(double * mass, double ** moments, double ** e0, int numblocks) {
+
    int i;
-   double ** moments = gd->moments;
-   //double initialarea;
    double currentarea,thickness,density;
 
-   for (i=1; i<=gd->nBlocks; i++)
-   {
+   for (i=1; i<=numblocks; i++) {
+
       currentarea = moments[i][1];
       thickness = 1/(1+e0[i][7]);
       density = e0[i][0];
-      gd->mass[i] = currentarea*thickness*density;
+      mass[i] = currentarea*thickness*density;
    }
 
-}  // close computeMasses()
+} 
 
 

@@ -109,6 +109,10 @@ SOURCE=.\src\combineddf.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\constants.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\contact.c
 # End Source File
 # Begin Source File
@@ -423,6 +427,10 @@ SOURCE=.\src\analysisreader.c
 # Begin Source File
 
 SOURCE=.\src\blockhandler.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\ddaml.c
 # End Source File
 # Begin Source File
 

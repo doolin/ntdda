@@ -9,15 +9,16 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/16 15:43:39 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.16 $
+ * $Revision: 1.17 $
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+
 #include "ddaml.h"
 #include "ddamemory.h"
 #include "analysisdata.h"
@@ -34,7 +35,7 @@
 
 
 /* Mostly for debugging windows. */
-static char mess[180];
+static char mess[128];
 
 
 
@@ -64,110 +65,19 @@ void transferBlockMatlistToAStruct(Analysisdata * adata, BLOCKMATLIST * blockmat
 static double ** DoubMat2DGetMem(int n, int m);
 
 
-static ddaboolean checkAnalysisDoc(xmlDocPtr doc);
 static void initializeALists(void);
 
-
-
-#if 0
-/**
- * @todo Move this struct definition into the 
- * ddaml header file and combine with the struct
- * definition in the geomddaml parsing file.
- */
-typedef struct _akwdtab {
-   char *kwd;			/* text of the keyword        */
-  /* Token codes can be used to point at the relevant 
-   * function pointer in the union.
-   */
-   enum  tokentype  {node = 0, string, prop} ktok;
-   union {
-      void *(*nodeparse)(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-      void *(*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );		
-      void *(*propparse)(xmlDocPtr doc, xmlNodePtr cur, int );		
-   }parsefn;
-} AKWDTAB;
-#endif
-
-
-
 Analysisdata * adata;
-
-
-
-
-ddaboolean
-checkAnalysisDoc(xmlDocPtr doc)
-{
-   xmlNodePtr cur;
-    
-   if (doc == NULL)  {
-     /* Log an error, then */
-      dda_display_error("NULL DDAML document, probably malformed XML. Check tags");
-      return FALSE;
-   }
-
-  /*
-   * Check the document is of the right kind
-   */
-   cur = doc->root;
-    
-   if (cur == NULL) 
-   {
-      fprintf(stderr,"empty analysis document\n");
-      dda_display_error("Empty DDAML document");
-	   xmlFreeDoc(doc);
-	   return FALSE;
-   }
-
-  /*
-   * FIXME: Rewrite this call to the analysis data structure 
-   * intilializer.
-   */
-   //adata = (Analysisdata *) malloc(sizeof(Analysisdata));
-   //memset(adata, 0, sizeof(Analysisdata));
-
-   //if (adata == NULL) 
-   //{
-   //   fprintf(stderr,"out of memory for analysis data\n");
-	  //   xmlFreeDoc(doc);
-   //  	return(NULL);
-   //}
-   
-   //adata->namespace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
-   nspace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
-
-   if (nspace == NULL) 
-   {
-      fprintf(stderr,"Namespace error, check URL\n");
-      dda_display_error("DDAML namespace error, check URL");
-	   xmlFreeDoc(doc);
-	   return FALSE;
-   }
-    
-   if (strcmp(cur->name, "DDA")) 
-   {
-      fprintf(stderr,"document of the wrong type, root node != DDA");
-      dda_display_error("Bad root node, file is not a DDAML.");
-	   xmlFreeDoc(doc);
-	   return FALSE;
-   }
-
-   return TRUE;
-
-}  /* close checkAnalysisDoc() */
-
-
 
 
 
 void 
 initializeALists()
 {
-   jointmatlist = make_dl();
-   blockmatlist = make_dl();
-   boltmatlist = make_dl();
-   loadpointlist = make_dl();
+   jointmatlist = dlist_new();
+   blockmatlist = dlist_new();
+   boltmatlist = dlist_new();
+   loadpointlist = dlist_new();
 
 }  /* close initializeLists() */
 
@@ -275,10 +185,7 @@ transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
    ad->boltmatsize1 = nbmat;
    ad->boltmatsize2 = 3;
    ad->boltmats = DoubMat2DGetMem(adata->boltmatsize1,adata->boltmatsize2);
-  /* WARNING: This assumes that joint types are listed in order 
-   * of occurrence in xml file.  The type attribute is ignored
-   * for now.
-   */
+
    M_dl_traverse(ptr, boltmatlist)
    {
       bmtmp = ptr->val;
@@ -348,15 +255,16 @@ parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    
    temp = xmlGetProp(cur,"type");
 
-   if (!strcmp(temp, "linear"))
+   if (!strcmp(temp, "linear")) {
       adata->rotationflag = 0;
-   else if (!strcmp(temp, "secondorder"))
+   } else if (!strcmp(temp, "secondorder")) {
+      ddaml_display_warning("Using exact instead of second order");
       adata->rotationflag = 1;
-   else if (!strcmp(temp, "exact"))
+   } else if (!strcmp(temp, "exact")) {
       adata->rotationflag = 1;
-   else
-      // big problem
-      ;  // do nothing for now
+   } else {
+      ddaml_display_warning("Parse problem in rotation attributes");
+   }
 
 }  
 
@@ -481,8 +389,10 @@ parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    if (pfactor == NULL)
    {
-      sprintf(mess,"Warning","Penalty factor missing from Autopenalty element");
-      dda_display_warning(mess);
+      //sprintf(mess,"Warning","Penalty factor missing from Autopenalty element");
+      //dda_display_warning(mess);
+      dda_display_warning("Penalty factor missing from Autopenalty element");
+
    }
    else 
    {
@@ -525,9 +435,12 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
   /* constants needs to be changed into an instance 
    * variable.
    */
-   CONSTANTS * constants;
-   constants  = (CONSTANTS *)calloc(1,sizeof(CONSTANTS));
+   //CONSTANTS * constants;
+   //constants  = (CONSTANTS *)calloc(1,sizeof(CONSTANTS));
   
+   Constants * constants = constants_new();
+
+
    fprintf(stderr,"Inside constants\n");
 
    cur = cur->childs;
@@ -536,11 +449,14 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    {
 
       if (!strcmp(cur->name, "Openclose")) {
-        constants->openclose = atof(xmlGetProp(cur,"value"));
+        //constants->openclose = atof(xmlGetProp(cur,"value"));
+        constants_set_openclose(constants,atof(xmlGetProp(cur,"value")));
       }
 
-      if (!strcmp(cur->name, "Opencriteria")) //&& (cur->ns == ns))
-        constants->opencriteria = atof(xmlGetProp(cur,"value"));
+      if (!strcmp(cur->name, "Opencriteria")) {
+        //constants->opencriteria = atof(xmlGetProp(cur,"value"));
+        constants_set_opencriteria(constants,atof(xmlGetProp(cur,"value")));
+      }
 
      /* w0 gets reset during the analysis.  Probably need to turn this
       * into a factor of w0 to see if that helps scaling issues in 
@@ -553,13 +469,14 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
       /* The following three are derived from the other five */
       
-      if (!strcmp(cur->name, "NormSpringPen")) //&& (cur->ns == ns))
-      {
-        constants->norm_spring_pen = atof(xmlGetProp(cur,"value"));
+      if (!strcmp(cur->name, "NormSpringPen")) {  //&& (cur->ns == ns)) {
+
+        //constants->norm_spring_pen = atof(xmlGetProp(cur,"value"));
+        constants_set_norm_spring_pen(constants,atof(xmlGetProp(cur,"value")));
        /* if this assert fires, check the attribute value in the 
         * given tag.
         */
-        assert(constants->norm_spring_pen > 0);
+        //assert(constants->norm_spring_pen > 0);
       }
 
      /*
@@ -571,16 +488,17 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       */
 
       if (!strcmp(cur->name, "AngleOverlap")) // && (cur->ns == ns))
-        constants->angle_olap = atof(xmlGetProp(cur,"value"));
+        constants_set_angle_olap(constants,atof(xmlGetProp(cur,"value")));
 
       if (!strcmp(cur->name, "ShearNormRatio")) // && (cur->ns == ns))
-        constants->shear_norm_ratio = atof(xmlGetProp(cur,"value"));
+        constants_set_shear_norm_ratio(constants,atof(xmlGetProp(cur,"value")));
 
      /* MinReflineFactor is scaled by the domain size. Probably do not
       * need this factor at all.
       */
-      if (!strcmp(cur->name, "MinReflineFactor")) // && (cur->ns == ns))
-        constants->min_refline_factor = atof(xmlGetProp(cur,"value"));
+      if (!strcmp(cur->name, "MinReflineFactor")) {// && (cur->ns == ns))
+        constants_set_min_refline_factor(constants,atof(xmlGetProp(cur,"value")));
+      }
 
       //iface->displaymessage("In constants parsing code");
       cur = cur->next;
@@ -1103,11 +1021,7 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    */
    doc = xmlParseFile(filename);
 
-   if(!checkAnalysisDoc(doc)) {
-
-      dda_display_error("Bad DDAML document");
-      exit(0);
-   }
+   ddaml_check_document(doc,"http://www.tsoft.com/~bdoolin/dda","DDA");
 
    cur = doc->root;
    ns = nspace;

@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/06/23 16:57:13 $
+ * $Date: 2002/08/03 14:42:28 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 #include "dda.h"
@@ -229,13 +229,12 @@ double computeFriction(Geometrydata * gd, Analysisdata *, int);
 double computeVFriction(Geometrydata * gd, Analysisdata *, double);
 double computeJRCFriction(Geometrydata * gd, Analysisdata *, int);
 
-void computeMass(Geometrydata *, Analysisdata *, double ** e0);
 double getBlockMass(Geometrydata *, double ** moments, double ** e0, int blocknum);
 
 /* Spring stiffness */
 double computeSpringStiffness(Geometrydata *, Analysisdata *, int **, double **);
       
-int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *);  
+int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *, FILE *);  
 
 
 void  openAnalysisFiles(FILEPATHS *);
@@ -249,7 +248,6 @@ void initAnalysisOld(Geometrydata *, Analysisdata *, double **, double **,
             double **, GRAPHICS *);
 /* density, unit weight etc, includes stress, strain */
 void initBlockProperties(Geometrydata *, Analysisdata *, double **);
-void initConstants(Analysisdata *);
 void initContactSpring(Analysisdata *);
 //void initGravity(Analysisdata *, int);
 void initVelocity(Geometrydata *, Analysisdata *, double **);
@@ -269,7 +267,6 @@ void freeIntegrationArrays(void);
 
 void allocateK(Analysisdata *);
 
-CONSTANTS * cloneConstants(CONSTANTS *);
 
 
 

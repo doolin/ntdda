@@ -5,22 +5,24 @@
  * by GHS, p.42, 1988.
  *
  * $Author: doolin $
- * $Date: 2002/07/22 19:02:34 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Source: /cvsroot/dda/ntdda/src/Attic/rockbolts.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 
 
-#include"analysis.h"
-#include<math.h>
-#include<assert.h>
+#include <math.h>
+#include <assert.h>
+
+#include "analysis.h"
+#include "bolt.h"
 
 /* Attempt to load code for rock bolts. The algorithm
  * is taken from GHS p. 45.
  */
 int
-rockbolts(Geometrydata * gd, Analysisdata * ad, 
+rockbolts(double ** rockbolt, int numbolts, double ** K, 
           int * k1, int * kk, int ** n, double ** blockArea,  double ** F)
 {  
    int i, j, l, bolt;  /* loop counters */
@@ -32,7 +34,7 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
   /* Direction cosines, p. 38  */
    double lx, ly;
   /* Displacements of endpoints. */
-   double dx1,dx2,dy1,dy2;
+   double ux1,ux2,uy1,uy2;
   /* differential bolt length, units of L^2 */
    double dl;
   /* block numbers containing bolt endpoints */
@@ -49,12 +51,12 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
   /* bolt pre-tension */
    double pt;
   /* Coefficient matrix. */
-   double ** K = ad->K;
-   double ** rockbolt = gd->rockbolts;
+   //double ** K = ad->K;
+   //double ** rockbolt = gd->rockbolts;
    double T[7][7];
 
   /* Main loop for constructing matrices. */
-   for (bolt=0; bolt<gd->nBolts; bolt++) {
+   for (bolt=0; bolt<numbolts; bolt++) {
     
      /* get x, y coordinates of each endpoints of 
       * the rockbolt 
@@ -81,15 +83,15 @@ rockbolts(Geometrydata * gd, Analysisdata * ad,
       * initialized as `rockbolts' in geomreader2, and 
       * set in df25.
       */
-      dx1 = rockbolt[bolt][10];
-      dy1 = rockbolt[bolt][11];
-      dx2 = rockbolt[bolt][12];
-      dy2 = rockbolt[bolt][13];
+      ux1 = rockbolt[bolt][10];
+      uy1 = rockbolt[bolt][11];
+      ux2 = rockbolt[bolt][12];
+      uy2 = rockbolt[bolt][13];
  
      /* Compute the differential length, from 
       * Yeung  1992, p.40.  
       */
-      dl = ( (x1-x2)*(dx1-dx2) + (y1-y2)*(dy1-dy2) );
+      dl = ( (x1-x2)*(ux1-ux2) + (y1-y2)*(uy1-uy2) );
 
       s = rockbolt[bolt][7];///boltlength;  /* stiffness */
      /* FIXME: Non-zero pt produces very strange and 

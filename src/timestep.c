@@ -693,7 +693,7 @@ computeTimeStep(Geometrydata *bd, Analysisdata *ad)
    double ** timeDeps = ad->timeDeps;
    double avgArea; 
    //double w0 = ad->constants->w0;
-   double domainscale = ad->constants->w0;
+   double domainscale = constants_get_w0(ad->constants);
    
    /* nb seems to be the number of block materials,
    * NOT the number of blocks.

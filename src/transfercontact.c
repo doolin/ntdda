@@ -6,11 +6,12 @@
  *
  */
 #include <time.h>
+#include<assert.h>
+#include<malloc.h>
+
 #include"analysis.h"
 #include"math.h"
 #include"ddamemory.h"
-#include<assert.h>
-#include<malloc.h>
 
 
 

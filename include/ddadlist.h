@@ -95,9 +95,9 @@ typedef struct dlist {
 
 /* These are the routines for manipulating lists */
 
-extern DList * make_dl();   /* This makes an empty list */
+DList *    dlist_new (void);
 
-extern void dl_insert_b(DList *, void *); 
+void dl_insert_b(DList *, void *); 
                                      /* Makes a new node, and inserts it before
                                         the given node -- if that node is the 
                                         head of the list, the new node is 
@@ -110,7 +110,7 @@ extern void dl_insert_b(DList *, void *);
                                    inserted at the beginning of the list */
 DList * dlist_copy(DList *);
 
-extern void dl_delete_node(DList *);  /* Deletes and free's a node -- do not
+void dl_delete_node(DList *);  /* Deletes and free's a node -- do not
 				    use on the head node */
 
 extern void dl_delete_list(DList *);  /* Deletes the entire list from existance.

@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/07/22 19:02:36 $
+ * $Date: 2002/08/03 14:42:31 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.21 $
+ * $Revision: 1.22 $
  */
 
 
@@ -59,7 +59,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.21 2002/07/22 19:02:36 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.22 2002/08/03 14:42:31 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -374,21 +374,15 @@ handleSysChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 static int
 handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
-/*
-WM_KEYDOWN 
-nVirtKey = (int) wParam;    // virtual-key code 
-lKeyData = lParam;          // key data 
-*/
-
+#if 0
    char mess[128];
-    
    sprintf(mess, "nVirtKey: %d",wParam);
-
    MessageBox(NULL,mess,"keydown",MB_OK);
+#endif
 
    return 0;
 
-}  /* close handleKeydown() */
+}  
 
 
 

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/07/22 19:02:34 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.27 $
+ * $Revision: 1.28 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.28  2002/08/03 14:42:29  doolin
+ * More cleanup.  Read diffs for details.
+ *
  * Revision 1.27  2002/07/22 19:02:34  doolin
  * 3 changes: 1) with "showorig" activated, original bolt positions are drawn in solid black.  2) bolts 2-n no longer fall out of the blocks.  3) bolt stiffness now affects the results.
  *
@@ -139,13 +142,17 @@
  *
  */
 
-#include "analysis.h"
 #include <math.h>
 #include <time.h>
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <assert.h>
+
+
+
+#include "analysis.h"
+#include "constants.h"
 #include "ddamemory.h"
 #include "printdebug.h"
 #include "gravity.h"
@@ -175,13 +182,13 @@ extern Datalog * DLog;
 /* df01 needs to be renamed to reflect its function
  * for scaling the problem domain.
  */
-double  df01(Geometrydata * bd) 
-{
+double  df01(Geometrydata * gd) {
 
    int i, j, i1, i2;
-   int nBlocks = bd->nBlocks;
-   double ** vertices = bd->vertices;
-   int **vindex = bd->vindex;
+   int nBlocks = gd->nBlocks;
+   double ** vertices = gd->vertices;
+   int **vindex = gd->vindex;
+
    double maxx, minx, maxy, miny;
   /* FIXME: Why are these half values instead of full values? */
    //double halfheight, halfwidth;
@@ -192,12 +199,12 @@ double  df01(Geometrydata * bd)
    miny = vertices[1][2];
    maxy = vertices[1][2];
 
-   for (i=1; i<= nBlocks; i++)
-   {
+   for (i=1; i<= nBlocks; i++) {
+
       i1=vindex[i][1];
       i2=vindex[i][2];
-      for (j=i1; j<= i2; j++)
-      {
+      for (j=i1; j<= i2; j++) {
+
          if (minx > vertices[j][1])  
             minx = vertices[j][1];
 
@@ -221,7 +228,7 @@ double  df01(Geometrydata * bd)
    */
    return max(width,height)/2.0;
 
-}  /*  End df01  */
+} 
 
 
 /* The purpose of this subroutine is to separate apparently 
@@ -235,6 +242,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    int **vindex = gd->vindex;
    //int nBlocks = gd->nBlocks;
    extern Datalog * DLog;
+   double w0;
     
   /* This will be reset if adaptive time-stepping
    * is enabled.
@@ -246,7 +254,9 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * show all the action.  ac->w0 is scaled from the 
    * absolute dimensions of the physical problem. (????)
    */
-   ad->constants->w0 = df01(gd);
+   //ad->constants->w0 = df01(gd);
+   w0 = df01(gd);
+   constants_set_w0(ad->constants,w0);
 
   /* ad->pointcount is needed for saving restoring force terms 
    * for fixed points.
@@ -358,7 +368,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * the masses up front, use these instead of density*area
    * for inertial and energy terms.
    */
-   computeMass(gd, ad, e0);
+   computeMass(gd->mass, gd->moments, e0, gd->nBlocks);
 
 
    /*------------------------------------------------*/
@@ -422,7 +432,11 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    ad->saveTimeStep = ad->tsSaveInterval;
 
    initContactSpring(ad);
-   initConstants(ad);
+   ad->FPointSpring = ad->contactpenalty;
+
+   constants_init(ad->constants, ad->maxdisplacement);
+   ad->initialconstants = constants_clone(ad->constants);
+   
 
    DLog = datalog_new( ad->nTimeSteps, ad->nJointMats, gd->nBlocks);
   /* Clock stopped in postProces() */
@@ -638,7 +652,8 @@ static void
 setGravForces(Analysisdata * ad, Contacts * c, int contact)
 {
    Gravity * grav = ad->gravity;
-   double s2n_ratio = ad->constants->shear_norm_ratio;
+   //double s2n_ratio = ad->constants->shear_norm_ratio;
+   double s2n_ratio = constants_get_shear_norm_ratio(ad->constants);
 
    double ** c_length = get_contact_lengths(c);
 
@@ -1175,7 +1190,10 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
 {
    double ** F = ad->F;
    double ** K = ad->K;
-   double s2n_ratio = ad->constants->shear_norm_ratio;  // was h2
+   //double s2n_ratio = ad->constants->shear_norm_ratio;  // was h2
+   double s2n_ratio = constants_get_shear_norm_ratio(ad->constants);
+
+
   /* p is penalty parameter, so named to maintain compatibility 
    * GHS 1988 notation.
    */
@@ -1813,7 +1831,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    int * nn0 = gd->nn0;
    double ** phiCohesion = ad->phiCohesion;
   /* problem domain scaling, was w0 */   
-   double domainscale = ad->constants->w0; 
+   double domainscale = constants_get_w0(ad->constants); 
 
   /* FIXME: This should be stored in the ctacts struct instead of the 
    * geometry struct.
@@ -1828,11 +1846,12 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
 
 
   /* s0 is used only one time in this function! */
-   double openclose = ad->constants->openclose;  // was s0, hardwired to 0.0002
+   double openclose = constants_get_openclose(ad->constants);  // was s0, hardwired to 0.0002
   /* f0 is used twice */
-   double opencriteria = ad->constants->opencriteria;  // was f0, hardwired to 0.0000002
+   double opencriteria = constants_get_opencriteria(ad->constants);  // was f0, hardwired to 0.0000002
   /* h2 is used only once */
-   double shear_norm_ratio = ad->constants->shear_norm_ratio;  //  was h2
+   //double shear_norm_ratio = ad->constants->shear_norm_ratio;  //  was h2
+   double shear_norm_ratio = constants_get_shear_norm_ratio(ad->constants);
 
    int contact, blocknumber;  // was i, i0 
    int CTYPE; //i1; 
@@ -2661,7 +2680,7 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
    double ** moments = gd->moments;
    double ** globalTime = ad->globalTime;
    double maxdisplacement = ad->maxdisplacement;  // was g2
-   double domainscale = ad->constants->w0;
+   double domainscale = constants_get_w0(ad->constants);
 
   /* (GHS: vertex displacements    i0 old block number) */
 	for (i=1; i <= nBlocks; i++)
@@ -2737,31 +2756,6 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
 
    globalTime[ad->cts][1] = (a1/domainscale)/maxdisplacement;
    
-  /* (GHS: recover  a[][]  f[][] after equation solving) */
-  /* m9 = -1 means iteration finished               */
-#if 0
-   if ((ad->m9) != -1) { 
-
-      /** @todo Split this into 2 calls to an array copy 
-       * function.
-       */
-      restoreState(K,Kcopy,n3,F,Fcopy,nBlocks);
-      
-      for (i=1; i<= n3; i++) {
-         for (j=1; j<= 36; j++) {
-           /* FIXME: Use an array copy function or a memset */
-            K[i][j] = Kcopy[i][j];
-         }  
-      } 
-   
-      for (i=1; i<= nBlocks; i++) {
-         for (j=1; j<=  6; j++) {
-           /* FIXME: Use an array copy function or a memset. */
-            F[i][j] = Fcopy[i][j];
-         }  
-      }
-   }  
-#endif
    
   /* (GHS: draw deformed blocks, change u[][])  */
   /** Now, instead of being just the vertex displacements,
@@ -3111,11 +3105,11 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       ad->abort(ad);
       /* Not the right way to do this. */
       //ddaerror.error = __ZERO_MOMENT_ERROR__;
-      //iface->displaymessage("Zero block area");
+
       dda_display_error("Zero block area");
    }
    ad->avgArea[ad->cts] = avgarea;
-   computeMass(gd, ad, e0);
+   computeMass(gd->mass,gd->moments, e0, gd->nBlocks);
 }
 
    

@@ -10,6 +10,7 @@
 #include "ddamemory.h"
 #include "ddadlist.h"
 #include "datalog.h"
+#include "bolt.h"
 
 
 extern Datalog * DLog;
@@ -32,8 +33,7 @@ static void df15(Geometrydata *, Analysisdata *, int *, double **, double **);
 static void df16(Geometrydata *, int *, double **, double **, double **);
 //static void df18(Geometrydata *, Analysisdata *, int **, int **, int **, 
 //            double **, int *, int *, double **, double **, int **);
-int rockbolts(Geometrydata *, Analysisdata *, 
-              int *, int * kk, int **, double **, double **);
+
 /* This was moved from ddanalysis to shorten the size
  * of the analysis loop.
  */
@@ -95,7 +95,7 @@ assemble(Geometrydata * GData, Analysisdata * AData,
        
       if (GData->nBolts > 0) {
 
-         rockbolts(GData, AData, k1, kk, n, moments,f);
+         rockbolts(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f);
       }
 
       /* start open-close iteration  m9:step iterations */

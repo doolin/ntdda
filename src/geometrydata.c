@@ -823,7 +823,8 @@ computeMoments(Geometrydata * gd) {
       * Would be best to throw an exception.
       * If this assertion fires, check to see if reducing 
       * the max displacement (analysis file) solves the 
-      * problem.
+      * problem.  This assertion is often fired as a result
+      * of divide by zero somewhere else in the code.
       */
       assert(moments[block][1]  > 0);
 

@@ -3,9 +3,9 @@
  * .ana files in original ghs format
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:42 $
+ * $Date: 2002/08/03 14:42:29 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -233,7 +233,9 @@ analysisReader(Analysisdata * adn, char * af, int nfp, int pc, int nlp) {
    adn->pfactor = 50.0;
 
    /* New file format does this automatically. */
-   initConstants(adn);
+   adn->FPointSpring = adn->contactpenalty;
+   constants_init(adn->constants,adn->maxdisplacement);
+   adn->initialconstants = constants_clone(adn->constants);
 
 }  /*  Close analysisReader1()  */
 
