@@ -114,6 +114,7 @@ transplacement_apply_linear(double T[][7], double * D,
    }  
 }
 
+
 void 
 transplacement_apply_2dorder(double T[][7], double * D, 
                              double * u1, double * u2) {
@@ -192,27 +193,27 @@ massmatrix_linear (double T[][7], const double S0, const double S1,
 }
 
 
-/** FIXME */
+
 void 
 massmatrix_finite (double T[][7], const double S0, const double S1,
                    const double S2, const double S3) {
 
    T[1][1] = S0;
    T[2][2] = S0;
-   T[3][3] = 0;
+   T[3][3] = S1;
    T[3][4] = 0;
    T[4][3] = 0;
-   T[3][5] = 0;
-   T[5][3] = 0;
+   T[3][5] = S3;
+   T[5][3] = S3;
    T[3][6] = 0;
    T[6][3] = 0;
-   T[4][4] = 0;
-   T[4][6] = 0;
-   T[6][4] = 0;
-   T[5][5] = 0;
+   T[4][4] = S1;
+   T[4][6] = S3;
+   T[6][4] = S3;
+   T[5][5] = S2;
    T[5][6] = 0;
    T[6][5] = 0;
-   T[6][6] = 0;
+   T[6][6] = S2;
 }
 
 

@@ -121,10 +121,6 @@ SOURCE=.\src\contact.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\friction.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\functions.c
 # End Source File
 # Begin Source File
@@ -279,6 +275,10 @@ SOURCE=.\src\ddadlist.c
 # Begin Source File
 
 SOURCE=.\src\ddamemory.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\friction.c
 # End Source File
 # Begin Source File
 

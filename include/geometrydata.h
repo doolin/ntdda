@@ -86,8 +86,7 @@ struct _geo_data_tag {
    // w4;  /* max y */
    double scale[4];
    double w0;  /* scale parameter */
-  /* And this is the way it should be done... */
-   DDARect boundbox;
+
   /* FIXME: What is this? */
    //int nt;
 
@@ -271,7 +270,6 @@ void           gdata_get_centroid          (double * moments,
                                             double * x0, 
 
                                             double * y0);
-
 
 
 

@@ -71,11 +71,20 @@ constants_new_defaults(void) {
 
 
 
+
+
+
 void
+
 constants_validate(Constants * c) {
 
 
+
+
+
 }
+
+
 
 
 void
@@ -99,7 +108,9 @@ void
 constants_set_w0(Constants * c, double w0) {
 
    c->w0 = w0;
+
 }
+
 
 
 double 
@@ -344,9 +355,6 @@ constants_init(Constants * constants, double maxdisplacement) {
 #define I1 "   "
 #define I2 "      "
 
-/**
- * @todo Change the call to take a PrintFunc.
- */
 void 
 constants_print_xml(Constants * constants, PrintFunc printer, void * stream) {
 

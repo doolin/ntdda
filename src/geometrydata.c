@@ -24,7 +24,6 @@
 #define I2 "      "
 
 static void dumpDDAMLGeometryFile(Geometrydata *, char *);
-static void computeBoundingBox(Geometrydata *);
 
 static void deleteBlock(Geometrydata * gd, int blocknumber);
 
@@ -499,49 +498,6 @@ gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
 }  
 
 
-static void
-computeBoundingBox(Geometrydata * gd)
-{
-
-   int i, j, i1, i2;
-   double minx, maxx, miny, maxy;
-   int nBlocks = gd->nBlocks;
-   double ** vertices = gd->vertices;
-   int **vindex = gd->vindex;
- 
-   minx = vertices[1][1];
-   maxx = vertices[1][1];
-   miny = vertices[1][2];
-   maxy = vertices[1][2];
-
-
-   for (i=1;  i<= nBlocks; i++)
-   {
-      i1=vindex[i][1];
-      i2=vindex[i][2];
-      for (j=i1; j<= i2; j++)
-      {
-         if (minx > vertices[j][1])  
-            minx = vertices[j][1];
-
-         if (maxx < vertices[j][1])  
-            maxx = vertices[j][1];
-
-         if (miny > vertices[j][2])  
-            miny = vertices[j][2];
-
-         if (maxy < vertices[j][2])  
-            maxy = vertices[j][2];
-
-      }  /*  j  */
-   }  /*  i  */
-   
-   gd->boundbox.left = minx;
-   gd->boundbox.right = maxx;
-   gd->boundbox.bottom = miny;
-   gd->boundbox.top = maxy;
-   
-}  /* close computeBoundingBox() */
 
 
 /** FIXME: This needs to be set as an object method.
@@ -636,7 +592,9 @@ gdata_clone(Geometrydata * gdn) {
 
    return gdo;
 
-} /* close cloneGeometrydata() */
+} 
+
+
 
 
 /**************************************************/
@@ -651,7 +609,8 @@ gdata_clone(Geometrydata * gdn) {
 /* FIXME: Combine this with df01() to make one function out
  * these 2 very similar functions.  In fact, they are almost 
  * identical.  And both are the same as computeBoundingBox,
- * so there are 3 functions doing the same task here.
+ [which is deleted]
+ * so there are 3 [2] functions doing the same task here.
  * This function is called from geomdriver.  The way to do this
  * is to call the bounding box function from here, then set
  * the scale from the results of the bounding box computation.
@@ -786,7 +745,6 @@ gdata_new(void) {
 
    gdo->deleteblock = deleteBlock;
    gdo->dumptofile = gdata_write_ddaml;
-   gdo->computeBBox = computeBoundingBox;
 
    return gdo;
 
@@ -813,8 +771,8 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
 
       x2 = vertices[i][1];
       y2 = vertices[i][2];
-      x3 = vertices[i][1];
-      y3 = vertices[i][2];
+      x3 = vertices[i+1][1];
+      y3 = vertices[i+1][2];
 
       f1 = (x2*y3-x3*y2);
       moments[1] += f1/2;
@@ -868,26 +826,17 @@ gdata_compute_moments(Geometrydata * gd) {
 
    for (block=1; block<=nBlocks; block++) {
 
-
-
-
-     /**  @todo replace the following inner loops with a function call
-
-      * which is much easier to test.
-
+     /** @todo replace the following inner loops with a function call
+      * which is much easier to test.  But don't replace it until it
+      * is tested!
       */     
-
       //moments_compute(moments[block], vertices, vindex[block]);
-
-
-
 
      /* This loop to zero the moments matrix may or may not be 
       * necessary.  Leave it in for now, as it is not the 
       * problem affecting the areas.  This could also be moved
       * outside the loop and zeroed with the subroutine call.
       */
-
      /* @todo move this into the function above. */
       for (j=1; j<=8; j++) {
          moments[block][j] = 0;
@@ -944,7 +893,6 @@ gdata_get_centroid(double * moments, double * x0, double * y0) {
   *x0 = moments[7];   
   *y0 = moments[8];
 }
-
 
 
 double

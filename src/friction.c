@@ -2,9 +2,9 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2002/10/26 23:23:06 $
+ * $Date: 2002/11/01 15:18:07 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -71,10 +71,17 @@ computeFriction(Geometrydata *gd,  int joint_type)
  * for consistency with the units used in the Vaoint geometry
  * file.
  */
-/* FIXME: Don't need the analysis data here. */
+/* BUG BUG BUG BUG
+ * DISPDEP compiles in a call (df18 and df22) 
+ * to a frictional decay function that provides 
+ * a friction angle based on the value of the 
+ * displacement of a measured point.  If there is 
+ * no measured point, the call will produce spurious
+ * results due to garbage in the over-allocated arrays.
+ */
 double
-computeVFriction(Geometrydata *gd, int units, double mu0)
-{ 
+computeVFriction(Geometrydata *gd, int units, double mu0) { 
+
    static double phi;
    double x;
    double lambda;

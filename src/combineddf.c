@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/31 15:35:02 $
+ * $Date: 2002/11/01 15:18:07 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.45 $
+ * $Revision: 1.46 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.46  2002/11/01 15:18:07  doolin
+ * .
+ *
  * Revision 1.45  2002/10/31 15:35:02  doolin
  * Not yet ready for prime time.  This commit is just some
  * minor changes.
@@ -256,16 +259,6 @@
 
 
 
-/* BUG BUG BUG BUG
- * DISPDEP compiles in a call (df18 and df22) 
- * to a frictional decay function that provides 
- * a friction angle based on the value of the 
- * displacement of a measured point.  If there is 
- * no measured point, the call will produce spurious
- * results due to garbage in the over-allocated arrays.
- */   
-//#define DISPDEP 0
-
 extern FILEPOINTERS fp;
 extern Datalog * DLog;
 
@@ -299,6 +292,7 @@ df01(double ** vertices, int ** vindex, int numblocks) {
 
       i1=vindex[i][1];
       i2=vindex[i][2];
+
       for (j=i1; j<= i2; j++) {
 
          if (minx > vertices[j][1])  
@@ -566,6 +560,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    */
    w0 = df01(gd->vertices,gd->vindex,gd->nBlocks);
    constants_set_w0(ad->constants,w0);
+
    constants_init(ad->constants, ad->maxdisplacement);
 
   /* ad->pointcount is needed for saving restoring force terms 
@@ -1050,16 +1045,8 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    normalforce = fabs(pen_dist2)*(ad->JointNormalSpring);
   /* Tensile strength not used. */
    //tstrength=phiCohesion[joint_type][2]*c_length[contact][3];
-   if (ad->frictionlaw == voight) //disp dep
-   {
-     /* BUG BUG BUG BUG
-      * DISPDEP compiles in a call (df18 and df22) 
-      * to a frictional decay function that provides 
-      * a friction angle based on the value of the 
-      * displacement of a measured point.  If there is 
-      * no measured point, the call will produce spurious
-      * results due to garbage in the over-allocated arrays.
-      */
+   if (ad->frictionlaw == voight) {
+ 
      /* WARNING!!!  This is broken because gd is not passed in. */
       if (joint_type == 1 || joint_type == 2)
          ;//phi = computeVFriction(gd, ad, phi);
@@ -1070,11 +1057,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    }
    else if (ad->frictionlaw == negexp)
    {
-     /* BUG BUG BUG BUG
-      * DISPDEP compiles in a call (df18 and df22) 
-      * to a frictional decay function that provides 
-      * a friction angle based on the value of the 
-      * displacement of a measured point.  If there is 
+     /* BUG BUG BUG BUG If there is 
       * no measured point, the call will produce spurious
       * results due to garbage in the over-allocated arrays.
       */
@@ -2125,11 +2108,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1,
 
       if (ad->frictionlaw == voight) //disp dep
       {
-        /* BUG BUG BUG BUG
-         * DISPDEP compiles in a call (df18 and df22) 
-         * to a frictional decay function that provides 
-         * a friction angle based on the value of the 
-         * displacement of a measured point.  If there is 
+        /* BUG BUG BUG BUG If there is 
          * no measured point, the call will produce spurious
          * results due to garbage in the over-allocated arrays.
          */
@@ -2137,19 +2116,14 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1,
             phi = computeVFriction(gd, ad->units, phi);
          else 
             phi=phiCohesion[joint_type][0];
-      }
-      else if (ad->frictionlaw == negexp)
-      {
-        /* BUG BUG BUG BUG
-         * DISPDEP compiles in a call (df18 and df22) 
-         * to a frictional decay function that provides 
-         * a friction angle based on the value of the 
-         * displacement of a measured point.  If there is 
+      } else if (ad->frictionlaw == negexp) {
+
+        /* BUG BUG BUG BUG If there is 
          * no measured point, the call will produce spurious
          * results due to garbage in the over-allocated arrays.
          */
          if (joint_type == 1)
-            phi = computeFriction(gd, /*ad,*/joint_type);
+            phi = computeFriction(gd,joint_type);
          else 
             phi=phiCohesion[joint_type][0];
       }
@@ -2734,9 +2708,7 @@ void
 df25(Geometrydata *gd, Analysisdata *ad, int *k1,
           double **e0, double **U, TransMap transmap,
           TransApply transapply,
-
           BoundCond boundary_conditions,
-
           StrainModel strain_compute) {
 
    int i, i0, i1, i2;
@@ -2820,14 +2792,14 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    * FIXME: Get rid of this and do the postprocessing 
    * in matlab or perl or something.
    */   
-   for (i=1; i<=nFPoints+nLPoints+nMPoints; i++)
-   {
+   for (i=1; i<=nFPoints+nLPoints+nMPoints; i++) {
+
       prevpoints[i][1] = points[i][1];
       prevpoints[i][2] = points[i][2];
-   }  /* close cloning loop */
+   }  
 
-   for (i=1; i<=nFPoints+nLPoints+nMPoints; i++)
-   {
+   for (i=1; i<=nFPoints+nLPoints+nMPoints; i++) {
+
       i0 = (int)points[i][3];
       x  = points[i][1];
       y  = points[i][2];
@@ -2835,7 +2807,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       transmap(moments[i0],T,x,y);
       
       i1 = k1[i0];
-
       transapply(T,F[i1],&x1,&y1);
 
      /* Compute work of load points here, before the point
@@ -2856,8 +2827,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       c[i][1] += -x1;
       c[i][2] += -y1;
    }
-
-
 
 
   /* Track displacement of load points for an initial hack 
