@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:29 $
+ * $Date: 2002/09/07 00:26:58 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  */
 
 #include <stdio.h>
@@ -852,6 +852,28 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    dl_insert_b(boltmatlist,(void*)boltmat);
 }  
 
+static void 
+parseWritevertices(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+{
+  /* Need to grab a tempstring, then look for a code to write ALL vertices. 
+   * Default is to only write vertices for blocks containing measured points.
+   */
+   char * temp;
+
+   fprintf(stdout,"Parsing Writevertices...\n");
+   
+   temp = xmlGetProp(cur,"type");
+
+   if (!strcmp("all",xmlGetProp(cur,"flag")) ) {
+      adata->verticesflag = 1;
+   }
+   else { 
+      adata->verticesflag = 0;
+   } // end if
+
+   fprintf(stdout,"verticesflag: %d\n\n", adata->verticesflag);
+
+}  
 
 static double **
 DoubMat2DGetMem(int n, int m)
@@ -920,6 +942,7 @@ getNewBoltMat(void)
 
 
 KWDTAB atab_type[] = {
+{"Writevertices",  0, *parseWritevertices  },
 {"Rotation",       0, *parseRotation       },
 {"Gravity",        0, *parseGravity        },
 {"Autotimestep",   0, *parseAutotimestep   },

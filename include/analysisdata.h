@@ -88,6 +88,7 @@ struct _analysisdata_tag {
    ddaboolean autotimestepflag;
    ddaboolean autopenaltyflag;
    ddaboolean planestrainflag;
+   ddaboolean verticesflag;
 
   /* This is a desparate kludge just to get some matlab
    * output.

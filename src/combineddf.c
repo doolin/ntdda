@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/08/03 14:42:29 $
+ * $Date: 2002/09/07 00:26:59 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.28 $
+ * $Revision: 1.29 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.29  2002/09/07 00:26:59  doolin
+ * changed output to support Kat & Meagan's studies.  Modified postprocessing to write bolt endpoints to .m and .log files (matlab and excel formats), and block vertices to .m and .log files.
+ * Default is to write block vertices for all blocks containing measured points, but "all" flag can be used to write vertices of all blocks.
+ *
  * Revision 1.28  2002/08/03 14:42:29  doolin
  * More cleanup.  Read diffs for details.
  *
@@ -1342,7 +1346,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
 
       getLockStates(locks,lockstate,contact);
 
-      printLockStates(lockstate,"df18");
+      // printLockStates(lockstate,"df18");
 
 
      /* (GHS: compute 4 6*6  2 6*1 contact submatrices)       */
@@ -1371,7 +1375,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          QQ[PREVIOUS]=lockstate[1][1];
          QQ[CURRENT]=lockstate[1][2];
 
-         fprintf(fp.logfile,"QQ: %d %d\n",QQ[PREVIOUS],QQ[CURRENT]);
+         // fprintf(fp.logfile,"QQ: %d %d\n",QQ[PREVIOUS],QQ[CURRENT]);
 
         /* If the locks changed between the previous iteration
          * and the current iteration, then have to construct 

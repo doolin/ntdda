@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/06/23 16:57:18 $
+ * $Date: 2002/09/07 00:27:00 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  */
 
 #include <malloc.h>
@@ -431,6 +431,190 @@ writeTimeInfo(Analysisdata * ad)
 }  /* close writeTimeInfo() */
 
 
+// this function writes the block vertices to the log file (filename.log)
+void
+writeBlockVerticesLog(Geometrydata * gd, int timestep, int block)
+ {
+   double ** vertices = gd->vertices;
+   int ** vindex = gd->vindex;
+   //int numvertices;
+   int startindex=vindex[block][1];
+   int stopindex=vindex[block][2];
+   int i;
+
+   fprintf(fp.vertexlogfile,"\n Timestep %d Block %d vertices = [", timestep, block);
+
+   for (i=startindex; i<=stopindex; i++)
+   {
+      fprintf(fp.vertexlogfile,"%30.16f %30.16f ", vertices[i][1], vertices[i][2]);
+   }
+
+   fprintf(fp.vertexlogfile,"]\n");
+
+}  
+
+
+void
+writeAllBlockVerticesMatrix(Geometrydata *gd, Analysisdata *ad)
+{
+  /* For each block, the vertexfp_pos array stores the 
+   * location of the end of the ith block.
+   */
+   static long * vertexfp_pos = NULL;
+  /* loop counters */
+   int i,j;
+
+   int numvertices;
+   int startindex;
+   int stopindex;
+
+  /* This will declare the variable name in matlab or 
+   * octave.  There is a problem here with the stupid
+   * %%. 
+   * FIXME: The comment header needs to be pasted in by the 
+   * preprocessor or by a user option to control whether gnuplot
+   * or matlab/octave output is desired.
+   */
+   char headerstring[] = {"\n%% %% Timestep, currenttime, x1 y1 x2 y2 etc. \n\n"
+                          "block%d=[\n"};  // Comma is for ^%#@!^%^#@! Excel importing
+  /* After all the data for the array is written,
+   * that is, at the last time step, close the array
+   * with matlab array bracket delimiters.
+   */
+   static char trailerstring[] = {"];\n"};
+  /* FIXME: redo the logic here to have the string size
+   * variable and adjusted for run-time conditions.
+   */
+   char tempstring[256];
+  /* size of headerstring, used for computing offset */
+   long headersize;
+  /* size in bytes of entire array */ 
+   long blocksize;
+  /* size in bytes of a single row of numbers in the array */
+   long rowsize;
+  /* size in bytes of bracket closing array */
+   static long trailersize;
+  /* These two values control field width for formatted 
+   * output.  Later, this technique can be extended to have
+   * field width and precision adjustable on the fly, from 
+   * user specified parameters.
+   */
+   //int doublewidth = 10;
+   int doublewidth = 20;
+   int intwidth = 10;
+
+   /* This formatting string will probably be rewritten as
+   * a user specified precision, but it will have to have 
+   * a fair bit of code to support it.  Do that later.
+   */ 
+   //char formatstring[] = {"%10d %10.4f %10.4f %10.4f %10.4f %10.5f %10.4f %10.4f %10.4f\n"};
+   char formatstring[] = {"%20e %20e "};  // each vertex has a pair of coordinates
+  /* Rowsize computation.  Doubles are 4 (8?) bytes, but writing out
+   * to text requires one byte per character.  Note that there
+   * is one non-printing character per line which is the 
+   * new line, and (evidently) we need to add an extra byte
+   * for null character.  FIXME: investigate the null(?)
+   */
+   // need to put this inside loop since blocks can have different numbers of vertices
+   // rowsize = 8*doublewidth + 1*intwidth + 8*1/*spaces*/+ 1/* \n */+ 1/*\0*/;
+
+  /* blocksize is basically the size of one row of output 
+   * times the number of size (number of timesteps).
+   * This should approximate the size of a 2D matrix of
+   * numbers written out in ascii text.  FIXME: blocksize
+   * is too big. Find out why and fix.
+   */
+   // put inside loop!
+   // blocksize = rowsize*(ad->nTimeSteps+1);
+  /* trailersize won't change like headersize does. */
+   trailersize = strcspn(trailerstring, "\0");
+
+
+  /* The first time we get to this function, we need 
+   * set up the headers for each block of vertex 
+   * data and set the positions of the end of blocks.
+   */ 
+   if (ad->cts == 0)
+   {
+     /* Get memory for an array of pointers to the current end 
+      * of each block.  Array size is the number of blocks specified.
+      * Warning: these may be initialized from a gravity phase.
+      */
+      if(vertexfp_pos == NULL)
+         vertexfp_pos = (long *)malloc(sizeof(long)*(gd->nBlocks + 1));
+
+	  /* at i = 1, we are at the start of the file.
+	  */
+	  vertexfp_pos[1] = 0;
+      for (i=1; i<=gd->nBlocks; i++)
+      {
+        /* construct the variable name, e.g., "block1" */
+         sprintf(tempstring, headerstring, i);
+        /* this size changes, e.g., might have "block10" */
+         headersize = strcspn(tempstring, "\0");
+        /* make the jump to new position in file */
+         fseek(fp.vertexfile, vertexfp_pos[i], SEEK_SET);
+        /* write the variable name to the file */
+         fprintf(fp.vertexfile, tempstring);
+        /* save the current position of the file pointer cause we
+         * will need it next time around.
+         */
+         vertexfp_pos[i] = ftell(fp.vertexfile);
+         // determine the position of the next block by adding (rowsize)*(numrows)
+		 numvertices = gd->vindex[i][2] - gd->vindex[i][1] +1;
+         rowsize = intwidth + (doublewidth + 1) * (1 + numvertices * 2) + 3;
+		 blocksize = rowsize*(ad->nTimeSteps+1);
+		 vertexfp_pos[i+1] =  vertexfp_pos[i] + (blocksize + trailersize);
+      }  /* i */
+   }  /* end if first time step */
+
+  /* Kludge.  This should go before the previous block of code,
+   * but unfortunately causes a segfault b/c nothing gets
+   * initialized otherwise.
+   */
+   if(ad->gravityflag == 1)
+      return;
+
+  /* Then, write the data to the file as we go. 
+   */
+   for (i=1; i<= gd->nBlocks; i++)
+   {    
+     /* Find the end of the ith block */      
+      fseek(fp.vertexfile, vertexfp_pos[i], SEEK_SET);
+     /* find current position */
+      startindex = gd->vindex[i][1];
+      stopindex = gd->vindex[i][2];
+     /* Do what we came to do, viz. write data to file.
+      * Note that repeated values are just place holders.
+      */ 
+      fprintf(fp.vertexfile, "%10d %20e ", ad->cts, ad->elapsedTime);
+	  for(j=startindex; j<=stopindex; j++) {
+          fprintf(fp.vertexfile, formatstring, gd->vertices[j][1], gd->vertices[j][2]);
+	  } // end for j
+	  fprintf(fp.vertexfile, "\n");
+     /* Save the file pointer location after writing. */
+      vertexfp_pos[i] = ftell(fp.vertexfile);  
+   }  /*  i  */
+
+  /* After the data for the last time step is written to 
+   * the file, we need to close the matlab braces.
+   */
+   if (ad->cts == ad->nTimeSteps)
+   {
+     /* Now close each block of numbers with the 
+      * matlab matrix delimiters.
+      */
+      for (i=1; i<=gd->nBlocks; i++)
+      {  
+        /* find current end of ith block */
+         fseek(fp.vertexfile, vertexfp_pos[i], SEEK_SET);
+        /* write the closing array bracket */
+         fprintf(fp.vertexfile, trailerstring);
+      } /* i */
+   }  /* end if last time step */
+
+}  /* Close writeAllBlockVerticesMatrix()  */
+
 
 /* Wrapper for writing out measured points.  Since we
  * need information on each measured point for every time
@@ -464,10 +648,18 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
   /* For each measured point, the fp_pos array stores the 
    * location of the end of the ith measured point block.
    */
-   static long * fp_pos = NULL;
+   static long * fp_pos = NULL;  
+   static long * vertexfp_pos = NULL;  // added for writing block vertices to file
   /* loop counters */
    int i,j,k;
-  /* dereference some useful variables */
+   
+   // the next 4 lines are used to write block vertices to a data file 
+   int block;
+   int numvertices;
+   int startindex;
+   int stopindex;
+
+   /* dereference some useful variables */
   /* int nTimeSteps = ad->nTimeSteps; */
    int nMPoints = gd->nMPoints;
    int nLPoints = gd->nLPoints;
@@ -489,6 +681,8 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
    */
    char headerstring[] = {"\n%% %% Timestep, currenttime, deltat, xpos, ypos, dcum, vx, vy, v\n\n"
                           "measpoint%d=[\n"};  // Comma is for ^%#@!^%^#@! Excel importing
+   char vheaderstring[] = {"\n%% %% Timestep, currenttime, x1 y1 x2 y2 etc. \n\n"
+                          "block for meas pt %d=[\n"};  // Comma is for ^%#@!^%^#@! Excel importing
   /* After all the data for the array is written,
    * that is, at the last time step, close the array
    * with matlab array bracket delimiters.
@@ -499,11 +693,11 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
    */
    char tempstring[256];
   /* size of headerstring, used for computing offset */
-   long headersize;
+   long headersize, vheadersize;
   /* size in bytes of entire array */ 
-   long blocksize;
+   long blocksize, vblocksize;
   /* size in bytes of a single row of numbers in the array */
-   long rowsize;
+   long rowsize, vrowsize;
   /* size in bytes of bracket closing array */
    static long trailersize;
   /* These two values control field width for formatted 
@@ -520,6 +714,8 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
    */ 
    //char formatstring[] = {"%10d %10.4f %10.4f %10.4f %10.4f %10.5f %10.4f %10.4f %10.4f\n"};
    char formatstring[] = {"%10d %20e %20e %20e %20e %20e %20e %20e %20e\n"};
+
+   char vformatstring[] = {"%20e %20e "};  // each vertex has a pair of coordinates
   /* Rowsize computation.  Doubles are 4 (8?) bytes, but writing out
    * to text requires one byte per character.  Note that there
    * is one non-printing character per line which is the 
@@ -553,7 +749,10 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
       */
       if(fp_pos == NULL)
          fp_pos = (long *)malloc(sizeof(long)*(gd->nMPoints));
-     /* Need to store the initial values of x,y for each point. */
+      if(vertexfp_pos == NULL)
+         vertexfp_pos = (long *)malloc(sizeof(long)*(gd->nMPoints));
+	  
+	  /* Need to store the initial values of x,y for each point. */
       if (xinit == NULL)
          xinit = (double *)malloc(sizeof(double)*(gd->nMPoints));
       if (yinit == NULL)
@@ -584,6 +783,21 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
          */
          xinit[k] = gd->origpoints[i][1];
          yinit[k] = gd->origpoints[i][2];
+		 if(!ad->verticesflag) {
+			 // vertexfp_pos[0] = 0;
+			 block = (int) gd->points[i][3];
+			 /* construct the variable name, e.g., "block1" */
+			 sprintf(tempstring, vheaderstring, block);
+			 vheadersize = strcspn(tempstring, "\0");
+			 fseek(fp.vertexfile, vertexfp_pos[k], SEEK_SET);
+			 fprintf(fp.vertexfile, tempstring);
+			 vertexfp_pos[k] = ftell(fp.vertexfile);
+			 // determine the position of the next block by adding (rowsize)*(numrows)
+			 numvertices = gd->vindex[block][2] - gd->vindex[block][1] +1;
+			 vrowsize = intwidth + (doublewidth + 1) * (1 + numvertices * 2) + 3;
+			 vblocksize = vrowsize*(ad->nTimeSteps+1);
+			 vertexfp_pos[k+1] =  vertexfp_pos[k] + (vheadersize + vblocksize + trailersize);
+		 } // end if
       }  /* k */
    }  /* end if first time step */
 
@@ -628,7 +842,30 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
                 xpos, ypos, dcum,
                vx, vy, v);
      /* Save the file pointer location after writing. */
-      fp_pos[j] = ftell(fp.measfile);  
+      fp_pos[j] = ftell(fp.measfile);
+	  
+
+	  // unless verticesflag is set to "1", the default condition is
+	  // to write vertices of blocks containing meas pts to filename_vertices.log
+	  // (that's what this function call does) and to filename_vertices.m (see following lines)
+	  // NOTE: blocks containing more than one meas pt will be written to the file multiple times
+	  // if verticesflag IS set to 1, the data for all blocks is written to these files
+	  // (see code in analysisdriver.c)
+	  if (!ad->verticesflag) {
+	     block = (int) gd->points[i][3];
+		 writeBlockVerticesLog(gd, ad->cts, block);
+
+		 fseek(fp.vertexfile, vertexfp_pos[j], SEEK_SET);
+		 startindex = gd->vindex[block][1];
+		 stopindex = gd->vindex[block][2];
+		 fprintf(fp.vertexfile, "%10d %20e ", ad->cts, ad->elapsedTime);
+		 for(k=startindex; k<=stopindex; k++) {
+          fprintf(fp.vertexfile, vformatstring, gd->vertices[k][1], gd->vertices[k][2]);
+		 } // end for k
+		 fprintf(fp.vertexfile, "\n");
+		 vertexfp_pos[j] = ftell(fp.vertexfile); 
+	  } // end if
+
    }  /*  i,j  */
 
   /* After the data for the last time step is written to 
@@ -645,6 +882,10 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
          fseek(fp.measfile, fp_pos[k], SEEK_SET);
         /* write the closing array bracket */
          fprintf(fp.measfile, trailerstring);
+		 if (!ad->verticesflag) {
+			 fseek(fp.vertexfile, vertexfp_pos[k], SEEK_SET);
+			 fprintf(fp.vertexfile, trailerstring);
+		 } // end if
       } /* k */
       
       //free(fp_pos);
@@ -723,32 +964,181 @@ writeSpyfile(int ** n, int * kk, int numblocks, FILE * spyfile)
 
 
 void
-writeBlockVertices(Geometrydata * gd, int block)
-{
-   double ** vertices = gd->vertices;
-   int ** vindex = gd->vindex;
-   //int numvertices;
-   int startindex=vindex[block][1];
-   int stopindex=vindex[block][2];
-   int i;
-
-   fprintf(fp.logfile,"\nvertices = [\n");
-
-   for (i=startindex; i<=stopindex; i++)
-   {
-      fprintf(fp.logfile,"%30.16f %30.16f \n", vertices[i][1], vertices[i][2]);
-   }
-
-   fprintf(fp.logfile,"]\n");
-
-}  
-
-
-void
 writeBlockStresses(double ** e0, int block)
 {
-
+	
    fprintf(fp.stressfile,"%30.16f %30.16f %30.16f\n", 
       e0[block][4], e0[block][5], e0[block][6]);
 
 }  /*  close writeBlockStress() */
+
+
+// writes bolt data to output file filename_bolt.log
+// NOTE: data is NOT in matlab format!
+// current implementation is minimal:
+// writes elapsed time followed by a colon and a list of bolt endpoints
+// each bolt has 2 pairs of x,y coordinates
+// semicolons separate data for each bolt
+void 
+writeBoltLog(Geometrydata * gd, Analysisdata *ad)
+{
+	int i;
+	double ** hb = gd->rockbolts;
+
+	if(ad->cts == 0) fprintf(fp.boltlogfile, "This analysis contains %d bolt(s)\n", gd->nBolts);
+	fprintf(fp.boltlogfile, "%lf:", ad->elapsedTime);
+	for (i=0; i < gd->nBolts; i++) {
+		fprintf(fp.boltlogfile, " %.12f,%.12f %.12f,%.12f;", hb[i][1], hb[i][2], hb[i][3], hb[i][4]);
+	}  // end for each bolt
+	fprintf(fp.boltlogfile,"\n");
+}  /* close writeBoltLog() */
+
+
+
+// write bolt data to filename_bolt.m in matlab format
+// there's a matrix for each bolt, where each row in the matrix contains
+// timestep #, elapsed time, and 2 pairs of coordinates (one for each bolt endpoint)
+void
+writeBoltMatrix(Geometrydata *gd, Analysisdata *ad)
+{
+  /* For each bolt, the boltfp_pos array stores the 
+   * location of the end of the ith block of bolt data.
+   */
+   static long * boltfp_pos = NULL;
+  /* loop counters */
+   int i;
+
+  /* This will declare the variable name in matlab or 
+   * octave.  There is a problem here with the stupid
+   * %%. 
+   * FIXME: The comment header needs to be pasted in by the 
+   * preprocessor or by a user option to control whether gnuplot
+   * or matlab/octave output is desired.
+   */
+   char headerstring[] = {"\n%% %% Timestep, currenttime, x1 y1 x2 y2 etc. \n\n"
+                          "bolt%d=[\n"};  // Comma is for ^%#@!^%^#@! Excel importing
+  /* After all the data for the array is written,
+   * that is, at the last time step, close the array
+   * with matlab array bracket delimiters.
+   */
+   static char trailerstring[] = {"];\n"};
+  /* FIXME: redo the logic here to have the string size
+   * variable and adjusted for run-time conditions.
+   */
+   char tempstring[256];
+  /* size of headerstring, used for computing offset */
+   long headersize;
+  /* size in bytes of entire array */ 
+   long blocksize;
+  /* size in bytes of a single row of numbers in the array */
+   long rowsize;
+  /* size in bytes of bracket closing array */
+   static long trailersize;
+  /* These two values control field width for formatted 
+   * output.  Later, this technique can be extended to have
+   * field width and precision adjustable on the fly, from 
+   * user specified parameters.
+   */
+   int doublewidth = 10;
+   int intwidth = 10;
+
+   /* This formatting string will probably be rewritten as
+   * a user specified precision, but it will have to have 
+   * a fair bit of code to support it.  Do that later.
+   */ 
+   char formatstring[] = {"%10d %10.4f %10.4f %10.4f %10.4f %10.4f\n"};
+  /* Rowsize computation.  Doubles are 4 (8?) bytes, but writing out
+   * to text requires one byte per character.  Note that there
+   * is one non-printing character per line which is the 
+   * new line, and (evidently) we need to add an extra byte
+   * for null character.  FIXME: investigate the null(?)
+   */   
+   rowsize = 5*doublewidth + 1*intwidth + 5*1/*spaces*/+ 1/* \n */ + 1/*\0*/;
+
+  /* blocksize is basically the size of one row of output 
+   * times the number of size (number of timesteps).
+   * This should approximate the size of a 2D matrix of
+   * numbers written out in ascii text.  FIXME: blocksize
+   * is too big. Find out why and fix.
+   */
+   blocksize = rowsize*(ad->nTimeSteps + 1);
+
+   /* trailersize won't change like headersize does. */
+   trailersize = strcspn(trailerstring, "\0");
+
+  /* The first time we get to this function, we need 
+   * set up the headers for each block of vertex 
+   * data and set the positions of the end of blocks.
+   */ 
+   if (ad->cts == 0)
+   {
+     /* Get memory for an array of pointers to the current end 
+      * of each block.  Array size is the number of blocks specified.
+      * Warning: these may be initialized from a gravity phase.
+      */
+      if(boltfp_pos == NULL)
+         boltfp_pos = (long *)malloc(sizeof(long)*(gd->nBolts));
+
+	  /* at i = 0, we are at the start of the file.
+	  */
+	  //boltfp_pos[0] = 0;
+      for (i=0; i<gd->nBolts; i++)
+      {
+        /* construct the variable name, e.g., "bolt1" */
+         sprintf(tempstring, headerstring, i+1);
+        /* this size changes, e.g., might have "block10" */
+         headersize = strcspn(tempstring, "\0");
+         
+		 boltfp_pos[i] =  i*(headersize + blocksize + trailersize);
+		 /* make the jump to new position in file */
+         fseek(fp.boltfile, boltfp_pos[i], SEEK_SET);
+        /* write the variable name to the file */
+         fprintf(fp.boltfile, tempstring);
+        /* save the current position of the file pointer cause we
+         * will need it next time around.
+         */
+         boltfp_pos[i] = ftell(fp.boltfile);
+         // determine the position of the next block by adding (rowsize)*(numrows)
+		 //boltfp_pos[i+1] =  boltfp_pos[i] + (blocksize + trailersize);
+      }  /* i */
+   }  /* end if first time step */
+
+  /* Kludge.  This should go before the previous block of code,
+   * but unfortunately causes a segfault b/c nothing gets
+   * initialized otherwise.
+   */
+   if(ad->gravityflag == 1)
+      return;
+
+  /* Then, write the data to the file as we go. 
+   */
+   for (i=0; i< gd->nBolts; i++)
+   {    
+     /* Find the end of the ith block */      
+      fseek(fp.boltfile, boltfp_pos[i], SEEK_SET);
+     /* Do what we came to do, viz. write data to file.
+      * Note that repeated values are just place holders.
+      */
+      fprintf(fp.boltfile, formatstring, ad->cts, ad->elapsedTime, gd->rockbolts[i][1], gd->rockbolts[i][2], gd->rockbolts[i][3], gd->rockbolts[i][4]);
+     /* Save the file pointer location after writing. */
+      boltfp_pos[i] = ftell(fp.boltfile);  
+   }  /*  i  */
+
+  /* After the data for the last time step is written to 
+   * the file, we need to close the matlab braces.
+   */
+   if (ad->cts == ad->nTimeSteps)
+   {
+     /* Now close each block of numbers with the 
+      * matlab matrix delimiters.
+      */
+      for (i=0; i<gd->nBolts; i++)
+      {  
+        /* find current end of ith block */
+         fseek(fp.boltfile, boltfp_pos[i], SEEK_SET);
+        /* write the closing array bracket */
+         fprintf(fp.boltfile, trailerstring);
+      } /* i */
+   }  /* end if last time step */
+
+}  /* Close writeBoltMatrix()  */

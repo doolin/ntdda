@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.23  2002/09/07 00:26:59  doolin
+ * changed output to support Kat & Meagan's studies.  Modified postprocessing to write bolt endpoints to .m and .log files (matlab and excel formats), and block vertices to .m and .log files.
+ * Default is to write block vertices for all blocks containing measured points, but "all" flag can be used to write vertices of all blocks.
+ *
  * Revision 1.22  2002/08/03 14:42:29  doolin
  * More cleanup.  Read diffs for details.
  *
@@ -151,6 +155,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
    clock_t start, stop;
    int doublesize;   // 8 bytes on a 32 bit machine
+   int counter;  // for writeBlockVerticesLog loop
 
   /**************************************************/
   /* k : index of a    2*block contact + 20*nBlocks */
@@ -222,7 +227,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
  * compile control because I want to deal with it asap.  And 
  * I want to get rid of compilecontrol asap.
  */
-   //adata_set_output_flag(AData, VERTICES);
+   adata_set_output_flag(AData, VERTICES);
    adata_set_output_flag(AData, FIXEDPOINTS);
    adata_set_output_flag(AData, MEASPOINTS);
    adata_set_output_flag(AData, SOLUTIONVECTOR);
@@ -230,6 +235,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    //adata_set_output_flag(AData, BLOCKSTRESSES);
    adata_set_output_flag(AData, PENALTYFORCES);
    adata_set_output_flag(AData, FRICTIONFORCES);
+   adata_set_output_flag(AData, BOLTS);
   /* FIXME: This is a horrible bogosity: moments need to 
    * be written from the geometry data, not the analysis
    * data.  
@@ -259,9 +265,19 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 /* All this stuff gets put elsewhere at some point in the 
  * future.
  */
-   if (AData->options & VERTICES)
-      writeBlockVertices(GData, 1);      
    
+   if (AData->options & VERTICES && AData->verticesflag) {
+	   for (counter = 1; counter <= GData->nBlocks; counter++) {
+			writeBlockVerticesLog(GData, 0, counter);
+	   } // end for
+	   writeAllBlockVerticesMatrix(GData, AData);
+   }  // end if
+   
+   if (AData->options & BOLTS) {
+         writeBoltLog(GData, AData);
+	     writeBoltMatrix(GData, AData);
+   }  // end if
+
    if (AData->options & MOMENTS)
       writeMoments(GData, AData->cts, AData->nTimeSteps);
 
@@ -466,6 +482,18 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       if (AData->options & MOMENTS)
          writeMoments(GData, AData->cts, AData->nTimeSteps);
 
+	  if (AData->options & BOLTS) {
+         writeBoltLog(GData, AData);
+	     writeBoltMatrix(GData, AData);
+      }  // end if
+
+	  if (AData->options & VERTICES && AData->verticesflag) {
+	   for (counter = 1; counter <= GData->nBlocks; counter++) {
+			writeBlockVerticesLog(GData, AData->cts, counter);
+	   } // end for
+	   writeAllBlockVerticesMatrix(GData, AData);
+	  }  // end if
+
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1)
          checkGravityConvergence(AData->gravity, GData, AData);
@@ -499,8 +527,8 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */
    postProcess(GData, AData);
 
-   if (AData->options & VERTICES)
-      writeBlockVertices(GData, 1);
+   // if (AData->options & VERTICES)
+   //   writeBlockVertices(GData, 1);
 
   /* Everything after here is clean up code.  All memory 
    * should be freed, all open files closed. etc etc etc.

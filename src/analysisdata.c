@@ -381,6 +381,24 @@ openAnalysisFiles(FILEPATHS * filepath)
    strcpy(temp, filepath->rootname);
    strcat(temp, "_fforce.m");
    strcpy(filepath->fforce, temp);
+   
+   strcpy(temp, filepath->rootname);
+   strcat(temp, "_bolt.m");
+   strcpy(filepath->boltfile, temp);
+   
+   strcpy(temp, filepath->rootname);
+   strcat(temp, "_bolt.log");
+   strcpy(filepath->boltlogfile, temp);
+
+   strcpy(temp, filepath->rootname);
+   strcat(temp, "_vertices.m");
+   strcpy(filepath->vertexfile, temp);
+
+   strcpy(temp, filepath->rootname);
+   strcat(temp, "_vertices.log");
+   strcpy(filepath->vertexlogfile, temp);
+
+
 
   /* Copied in from geometry driver. */
    strcpy(temp, filepath->rootname);
@@ -434,6 +452,15 @@ openAnalysisFiles(FILEPATHS * filepath)
    fp.datafile = fopen(filepath->datafile, "w");
    fp.fpointfile = fopen(filepath->fpointfile, "w");
 
+   fp.boltfile = fopen(filepath->boltfile, "w");
+
+   fp.boltlogfile = fopen(filepath->boltlogfile, "w");
+   fprintf(fp.boltlogfile, "Elapsed Time: bolt1x1,bolt1y1 bolt1x2,bolt1y2; bolt2x1,bolt2y1 bolt2x2,bolt2y2; etc\n");
+
+   fp.vertexfile = fopen(filepath->vertexfile, "w");
+   fp.vertexlogfile = fopen(filepath->vertexlogfile, "w");
+
+
    fp.cforce = fopen(filepath->cforce, "w");
    fprintf(fp.cforce,"contactforces = [\n");
 
@@ -484,6 +511,10 @@ closeAnalysisFiles()
    fclose(fp.htmlfile);
    fclose(fp.datafile);
    fclose(fp.fpointfile);
+   fclose(fp.boltfile);
+   fclose(fp.boltlogfile);
+   fclose(fp.vertexfile);
+   fclose(fp.vertexlogfile);
 
    fprintf(fp.cforce,"];\n");
    fclose(fp.cforce);

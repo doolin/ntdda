@@ -29,6 +29,7 @@ extern "C" {
 #define MOMENTS         1 << 6  
 #define FRICTIONFORCES  1 << 7  
 #define MEASPOINTS      1 << 8
+#define BOLTS			1 << 9
 
 
 /******************** Post-processing code ******************/
@@ -45,7 +46,10 @@ void writeMoments(Geometrydata *, int timestep, int numtimesteps);
 void writeBlockMasses(Analysisdata *,Geometrydata *);
 void writeMasses(Analysisdata *,Geometrydata *);
 void writeSpyfile(int ** n, int * kk, int numblocks, FILE * spyfile1);
-void writeBlockVertices(Geometrydata *, int block);
+void writeBlockVerticesLog(Geometrydata *, int timestep, int block);
+void writeAllBlockVerticesMatrix(Geometrydata *, Analysisdata *);
+void writeBoltLog(Geometrydata *, Analysisdata *);
+void writeBoltMatrix(Geometrydata *, Analysisdata *);
 
 
 void writeBlockStresses(double ** e0, int block);
