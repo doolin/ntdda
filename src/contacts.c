@@ -65,7 +65,7 @@ struct _C {
     * modified directly, just use these to assign values
     * to temporary variables in df22() 
     */
-   double * x1,y1,x2,y2,x3,y3;
+   double *x1, *y1, *x2, *y2, *x3, *y3;
 
    /* Shear locking point */
    double x0,y0;
@@ -73,7 +73,7 @@ struct _C {
    double contact_length;
 
    double pen_dist;
-   double shear_motion;
+   double shear_dist;
    double cohesion_length;
 
   /* If the contact is a vertex_vertex contact, we have to 
@@ -85,8 +85,9 @@ struct _C {
    */
    int reorder; //boolean
    int tension; //boolean? See locks[][0] or m0[][0]
+   int save;    //boolean? Used in transfer contacts.
 
-   /* Should be between 0 and 1 */
+   /* Shear locking ratio, should be between 0 and 1 */
    double omega;
 
    /* State of contact for open-close iteration.  May not use these,
@@ -97,6 +98,21 @@ struct _C {
           lockedopen, lockedsliding, lockedlocked } modechange;
 
    enum { open, sliding, locked } previous_state, current_state;
+
+  /* In the future, might be able to adjust the penalty springs
+   * on a case by case basis instead of using a global penalty
+   * spring.
+   */
+  /* Contact normal stiffness */
+   double kn;
+  /* Contact shear stiffness */
+   double ks;
+  /* Lagrange multiplier, may never be needed... */
+   double lagmult;
+  /* Normal reaction generated at contact */
+   double normalforce;
+  /* Shear reaction generated at contact */
+   double shearforce;
 
    /* Not yet implemented... */
    //Block * block_i, block_j;
@@ -243,7 +259,10 @@ getNewContacts(int nblocks)
 {
    Contacts * c;
    c = (Contacts *)malloc(sizeof(Contacts));
+
+#if _DEBUG
    memset((void*)c,0xDA,sizeof(Contacts));
+#endif
 
    init_contacts(c,nblocks);
    init_locks(c,nblocks);
@@ -266,7 +285,9 @@ freeContacts(Contacts * c)
    free_contact_length(c);
    free_previous_contacts(c);
 
+#if _DEBUG
    memset((void *)c, 0xDD, sizeof(Contacts));
+#endif
 
    return NULL;
 

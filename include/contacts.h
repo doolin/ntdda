@@ -17,26 +17,17 @@
  */
 typedef struct _contacts Contacts;
 
-/* Struct for each contact. */
+/* Struct for each contact. Not currently used. */
 typedef struct _C C;
 
-
 Contacts * getNewContacts(int nblocks);
-
-int ** get_contacts(Contacts *);
-int ** get_locks(Contacts *);
-int ** get_contact_index(Contacts *);
-double ** get_contact_lengths(Contacts *);
-int ** get_previous_contacts(Contacts *);
-
-
 void * freeContacts(Contacts *);
 
-/*
-void init_contacts(Contacts *, int nblocks);
-void init_locks(Contacts *, int nblocks);
-void init_contact_index(Contacts *, int nblocks);
-void init_contact_length(Contacts *, int, int);
-*/
+int    ** get_locks(Contacts *);
+int    ** get_contacts(Contacts *);
+int    ** get_contact_index(Contacts *);
+double ** get_contact_lengths(Contacts *);
+int    ** get_previous_contacts(Contacts *);
+
 
 #endif

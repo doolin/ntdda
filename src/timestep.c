@@ -191,6 +191,9 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    * The initial velocity should be used at time step 1, even 
    * if the initial velocity is zero.
    */
+  /* k00 = 0 means we haven't yet done a linear solve for the 
+   * system.
+   */
    if (currTimeStep > 1 && ad->k00 == 0) 
    {
       for (i=1; i<= nBlocks; i++)
@@ -514,19 +517,20 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       TT[1][1]=moments[i][1];  // area S0
       TT[2][2]=moments[i][1];  // area S0
       TT[3][3]=S1+S2;
+      TT[4][4]=S1;
+      TT[5][5]=S2;
+      TT[6][6]=(S1+S2)/4;
+
       TT[3][4]= -S3;
       TT[4][3]=TT[3][4];
       TT[3][5]=S3;
       TT[5][3]=TT[3][5];
       TT[3][6]=(S1-S2)/2;
       TT[6][3]=TT[3][6];
-      TT[4][4]=S1;
       TT[4][6]=S3/2;
       TT[6][4]=TT[4][6];
-      TT[5][5]=S2;
       TT[5][6]=S3/2;
       TT[6][5]=TT[5][6];
-      TT[6][6]=(S1+S2)/4;
 
      /* (GHS: add mass matrix to a[][]) */
      /* k1 stores "permutation index",

@@ -6,9 +6,13 @@
 # under one main target, which could handle all of the 
 # dependencies very nicely.
 
+all: matmulttest contacttest
+
 matmulttest:
 	gcc -o matmulttest matmulttest.c ../ghssolver.c ../ddamemory.c ../errorhandler.c -I ../../include -lm
 
+contacttest:
+	gcc -o contacttest contacttest.c ../contacts.c ../ddamemory.c ../errorhandler.c -I ../../include -lm
 
 clean:
 	rm -f *.exe *~  *.stackdump

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/14 15:39:37 $
+ * $Date: 2001/07/14 23:13:44 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.10  2001/07/14 23:13:44  doolin
+ * Added a contact unit test, more comments in open close fns.
+ *
  * Revision 1.9  2001/07/14 15:39:37  doolin
  * Worked in df18 and df22 on contact and locking.
  *
@@ -658,7 +661,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    double e11;
    double pen_dist2;  // was s4?
    double phi, cohesion;
-   const double dd = 3.1415926535/180; /* radians to degrees */
+   const double dd = 3.1415926535/180.0; /* radians to degrees */
 
    double ** phiCohesion = ad->phiCohesion;
 
@@ -700,15 +703,11 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       cohesion = 10000.0;
 
 
-  /* What is this all about? */
+  /* FIXME: What is this all about? */
    if (locks[contact][0]==1)  
       e11=cohesion;
    else 
       e11 = 0;
-
-
-
-//assert(e11 == 0);
 
   /* Moved from after friction block */
    normalforce = fabs(pen_dist2)*(ad->JointNormalSpring);
@@ -817,7 +816,12 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    }  
 
    if (1)  //writecontacts == TRUE
-      fprintf(fp.cforce,"%d %f %f\n",ad->currTimeStep,normalforce,shearforce);
+   {
+      char mess[80];
+      sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,shearforce);
+      fprintf(fp.cforce,mess);
+      iface->displaymessage(mess);
+   }
 
 }  /* close setFrictionForces() */
 
@@ -944,6 +948,20 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    * is not documented in GHS 1988.
    */
    double s[31];
+  /* Replace s with these, from TCK 1995: */
+  /*
+   double h1[7];
+   double h2[7];
+   double h3[7];
+   double h4[7];
+   double h5[7];
+   double h6[7];
+   */
+
+  /* To continue using TCK notation, use P and Q for the 
+   * matrix elements if possible.
+   */
+   //double P[], Q[];
 
   /* These are variables needed for computing friction force. */
    //double ** phiCohesion = ad->phiCohesion;
@@ -1367,12 +1385,12 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* FIXME: Find out whether we can have a SLIDING lock when we have a 
          *  VV contact.  If not, these conditionals can be cleaned up a lot.
          */
-
          if (contacts[contact][TYPE] != VE || locks[contact][CURRENT] != SLIDING) 
             continue; 
         /* if prev step open and current iteration not first
          * iteration (of open/close), then done. (k00 = 0
-         * for first iteration.
+         * for first iteration, that is, we haven't yet done 
+         * a linear solve.)
          */
          if (locks[contact][PREVIOUS] == OPEN && (ad->k00==1))
             continue;
