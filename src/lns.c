@@ -5,9 +5,9 @@
  * intersect.
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:08 $
+ * $Date: 2002/10/26 23:23:06 $
  * $Source: /cvsroot/dda/ntdda/src/lns.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 
@@ -116,8 +116,7 @@ ln06:
    local_kk3 += 1;  // kk3 was global.  ---dmd
    if ( local_kk3 == 2 )  
 	     local_kk3=0;
-   goto ln01;  /*  ie, return; ---dmd */
-   //return local_kk3=0;
+   goto ln01;  
 
 ln03:
   /* Normal intersection.  */

@@ -26,8 +26,8 @@
  * elsewhere for any other reason.  
  */
 void 
-transplacement_linear(double **moments, double T[][7], 
-                      const double x, const double y, const int i0) {
+transplacement_linear(double * moments, double T[][7], 
+                      const double x, const double y) {
 
    double xb, yb;
    double u2, v2;
@@ -35,10 +35,11 @@ transplacement_linear(double **moments, double T[][7],
   /* i0 is block number                         */
   /* x10,y10:center of gravity of the block     */
 
-   xb = moments[i0][2]/moments[i0][1];
-   yb = moments[i0][3]/moments[i0][1];
-
-   //moments_get_base_point(moments[i0],&x0,&y0);
+   //xb = moments[i0][2]/moments[i0][1];
+   //yb = moments[i0][3]/moments[i0][1];
+   xb = moments[7];
+   yb = moments[8];
+   //moments_get_base_point(moments,&x0,&y0);
 
 
   /* u2 and v2 are temporary variables to handle linear 
@@ -67,8 +68,8 @@ transplacement_linear(double **moments, double T[][7],
 
 
 void 
-transplacement_finite(double **moments, double T[][7], 
-                      const double x, const double y, const int i0) {
+transplacement_finite(double * moments, double T[][7], 
+                      const double x, const double y) {
 
    double xb, yb;
    //double u2, v2;
@@ -76,10 +77,11 @@ transplacement_finite(double **moments, double T[][7],
    
   /* i0 is block number                     */
   /* xb,yb: base point for directors        */
-   xb = moments[i0][2]/moments[i0][1];
-   yb = moments[i0][3]/moments[i0][1];
-
-   //moments_get_base_point(moments[i0],&xb,&yb);
+   //xb = moments[i0][2]/moments[i0][1];
+   //yb = moments[i0][3]/moments[i0][1];
+   xb = moments[7];
+   yb = moments[8];
+   //moments_get_base_point(moments,&xb,&yb);
 
    tX      = x-xb;
    tY      = y-yb;

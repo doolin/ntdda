@@ -1,12 +1,12 @@
-/* 
+/**
  * combineddf.c
  * 
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:36 $
+ * $Date: 2002/10/26 23:23:04 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.41 $
+ * $Revision: 1.42 $
  *
  */
 /*################################################*/
@@ -17,6 +17,12 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.42  2002/10/26 23:23:04  doolin
+ * Started reworking the logfile system because I need to use
+ * soon for the sara paper, and it is now too cumbersome to extend.
+ * Tentatively, the extern declaration for logging is going away
+ * really soon.
+ *
  * Revision 1.41  2002/10/25 01:53:36  doolin
  * Lots more clean up.  Some calling conventions changed.
  * Some dead or nearly code removed.  This commit is Not Yet Ready
@@ -257,16 +263,18 @@ extern Datalog * DLog;
 /* df01 needs to be renamed to reflect its function
  * for scaling the problem domain.
  */
-double  df01(Geometrydata * gd) {
+ /** I can typedef a function that operates on the vertices.
+  * Maybe with varargs such that other stuff can be passed 
+  * in easily.
+  */
+/** @todo This function is independently testable,
+ * so a unit test could be written for it now.
+ */ 
+double  
+df01(double ** vertices, int ** vindex, int numblocks) {
 
    int i, j, i1, i2;
-   int nBlocks = gd->nBlocks;
-   double ** vertices = gd->vertices;
-   int **vindex = gd->vindex;
-
    double maxx, minx, maxy, miny;
-  /* FIXME: Why are these half values instead of full values? */
-   //double halfheight, halfwidth;
    double height, width;
  
    minx = vertices[1][1];
@@ -274,7 +282,7 @@ double  df01(Geometrydata * gd) {
    miny = vertices[1][2];
    maxy = vertices[1][2];
 
-   for (i=1; i<= nBlocks; i++) {
+   for (i=1; i<=numblocks; i++) {
 
       i1=vindex[i][1];
       i2=vindex[i][2];
@@ -329,8 +337,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * show all the action.  ac->w0 is scaled from the 
    * absolute dimensions of the physical problem. (????)
    */
-   //ad->constants->w0 = df01(gd);
-   w0 = df01(gd);
+   w0 = df01(gd->vertices,gd->vindex,gd->nBlocks);
    constants_set_w0(ad->constants,w0);
 
   /* ad->pointcount is needed for saving restoring force terms 
@@ -1267,7 +1274,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* getDisplacement computes, essentially returns t for
          * the ith vertex.
          */
-         transmap(blockArea,T,x1,y1,blocknumber);
+         transmap(blockArea[i1],T,x1,y1);
          
          for (j=1; j<= 6; j++)
          {
@@ -1287,7 +1294,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* Now we work with the other block. */
          blocknumber=i2;
         /* Get t for the ith vertex. */
-         transmap(blockArea,T,x2,y2,blocknumber);
+         transmap(blockArea[i2],T,x2,y2);
          for (j=1; j<= 6; j++)
          {
            /* Compute gr normal. See Chapter 4, p. 161 Eq 4.18 Shi 1988 
@@ -1312,15 +1319,13 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* Deal with point 3 now, just the way points 1 and 2
          * were handled.
          */
-         blocknumber=i2; /* i0 is block number */
-        /* Get t for ith vertex. */
-
-         transmap(blockArea,T,x3,y3,blocknumber);
+         //blocknumber=i2; 
+         transmap(blockArea[i2],T,x3,y3);
 
         /* This might be the second half of Eq 4.18.
          */
-         for (j=1; j<=6; j++)
-         {
+         for (j=1; j<=6; j++) {
+
            /* Compute gr normal. See Chapter 4, p. 161 Eq 4.18 Shi 1988 
             * Also, TCK 1995, Eq. 45, p. 1238.
             */
@@ -1356,16 +1361,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          */         
         /* PREVIOUS is 1, CURRENT is 2  */
          //if ( (QQ[0][PREVIOUS] != 0)  || (QQ[0][CURRENT] != 0) ) goto b809;
-         if ( (QQ[PREVIOUS] != OPEN)  || (QQ[CURRENT] != OPEN) ) 
-         {   
-
-            /*
-            char mess[120];
-            sprintf(mess,"d: %f, ts: %d, oc: %d, w0: %f",
-                    pen_dist,ad->currTimeStep,ad->OCCount,
-                    ad->constants->w0);
-            iface->displaymessage(mess);
-            */
+         if ( (QQ[PREVIOUS] != OPEN)  || (QQ[CURRENT] != OPEN) )  {   
 
            /* location (?) of Kii (?) MMM */
             i3=n[j1][1]+n[j1][2]-1;
@@ -1789,7 +1785,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1,
             qq[i][1]  = x  = vertices[vertexnumber][1];
             qq[i][2]  = y  = vertices[vertexnumber][2];
 
-            transmap(moments,T,x,y,blocknumber);
+            transmap(moments[blocknumber],T,x,y);
 
            /* FIXME: Use a memset on this outside of the loop. */
             p[i][1]  = 0;
@@ -2454,7 +2450,7 @@ df24(Geometrydata *gd, Analysisdata *ad, double ** F, int *k1,
 
 	     	x  = vertices[j][1];
 	      y  = vertices[j][2];
-         transmap(moments,T,x,y,i);
+         transmap(moments[i],T,x,y);
          
          i3 = k1[i];
          transapply(T,F[i3],&u1,&u2);
@@ -2596,7 +2592,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       x  = points[i][1];
       y  = points[i][2];
 
-      transmap(moments,T,x,y,i0);
+      transmap(moments[i0],T,x,y);
       
       i1 = k1[i0];
 
@@ -2622,26 +2618,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    }
 
 
-  /* Amazingly enough, this appears to work! */
-   if (gd->nSPoints > 0) {
-      
-      DList * ptr;
-      DDAPoint * ptmp;
-      dlist_traverse(ptr, gd->seispoints) {
-
-         ptmp = ptr->val;
-         i0 = ptmp->blocknum;
-         x  = ptmp->x;
-         y  = ptmp->y;
-         transmap(moments,T,x,y,i0);
-
-         i1 = k1[i0];
-         transapply(T,F[i1],&x1,&y1);       
-
-         ptmp->x += x1;
-         ptmp->y += y1;
-      }
-   }
 
   /* Track displacement of load points for an initial hack 
    * of disp dep variables.  Need to store a copy of the previous
@@ -2674,6 +2650,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    }  /* close cloning loop */
    
 
+   seismic_update_points(gd->seispoints,moments,F,k1,transmap,transapply);
    stress_update(e0, ad->F, k1, gd->nBlocks, boundary_conditions, strain_compute);
    bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,transmap,transapply);
 

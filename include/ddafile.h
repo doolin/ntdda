@@ -50,7 +50,7 @@ char vertexlogfile[FNAME_BUFSIZE];
  * is probably not real good, but is messy to handle 
  * otherwise on win32.
  */
-char rootname[128];
+char rootname[FNAME_BUFSIZE];
 } FILEPATHS;
 
 typedef struct file_pointers {

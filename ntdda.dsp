@@ -438,6 +438,10 @@ SOURCE=.\src\blockhandler.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\ddafile.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\ddaml.c
 # End Source File
 # Begin Source File

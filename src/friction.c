@@ -2,9 +2,9 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2002/10/14 16:02:47 $
+ * $Date: 2002/10/26 23:23:06 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -31,7 +31,7 @@
  * results due to garbage in the over-allocated arrays.
  */
 double
-computeFriction(Geometrydata *gd, /*Analysisdata * ad,*/ int joint_type)
+computeFriction(Geometrydata *gd,  int joint_type)
 { 
    static double phi;
    double x;
@@ -73,7 +73,7 @@ computeFriction(Geometrydata *gd, /*Analysisdata * ad,*/ int joint_type)
  */
 /* FIXME: Don't need the analysis data here. */
 double
-computeVFriction(Geometrydata *gd, /*Analysisdata * ad,*/ int units, double mu0)
+computeVFriction(Geometrydata *gd, int units, double mu0)
 { 
    static double phi;
    double x;

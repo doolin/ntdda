@@ -137,7 +137,7 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
       x=points[i][1];
       y=points[i][2];
 
-      transmap(blockArea,T,x,y,blocknumber);
+      transmap(blockArea[blocknumber],T,x,y);
       
       /* (GHS: 6*6 submatrix of fixed point for a[][]) */
       for (j=1; j<= 6; j++)
@@ -239,7 +239,7 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       x=points[i][1];
       y=points[i][2];
 
-      transmap(blockArea,T,x,y,i0);
+      transmap(blockArea[0],T,x,y);
    
      /* points[i][4] points[i][5] 
       * is time dependent loads initialized 
@@ -278,7 +278,7 @@ seismicload(DList * seispoints, TimeHistory * timehistory, int timestep,
    DDAPoint * ptmp;
    int j;
    int i2; // memory location for block in forcing vector
-   int blocknumber;
+   int i0;
    double x,y;
    double force, mass, accel;
    double T[7][7] = {0.0};
@@ -291,21 +291,21 @@ seismicload(DList * seispoints, TimeHistory * timehistory, int timestep,
    dlist_traverse(ptr, seispoints) {
 
       ptmp = (DDAPoint *)ptr->val;
-      blocknumber = ptmp->blocknum;
+      i0 = ptmp->blocknum;
       x = ptmp->x;
       y = ptmp->y;
-      transmap(moments,T,x,y,blocknumber);
+      transmap(moments[i0],T,x,y);
 
       accel = th_get_data_value(timehistory, timestep);
 
-      mass = moments[blocknumber][1]*e0[blocknumber][1];
+      mass = moments[i0][1]*e0[i0][1];
       force = accel*mass;
 
       for (j=1; j<= 6; j++) {
          s[j] = T[1][j]*force + T[2][j]*0.0;
       }  
 
-      i2 = k1[blocknumber];
+      i2 = k1[i0];
 
      /* BUG: There is a possible bug in here that results from 
       * having a point load located outside of the

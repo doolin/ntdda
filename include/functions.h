@@ -14,11 +14,10 @@ extern "C" {
 
 #ifndef TRANSMAPFUNC
 #define TRANSMAPFUNC
-typedef void (*TransMap)         (double ** moments, 
+typedef void (*TransMap)         (double * moments, 
                                   double T[7][7], 
                                   double x, 
-                                  double y, 
-                                  int i0);
+                                  double y);
 #endif
 
 
@@ -40,17 +39,15 @@ typedef void (*MassMatrix)        (double T[][7],
 #endif
 
 
-void transplacement_linear        (double ** moments, 
-                                   double [7][7], 
-                                   const double, 
-                                   const double, 
-                                   const int);
+void transplacement_linear        (double * moments, 
+                                   double T[7][7], 
+                                   const double x, 
+                                   const double y);
 
-void transplacement_finite        (double ** moments, 
-                                   double [7][7], 
-                                   const double, 
-                                   const double, 
-                                   const int);
+void transplacement_finite        (double * moments, 
+                                   double T[7][7], 
+                                   const double x, 
+                                   const double y);
 
 void transplacement_apply_linear  (double T[][7], 
                                    double * D, 

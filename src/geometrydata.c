@@ -729,6 +729,8 @@ gdata_new(void) {
   /* Change to a malloc, memset everything to garbage */
    gdo = (Geometrydata *)calloc(1,sizeof(Geometrydata));
 
+   gdo->seispoints = NULL;
+
    gdo->deleteblock = deleteBlock;
    gdo->dumptofile = gdata_write_ddaml;
    gdo->computeBBox = computeBoundingBox;

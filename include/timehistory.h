@@ -1,6 +1,8 @@
 #ifndef __TIMEHISTORY_H__
 #define __TIMEHISTORY_H__
 
+#include "functions.h"
+#include "ddadlist.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,6 +10,7 @@ extern "C" {
 #if 0
 }
 #endif
+
 
 
 typedef struct _timehistory TimeHistory;
@@ -40,6 +43,18 @@ double          th_get_delta_t               (TimeHistory * th);
 
 double          th_get_data_value            (TimeHistory * th, 
                                               int timestep);
+
+
+/** At some point in the future, this will be moved into a 
+ * seismic module, and the timehistory will be hidden in that.
+ */
+void            seismic_update_points        (DList * seispoints, 
+                                              double ** moments,  
+                                              double ** F,
+                                              int * k1,
+                                              TransMap transmap, 
+                                              TransApply transapply);
+
 
 #ifdef __cplusplus
 }

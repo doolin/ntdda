@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:33 $
+ * $Date: 2002/10/26 23:23:04 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -138,7 +138,12 @@ void deallocateAnalysisArrays(int * kk,
 
 
 
-double df01(Geometrydata *);
+double df01  (double ** vertices, 
+              int ** vindex, 
+              int numblocks);
+
+
+
 void df02(void);
 
 void setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **locks);
