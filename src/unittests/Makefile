@@ -12,12 +12,16 @@ CFLAGS = -g -Wall -DSTANDALONE
 OBJECTS =  bolttest       \
            matmulttest    \
 	   loadpointtest  \
-           stress_test
+           stress_test    \
+	   material_test
 
 all: $(OBJECTS)
 
 
 
+
+material_test: material_test.c 
+	gcc $(CFLAGS)  -o material_test material_test.c ../material.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
 
 bolttest: bolttest.c 
 	gcc $(CFLAGS)  -o bolttest bolttest.c ../bolt.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
