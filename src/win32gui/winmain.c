@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/11/02 13:38:42 $
+ * $Date: 2002/05/19 00:08:42 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  */
 
 
@@ -154,6 +154,14 @@ int CreateTestPropSheet(HWND hwMain, Analysisdata *);
 InterFace * iface;
 
 
+Print_Func
+handle_error(void * stream, const char * title, const char * message) {
+
+   MessageBox((HWND)stream,title,message,MB_OK);
+
+   return 0;
+
+}
 
 /* TODO: Flesh out a preferences API.  The 
  * default location for the .ini files are
@@ -163,8 +171,7 @@ InterFace * iface;
  * specified directory.
  */
 static void
-writeDDAProfile()
-{
+writeDDAProfile() {
 
    /*
    //char message[240];

@@ -89,6 +89,7 @@ struct _dda_tag {
    Geometrydata * geometry;
    Analysisdata * analysis;
    FILEPATHS * filepaths;
+   Error * error;
    int menustate;
    ddaboolean toolbarvis;
    ddaboolean statusbarvis;

@@ -21,10 +21,12 @@ static void emitLoadpoints(Analysisdata *, FILE *);
 static void emitBlockMaterials(Analysisdata *, FILE *);
 static void emitJointMaterials(Analysisdata *, FILE *);
 
-/* FIXME: Move this to analysisdata.c */
+
+
+
 static void
-abortAnalysis(Analysisdata * ad)
-{
+abortAnalysis(Analysisdata * ad) {
+
   /* Save the time step where the analysis was aborted.  This will 
    * be needed for writing data after the analysis ends.
    */

@@ -27,83 +27,70 @@ struct _dda_tag  {
 */
 
 ddaboolean
-dda_get_toolbarvis(DDA * dda)
-{
+dda_get_toolbarvis(DDA * dda) {
    return dda->toolbarvis;
 }
 
 void
-dda_set_toolbarvis(DDA * dda, ddaboolean vis)
-{
+dda_set_toolbarvis(DDA * dda, ddaboolean vis) {
    dda->toolbarvis = vis;
 }
 
 
 ddaboolean
-dda_get_statusbarvis(DDA * dda)
-{
+dda_get_statusbarvis(DDA * dda) {
    return dda->statusbarvis;
 }
 
 void
-dda_set_statusbarvis(DDA * dda, ddaboolean vis)
-{
+dda_set_statusbarvis(DDA * dda, ddaboolean vis) {
    dda->statusbarvis = vis;
 }
 
 ddaboolean
-dda_get_popupvis(DDA * dda)
-{
+dda_get_popupvis(DDA * dda) {
    return dda->popupvis;
 }
 
 void
-dda_set_popupvis(DDA * dda, ddaboolean vis)
-{
+dda_set_popupvis(DDA * dda, ddaboolean vis) {
    dda->popupvis = vis;
 }
 
 
 ddaboolean
-dda_get_tooltipvis(DDA * dda)
-{
+dda_get_tooltipvis(DDA * dda) {
    return dda->tooltipvis;
 }
 
 void
-dda_set_tooltipvis(DDA * dda, ddaboolean vis)
-{
+dda_set_tooltipvis(DDA * dda, ddaboolean vis) {
    dda->tooltipvis = vis;
 }
 
 
 Analysisdata * 
-dda_get_analysisdata(DDA * dda)
-{
+dda_get_analysisdata(DDA * dda) {
    return dda->analysis;
 }
 
 void
-dda_set_analysisdata(DDA * dda, Analysisdata * ad)
-{
+dda_set_analysisdata(DDA * dda, Analysisdata * ad) {
    dda->analysis = ad;
 }
 
 Geometrydata * 
-dda_get_geometrydata(DDA * dda)
-{ 
+dda_get_geometrydata(DDA * dda){ 
    return dda->geometry;
 }
 
 void 
-dda_set_geometrydata(DDA * dda, Geometrydata *gd)
-{
+dda_set_geometrydata(DDA * dda, Geometrydata *gd) {
    dda->geometry = gd;
 }
 
 DDA *
-dda_new()
-{
+dda_new() {
    DDA * dda;
    dda = (DDA*)malloc(sizeof(DDA));
    memset(dda,0xda,sizeof(DDA));
@@ -138,8 +125,8 @@ dda_test() {
 
 #ifdef STANDALONE
 int 
-main()
-{
+main() {
+
    if(dda_test())
       printf("Passed DDA test\n");
    else

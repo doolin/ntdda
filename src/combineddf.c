@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/12/29 06:01:05 $
+ * $Date: 2002/05/19 00:08:42 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.20 $
+ * $Revision: 1.21 $
  *
  */
 /*################################################*/
@@ -17,6 +17,11 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.21  2002/05/19 00:08:42  doolin
+ *
+ * Current check out does not build for some reason.
+ * Hopefully this update will fix that.
+ *
  * Revision 1.20  2001/12/29 06:01:05  doolin
  * If this commit breaks anything, check out any revision before
  * Christmas.
@@ -1422,6 +1427,8 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          //   goto b805;
          if (contacts[contact][TYPE] == VE)
          {
+
+
            /* c_length (was o) is listed as a matrix holding 
             * penetration values.  o[i][2] is the "contact edge ratio",
             * which is the shear parameter omega.  This value is initially
@@ -1554,6 +1561,15 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          //if ( (QQ[0][PREVIOUS] != 0)  || (QQ[0][CURRENT] != 0) ) goto b809;
          if ( (QQ[PREVIOUS] != OPEN)  || (QQ[CURRENT] != OPEN) ) 
          {   
+
+            /*
+            char mess[120];
+            sprintf(mess,"d: %f, ts: %d, oc: %d, w0: %f",
+                    pen_dist,ad->currTimeStep,ad->OCCount,
+                    ad->constants->w0);
+            iface->displaymessage(mess);
+            */
+
            /* location (?) of Kii (?) MMM */
             i3=n[j1][1]+n[j1][2]-1;
            /* Add punishment terms to Kii.  
@@ -1657,7 +1673,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
               /* Add penetration penalty load to Fi and Fj:
                * Chapter 4, p. 175, Eq. 4.43-4.46, but check to 
                * see if these are fixed point forcing terms.
-               */
+               */       
                for (j=1; j<= 6; j++) {
 
                  /* normal component */
@@ -2059,7 +2075,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
          * has penetrated (furthest,least?) past the reference line.
          */
          c_length[contact][PENDIST]   =  pendist[2];
-        /* Setting the value to 3 flags for another swap further down in 
+        /* Setting the value to "3" flags for another swap further down in 
          * in the code.  The swap means the "other" triplet of vertices
          * must be used (for what purpose?).  It could also mean reorder 
          * the vertices.

@@ -270,6 +270,10 @@ SOURCE=.\src\ddamemory.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\error.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\errorhandler.c
 # End Source File
 # Begin Source File
@@ -448,6 +452,10 @@ SOURCE=.\include\contacts.h
 # Begin Source File
 
 SOURCE=.\src\dda.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\error.h
 # End Source File
 # Begin Source File
 

@@ -9,6 +9,7 @@
 #include "graphics.h"
 #include "gravity.h"
 #include "timehistory.h"
+#include "error.h"
 
 
 typedef struct _analysisdata_tag Analysisdata;
@@ -434,6 +435,12 @@ struct _analysisdata_tag
    * negative block area or angles out of range occur.
    */
    Thresholds * threshold;
+
+
+   /* Error struct allows platform independent output to screen 
+    * console, whatever.
+    */
+   Error * error;
 
   /* Private functions accessed through function pointers. */
    void (*abort)(Analysisdata *);
