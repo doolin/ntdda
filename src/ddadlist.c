@@ -1,13 +1,14 @@
 /* 
  * $Source: /cvsroot/dda/ntdda/src/ddadlist.c,v $
- * $Revision: 1.1 $
- * $Date: 2001/05/20 20:58:46 $
+ * $Revision: 1.2 $
+ * $Date: 2002/05/28 12:18:32 $
  * $Author: doolin $
  */
 
 #include <stdio.h> 
-#include "ddadlist.h"
 #include<malloc.h>
+
+#include "ddadlist.h"
 
 #define boolean int
 #define TRUE 1
