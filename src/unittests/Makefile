@@ -9,15 +9,28 @@
 
 CFLAGS = -g -Wall -DSTANDALONE
 
-OBJECTS =  bolttest       \
-           matmulttest    \
-	   loadpointtest  \
-           stress_test    \
-	   material_test
+
+ADATA_SOURCE =  ../constants.c      \
+                ../timehistory.c    \
+                ../analysisdata.c   \
+                ../ddamemory.c      \
+                ../loadpoint.c      \
+                ../gravity.c        \
+                ../utils.c          \
+                ../timestep.c
+
+OBJECTS =  bolttest          \
+           matmulttest       \
+	   loadpointtest     \
+           stress_test       \
+	   material_test     \
+           analysisdata_test 
 
 all: $(OBJECTS)
 
 
+analysisdata_test: analysisdata_test.c 
+	gcc $(CFLAGS)  -o analysisdata_test analysisdata_test.c  $(ADATA_SOURCE)  -I ../../include -lm
 
 
 material_test: material_test.c 
