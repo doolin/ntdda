@@ -680,6 +680,8 @@ initAnalysisData()
 
    ado->this = ado;
 
+   ado->options = 0;
+
    ado->tsSaveInterval = 5;
 
   /* Constants are now malloced in their own function */

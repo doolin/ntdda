@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/05/20 20:59:44 $
+ * $Date: 2001/08/17 03:29:19 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 
@@ -222,6 +222,9 @@ checkGeometryDoc(xmlDocPtr doc)
    // }
    
    //gdata->namespace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
+  /* FIXME: The input files crash when some other name space is used.
+   * Find out why this is and fix it to not depend on namespaces.
+   */
    nspace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
  
    if (nspace == NULL) 

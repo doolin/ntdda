@@ -5,6 +5,8 @@
 #define _ANALYSISDATA_H_
 
 
+#define VERTICES 1 << 0
+
 #include "ddafile.h"
 #include "graphics.h"
 #include "gravity.h"
@@ -85,6 +87,11 @@ struct _analysisdata_tag
    * private functions.
    */
    Analysisdata * this;
+
+  /* Save a lot of memory on these flags, most
+   * of which are boolean anyway. 
+   */
+   unsigned int options;
 
   /* Analysis state information.  This is useful for handling 
    * more sophisticated user interface features.

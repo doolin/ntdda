@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:35 $
+ * $Date: 2001/08/17 03:29:19 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include <malloc.h>
@@ -750,7 +750,7 @@ writeBlockVertices(Geometrydata * gd, int block)
 
    fprintf(fp.logfile,"]\n");
 
-}  /* close writeBlockVertices() */
+}  
 
 
 void

@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.6  2001/08/17 03:29:19  doolin
+ * Found a bug in namespace handling for geometry files.
+ *
  * Revision 1.5  2001/07/23 12:54:49  doolin
  * Added stuff to the contact handling code.
  * The whole build is broken, don't know why.  Examples don't
@@ -127,6 +130,8 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
    */
    int **n;
 
+
+
   /* FIXME: Find a way to get rid of this and have only one
    * geometry data structure at a time.
    */
@@ -138,6 +143,18 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
    AData = analysisInput(filepath->afile, GData);   
    if (AData == NULL)
       return 0;
+
+
+/* The invoking program, whether windows or not, is going to 
+ * have to grab an AData and send it various signals.  Here,
+ * we set the output options directly.  This stuff is not in 
+ * compile control because I want to deal with it asap.  And 
+ * I want to get rid of compilecontrol asap.
+ */
+AData->options |= VERTICES;
+
+
+
 
   /* Hardwired parameters that need to go into 
    * user input files in the future.
@@ -169,7 +186,11 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
       
    //{FILE*fp=NULL;printLoadPointStruct(AData,fp);}
 
-   //writeBlockVertices(GData, 4);
+/* All this stuff gets put elsewhere at some point in the 
+ * future.
+ */
+   if (AData->options & VERTICES)
+      writeBlockVertices(GData, 1);
    //writeBlockMasses(AData,GData);
   /* If arg 2 is greater than the number of blocks, 
    * we get a crash.
@@ -367,7 +388,8 @@ ddanalysis(FILEPATHS * filepath, GRAPHICS * gg)
    //postProcess(hwMain, GData, AData,gg);
    postProcess(GData, AData,gg);
 
-   writeBlockVertices(GData, 4);
+   if (AData->options & VERTICES)
+      writeBlockVertices(GData, 1);
 
   /* Everything after here is clean up code.  All memory 
    * should be freed, all open files closed. etc etc etc.
