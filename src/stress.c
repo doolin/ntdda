@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  /* memcpy */
 #include <math.h>
 
 #include "stress.h"
@@ -82,16 +83,19 @@ stress_clone(const double * s1) {
    return s2;
 }
 
+
 void
 stress_update(double ** e0, double ** D, int * k1, 
-              int numblocks, int planestrainflag) {
+              int numblocks, ConstModel apply_const_model) {
 
    int i, i1;
 
    for (i=1; i<= numblocks; i++) {
 
       i1 = k1[i];
-      stress_update_a(e0[i], D[i1], planestrainflag);
+      apply_const_model(e0[i], D[i1]);
+      //stress_update_a(e0[i], D[i1], planestrainflag);
+      //stress_rotate(e0[i],D[i1][3]);
    }
 }
 
@@ -100,54 +104,16 @@ stress_update(double ** e0, double ** D, int * k1,
  * Plain strain from MacLaughlin 1997, p. 20
  */
 void
-stress_update_a(double * stress, double * D, int planestrainflag) {
+stress_planestrain(double * stress, double * D) {
 
    double a1;
-   double gamma_0; 
-   double c,s;
-   double sigmaxx, sigmayy, tauxy;
-
    double E  = stress[_E_];
    double nu = stress[_nu_];
 
-   gamma_0 = D[3];
-   c = cos(gamma_0);
-   s = sin(gamma_0);
-
-   if (planestrainflag == PLANESTRAIN) {
-
-      a1             = E/(1 + nu);
-      stress[_s11_] += a1*( ((D[4]*(1-nu))/(1-2*nu)) + ((D[5]*nu)/(1-2*nu)) );
-      stress[_s22_] += a1*((D[4]*nu)/(1-2*nu) + (D[5]*(1-nu)/(1-2*nu)));
-      stress[_s12_] += a1*D[6]/2.0;
-
-   } else { /* PLANESTRESS */
-      
-      a1             = E/(1-(nu*nu));
-      stress[_s11_] += a1*(D[4]    + D[5]*nu);
-      stress[_s22_] += a1*(D[4]*nu + D[5]);
-      stress[_s12_] += a1* D[6]*(1-nu)/2;
-   }  
-
-
-  /* TCK stress rotation correction, Eq. 17, p. 324,
-   * ICADD 1 proceedings.  See also Eqs. 18 and 19 for
-   * formulas for updating the deformation rates.
-   */
-  /* TODO: verify that doing the updating here is 
-   * mathematically correct.  It might need to be done 
-   * before adding to the existing block stresses which
-   * are (presumably) already in referential coordinates.
-   */
-   if (0) {
-
-      sigmaxx = stress[_s11_];
-      sigmayy = stress[_s22_];
-      tauxy   = stress[_s12_];
-      stress[_s11_]  = c*c*sigmaxx - 2*c*s*tauxy + s*s*sigmayy;
-      stress[_s22_]  = s*s*sigmaxx - 2*c*s*tauxy + c*c*sigmayy;
-      stress[_s12_] = c*s*(sigmaxx-sigmayy) + (c*c - s*s)*tauxy;
-   }
+   a1             = E/(1 + nu);
+   stress[_s11_] += a1*( ((D[4]*(1-nu))/(1-2*nu)) + ((D[5]*nu)/(1-2*nu)) );
+   stress[_s22_] += a1*((D[4]*nu)/(1-2*nu) + (D[5]*(1-nu)/(1-2*nu)));
+   stress[_s12_] += a1*D[6]/2.0;
 
   /* Now compute e_zz, which should be 0 if we are in plane
    * strain, and will be used for computing mass if in 
@@ -157,6 +123,56 @@ stress_update_a(double * stress, double * D, int planestrainflag) {
    * current thickness of block when calculating mass.
    */
    stress[7] += -(nu/(1-nu))*(D[4] + D[5]);
+}
+
+
+void
+stress_planestress(double * stress, double * D) {
+
+   double a1;
+   double E  = stress[_E_];
+   double nu = stress[_nu_];
+
+   a1             = E/(1-(nu*nu));
+   stress[_s11_] += a1*(D[4]    + D[5]*nu);
+   stress[_s22_] += a1*(D[4]*nu + D[5]);
+   stress[_s12_] += a1* D[6]*(1-nu)/2;
+
+  /* Now compute e_zz, which should be 0 if we are in plane
+   * strain, and will be used for computing mass if in 
+   * plane stress.  This is for density correction.  See
+   * TCK, p. 213, Fung, p. 267.
+   * Note: we have to accumulate e_z to use for calculating
+   * current thickness of block when calculating mass.
+   */
+   stress[7] += -(nu/(1-nu))*(D[4] + D[5]);
+}
+
+
+/** TCK stress rotation correction, Eq. 17, p. 324,
+ * ICADD 1 proceedings.  See also Eqs. 18 and 19 for
+ * formulas for updating the deformation rates.
+ */
+/* TODO: verify that doing the updating here is 
+ * mathematically correct.  It might need to be done 
+ * before adding to the existing block stresses which
+ * are (presumably) already in referential coordinates.
+ */
+void 
+stress_rotate(double * stress, double r0) {
+
+   double sigmaxx, sigmayy, tauxy;
+   double c,s;
+
+   c = cos(r0);
+   s = sin(r0);
+
+   sigmaxx = stress[_s11_];
+   sigmayy = stress[_s22_];
+   tauxy   = stress[_s12_];
+   stress[_s11_]  = c*c*sigmaxx - 2*c*s*tauxy + s*s*sigmayy;
+   stress[_s22_]  = s*s*sigmaxx - 2*c*s*tauxy + c*c*sigmayy;
+   stress[_s12_] = c*s*(sigmaxx-sigmayy) + (c*c - s*s)*tauxy;
 }
 
 

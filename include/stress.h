@@ -12,11 +12,13 @@ extern "C" {
 #endif
 
 
+
 #ifndef __PRINTFUNC__
 typedef int (*PrintFunc)(void * stream, const char * format, ...);
 #define __PRINTFUNC__
 #endif
 
+typedef void (*ConstModel)(double * e0, double * D);
 
 #ifndef PLANESTRESS
 #define PLANESTRESS 0
@@ -48,27 +50,7 @@ void stress_update          (double ** e0,
                              double ** D, 
                              int * k1, 
                              int numblocks,
-                             int planestrainflag);
-
-
-/** For this function, the looping is done elsewhere.
- * Ideally, this function should be in the inner loop
- * of something similar to the previous function which 
- * takes k1 as an argument.
- *
- * @param D
- * 
- * @param e0
- *
- * @param planestrainflag = 1 indicates using plane strain 
- *  boundary conditions, plane stress otherwise.
- *
- * @return void.
- */
- void stress_update_a       (double * e0, 
-                             double * D, 
-                             int planestrainflag);
-
+                             ConstModel apply_const_model);
 
 
 void  stress_print          (double * s, 
@@ -86,6 +68,27 @@ double * stress_clone       (const double * s1);
 int      stress_equals      (double * d1, 
                              double * d2, 
                              double tol);
+
+
+void     stress_planestrain (double * e0,
+                             double * D);
+
+void     stress_planestress (double * e0,
+                             double * D);
+
+
+/** TCK stress rotation correction, Eq. 17, p. 324,
+ * ICADD 1 proceedings.  See also Eqs. 18 and 19 for
+ * formulas for updating the deformation rates.
+ */
+/** @todo Verify that doing the updating here is 
+ * mathematically correct.  It might need to be done 
+ * before adding to the existing block stresses which
+ * are (presumably) already in referential coordinates.
+ */
+void     stress_rotate      (double * stress, 
+                             double r0);
+
 
 
 #ifdef __cplusplus

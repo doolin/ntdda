@@ -13,7 +13,7 @@ extern "C" {
 
 #ifndef PRINTFUNC
 #define PRINTFUNC
-typedef (*PrintFunc)(void * stream, const char * format, ...);
+typedef int (*PrintFunc)(void * stream, const char * format, ...);
 #endif
 
 typedef struct _loadpoint Loadpoint;

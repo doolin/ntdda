@@ -123,7 +123,7 @@ static void set_strains(double * D, double e1, double e2, double e12) {
 
 
 int 
-test_stress_update_a(void) {
+test_stress_planes(void) {
 
    int passed = 1;
    int testval; 
@@ -133,7 +133,7 @@ test_stress_update_a(void) {
    double s2[13] = {0.0};
    double s3[13] = {0.0};
 
-   print_header_string(stdout,"stress_update_a test");
+   print_header_string(stdout,"stress_planestress test");
  
 
    stress_init_props(s1,2.71, 25.4,1000.0,0.49);
@@ -144,33 +144,30 @@ test_stress_update_a(void) {
                      1.96078431372549,
                      0.0335570469798658);
 
-   stress_update_a(s1,D,0);
+   stress_planestress(s1,D);
  
    testval = array_equals_double(s1,s3,4,3);
 
    if (testval == 0) { 
-      fprintf(stdout,"stress_update_a failed (plane stress).\n");
+      fprintf(stdout,"stress_planestress failed.\n");
       passed = 0;
    } else {
-      fprintf(stdout,"stress_update_a passed (plane stress).\n");
+      fprintf(stdout,"stress_planestress passed.\n");
    }
 
     
    stress_init_props(s2,2.71, 25.4,1000.0,0.25);
-   stress_init_sigma(s3,
-                     1.6,
-                     1.6,
-                     0.04);
+   stress_init_sigma(s3, 1.6, 1.6, 0.04);
 
-   stress_update_a(s2,D,1);
+   stress_planestrain(s2,D);
  
    testval = array_equals_double(s2,s3,4,3);
 
    if (testval == 0) { 
-      fprintf(stdout,"stress_update_a failed (plane strain).\n");
+      fprintf(stdout,"stress_planestrain failed.\n");
       passed = 0;
    } else {
-      fprintf(stdout,"stress_update_a passed (plane strain).\n");
+      fprintf(stdout,"stress_planestrain passed.\n");
    }
 
     
@@ -200,7 +197,7 @@ test_zero_strain() {
    stress_init_props(s1,2.71, 25.4,1000.0,0.49);
    stress_init_props(s2,2.71, 25.4,1000.0,0.49);
 
-   stress_update_a(s1,D,0);
+   stress_planestress(s1,D);
   
    testval = array_equals_double(s1,s2,0,13);
 
@@ -211,7 +208,7 @@ test_zero_strain() {
       fprintf(stdout,"Zero strain passed (plane stress).\n");
    }
 
-   stress_update_a(s1,D,1);
+   stress_planestrain(s1,D);
 
    testval = array_equals_double(s1,s2,0,13);
 
@@ -260,18 +257,41 @@ int
 test_stress_update(void) {
 
    int passed = 1;
+   //int testval;
+   int numblocks = 3; 
 
-   int testval;
- 
   /* Permutation vector. */
-   int k1[4]      = {0.0};
+   int      k1[4] = {0,3,1,2};
    double * D[4]  = {0,0,0,0};
    double * e0[4] = {0,0,0,0};
    
+  /* deformations */
+   double d1[7], d2[7], d3[7];
   /* blocks */
    double s1[13],s2[13],s3[13];
 
    print_header_string(stdout,"stress_update test");
+
+
+   set_strains(d1,0.001,0.001,0.0001);
+   set_strains(d2,0.001,0.001,0.0001);
+   set_strains(d3,0.001,0.001,0.0001);
+
+
+  /* These need to match the permutation vector. */ 
+   D[1] = d2;
+   D[2] = d3;
+   D[3] = d1;
+
+   stress_init_all(s1,2.71, 25.4,1000.0,0.49,0,0,0,0,0,0,0,0,0);
+   stress_init_all(s2,2.71, 25.4,1000.0,0.49,0,0,0,0,0,0,0,0,0);
+   stress_init_all(s3,2.71, 25.4,1000.0,0.49,0,0,0,0,0,0,0,0,0);
+
+   e0[1] = s1;
+   e0[2] = s2;
+   e0[3] = s3;
+
+   stress_update(e0,D,k1,numblocks,stress_planestrain);
 
    return passed;
 }
@@ -281,47 +301,8 @@ test_stress_update(void) {
 int
 stress_test_arrays(void) {
 
-  /* Factor these out later. */
-
-   int testval;
-   double s1[13] = {0.0};
-   double s2[13] = {0.0};
-   double s3[13] = {0.0};
-   double s4[13] = {0.0};
- 
-   testval = array_equals_double(s1,s1,0,4);
-
-   if (testval == 0) {
-      fprintf(stdout,"array_equals_double failed.\n");
-   }
-
-
-   stress_init_all(s1,2.71, 25.4,1000.0,0.49,0,0,0,0,0,0,0,0,0);
-   stress_init_props(s2,2.71, 25.4,1000.0,0.49);
-
-   testval = array_equals_double(s1,s1,0,4);
-
-   if (testval == 0) {
-      fprintf(stdout,"stress array init functions failed.\n");
-   }
-
-  
-   stress_init_sigma(s3,1.0,1.0,0.25);
-   stress_init_sigma(s4,1.0,1.0,0.25);
-
-   testval = array_equals_double(s3,s4,4,3);
-
-   if (testval == 0) {
-      fprintf(stdout,"stress array init functions failed.\n");
-   } else {
-      fprintf(stdout,"stress array init functions passed.\n");
-   }
-
-
-   //stress_print(s1,(PrintFunc)fprintf,stdout);
-
    test_stress_equals();
-   test_stress_update_a();
+   test_stress_planes();
    test_zero_strain();
    test_stress_update();
 
