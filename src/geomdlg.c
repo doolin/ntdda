@@ -16,7 +16,8 @@
 
 
 
-extern FILEPATHS filepath;
+/* Pass this in with the DDA struct. */
+extern Filepaths filepath;
 
 static int nj = 3, np, nfp = 3, nmp = 0, nlp = 0, nhp = 0;
 static int numbolts = 0;
@@ -639,6 +640,7 @@ saveData(HWND hDlg)
       fp = fopen(filepath.gfile,"w");
       gd->dumptofile(gd,fprintf,fp);
       fclose(fp);
+
    }
    
   /* FIXME: verify this return value */

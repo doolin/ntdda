@@ -19,10 +19,7 @@ extern "C" {
 #include "ddatypes.h"
 
 
-
 #include "ddafile.h"
-
-
 
 
 typedef struct _geo_data_tag Geometrydata;
@@ -218,16 +215,20 @@ Geometrydata * XMLparseDDA_Geometry_File(char *filename);
 void ddacut(Geometrydata *);
 
 
+
+
 /*
 void initBlockMasses(Geometrydata *);
 void cloneBlockMasses(Geometrydata *, Geometrydata *);
 void freeBlockMasses(Geometrydata *);
 */
 
+
 //Geometrydata * initGeometrydata(void);
 
 
 void dumpGeometrydata(Geometrydata *, void *);
+
 
 
 
@@ -248,6 +249,7 @@ void computeDomainscale(Geometrydata *);  // was dc02()
  */
 Geometrydata * gdata_new                   (void);
 
+
 Geometrydata * gdata_clone                 (Geometrydata * gd);
 
 void           gdata_delete                (Geometrydata * gd);
@@ -261,9 +263,15 @@ int            gdata_get_block_number      (Geometrydata * gd,
 double         gdata_compute_moments       (Geometrydata * gd); 
 
 
+
+
 void           gdata_get_centroid          (double * moments, 
+
                                             double * x0, 
+
                                             double * y0);
+
+
 
 
 double         gdata_get_block_area        (Geometrydata * gd, 
@@ -286,6 +294,7 @@ void           gdata_rockbolt_init         (Geometrydata * gd,
 void           gdata_read_input_file       (Geometrydata *, 
                                             char * filename);
 
+Geometrydata * gdata_read_block_file       (Filepaths * filepaths);
 
 #ifdef __cplusplus
 }

@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/09 01:46:40 $
+ * $Date: 2002/10/27 20:53:19 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.16 $
+ * $Revision: 1.17 $
  */
 
 /**
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "ddaml_private.h"
 #include "ddaml.h"
 #include "ddamemory.h"
 #include "geometrydata.h"

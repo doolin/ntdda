@@ -73,7 +73,12 @@ static HDC hdc;
 
 
 extern HPEN drawPen[10];
-extern FILEPATHS filepath;
+
+
+/*  Tuck this into the parameter passed by the 
+ * calling function.
+ */
+extern Filepaths filepath;
 
 
 static int changeGridSpacing(HWND,LPARAM,WPARAM);
@@ -915,6 +920,7 @@ handleSave(HWND hDlg)
       transferJointlistToGeomStruct(geomstruct, jointlist); 
       transferPointlistToGeomStruct(geomstruct, pointlist);  
       transferBoltlistToGeomStruct(geomstruct, boltlist);  
+
 
       fp = fopen(filepath.gpath, "w+");
       geomstruct->dumptofile(geomstruct, fprintf, fp);

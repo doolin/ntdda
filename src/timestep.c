@@ -9,10 +9,7 @@
 
 #include "analysis.h"
 #include "ddamemory.h"
-#include "datalog.h"
-
-extern FILEPOINTERS fp;
-extern Datalog * DLog;
+//#include "datalog.h"
 
 
 /* Time integration temp arrays.  The velocity array
@@ -41,10 +38,10 @@ static void df11(Geometrydata *, Analysisdata *, int *, double **,
 /* velocity terms */
 static double d1, d2, d3, d4, d5, d6;
 
-
 /* Diagonal terms of generalised inertia matrix. */
 //static double E11, E22;
 static double E33, E44, E55, E66;
+
 
 /* Off-diagonal terms of generalized inertia matrix */
 static double E34, E35, E36, E46, E56;
@@ -113,14 +110,17 @@ void
 timeintegration(Geometrydata * GData, Analysisdata * AData,
                 double ** matprops, int * k1, /*double ** moments, */ int ** n,
                 double ** U,
+
                 MassMatrix massmatrix) {
 
 
+
+
    double ** f = AData->F;
-   clock_t start, stop;
+   //clock_t start, stop;
    double ** moments = GData->moments;
 
-   start = clock();
+   //start = clock();
 
   /* submatrix of inertia */
   /* df11() works by forward difference as derived in 
@@ -144,8 +144,8 @@ timeintegration(Geometrydata * GData, Analysisdata * AData,
          break;
    }
    
-   stop = clock();
-   DLog->integration_runtime += stop - start;
+   //stop = clock();
+   //DLog->integration_runtime += stop - start;
 
 }  /* close timeintegration() */
 
@@ -313,6 +313,7 @@ double a7;
       //y0=moments[i][3]/moments[i][1];  // y0 := y centroid
       gdata_get_centroid(moments[i],&x0,&y0);
 
+
      /* S0, S1, S2, S3 result from integrals derived on 
       * pp. 83-84, Chapter 2, Shi 1988.
       */
@@ -322,7 +323,10 @@ double a7;
       S3 = moments[i][6]-x0*moments[i][3];
 
 
+
       massmatrix(TT,S0,S1,S2,S3);
+
+
 
      /* Compute the kinetic energy.
       * FIXME: Rewrite this as a function, then
@@ -347,6 +351,10 @@ double a7;
       * dereferencing.
       * FIXME: Add the viscosity potential to this.
       */
+      /** Change all of this to incomplete type for energy,
+       * hide everything behind a nice interface.
+       */
+      /*
       if (ad->k00 == 0) 
       {
          DLog->energy[cts].KEcentroid += rho*S0*( d1*d1 + d2*d2);
@@ -354,6 +362,7 @@ double a7;
                                     + (E66*d6*d6) + (2*E34*d3*d4) + (2*E35*d3*d5)
                                     + (2*E36*d3*d6) + (2*E46*d4*d6) + (2*E56*d5*d6));
       }
+*/
 
      /* (GHS: add mass matrix to a[][]) */
      /* k1 stores "permutation index",
@@ -417,11 +426,12 @@ double a7;
 
   /* Total kinetic energy
    */   
+   /*
    if (ad->m9 == 0) {
       DLog->energy[cts].ke = 0.5*(DLog->energy[cts].KEcentroid 
                            + DLog->energy[cts].KEdeform);
    }
-
+*/
 
 }  /*  Close df11().  */
 
@@ -439,6 +449,7 @@ double a7;
 void
 newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
           double **matprops, double **moments, int **n, double ** U,
+
           MassMatrix massmatrix)
 {
   /* Loop counters, etc. FIXME: explain i1. */
@@ -529,10 +540,8 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
             __V0[i][j] = __V0[i][j+6] + ( (a6c*__A0[i][j+6]) + (a7c*__A0[i][j]));
          }  
       }  
-      fprintf(fp.logfile,"Updated V and A (newmark)\n");
    }
-   fprintf(fp.logfile," newmark %d  %f\n",cts,ts);
-   
+  
   /*  inertia terms                                 */
   /* g5: only difference of statics and dynamics    */
   /* g6: inertia coefficient                        */
@@ -560,11 +569,14 @@ newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       * pp. 83-84, Chapter 2, Shi 1988.
       */
       S0 = moments[i][1];  
+
       S1 = moments[i][4]-x0*moments[i][2];
       S2 = moments[i][5]-y0*moments[i][3];
       S3 = moments[i][6]-x0*moments[i][3];
 
+
       massmatrix(TT,S0,S1,S2,S3);
+
 
 
      /* (GHS: add mass matrix to a[][]) */

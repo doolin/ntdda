@@ -9,9 +9,9 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:35 $
+ * $Date: 2002/10/27 20:53:17 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 
@@ -32,7 +32,6 @@
  */
 extern FILE * ddacutlog;
 extern FILE * pnpfile;
-extern FILEPATHS * filepath;
 
 /*------------------------------------------------*/
 /* a : 0-1 relation matrix point to line number   */

@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ddaml_private.h"
 #include "ddaml.h"
 
 
 void
-ddaml_check_document(xmlDocPtr doc, const char * name_space, const char * rootname) {
+ddaml_check_document(void * userdata, const char * name_space, const char * rootname) {
 
+   xmlDocPtr doc = (xmlDocPtr)userdata;
    xmlNsPtr nspace;
 
    if (doc == NULL) {

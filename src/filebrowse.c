@@ -11,9 +11,9 @@
  * saved, so that it won't be necessary to rerun the problem to 
  * view that results.
  * $Author: doolin $
- * $Date: 2002/05/26 23:47:24 $
+ * $Date: 2002/10/27 20:53:18 $
  * $Source: /cvsroot/dda/ntdda/src/filebrowse.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  */
 #define STRICT
@@ -21,7 +21,7 @@
 #include"dda.h"
 
 /*  The char * parameters will eventually be passed in through 
- *  the struct that handles io names (FILEPATHS, see dda.h.  This 
+ *  the struct that handles io names (Filepaths, see dda.h.  This 
  *  struct is currently global, so the file names have to passed in.
  *  Most of what this function does is wrap initialization of an 
  *  OPENFILENAME win32 struct.
@@ -34,7 +34,7 @@ void fileBrowse(HWND hwMain,
     /*  Being the only extern suggests 
 	 *  passing this in as a parameter. 
 	 */
-	extern FILEPATHS filepath;
+	extern Filepaths filepath;
 
 	strcpy(filepath.oldpath, newpath);
 	newpath[0] = '\0';

@@ -3,14 +3,15 @@
  * used with SHAKE.
  *
  * $Author: doolin $
- * $Date: 2002/10/26 23:23:07 $
+ * $Date: 2002/10/27 20:53:20 $
  * $Source: /cvsroot/dda/ntdda/src/timehistory.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 
 
 #include "timehistory.h"
@@ -27,18 +28,25 @@ struct _timehistory {
 };
 
 
+
+
 /** @todo Implement some validation code. */
 int             
+
 th_validate (TimeHistory * th) {
 
+
+
    return 0;
+
 }
+
+
 
 
 
 static TimeHistory * getNewTimeHistory();
 static double * getTHData(int);
-
 
 
 #ifndef SEISBUFSIZE
@@ -47,11 +55,10 @@ static double * getTHData(int);
 
 
 
-
 void
 seismic_update_points(DList * seispoints, double ** moments, double ** F, int * k1, 
                       TransMap transmap, TransApply transapply) {
-      
+
    int i0,i1;
    double u1,u2;
    double x,y;
@@ -63,21 +70,42 @@ seismic_update_points(DList * seispoints, double ** moments, double ** F, int * 
       return;
    }
 
-      dlist_traverse(ptr, seispoints) {
+   dlist_traverse(ptr, seispoints) {
 
-         ptmp = ptr->val;
-         i0 = ptmp->blocknum;
-         x  = ptmp->x;
-         y  = ptmp->y;
-         transmap(moments[i0],T,x,y);
-
-         i1 = k1[i0];
-         transapply(T,F[i1],&u1,&u2);       
-
-         ptmp->x += u1;
-         ptmp->y += u2;
-      }
+      ptmp = ptr->val;
+      i0 = ptmp->blocknum;
+      x  = ptmp->x;
+      y  = ptmp->y;
+         
+      transmap(moments[i0],T,x,y);
+      i1 = k1[i0];
+      transapply(T,F[i1],&u1,&u2);       
+      ptmp->x += u1;
+      ptmp->y += u2;
+   }
 }
+
+
+
+
+/* If we have a time history, we need to make sure the time
+ * interval in the time series matches the analysis time 
+ * step.
+ */
+
+
+
+/** FIXME: Replace this with a call to timehistory_validate(); */
+
+/*
+   if (ad->timehistory != NULL) {
+      if (th_get_delta_t(ad->timehistory) != ad->delta_t) {
+
+         ad->display_error("Analysis time step must be equal to time interval in time history.");
+      }
+   }
+
+   */
 
 
 /* I should separate the "lexing" stuff from the 

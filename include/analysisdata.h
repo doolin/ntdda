@@ -95,6 +95,7 @@ struct _analysisdata_tag {
    enum solvetype {lu, cg, sor} solvetype;
    enum contactmethod {penalty, auglagrange} contactmethod;
    enum frictionlaw {tpmc = 0, negexp, voight, druckerprager, bartonjrc} frictionlaw; 
+
    enum integrator {constant, newmark, symplectic} integrator;
    enum units {si, english} units;
    int fileformat; //  Should be an enum  {original, extended, ddaml} fileformat;
@@ -415,6 +416,10 @@ Analysisdata * adata_new                 (void);
 
 Analysisdata * adata_init                (void);
 
+
+
+
+
 void           adata_delete              (Analysisdata *);
 
 
@@ -464,8 +469,13 @@ void           adata_read_input_file     (Analysisdata *,
                                           int numloadpoints);
 
 void           adata_write_ddaml          (Analysisdata * ad, 
+
                                            PrintFunc printer, 
+
                                            void * stream);
+
+
+
 
 
 

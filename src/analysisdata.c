@@ -4,19 +4,20 @@
 #pragma warning( disable : 4115 )        
 #endif
 
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <assert.h>
 
+
 #include "analysisdata.h"
 #include "ddamemory.h"
-
-/** If these two headers can be removed from this 
- * file, it would allow unit testing.
- */
+#include "ddafile.h"
 #include "ddaml.h"
-#include "analysis.h"
+
+
+//#include "analysis.h"
 
 
 #define I1 "   "
@@ -29,31 +30,32 @@ static void emitJointMaterials(Analysisdata *, PrintFunc printer, void * stream)
 
 static void deleteBlockMaterial(Analysisdata * ad, int blocknumber);
 
+
 /*
  * WARNING!!!  This function is invoked through an analysis struct
  * function pointer that is set when the analysis data is initialized.
  * It should only be called in tandem with deleteBlock.
  */
 static void
-deleteBlockMaterial(Analysisdata * ad, int blocknumber)
-{
+deleteBlockMaterial(Analysisdata * ad, int blocknumber) {
+
    int i,j,k;
    int mpsize1 = ad->materialpropsize1;  //  nBlocks
    int mpsize2 = ad->materialpropsize2;  //  indexing from 0
    double ** e0 = ad->materialProps;
 
    j = 0;
-   for (i=1;i<=mpsize1;i++)
-   {
-       if (i == blocknumber)
-       {
+   for (i=1;i<=mpsize1;i++)    {
+
+       if (i == blocknumber) {
+
           j++;
           ad->materialpropsize1--;
           continue;
        }
 
-       for (k=0;k<=mpsize2;k++)
-       {
+       for (k=0;k<=mpsize2;k++) {
+
           e0[i-j][k] = e0[i][k];
        }
     }
@@ -62,8 +64,9 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber)
     * sure it isn't accidently used.
     */ 
     memset((void*)e0[mpsize1],0xDA,mpsize2*sizeof(double));
+}  
 
-}  /* close deleteMaterial() */
+
 
 
 static void
@@ -96,6 +99,8 @@ abortAnalysis(Analysisdata * ad) {
 
 void
 adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
+
+
 
 
   /* FIXME: Move the sizing constant to somewhere else.
@@ -247,9 +252,11 @@ emitBlockMaterials(Analysisdata * ad, PrintFunc printer, void * outfile)
 static void 
 emitJointMaterials(Analysisdata * ad, PrintFunc printer, void * outfile) {
 
+
    int i;
 
    for (i=1; i<= ad->nJointMats; i++) {
+
      
       printer(outfile,I1"<Jointproperties type=\"%d\">\n",i);  
       printer(outfile,I2"<Friction> %.2f</Friction>\n",ad->phiCohesion[i][0]);
@@ -299,24 +306,9 @@ adata_validate(Analysisdata * ad) {
          //exit(0);
       }
       */
-   }  /*  i  */
+   }  
 
-
-  /* If we have a time history, we need to make sure the time
-   * interval in the time series matches the analysis time 
-   * step.
-   */
-/** FIXME: Replace this with a call to timehistory_validate(); */
-/*
-   if (ad->timehistory != NULL) {
-      if (th_get_delta_t(ad->timehistory) != ad->delta_t) {
-
-         ad->display_error("Analysis time step must be equal to time interval in time history.");
-      }
-   }
-   */
-
-}  /* close validateAnalysisdata() */
+}  
 
 
 
@@ -335,8 +327,12 @@ adata_delete(Analysisdata * ad) {
    free2DMat((void **)ad->Fcopy,ad->Fsize1);
    free2DMat((void **)ad->tindex, ad->k5size1);
    free2DMat((void **)ad->c, ad->csize1);
+
+   /*
    if (ad->gravity)
       destroyGravity(ad->gravity);
+   */
+
    free(ad->springstiffness);
    free(ad->avgArea);
    loadpoint_delete(ad->loadpoints);
@@ -357,7 +353,7 @@ adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
 
    IFT afv;
 
-   afv = getFileType(infilename);
+   afv = ddafile_get_type(infilename);
 
    switch(afv)
    {
@@ -380,7 +376,7 @@ adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
           */
        case original:
        default:          
-          analysisReader(ad, infilename, numfixedpoints,pointcount,numloadpoints);  
+          ddafile_read_original_analysis(ad, infilename, numfixedpoints,pointcount,numloadpoints);  
           ad->display_warning("Obsolete geometry file detected");
           break;
    }
@@ -390,16 +386,15 @@ adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
 
 
 void 
-adata_set_output_flag(Analysisdata * ad, int flag)
-{
+adata_set_output_flag(Analysisdata * ad, int flag) {
    ad->options |= flag;
 }
 
 void 
-adata_clear_output_flag(Analysisdata * ad, int flag)
-{
+adata_clear_output_flag(Analysisdata * ad, int flag) {
    ad->options ^= flag;
 }
+
 
 /* 
  * Is mathematical analysis...only a vain play of the mind?
@@ -538,7 +533,7 @@ adata_new() {
       ado->OCLimit = 6+2;
 
    return ado;
-}  /* Close initAnalysisData() */
+}  
 
 
 void

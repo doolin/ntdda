@@ -12,12 +12,10 @@
 #include "datalog.h"
 #include "bolt.h"
 #include "timehistory.h"
+
 #include "stress.h"
 
 
-extern Datalog * DLog;
-
-extern FILEPOINTERS fp;
 
 /* Helper var for examining variables */
 static char mess[80];
@@ -26,6 +24,9 @@ static char mess[80];
 static void seismicload(DList * seispoints,TimeHistory * timehistory, int timestep,
                         int *k1, double **F, double ** moments, 
                         double ** matprops, TransMap transmap);
+
+
+
 
 
 
@@ -127,6 +128,7 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
   /* i0: block number  */
    for (i=1; i<= nFPoints; i++) {
 
+
      /* i0 is the block number that the point is 
       * associated with.  Notice that the fixed points
       * are read in as a line so that the 3,4 slots
@@ -216,6 +218,7 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
 void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F, 
           double **blockArea, TransMap transmap) {
 
+
    int i, i0, i1, i2;
    int j;
    int nLPoints = gd->nLPoints;
@@ -248,10 +251,6 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       for (j=1; j<= 6; j++) {
          s[j] = T[1][j]*points[i][4] + T[2][j]*points[i][5];
       }  
-
-      if (i%2) {
-         fprintf(fp.logfile,"load point %d,  x: %f, y: %f\n",i,points[i][4],points[i][5]);
-      }
 
       i1=(int)points[i][3];
       i2=k1[i1];
@@ -359,68 +358,133 @@ void df16(Geometrydata *gd, int *k1, double **F, double **e0,
 } 
 
 /* This was moved from ddanalysis to shorten the size
+
  * of the analysis loop.
+
  */
+
 void
+
 assemble(Geometrydata * gd, Analysisdata * ad,
+
          int ** locks, double ** e0,
+
          int * k1, int * kk, int ** n, double ** U,
+
          TransMap transmap) {
 
 
+
+
+
    //double ** f = AData->F;
+
    double ** moments = gd->moments;
 
 
 
+
+
+
+
 /** @todo Pull the globaltime array out of here
+
  * and just pass the current time into the 
+
  * interpolation function.
+
  */
+
    df09(ad->loadpoints,
+
           gd->points,
+
           ad->globalTime,
+
           ad->timeDeps,
+
           ad->tindex,
+
           gd->nFPoints,
+
           ad->nLPoints,
+
           ad->cts,
+
           ad->delta_t);
 
+
+
      /* Initialize submatrices back to zero, set
+
       * some other parameter related to the global
+
       * time step.
+
       * FIXME: see if locks can be moved out of here.
+
       */
+
 	   df10(gd,ad,locks,ad->F);
 
+
+
 	  /* submatrix of fixed points.  */
+
       df12(gd,ad,k1,ad->F,moments,n,transmap);
 
 
+
+
+
      /* df13 submatrix of stiffness */
+
 	   stress_stiffness(gd->nBlocks,ad->K,k1,e0,moments,n,ad->planestrainflag);
 
+
+
      /* df14 submatrix of initial stress  */
+
 	   stress_initial(gd->nBlocks,k1,ad->F,e0,moments);
 
+
+
      /* submatrix of point loading  */
+
 	   df15(gd,ad, k1,ad->F,moments, transmap);
 
+
+
      /* seismic loading */
+
       if (ad->timehistory != NULL) {
 
+
+
          seismicload(gd->seispoints, ad->timehistory, ad->cts,
+
                      k1, ad->F, moments, e0, transmap);
+
       }
+
+
 
      /* submatrix of volume force */
+
 	   df16(gd,k1,ad->F,e0,moments);
+
        
+
       if (gd->nBolts > 0) {
 
+
+
          bolt_stiffness_a(gd->rockbolts, gd->nBolts, ad->K, 
+
             k1, kk, n, moments,ad->F,transmap);
+
       }
+
+
 
 }  

@@ -60,7 +60,6 @@ static HDC hdc;
 
 	//extern HPEN hPen[10];
  extern HPEN drawPen[10];
-	extern FILEPATHS filepath;
 	extern GRAPHICS * g;
 
 

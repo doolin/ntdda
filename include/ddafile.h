@@ -5,10 +5,39 @@
 #include <stdio.h>
 
 
+typedef struct _filepath_tag Filepaths;
+
+typedef struct _ddafile DDAFile;
+
+enum inputfiletype { original = 0, extended, ddaml } inputfiletype;
+
+
+void initFilePaths                  (Filepaths * filepaths);
+
+void openAnalysisFiles              (Filepaths * filepaths);
+
+int  ddafile_get_type               (char * filename);
+
+
+/* Maybe move this back into adata file later... */
+void ddafile_read_original_analysis (void * userdata,
+                                     char *, 
+                                     int numfixedpoints,
+                                     int pointcount,
+                                     int numloadpoints);
+
 
 #define FNAME_BUFSIZE  256
 
-typedef struct _filepath_tag {
+
+/** Yes yes, this is all very ugly,
+ * but it turns out that carrying all 
+ * this cruft ariound makes things 
+ * easier to deal with for Win32.
+ * So it has to stay in for now.
+ */
+struct _filepath_tag {
+
 char gpath[FNAME_BUFSIZE];
 char path[FNAME_BUFSIZE];
 char apath[FNAME_BUFSIZE];
@@ -51,7 +80,9 @@ char vertexlogfile[FNAME_BUFSIZE];
  * otherwise on win32.
  */
 char rootname[FNAME_BUFSIZE];
-} FILEPATHS;
+};
+
+
 
 typedef struct file_pointers {
    FILE * logfile;

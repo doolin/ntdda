@@ -242,47 +242,6 @@ printBlockWeights(Geometrydata * gd, double ** moments, double ** e0,
 } /* close printBlockArea() */
 
 
-void 
-printGravNormForce(Analysisdata * ad, char * location)
-{
-   int i;
-   int n2 = ad->nCurrentContacts;
-   double ** cnf = ad->gravity->contactFN;
-
-
-   fprintf(fp.gravfile, "\nBegin gravity normal force verification" 
-           " (from %s, timestep %d, iteration %d)\n",
-            location, ad->cts, ad->m9);
-   for (i=0; i<=n2; i++)
-   {
-      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
-              i, cnf[i][0], cnf[i][1], cnf[i][2], cnf[i][3]);
-   }
-   fprintf(fp.gravfile, "End gravity normal forces\n\n");
-
-} /* close printBlockArea() */
-
-
-void 
-printGravShearForce(Analysisdata * ad, char * location)
-{
-   int i;
-   int n2 = ad->nCurrentContacts;
-   double ** csf = ad->gravity->contactFS;
-
-   fprintf(fp.gravfile, "\nBegin gravity shear force verification" 
-           " (from %s, timestep %d, iteration %d)\n",
-            location, ad->cts, ad->m9);
-
-   for (i=0; i<=n2; i++)
-   {
-      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
-              i, csf[i][0], csf[i][1], csf[i][2], csf[i][3]);
-   }
-   fprintf(fp.gravfile, "End gravity shear forces\n\n");
-
-} /* close printBlockArea() */
-
 
 void 
 printContactLengths(Geometrydata * gd, double ** o, char * location)
@@ -301,6 +260,7 @@ printContactLengths(Geometrydata * gd, double ** o, char * location)
    fprintf(fp.logfile, "End contact length\n\n");
 
 } /* close printBlockArea() */
+
 
 void 
 printAngles(Geometrydata * gd, double ** angles, char * location)

@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/26 23:23:04 $
+ * $Date: 2002/10/27 20:53:16 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.20 $
+ * $Revision: 1.21 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -26,6 +26,7 @@ extern "C" {
 #include "dda.h"
 #include "contacts.h"
 #include "functions.h"
+
 #include "stress.h"
 
 
@@ -129,6 +130,7 @@ void allocateAnalysisArrays(Geometrydata * GData,
                             double *** angles, 
                             int *** n);
 
+
 void deallocateAnalysisArrays(int * kk, 
                               int * k1, 
                               double ** c0, 
@@ -138,13 +140,18 @@ void deallocateAnalysisArrays(int * kk,
 
 
 
+
+
+
 double df01  (double ** vertices, 
               int ** vindex, 
               int numblocks);
 
 
 
-void df02(void);
+
+
+
 
 void setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **locks);
 
@@ -154,6 +161,7 @@ void df06(Geometrydata *, Analysisdata *, int **, int **, int **, int **, double
 void sparsestorage(Geometrydata *, Analysisdata *, Contacts *, 
                    int *, int *, 
                    int *, int **);
+
 
 
 
@@ -189,13 +197,15 @@ double df24(Geometrydata *, Analysisdata *, double ** F,
 void df25(Geometrydata *, Analysisdata *, int *, 
             double **, /* double ** moments,*/ double **,
             TransMap transmap, TransApply transapply, 
+
             BoundCond boundary_conditions, StrainModel strain_compute);
 
 
 
-void computeVertexAngles(Geometrydata *, double **);
-void anglorig(Geometrydata *, double **);
+
 void computeTimeStep(Geometrydata *, Analysisdata *);
+
+
 void proj(double ** vertices, double w0, double **, int *, 
             int, int, int, int, int /* , CONSTANTS *  */);
 void invr(double [][7], double [][7]);
@@ -226,6 +236,8 @@ void timeintegration(Geometrydata * GData,
                      MassMatrix massmatrix);
 
 
+
+
 /** @todo  See if the df11() function takes care of 
  * all the parameter changes.  If so, this function 
  * should be changed to do an explicit integration.
@@ -248,12 +260,6 @@ void postProcess(Geometrydata * GData, Analysisdata * AData);
 void initdf08(int ** n,int * kk,int nBlocks);
 
 
-/* This should eventually go into a solver header file */
-int checkDiagDominance(double ** K, int ** colindex, int numblocks);
-
-
-
-Geometrydata * readBlocks(FILEPATHS *);
 
 
 void vertexInit(Geometrydata *);
@@ -283,13 +289,14 @@ double computeSpringStiffness(Geometrydata *, Analysisdata *, int **, double **)
 int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *, FILE *);  
 
 
-void  openAnalysisFiles(FILEPATHS *);
 
 
 
 /******************** Initialization code *******************/
 void initNewAnalysis(Geometrydata *, Analysisdata *, double **,
-            /* double **, */ FILEPATHS * filepath);
+            /* double **, */ Filepaths * filepath);
+
+
 /* density, unit weight etc, includes stress, strain */
 void initBlockProperties(Geometrydata *, Analysisdata *, double **);
 void initContactSpring(Analysisdata *);
@@ -310,17 +317,6 @@ void freeIntTempArrays(void);
 void freeIntegrationArrays(void);
 
 void allocateK(Analysisdata *);
-
-
-
-
-
-void           analysisReader  (Analysisdata *,
-                                char *, 
-                                int numfixedpoints,
-                                int pointcount,
-                                int numloadpoints);
-
 
 
 /* These defines are a first attempt to impose some 

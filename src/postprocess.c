@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:38 $
+ * $Date: 2002/10/27 20:53:20 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  */
 
 #include <malloc.h>
@@ -220,6 +220,7 @@ writeMoments(Geometrydata * gd, int currtimestep, int numtimesteps)
       fprintf(fp.momentfile,"];\n");
 
 }  
+
 
 
 
@@ -460,7 +461,7 @@ writeAllBlockVerticesMatrix(Geometrydata *gd, Analysisdata *ad)
    * set up the headers for each block of vertex 
    * data and set the positions of the end of blocks.
    */ 
-mary:
+//mary:
    /* I am checking cts == 1 for a similar function.
     * If we can get all of these to check against the 
     * same time step, this code can probably be turned
@@ -677,7 +678,7 @@ writeMeasuredPoints(Geometrydata * gd, Analysisdata * ad)
    /* This is a kludge.  These files should be initialized
     * when they are first opened.
     */
-mary:
+//mary:
    /* Same comment here as above, hopefully this stuff can 
     * be pulled out into a separate, easy-to-test function.
     */

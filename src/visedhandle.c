@@ -1,10 +1,11 @@
 
 
 //#include "compilecontrol.h"
-#include "dda.h"
 #include "resource.h"
 #include "winmain.h"
 
+#include "dda.h"
+#include "ddafile.h"
 
 
 #ifdef WIN32
@@ -22,7 +23,7 @@ typedef long HDC;
 typedef long MSG;
 #endif
 
-FILEPATHS filepath;
+Filepaths filepath;
 
 void
 handleVisualEditor(HWND hwMain, LPARAM lParam)

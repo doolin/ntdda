@@ -11,7 +11,9 @@
 #include "dda.h"
 #include "options.h"
 
+
 //#include "graphics.h"
+
 
 /* These were moved in from dda.h */
 #define WINGRAPHICS 1
@@ -58,8 +60,8 @@ void handleVisualEditor(HWND hwMain, LPARAM);
 void handleGeometryDialog(HWND hwMain, LPARAM);
 
 
-void handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam, FILEPATHS *);
-void handleCommandLine(HWND, int argc, char ** argv, FILEPATHS *);
+void handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam, Filepaths *);
+void handleCommandLine(HWND, int argc, char ** argv, Filepaths *);
 
 
 void handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam);

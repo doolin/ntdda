@@ -34,9 +34,9 @@ OBJECTS =                    \
            bolttest          \
            analysisdata_test \
            geometrydata_test \
-           contacttest       \
            inpoly_test       \
-           ddadlist_test 
+           ddadlist_test     \
+           constants_test
 
 
 all: $(OBJECTS)
@@ -63,6 +63,9 @@ stress_test: stress_test.c ../stress.c
 
 inpoly_test: inpoly_test.c ../inpoly.c
 	gcc $(CFLAGS)  -o inpoly_test inpoly_test.c ../inpoly.c  -I ../../include -lm
+
+constants_test: constants_test.c ../constants.c
+	gcc $(CFLAGS)  -o constants_test constants_test.c ../constants.c  -I ../../include -lm
 
 loadpointtest: loadpointtest.c 
 	gcc $(CFLAGS)  -o loadpointtest loadpointtest.c ../loadpoint.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm

@@ -4,9 +4,9 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/10/26 20:11:56 $
+ * $Date: 2002/10/27 20:53:31 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  */
 
 #include <stdio.h>
@@ -91,8 +91,10 @@ static void handleJointMinus(HWND hDlg);
 
 
 
-/* Externs from winmain.c  */
-extern FILEPATHS filepath;
+/* Externs from winmain.c  
+ * This needs to be tucked into the DAD struct.
+ */
+extern Filepaths filepath;
 
 
 /* This is now passed in from the dialog box call
@@ -950,6 +952,7 @@ saveData()
 
    fp = fopen(filepath.apath, "w");
 
+
   /* Might want to reimplement time step saving interval
    * as well.
    */
@@ -1020,9 +1023,11 @@ saveData()
   /* in with the new. */
    ad->loadpoints = lpoints;
 
+
 /* Won't link, don't know why. */
    adata_write_ddaml(ad,fprintf,fp);
    fclose(fp);
+
 
   /* Leave this stuff for clean up. */
    if(jmatOld) 

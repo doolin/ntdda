@@ -265,7 +265,8 @@ bolt_get_pretension_a(double * bolt) {
  * semicolons separate data for each bolt.
  */
 void 
-bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, PrintFunc printer, void *stream) {
+bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, 
+           PrintFunc printer, void * stream) {
 
 	int i;
    
@@ -283,6 +284,21 @@ bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, PrintFunc pr
 	printer(stream,"\n");
 }
 
+
+void 
+bolt_init_materials(double ** rockbolts, int numbolts, double ** boltmats) {
+
+   int i;
+
+   for (i=0;i<numbolts;i++) {
+
+      rockbolts[i][7] = boltmats[0][0];
+      rockbolts[i][8] = boltmats[0][1];
+      rockbolts[i][9] = boltmats[0][2];
+      bolt_set_length_a(rockbolts[i]);         
+      bolt_set_ref_length_a(rockbolts[i]);
+   }
+}
 
 
 void

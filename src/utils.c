@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/26 23:23:07 $
+ * $Date: 2002/10/27 20:53:20 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  */
 
 
@@ -151,6 +151,7 @@ checkParameters(Geometrydata * gd, Analysisdata * ad, Contacts * ctacts, FILE * 
    return FALSE;  /* Passed, on to new time step */
 
 }  
+
 
 
 
@@ -305,27 +306,7 @@ void dist(void)
 
 
 
-/* This function is a prime candidate for 
- * turning into a macro.
- */
-void
-setMatrixToZero(double **matrix, int row, int column)
-{
-   int i;
-   //int j;
 
-   for (i=0; i< row; i++)
-   {
-      /*
-      for (j=0; j< column; j++)
-      {
-         matrix[i][j] = 0;
-      } 
-      */
-      memset((void*)matrix[i],'0',column*sizeof(double));
-   }  
-
-}  /* close setMatrixToZero() */
 
 
 
@@ -337,11 +318,16 @@ setMatrixToZero(double **matrix, int row, int column)
  * overhead.
  */
 /**
+
  * @todo  Change the algorithm to use modular arithmetic so 
+
  * this loop does not have to be computed.
+
  */
+
 void
 vertexInit(Geometrydata *gd) {
+
 
   /* change vertices to have previous vertex of 1st vertex */
   /* This is a convenience for the simplex integration
@@ -359,6 +345,9 @@ vertexInit(Geometrydata *gd) {
    }  /*  i  */
 
 }  // Close vertexInit() 
+
+
+
 
 
 
@@ -505,6 +494,7 @@ copy2DIntMat(int ** mat1, int ** mat2, int n, int m)
 
 
 
+
 void
 initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
 {
@@ -517,13 +507,17 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
 
    double gravaccel = adata_get_grav_accel(ad);
 
+
+
   /** Fix any problems silently. */
    material_validate(vindex,nBlocks,nb);
+
 
   /* materialProps: ma we e0 u0 s11 s22 s12 t1 t2 t12 vx vy vr */
   /* (GHS: e0: ma we e0 u0 c11 c22 c12 t-weight)  */
   /* (GHS: v0: velocity of u v r ex ey gxy parameters) */
    for (i=1; i<= nBlocks; i++) {
+
 
      /* WARNING: The material types for the blocks must be specified
       * in order. Example: 1,2,3,4.  Any out-of-order material type,
@@ -538,6 +532,8 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
       * it only exists to make the transfer from the input file to
       * e0, and can possibly be radically rewritten.
       */
+
+
 
       i1 = vindex[i][0];
       e0[i][0] = materialProps[i1][0]; /* density; unit mass */
@@ -567,7 +563,10 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
     
    }  
 
+
 }  /* close initBlockProperties() */
+
+
 
 
 
@@ -703,11 +702,15 @@ void allocateAnalysisArrays(Geometrydata * GData,
 
 
 void 
+
 deallocateAnalysisArrays(int *kk, 
+
                          int *k1, 
                          double **c0, 
+
                          //double **e0, 
                          double **U, 
+
                          int ** n) 
 {
    extern void freeCGTemp();
@@ -724,14 +727,17 @@ deallocateAnalysisArrays(int *kk,
    if (n)
       free2DMat((void **)n, __nsize1);
 
+
 	  if (c0)
       free2DMat((void **)c0, __c0size1);
 
    //if (v0)
    //   free2DMat((void **)v0, __v0size1);
 		 
+
        //if (moments)
       //free2DMat((void **)moments, __momentsize1);
+
 
    if (U)
       free2DMat((void **)U, __Usize1);

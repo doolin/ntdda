@@ -13,10 +13,14 @@ extern "C" {
 #endif
 
 
+
+
 /** Start changing this over to use an incomplete type.
  * It will be much easier to maintain.
  */
-// typedef struct _datalog Datalog;
+typedef struct _datalog Datalog;
+
+
 
 
 /* Track energy consumption per time step.  Later,
@@ -42,7 +46,7 @@ typedef struct _energy_struct {
  * that controls what data to record.  This will help
  * with post-processing.
  */
-typedef struct datalog_tag {
+struct _datalog {
 
   /* Clocking variables.  These will eventually go into 
    * their own struct.
@@ -127,13 +131,6 @@ typedef struct datalog_tag {
    int energysize1;
    Energy * energy;
 
-  /* Track diagonal dominance.  This should probably be moved to
-   * struct that tracks numerical stuff separate from the
-   * Datalog struct.
-   */
-   int diagsize1;  // 2 + index
-   int diagsize2;  // nBlocks + index
-   double ** diagdom;
 
   /* Record contact forces on a per-time step basis.  This is a bit
    * tricky.  The memory will have to be allocated and freed along 
@@ -141,13 +138,14 @@ typedef struct datalog_tag {
    * handled with a struct *.
    */
    
-} Datalog;
+};
 
 
 
 Datalog *  datalog_new     (int numtimesteps, 
                             int numjointmats, 
                             int numblocks);
+
 void       datalog_delete  (Datalog *);
 
 

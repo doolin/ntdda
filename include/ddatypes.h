@@ -77,8 +77,11 @@ typedef struct _ddarect DDARect;
 /* Try to get rid of this enum. */
 typedef enum _pointtype {fixed=0,measured,load,hole, seismic} PointType;
 
-enum inputfiletype { original = 0, extended, ddaml } inputfiletype;
+
+
 typedef enum inputfiletype IFT;
+
+
 
 
 typedef struct {

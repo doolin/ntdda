@@ -7,9 +7,9 @@
  * geometry routine in the DDA for Windows code.
  *
  * $Author: doolin $
- * $Date: 2002/05/27 15:23:56 $
+ * $Date: 2002/10/27 20:53:17 $
  * $Source: /cvsroot/dda/ntdda/src/blockhandler.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 #include<stdlib.h>
@@ -23,7 +23,7 @@
  * will have to be completely rewritten.
  */
 Geometrydata * 
-readBlocks(FILEPATHS *filepath) {
+gdata_read_block_file(Filepaths *filepath) {
 
    FILE * blocksInFile;
    Geometrydata * bdn;  /*  i.e., block data in */

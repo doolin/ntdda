@@ -5,8 +5,12 @@
  * data structures in dda.  
  *
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:06 $
+ * $Date: 2002/10/27 20:53:18 $
  * $Log: ddamemory.c,v $
+ * Revision 1.4  2002/10/27 20:53:18  doolin
+ * File handling changes are minor, due to
+ * Win32 need for complete path info.
+ *
  * Revision 1.3  2002/05/26 15:56:06  doolin
  * Status bar handling is vastly improved, ready and
  * geometry states now unified.  Next, unify with analysis status,
@@ -193,7 +197,28 @@ initCentroids(GRAPHICS *g, int nBlocks)
 #endif
 
 
+/* This function is a prime candidate for 
+ * turning into a macro.
+ */
+/** Careful with the indexing on this bad boy. */
+void
+setMatrixToZero(double **matrix, int row, int column)
+{
+   int i;
+   //int j;
 
+   for (i=0; i< row; i++)
+   {
+      /*
+      for (j=0; j< column; j++)
+      {
+         matrix[i][j] = 0;
+      } 
+      */
+      memset((void*)matrix[i],'0',column*sizeof(double));
+   }  
+
+}  /* close setMatrixToZero() */
 
 
 void 

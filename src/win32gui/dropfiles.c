@@ -9,7 +9,7 @@
 
 
 void
-handleCommandLine(HWND hwMain, int argc, char ** argv, FILEPATHS * fpath)
+handleCommandLine(HWND hwMain, int argc, char ** argv, Filepaths * fpath)
 {
    char * fnamesuffix; 
 
@@ -35,7 +35,7 @@ handleCommandLine(HWND hwMain, int argc, char ** argv, FILEPATHS * fpath)
 
 
 void
-handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam,FILEPATHS * fpath)
+handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam,Filepaths * fpath)
 {
    char * str;
    HDROP hDrop;

@@ -15,10 +15,14 @@ extern "C" {
 
 #include "ddatypes.h"
 #include "geometrydata.h"
+
 #include "analysisdata.h"
+
+
 
 /** Find a way to get rid of this. */
 #include "graphics.h"
+
 
 
 
@@ -57,7 +61,6 @@ typedef struct progbar_tag ProgressBarInfo;
 
 
 
-int getFileType(char *);
 
 
 /* Pass this around instead of using globals.
@@ -66,9 +69,9 @@ typedef struct _dda_tag DDA;
 typedef struct _dda_gui DDAGui;
 
 
-int ddanalysis(DDA *, FILEPATHS *);
+int ddanalysis(DDA *, Filepaths *);
 void display(Geometrydata * GData, Analysisdata *);
-void initFilePaths(FILEPATHS *);
+
 
 
 

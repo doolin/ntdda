@@ -80,13 +80,9 @@ struct _gravity_tag {
    */
    //FILE * gravfp;
 
-  /* At some point in the future, all the gravity 
-   * output should run in its own thread so that 
-   * the io buffering doesn't slow up the analysis.
-   */
-   //thread gravthread;
-
 };
+
+
 
 
 #ifdef __cplusplus

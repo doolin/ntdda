@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/10/26 20:11:56 $
+ * $Date: 2002/10/27 20:53:32 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.26 $
+ * $Revision: 1.27 $
  */
 
 
@@ -61,7 +61,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.26 2002/10/26 20:11:56 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.27 2002/10/27 20:53:32 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -102,7 +102,7 @@ int ycursor;
  * at a time.
  */
 Options options;
-FILEPATHS filepath;
+Filepaths filepath;
 
 
 GRAPHICS * g = NULL;
@@ -417,10 +417,14 @@ handleTitle(HWND hwMain) {
   /* FIXME: Make this a handleSplash function. */
    static int draw = 1;
            
+
    if (draw == 0) {
+
       return;
+
    }
    draw = 0;
+
    handleMainAbout(hwMain);
    //drawTitle(draw_wnd, hdc);
 }
@@ -983,6 +987,7 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
 
 void
 handleMainAbout(HWND hwMain) {
+
 
    char about[1024];		    		
    char aText[9][256] = {ABOUT};

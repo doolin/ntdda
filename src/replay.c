@@ -11,7 +11,7 @@
 extern int showOrig;
 
 extern FILEPOINTERS fp;
-extern FILEPATHS filepath;
+extern Filepaths filepath;
 
 
 

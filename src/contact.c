@@ -13,11 +13,9 @@
 #include "analysis.h"
 #include "contacts.h"
 #include "ddamemory.h"
-#include "datalog.h"
 #include "constants.h"
 
 
-extern Datalog * DLog;
 
 static char mess[80];
 
@@ -83,113 +81,111 @@ freeContactTempArrays(void)
       __angles = NULL;
    }
 
-}  /* close freeStorageTempArrays() */
+}  
 
-/* 
-   m (contacts) is a an array that tracks vertices 
-   that are in contact with each other:
-             i2
-             \    /
-              \  /
-               \/ i1
-          j1 ---------- j2
-             \
-              \
-               \
-*/
-/* Contains subfunctions df04, df05, df06, df07.
- * Contact finding takes a list of blocks, finds the 
- * number of vertex-vertex (v-v) or vertex-edge (v-e) contacts 
- * possible in the forthcoming time step, then determines
- * which of those contacts are possible using the corner
- * reference diagram, establishes locks (?), determines
- * length of contact for friction and cohesion computation,
- * then determines the number of block-to-block contacts
- * using the actual v-e/v-v  count (from df05).  Contact 
- * finding is described in Shi 1988, Chapter 4, pp. 139-188
- * (for df04, df05, df06, df07).  
+
+/**************************************************/
+/* proj: projection of a edge to other edge  0015 */
+/**************************************************/
+/* In other words, compute the actual contact length
+ * of one block edge on another.  This function is  
+ * due for a rewrite, should take vertices, etc, and
+ * return contact length.  Only called from df07()?
  */
-/* FIXME: Try and make c0 go local to this file, and rename 
- * the other instance of c0 for friction forces.
+/* i  i0   i1  i2  i3  i4  d1  o[][3]  vertices  m0[][2] */
+/* j l d1 i0 s[] x1 y1 x2 y2 x3 y3                */
+/* v1, v2, v3 are the vertex numbers implicated in
+ * this contact.
+ */
+/* FIXME: c_length[][2] or c_length[][3] are what gets set for 
+ * "return values."  There should be some way of rewriting this
+ * function in a much cleaner way.
  */
 void 
-findContacts(Geometrydata * GData, Analysisdata * AData, Contacts * ctacts,
-                    int * kk, int * k1, int ** n, double ** c0)
-{
+contacts_project_edge(double ** vertices, double domainscale, double **c_length, int *kk, 
+                      int i, int v1, int v2, int v3, int i4) {
 
-   clock_t start, stop;
-   int * nn0 = GData->nn0;
+   int j;
+   int ell;
+   double reflinelength;  // was d1;
+   double s[5];  // s[0] is a temp value
+   double y1, y2, y3;
+   double x1, x2, x3;
 
-   int ** contacts = get_contacts(ctacts);
-   int ** locks = get_locks(ctacts);
-   int ** contactindex = get_contact_index(ctacts);
-   double ** contactlength = get_contact_lengths(ctacts);
-   int ** prevcontacts = get_previous_contacts(ctacts);
+  /* compute projection of p1 and p4 to edge p2p3 */
+   x1   = vertices[v1][1];
+   y1   = vertices[v1][2];
+   x2   = vertices[v2][1];
+   y2   = vertices[v2][2];
+   x3   = vertices[v3][1];
+   y3   = vertices[v3][2];
+   s[2] = 0;
+   s[3] = 1;
 
-
-   start = clock();
-
-
-  /* Compute 2 angles: one angle is the angle wrt the
-   * x axis in standard position, the other the interior
-   * angle between 2 sides of a polygon (block).
+  /* contact position */
+  /* FIXME: Replace the constant with a parameter that
+   * can be controlled by the user.  The reason for 
+   * using the parameter is to avoid dividing by zero
+   * when determining the penetration distance (?).
+   * Also, since there are various tolerances built into 
+   * the contact finding code, this may be partly to 
+   * compensate for those.
+   * Add as "MinReflineFactor, min_refline_factor"
    */
-   computeVertexAngles(GData,__angles);
-   //printAngles(GData, angles, " after angl()");
-   //printVertices(GData, GData->vertices, GData->vindex, "Main loop");
-  /* FIXME: Previous contacts are saved for what reason?
-   */
-  /* The "locks" array gets zeroed out in savePreviousContacts() */
-   savePreviousContacts(GData,AData,contacts,locks,prevcontacts,contactlength);
-   //printM2(m2, " after savePrevContacts");
-  /* Find contacts using distance criteria. This function 
-   * appears to act as a filter for df05, which finds 
-   * using angle criteria.  df04 does set some of the 
-   * array indexing. df04 sets the contact indexing matrix
-   * that df05 uses to traverse over each possible contact.
-   */
-   df04(GData,AData,kk,__k3,c0,__angles);
-   //printKK(kk, " df04");
-   //printK3(k3, " df04");
-  /* Find contacts by angle criteria.  df05 seems to be where
-   * most of the nitty gritty of contact finding actually 
-   * happens.  This function could actually *return* contacts
-   * array.
-   */
-   df05(GData,AData,contacts,kk,__k3,nn0,__angles);
-  /* Establish contacts between rockbolted blocks. */
-   //if (GData->nBolts > 0)
-   //{
-   //   rockboltContacts(Geometrydata *bd, Analysisdata *ad, int *kk, int *k3, 
-   //   double **c0, double **u);
-   //}
-  /* FIXME: Contact transfer.  What does this mean?
-   */
-  /* See section 3.3 of the manifold report (page 39). 
-   * df06() is now in a file called "transfercontacts.c"
-   */
-   df06(GData,AData,contacts, locks, prevcontacts, 
-        contactindex,contactlength,kk, __k3,nn0);
+   reflinelength = ((x3-x2)*(x3-x2) + (y3-y2)*(y3-y2) 
+                 + .000000001*domainscale);  // Probably don't need this factor.
+   
+  /* Numerator is dot-product */
+   s[1] = ((x1-x2)*(x3-x2) + (y1-y2)*(y3-y2))/reflinelength;
 
+  /* FIXME: What, exactly, does this mean? */
+   if (kk[i] == 0)  
+   {
+     /* This is the omega parameter given by TCK 1995, Eq. 58(?),
+      * p. 1239.  
+      */
+      c_length[i][2] = s[1]; // if contact locked after previous step
+   }
 
-  /* FIXME (add more comments): Contact initialization.  
-   * df07 appears to mostly compute the length of the 
-   * contacts found in df05, and set the open/close
-   * flags also.
+  /* i4 = 0 => contact is single point only, not edge-edge */
+   if (i4==0) 
+      return;  /* goto pr02;  */
+
+  /* Coordinates of second endpoint of contacting edge. */
+   x1   = vertices[i4][1];
+   y1   = vertices[i4][2];
+
+   s[4] = ((x1-x2)*(x3-x2) + (y1-y2)*(y3-y2))/reflinelength;
+
+  /* ordering i1 i2 i3 i4 on edge i2 i3             */
+  /* o[][3] locking length      o[][3] locking flag */
+   for (j=1; j<=3; j++) {
+
+      for (ell=j+1; ell<=4; ell++) {
+
+         if (s[j]  <=  s[ell]) 
+            continue;   // in order
+        /* Else swap em */
+         s[0] = s[j];
+         s[j] = s[ell];
+         s[ell] = s[0];
+       }  
+   }  
+      
+  /* c_length[i][3] is given as cohesion length in some 
+   * previous comments.  The .5 results from having half the
+   * cohesion induced by the current contact, and the other half 
+   * by the contact of the jth block into the ith block.
+   * The sqrt comes from un-normalizing (???).
    */
-   df07(GData,AData, contacts, locks,contactlength,kk);
-   //printContactLengths(GData, contactlength);
-
-   setInitialLocks(GData, AData, contacts, locks);
-
-   stop = clock();
+   c_length[i][3] = .5*(s[3]-s[2])*sqrt(reflinelength);
  
-   //assert(stop != start);
+  /* m0[i][2]  = 2; */  /* d */
+  
+/* pr02:;  */
 
-   //DLog->contact_runtime += (stop - start);
-   //if (DLog->contact_runtime == 0)  exit(0);
+}  
 
-}  /* close findContacts() */
 
 /* What the code appears to do is to store the vertex angle in
  * matrix `u'.  The vertex angle is the interior angle formed
@@ -207,16 +203,16 @@ findContacts(Geometrydata * GData, Analysisdata * AData, Contacts * ctacts,
 /**************************************************/
 /* i  x1  y1  c1  d1  d2  d3  i1  i2  u[][]       */
 void 
-computeVertexAngles(Geometrydata *bd, double **angles)
-{
+//computeVertexAngles(Geometrydata *bd, double **angles) {
+computeVertexAngles(double **angles, double ** vertices, 
+                    int ** vindex, int numblocks) {
+
    int block;
    int j;
    double c1;
    double d1, d2, d3;
    double	dd = 3.1415926535/180.0;
-   int nBlocks = bd->nBlocks; 
-   double ** vertices = bd->vertices;
-   int ** vindex = bd->vindex;
+
   /* i1, i2 local in this function, used to track index of 
    * block vertices (vertices matrix) stored in vindex.
    * i1 and i2 should probably be named "start" and "stop"
@@ -231,8 +227,8 @@ computeVertexAngles(Geometrydata *bd, double **angles)
    * of code does, why it does it, and where is it referenced 
    * in the literature.
    */
-   for (block=1; block<=nBlocks; block++)
-   {
+   for (block=1; block<=numblocks; block++) {
+
       startIndex=vindex[block][1];
       stopIndex=vindex[block][2];
          
@@ -304,8 +300,114 @@ computeVertexAngles(Geometrydata *bd, double **angles)
       angles[stopIndex+1][2]=angles[startIndex][2];
    }  /*  block  */
 
-}  /*  Close computeVertexAngle() */
+}  
    
+
+
+
+
+/* 
+   m (contacts) is a an array that tracks vertices 
+   that are in contact with each other:
+             i2
+             \    /
+              \  /
+               \/ i1
+          j1 ---------- j2
+             \
+              \
+               \
+*/
+/* Contains subfunctions df04, df05, df06, df07.
+ * Contact finding takes a list of blocks, finds the 
+ * number of vertex-vertex (v-v) or vertex-edge (v-e) contacts 
+ * possible in the forthcoming time step, then determines
+ * which of those contacts are possible using the corner
+ * reference diagram, establishes locks (?), determines
+ * length of contact for friction and cohesion computation,
+ * then determines the number of block-to-block contacts
+ * using the actual v-e/v-v  count (from df05).  Contact 
+ * finding is described in Shi 1988, Chapter 4, pp. 139-188
+ * (for df04, df05, df06, df07).  
+ */
+/* FIXME: Try and make c0 go local to this file, and rename 
+ * the other instance of c0 for friction forces.
+ */
+void 
+findContacts(Geometrydata * gd, Analysisdata * AData, Contacts * ctacts,
+                    int * kk, int * k1, int ** n, double ** c0)
+{
+
+   //clock_t start, stop;
+   int * nn0 = gd->nn0;
+
+   int ** contacts = get_contacts(ctacts);
+   int ** locks = get_locks(ctacts);
+   int ** contactindex = get_contact_index(ctacts);
+   double ** contactlength = get_contact_lengths(ctacts);
+   int ** prevcontacts = get_previous_contacts(ctacts);
+
+
+   //start = clock();
+
+
+  /* Compute 2 angles: one angle is the angle wrt the
+   * x axis in standard position, the other the interior
+   * angle between 2 sides of a polygon (block).
+   */
+   computeVertexAngles(__angles,gd->vertices,gd->vindex,gd->nBlocks);
+   //printAngles(GData, angles, " after angl()");
+   //printVertices(GData, GData->vertices, GData->vindex, "Main loop");
+  /* FIXME: Previous contacts are saved for what reason?
+   */
+  /* The "locks" array gets zeroed out in savePreviousContacts() */
+   savePreviousContacts(gd,AData,contacts,locks,prevcontacts,contactlength);
+   //printM2(m2, " after savePrevContacts");
+  /* Find contacts using distance criteria. This function 
+   * appears to act as a filter for df05, which finds 
+   * using angle criteria.  df04 does set some of the 
+   * array indexing. df04 sets the contact indexing matrix
+   * that df05 uses to traverse over each possible contact.
+   */
+   df04(gd,AData,kk,__k3,c0,__angles);
+   //printKK(kk, " df04");
+   //printK3(k3, " df04");
+  /* Find contacts by angle criteria.  df05 seems to be where
+   * most of the nitty gritty of contact finding actually 
+   * happens.  This function could actually *return* contacts
+   * array.
+   */
+   df05(gd,AData,contacts,kk,__k3,nn0,__angles);
+
+  /* FIXME: Contact transfer.  What does this mean?
+   */
+  /* See section 3.3 of the manifold report (page 39). 
+   * df06() is now in a file called "transfercontacts.c"
+   */
+   df06(gd,AData,contacts, locks, prevcontacts, 
+        contactindex,contactlength,kk, __k3,nn0);
+
+
+  /* FIXME (add more comments): Contact initialization.  
+   * df07 appears to mostly compute the length of the 
+   * contacts found in df05, and set the open/close
+   * flags also.
+   */
+   df07(gd,AData, contacts, locks,contactlength,kk);
+   //printContactLengths(GData, contactlength);
+
+   setInitialLocks(gd, AData, contacts, locks);
+
+   //stop = clock();
+ 
+   //assert(stop != start);
+
+   //DLog->contact_runtime += (stop - start);
+   //if (DLog->contact_runtime == 0)  exit(0);
+
+}  
+
+
 
 
 /* The positions of previous contacts need to be saved.
@@ -335,8 +437,8 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
    * out, make a function call here.  FIXME: This code is
    * probably meaningless.
    */
-#if JHLJHLKJHKLJHKLJHKLJHKLJ
-   if  (ad->currTimeStep == 1)
+#if 1
+   if  (ad->cts == 1)
    {
      /* Zero out the locks array.
       * FIXME: what is locks and where is it set?
@@ -1120,7 +1222,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
                i2 = contacts[contact][2];  // endpoint 2 of contacted ref line 
                i3 = contacts[contact][3];  // endpoint 3 of contacted ref line
                i4 = 0;  // contacted edge is single pt only.
-               proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+               contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
                continue;
             }
 
@@ -1133,7 +1235,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
             if (ad->cts==1) // && ad->analysistype >= 0))      
                locks[contact][0] = 1;  // Tension?
 
-            proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+            contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
             continue;  /* goto a701; */
          }
 
@@ -1146,7 +1248,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          if (ad->cts==1)// && ad->analysistype >= 0)      
             locks[contact][0] = 1;
 
-         proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+         contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;  /* goto a701; */
       }
 
@@ -1170,7 +1272,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          if (ad->cts==1) // && ad->analysistype >= 0)      
             locks[contact][0] = 1;
 
-         proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+         contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;
       }
 
@@ -1187,7 +1289,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          if (ad->cts==1) //  && ad->analysistype == 1))
             locks[contact][0] = 1;
 
-         proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+         contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;  /* goto a701; */
       }
       else 
@@ -1200,7 +1302,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
             i2 = contacts[contact][2];
             i3 = contacts[contact][3];
             i4 = 0;  /*  pt-edge instead of vertex-edge contact */
-            proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+            contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
             continue;
          }
 
@@ -1213,7 +1315,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          if (ad->cts==1)      
             locks[contact][0] = 1;
 
-         proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+         contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;  /* goto a701; */
       }
       
@@ -1234,7 +1336,7 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
       if (ad->gravity->gravTimeStep==1 || (ad->cts==1 && ad->analysistype >= 0))      
          locks[contact][0] = 1;
 
-      proj(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
+      contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
 /* a701:; */
    }  /*  i  */
       
@@ -1242,10 +1344,27 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
 
 
 
+/** This function is testable, and can later 
+ * turned into a macro.
+ */
+double 
+contact_compute_penetration(const double x1, const double y1, 
+                            const double x2, const double y2,
+                            const double x3, const double y3) {
+
+   double reflinelength;
+   double p;
+
+   reflinelength = sqrt((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2));
+   p = ((x2-x1)*(y3-y1)-(y2-y1)*(x3-x1))/reflinelength;
+
+   return p;
+}
+
 
 void
-setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **locks)
-{
+setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, 
+                int **locks) {
    
   /* i is index ofr contact loop */
    int contact;  // was i
@@ -1349,106 +1468,3 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int **lock
 }  /* close setInitialLocks() */
 
 
-/**************************************************/
-/* proj: projection of a edge to other edge  0015 */
-/**************************************************/
-/* In other words, compute the actual contact length
- * of one block edge on another.  This function is  
- * due for a rewrite, should take vertices, etc, and
- * return contact length.  Only called from df07()?
- */
-/* i  i0   i1  i2  i3  i4  d1  o[][3]  vertices  m0[][2] */
-/* j l d1 i0 s[] x1 y1 x2 y2 x3 y3                */
-/* v1, v2, v3 are the vertex numbers implicated in
- * this contact.
- */
-/* FIXME: c_length[][2] or c_length[][3] are what gets set for 
- * "return values."  There should be some way of rewriting this
- * function in a much cleaner way.
- */
-void proj(double ** vertices, double domainscale, double **c_length, int *kk, 
-          int i, int v1, int v2, int v3, int i4)
-{
-   int j;
-   int ell;
-   double reflinelength;  // was d1;
-   //double ** vertices = bd->vertices;
-   double s[5];  // s[0] is a temp value
-   //double domainscale = ad->constants->w0;
-   double y1, y2, y3;
-   double x1, x2, x3;
-
-  /* compute projection of p1 and p4 to edge p2p3 */
-   x1   = vertices[v1][1];
-   y1   = vertices[v1][2];
-   x2   = vertices[v2][1];
-   y2   = vertices[v2][2];
-   x3   = vertices[v3][1];
-   y3   = vertices[v3][2];
-   s[2] = 0;
-   s[3] = 1;
-
-  /* contact position */
-  /* FIXME: Replace the constant with a parameter that
-   * can be controlled by the user.  The reason for 
-   * using the parameter is to avoid dividing by zero
-   * when determining the penetration distance (?).
-   * Also, since there are various tolerances built into 
-   * the contact finding code, this may be partly to 
-   * compensate for those.
-   * Add as "MinReflineFactor, min_refline_factor"
-   */
-   reflinelength = ((x3-x2)*(x3-x2) + (y3-y2)*(y3-y2) 
-                 + .000000001*domainscale);  // Probably don't need this factor.
-   
-  /* Numerator is dot-product */
-   s[1] = ((x1-x2)*(x3-x2) + (y1-y2)*(y3-y2))/reflinelength;
-
-  /* FIXME: What, exactly, does this mean? */
-   if (kk[i] == 0)  
-   {
-     /* This is the omega parameter given by TCK 1995, Eq. 58(?),
-      * p. 1239.  
-      */
-      c_length[i][2] = s[1]; // if contact locked after previous step
-   }
-
-  /* i4 = 0 => contact is single point only, not edge-edge */
-   if (i4==0) 
-      return;  /* goto pr02;  */
-
-  /* Coordinates of second endpoint of contacting edge. */
-   x1   = vertices[i4][1];
-   y1   = vertices[i4][2];
-
-   s[4] = ((x1-x2)*(x3-x2) + (y1-y2)*(y3-y2))/reflinelength;
-
-  /* ordering i1 i2 i3 i4 on edge i2 i3             */
-  /* o[][3] locking length      o[][3] locking flag */
-   for (j=1; j<=3; j++)
-   {
-      for (ell=j+1; ell<=4; ell++)
-      {
-
-         if (s[j]  <=  s[ell]) 
-            continue;   // in order
-        /* Else swap em */
-         s[0] = s[j];
-         s[j] = s[ell];
-         s[ell] = s[0];
-       }  /*  ell  */
-   }  /*  j  */
-      
-  /* c_length[i][3] is given as cohesion length in some 
-   * previous comments.  The .5 results from having half the
-   * cohesion induced by the current contact, and the other half 
-   * by the contact of the jth block into the ith block.
-   * The sqrt comes from un-normalizing (???).
-   */
-   c_length[i][3] = .5*(s[3]-s[2])*sqrt(reflinelength);
- 
-  /* m0[i][2]  = 2; */  /* d */
-  
-/* pr02:;  */
-
-}  /*  Close proj().  */

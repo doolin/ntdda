@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.35  2002/10/27 20:53:17  doolin
+ * File handling changes are minor, due to
+ * Win32 need for complete path info.
+ *
  * Revision 1.34  2002/10/26 20:11:55  doolin
  * Catch up commit since ce server was down for a while.
  *
@@ -208,6 +212,7 @@
 #include "material.h"
 
 
+
 Datalog * DLog;
 FILEPOINTERS fp;
 
@@ -215,23 +220,33 @@ FILEPOINTERS fp;
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
  */
 int	
-ddanalysis(DDA * dda, FILEPATHS * filepath) {
+ddanalysis(DDA * dda, Filepaths * filepath) {
 
    Geometrydata * GData = dda_get_geometrydata(dda);
    Analysisdata * AData = dda_get_analysisdata(dda);
 
+
   /** Maximum vertex displacement current time step. */
+
    double md_cts;
 
+
   /** Callbacks for really critical stuff, like 
+
    * integration, motion, etc.
+
    */
    TransMap transmap = transplacement_linear;
    MassMatrix massmatrix = massmatrix_linear;
+
    StrainModel strain_model = strain_linear_elastic;
 
+
+
    TransApply transapply = NULL;
+
    BoundCond boundary_condition = NULL;
+
 
    Contacts * CTacts;
 
@@ -261,6 +276,10 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
   /* e0[nBlocks+1][8]                               */
   double ** e0; //matprops; // was e0
   Material * m;
+
+
+
+
 
 
 
@@ -311,11 +330,17 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
       transapply = transplacement_apply_linear;
    }
 
+
    if (AData->planestrainflag == 1) { 
+
       boundary_condition = stress_planestrain;
+
    } else {
+
       boundary_condition = stress_planestress;
+
    }
+
 
 /* The invoking program, whether windows or not, is going to 
  * have to grab an AData and send it various signals.  Here,
@@ -341,12 +366,19 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    * code.  Most of this function will disappear in the future.
    */
    allocateAnalysisArrays(GData, &kk, &k1, &c0, 
+
                           //&e0, 
+
                           &U, &n);
 
+
   /* Handle the previous e0 */
+
    m = material_new(GData->nBlocks);
+
    e0 = material_get_props(m);
+
+
 
 
   /* FIXME: document function. */
@@ -361,9 +393,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
   /* Check to see how the forces look. */
    //printForces(GData, AData->F, k1, "Before main loop");
       
-   //{FILE*fp=NULL;printLoadPointStruct(AData,fp);}
-
-
 /* All this stuff gets put elsewhere at some point in the 
  * future.
  */
@@ -590,6 +619,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          checkGravityConvergence(AData->gravity, GData, AData);
       }
 
+
      /* Draw some stuff to the screen. */ 
       display(GData, AData);
 
@@ -597,6 +627,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
 
    if (AData->writemfile) {
+
 
       writeMFile(AData->K, AData->Fcopy, AData->F, kk, k1, n, GData->nBlocks);
       //printK(AData->K, AData->ksize1, "Analysis driver");
@@ -623,13 +654,21 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    * geometry data is fixed.
    */
    deallocateAnalysisArrays(kk,
+
                             k1,
+
                             c0,
+
                             //e0,
+
                             U,
+
                             n);
 
+
+
     // free e0.
+
    material_delete(m);
 
   /* This should probably be freed in the calling function. */
@@ -650,5 +689,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
    */  
    return TRUE;     
 } 
+
+
 
 

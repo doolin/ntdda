@@ -41,7 +41,7 @@ struct _contacts {
   /* o : 4 save o[][0] 5 save o[][1]  6 save o[][2] */
   /* o[nBlocks*11+1][7]                             */
    int contactlengthsize1, contactlengthsize2;
-   double **contactlength;
+   double ** contactlength;
 
 };
 

@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2002/10/10 15:39:32 $
- * $Revision: 1.8 $
+ * $Date: 2002/10/27 20:53:20 $
+ * $Revision: 1.9 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -52,7 +52,7 @@ static void printBarTable(char *, FILE *);
 /* variable for html output */
 static char bgcolor[20];
 
-extern FILEPATHS filepath;
+extern Filepaths filepath;
 extern FILEPOINTERS fp;
 
 #ifdef WIN32

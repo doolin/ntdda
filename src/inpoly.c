@@ -109,7 +109,7 @@ double yt)
      double xold, yold;
      double x1, y1;
      double x2, y2;
-     static int testfile = 1;
+     //static int testfile = 1;
      //FILE * tfp;
     
      int i;

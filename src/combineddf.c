@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/26 23:23:04 $
+ * $Date: 2002/10/27 20:53:18 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.42 $
+ * $Revision: 1.43 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.43  2002/10/27 20:53:18  doolin
+ * File handling changes are minor, due to
+ * Win32 need for complete path info.
+ *
  * Revision 1.42  2002/10/26 23:23:04  doolin
  * Started reworking the logfile system because I need to use
  * soon for the sara paper, and it is now too cumbersome to extend.
@@ -267,6 +271,7 @@ extern Datalog * DLog;
   * Maybe with varargs such that other stuff can be passed 
   * in easily.
   */
+
 /** @todo This function is independently testable,
  * so a unit test could be written for it now.
  */ 
@@ -318,7 +323,7 @@ df01(double ** vertices, int ** vindex, int numblocks) {
  * dissimilar areas of code and help handle variable scoping.
  */
 void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
-                     FILEPATHS * filepath) {
+                     Filepaths * filepath) {
    int i, j, i1, i2;
    double ** vertices = gd->vertices;
    int nJointMats = ad->nJointMats;
@@ -495,6 +500,11 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    * later in the analysis.
    */
    if (ad->boltmats != NULL) {
+
+      /** All of the following should be replaceable with 
+       * a single call, wait until it is unit tested though.
+       */
+      //bolt_init_materials(gd->rockbolts, gd->bBolts, ad->boltmats);
       for (i=0;i<gd->nBolts;i++) {
 
          gd->rockbolts[i][7] = ad->boltmats[0][0];
@@ -517,8 +527,8 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
 
    DLog = datalog_new( ad->nTimeSteps, ad->nJointMats, gd->nBlocks);
   /* Clock stopped in postProces() */
-   DLog->analysis_start = clock();
-   DLog->assemble_runtime = 0;
+   //DLog->analysis_start = clock();
+   //DLog->assemble_runtime = 0;
 
    initStorageTempArrays(gd->nBlocks);
    initContactTempArrays(gd->nBlocks, gd->vertexCount);
@@ -1325,6 +1335,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* This might be the second half of Eq 4.18.
          */
          for (j=1; j<=6; j++) {
+
 
            /* Compute gr normal. See Chapter 4, p. 161 Eq 4.18 Shi 1988 
             * Also, TCK 1995, Eq. 45, p. 1238.
@@ -2443,6 +2454,7 @@ df24(Geometrydata *gd, Analysisdata *ad, double ** F, int *k1,
   /* (GHS: vertex displacements) */
 	for (i=1; i<=nBlocks; i++) {
 
+
 	  	i1 = vindex[i][1];
 	  	i2 = vindex[i][2];
       
@@ -2499,7 +2511,9 @@ void
 df25(Geometrydata *gd, Analysisdata *ad, int *k1,
           double **e0, double **U, TransMap transmap,
           TransApply transapply,
+
           BoundCond boundary_conditions,
+
           StrainModel strain_compute) {
 
    int i, i0, i1, i2;
@@ -2521,6 +2535,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /* Displacements, change to ux,uy so that notation is uniform */
    //double u1, u2;
 
+
    double T[7][7];
   /* Deformations D overwrite the forcing vector F during 
    * LU decomposition.
@@ -2528,7 +2543,9 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    */
    double ** F = ad->F;
 
+
    double avgarea;
+
 
    /* This is for keeping track of displacements */
    extern double ** __D;
@@ -2619,6 +2636,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 
 
 
+
   /* Track displacement of load points for an initial hack 
    * of disp dep variables.  Need to store a copy of the previous
    * position of the points first, then take the difference of the
@@ -2651,8 +2669,11 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    
 
    seismic_update_points(gd->seispoints,moments,F,k1,transmap,transapply);
+
    stress_update(e0, ad->F, k1, gd->nBlocks, boundary_conditions, strain_compute);
+
    bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,transmap,transapply);
+
 
 
   /*------------------------------------------------*/

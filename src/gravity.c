@@ -23,9 +23,9 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2002/10/26 20:11:55 $
+ * $Date: 2002/10/27 20:53:19 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 #include<math.h>
@@ -35,6 +35,11 @@
 #include"analysis.h"
 #include"ddamemory.h"
 #include "gravity.h"
+
+
+/** Fix these and move them to the header file later. */
+void printGravNormForce(Analysisdata *, char * location);
+void printGravShearForce(Analysisdata *, char * location);
 
 
 
@@ -80,6 +85,48 @@ copyparams(Gravity * grav, double ** pp, double ** F, int numblocks)
 
 }  /* close copyparams() */
 
+
+
+void 
+printGravNormForce(Analysisdata * ad, char * location) {
+
+   int i;
+   int n2 = ad->nCurrentContacts;
+   double ** cnf = ad->gravity->contactFN;
+
+
+   fprintf(fp.gravfile, "\nBegin gravity normal force verification" 
+           " (from %s, timestep %d, iteration %d)\n",
+            location, ad->cts, ad->m9);
+   for (i=0; i<=n2; i++)
+   {
+      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
+              i, cnf[i][0], cnf[i][1], cnf[i][2], cnf[i][3]);
+   }
+   fprintf(fp.gravfile, "End gravity normal forces\n\n");
+
+}
+
+
+void 
+printGravShearForce(Analysisdata * ad, char * location) {
+
+   int i;
+   int n2 = ad->nCurrentContacts;
+   double ** csf = ad->gravity->contactFS;
+
+   fprintf(fp.gravfile, "\nBegin gravity shear force verification" 
+           " (from %s, timestep %d, iteration %d)\n",
+            location, ad->cts, ad->m9);
+
+   for (i=0; i<=n2; i++)
+   {
+      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
+              i, csf[i][0], csf[i][1], csf[i][2], csf[i][3]);
+   }
+   fprintf(fp.gravfile, "End gravity shear forces\n\n");
+
+}
 
 
 
@@ -224,8 +271,11 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
    ddaboolean converged;  
    char tempstring[100];
 
+
    Geometrydata * gd = (Geometrydata*) gdata;
+
    Analysisdata * ad = (Analysisdata*) adata;
+
 
   /* WARNING !!! Having this here instead of further down stiffens the 
    * system and requires less steps to gravity convergence.
@@ -236,6 +286,7 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
   /* FIXME: These two criteria need to be separated
    */
    converged = computeGravityForce(grav, ad, gd->nContacts, gd->nBlocks);
+
    if ( (grav->gravTimeStep > grav->gravTurnonLimit)  ||
         (converged == TRUE)  )
    {
@@ -288,11 +339,6 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
 
 
 
-
-
-/* FIXME: Change this to handle a Gravity * 
- * instead of an Analysisdata *.
- */
 void
 initGravity(Gravity * grav, int nBlocks, double delta_t)
 {
@@ -337,17 +383,16 @@ initGravity(Gravity * grav, int nBlocks, double delta_t)
 
 
 Gravity * 
-newGravity()
-{
+newGravity() {
+
    Gravity * g;
    g = (Gravity *)malloc(sizeof(Gravity));
    memset((void *)g,0xDA,sizeof(Gravity));
    return g;
-}  /* close newGravity() */
+}  
 
 void
-destroyGravity(Gravity * grav)
-{
+destroyGravity(Gravity * grav) {
 
   /* Should check to see these are used first. */
    free2DMat((void **)grav->contactFN, grav->contactfnsize1);
@@ -357,7 +402,7 @@ destroyGravity(Gravity * grav)
    memset((void*)grav,0xDD,sizeof(Gravity));
    free(grav);
    return;
-}  /* close destroyGravity() */
+}  
 
 
 

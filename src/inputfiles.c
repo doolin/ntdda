@@ -2,9 +2,9 @@
 /** Handle different file formats, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/25 01:53:38 $
+ * $Date: 2002/10/27 20:53:19 $
  * $Source: /cvsroot/dda/ntdda/src/inputfiles.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -13,7 +13,7 @@
 
 #include "dda.h"
 
-
+#if 0
 
 /** Figure out the file type by seeing if there is 
  *  a magic number on the first line.  This function fails 
@@ -64,6 +64,4 @@ getFileType(char *infilename) {
    return original;
 }  
 
-
-
-
+#endif

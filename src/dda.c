@@ -4,7 +4,9 @@
  * and analysis data.
  */
 
+
 #include <stdlib.h>
+
 
 #include "dda.h"
 
@@ -20,7 +22,7 @@ struct _dda_tag  {
 
    Geometrydata * geometry;
    Analysisdata * analysis;
-   FILEPATHS * filepaths;
+   Filepaths * filepaths;
    int menu_state;
 
    ddaboolean popupvis;

@@ -133,10 +133,6 @@ SOURCE=.\src\ghssolver.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\gravity.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\loadmatrix.c
 # End Source File
 # Begin Source File
@@ -287,6 +283,10 @@ SOURCE=.\src\ddadlist.c
 # Begin Source File
 
 SOURCE=.\src\ddamemory.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\gravity.c
 # End Source File
 # Begin Source File
 
@@ -458,10 +458,6 @@ SOURCE=.\src\geomreader.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\inputfiles.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\loghtml.c
 # End Source File
 # Begin Source File
@@ -496,6 +492,10 @@ SOURCE=.\src\dda_error.c
 # Begin Source File
 
 SOURCE=.\include\ddadlist.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ddafile.h
 # End Source File
 # Begin Source File
 

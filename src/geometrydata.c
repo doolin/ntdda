@@ -8,9 +8,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
+
 #if _DEBUG
 #include "printdebug.h"
 #endif
+
 
 #include "geometrydata.h"
 
@@ -31,11 +33,14 @@ static void deleteBlock(Geometrydata * gd, int blocknumber);
 static void
 emitJoints(Geometrydata * gd, PrintFunc printer, void * stream) {
 
+
    int i;
 
    printer(stream,I1"<Jointlist>\n");
 
+
    for (i=1;i<=gd->nJoints;i++) {
+
 
       printer(stream,I2"<Joint type=\"%d\">",(int)gd->joints[i][5]);
       printer(stream," %14.10f %14.10f %14.10f %14.10f ",
@@ -54,6 +59,7 @@ emitJoints(Geometrydata * gd, PrintFunc printer, void * stream) {
 static void
 emitPoints(Geometrydata * gd, PrintFunc printer, void * stream) {
 
+
    int i;
 
 /*************  Fixed points  **************/
@@ -61,7 +67,9 @@ if (gd->nFPoints > 0)
 {
    printer(stream,"<Fixedpointlist>\n");
 
+
    for(i=1;i<=gd->nFPoints;i++) {
+
 
       printer(stream,"<Line>");
       printer(stream," %f %f %f %f ",
@@ -120,6 +128,7 @@ if (gd->nHPoints > 0)
 static void
 emitBolts(Geometrydata * gd, PrintFunc printer, void * stream) {
 
+
    int i;
    
    printer(stream,"<Boltlist>\n");
@@ -140,10 +149,12 @@ emitBolts(Geometrydata * gd, PrintFunc printer, void * stream) {
 static void 
 emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
 
+
    int i;
    
    printer(stream,"<Matlinelist>\n");
    for(i=1;i<=gd->nFPoints;i++) {
+
 
       printer(stream,"<Line>");
       printer(stream," %f %f %f %f %d",
@@ -157,8 +168,10 @@ emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
 }
 
 
+
 void
 gdata_write_ddaml(Geometrydata * gd, PrintFunc printer, char * outfilename) {
+
 
    FILE * outfile;
 
@@ -184,6 +197,7 @@ gdata_write_ddaml(Geometrydata * gd, PrintFunc printer, char * outfilename) {
    emitJoints(gd, printer, outfile);
    emitPoints(gd, printer, outfile);
 
+
    if (gd->nBolts > 0) 
       emitBolts(gd, printer, outfile);
    if (gd->nMatLines > 0)
@@ -202,7 +216,7 @@ static void
 deleteBlock(Geometrydata * gd, int blocknumber)
 {
    int i,j,i0,i1,i2;
-   int nPoints = gd->nPoints;
+   //int nPoints = gd->nPoints;
    int psize2 = gd->pointsize2;
    int nBolts = gd->nBolts;
    int nfp = gd->nFPoints;
@@ -385,16 +399,22 @@ gdata_delete(Geometrydata * gd) {
    /** @todo Change these */
    if (gd->nBolts > 0) {
 
+
       free2DMat((void **)gd->rockbolts, gd->rockboltsize1);
       free2DMat((void **)gd->origbolts, gd->rockboltsize1);
    }
 
+
 // Wasn't freeing the moments...
+
 /*
    if (gd->moments) {
+
       free2DMat((void **)gd->moments, gd->momentsize1);
+
    }
 */
+
 
    if (gd->porepres)
       free2DMat((void **)gd->porepres, gd->porepressize1);
@@ -421,7 +441,7 @@ gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
  
    assert(geomfile != NULL);
 
-   gfv = getFileType(geomfile);
+   gfv = ddafile_get_type(geomfile);
 
    switch(gfv) {
 
@@ -729,7 +749,9 @@ gdata_new(void) {
   /* Change to a malloc, memset everything to garbage */
    gdo = (Geometrydata *)calloc(1,sizeof(Geometrydata));
 
+
    gdo->seispoints = NULL;
+
 
    gdo->deleteblock = deleteBlock;
    gdo->dumptofile = gdata_write_ddaml;
@@ -752,7 +774,6 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
    int i;
    double f1,x2,x3,y2,y3;
 
-
    for (i=1; i<=8; i++) {
       moments[i] = 0;
    }    
@@ -763,7 +784,7 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
       y2 = vertices[i][2];
       x3 = vertices[i][1];
       y3 = vertices[i][2];
-      
+
       f1 = (x2*y3-x3*y2);
       moments[1] += f1/2;
 
@@ -777,11 +798,11 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
       moments[6] += f1*(2*x2*y2+2*x3*y3+x2*y3+x3*y2)/24;
    }
 
-
   /* Compute current centroids. */   
    moments[7] = moments[2]/moments[1];
    moments[8] = moments[3]/moments[1];
 }
+
 
 
 /**************************************************/
@@ -813,13 +834,21 @@ gdata_compute_moments(Geometrydata * gd) {
    double x2, y2, x3, y3, f1;
 
 
+
    for (block=1; block<=nBlocks; block++) {
 
 
+
+
      /**  @todo replace the following inner loops with a function call
+
       * which is much easier to test.
+
       */     
+
       //moments_compute(moments[block], vertices, vindex[block]);
+
+
 
 
      /* This loop to zero the moments matrix may or may not be 
@@ -827,11 +856,13 @@ gdata_compute_moments(Geometrydata * gd) {
       * problem affecting the areas.  This could also be moved
       * outside the loop and zeroed with the subroutine call.
       */
+
      /* @todo move this into the function above. */
       for (j=1; j<=8; j++) {
          moments[block][j] = 0;
       }       
       
+
       for (vertex=vindex[block][1]; vertex<=vindex[block][2]; vertex++) {
 
          x2 = vertices[vertex][1];
@@ -850,6 +881,7 @@ gdata_compute_moments(Geometrydata * gd) {
          moments[block][5] += f1*(y2*y2+y3*y3+y2*y3)/12;
          moments[block][6] += f1*(2*x2*y2+2*x3*y3+x2*y3+x3*y2)/24;
       }
+
 
 
      /* Compute current centroids. */   
@@ -874,6 +906,7 @@ gdata_compute_moments(Geometrydata * gd) {
 }  
 
 
+
 void 
 gdata_get_centroid(double * moments, double * x0, double * y0) {
 
@@ -881,26 +914,6 @@ gdata_get_centroid(double * moments, double * x0, double * y0) {
   *y0 = moments[8];
 }
 
-
-
-#if 0
-void 
-gdata_get_block_centroid(Geometrydata * gd, int block, double  centroid[2]) {
-
-   double x0,y0;
-   double ** moments = gd->moments;
-
-  /* Need a function that will just compute moments for a single block. */
-   computeMoments(gd);
-
-   x0=moments[block][7];   
-   y0=moments[block][8];
-
-   centroid[0] = x0;
-   centroid[1] = y0;
-
-}
-#endif
 
 
 double

@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/10/11 15:44:44 $
+ * $Date: 2002/10/27 20:53:17 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.21 $
+ * $Revision: 1.22 $
  */
 
 #include <stdio.h>
@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "ddaml_private.h"
 #include "ddaml.h"
 #include "ddamemory.h"
 #include "analysisdata.h"
@@ -1044,7 +1045,7 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    */
    doc = xmlParseFile(filename);
 
-   ddaml_check_document(doc,"http://www.tsoft.com/~bdoolin/dda","DDA");
+   ddaml_check_document((void*)doc,"http://www.tsoft.com/~bdoolin/dda","DDA");
 
    cur = doc->root;
    ns = nspace;
