@@ -127,7 +127,7 @@ dumpDDAMLAnalysisFile(Analysisdata * ad, FILE * outfile)
       strcpy(attribute,"no");
    else 
       strcpy(attribute,"yes");
-   fprintf(outfile,I1"<Autopenalty flag=\"%s\"/>\n",attribute);
+   fprintf(outfile,I1"<Autopenalty flag=\"%s\" pfactor=\"50\"/>\n",attribute);
 
 
    if (ad->planestrainflag == 0)
@@ -176,10 +176,12 @@ emitAConstants(CONSTANTS * constants, FILE * outfile) {
    //fprintf(outfile,I2"<Openclose value=\"0.0002\"/>\n");
    fprintf(outfile,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
    fprintf(outfile,I2"<Opencriteria value=\"0.0000002\"/>\n");
+   fprintf(outfile,I2"<NormSpringPen value=\"%f\"/>\n",constants->norm_spring_pen);
+   /*
    fprintf(outfile,I2"<Domainscale value=\"0.0004\"/>\n");
-   fprintf(outfile,I2"<NormSpringPen value=\"derived\"/>\n");
    fprintf(outfile,I2"<NormExternDist value=\"derived\"/>\n");
    fprintf(outfile,I2"<NormPenDist value=\"derived\"/>\n");
+   */
    fprintf(outfile,I2"<AngleOverlap value=\"3.0\"/>\n");
    fprintf(outfile,I2"<ShearNormRatio value=\"2.5\"/>\n");
    fprintf(outfile,I1"</AConstants>\n\n");
@@ -206,14 +208,16 @@ emitBlockMaterials(Analysisdata * ad, FILE * outfile)
    char strain[180];
    char velocity[180];
 
-   for (i=1; i<= ad->nBlockMats; i++)
-   {
+   for (i=1; i<= ad->nBlockMats; i++) {
+
       fprintf(outfile,I1"<Blockmaterial  type=\"%d\">\n",i);
    
       fprintf(outfile,I2"<Unitmass> %f </Unitmass>\n",ad->materialProps[i][0]);
       fprintf(outfile,I2"<Unitweight> %f </Unitweight>\n",ad->materialProps[i][1]);
       fprintf(outfile,I2"<Youngsmod> %f </Youngsmod>\n",ad->materialProps[i][2]);
       fprintf(outfile,I2"<Poissonratio> %f </Poissonratio>\n",ad->materialProps[i][3]);
+      fprintf(outfile,I2"<Damping> %f </Damping>\n",ad->materialProps[i][13]);
+
 
       sprintf(stress, "%f  %f  %f", ad->materialProps[i][4],
                            ad->materialProps[i][5],ad->materialProps[i][6]);

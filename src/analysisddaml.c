@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/05 13:19:58 $
+ * $Date: 2002/06/05 22:10:37 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  */
 
 #include <stdio.h>
@@ -558,8 +558,10 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       * into a factor of w0 to see if that helps scaling issues in 
       * problems with vastly different block sizes.
       */
+      /*
       if (!strcmp(cur->name, "Domainscale")) //&& (cur->ns == ns))
         constants->w0 = atof(xmlGetProp(cur,"value"));
+       */
 
       /* The following three are derived from the other five */
       

@@ -8,11 +8,15 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/05 13:19:58 $
+ * $Date: 2002/06/05 22:10:37 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  */
 
+/**
+ * @todo comment handling is fubared, needs to be fixed
+ * soon.
+ */
 
 /* FIXME: Point handling.  If there are no fixed points, the  
  * code fails.  HAs to do with how the structs are laid out.
@@ -28,6 +32,8 @@
 
 #include "bolt.h"
 #include "joint.h"
+
+
 
 
 typedef DList JOINTLIST;
@@ -701,6 +707,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    double temp[4] = {0.0};
    char * tempstring;
    int checkval;
+   char * val;
 
 #if _DEBUG
 #ifdef WIN32
@@ -718,8 +725,15 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
 
          line = getNewLine();
+
         /* Added this to handle material line types. */
-         line->type = atoi(xmlGetProp(cur, "type"));
+         val = xmlGetProp(cur, "type");
+         if (val == NULL) {
+            ddaml_display_warning("Line elements must contain a type attribute.");
+            exit(0);
+         }
+
+         line->type = atoi(val);
 
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          if (tempstring == NULL)

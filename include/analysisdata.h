@@ -45,10 +45,12 @@ typedef struct _loadpoint {
 typedef struct _constants_tag {
 double openclose;    /*  s0  */
 double opencriteria; /*  f0  */
-double w0;  /* related to the physical scale of the model. */
 double norm_spring_pen; /* g3  */
+//#if 0
+double w0;  /* related to the physical scale of the model. */
 double norm_extern_dist; /* d0 */
 double norm_pen_dist;    /* d9  */
+//#endif
 double angle_olap;      /*  h1  */
 double shear_norm_ratio;  /* h2 */
 /* new, used in contact determination to 
