@@ -7,6 +7,17 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.29  2002/10/21 03:18:10  doolin
+ * All the computeDisplacement calls have been changed
+ * so that the T map is now built using whatever callback is passed
+ * into the function that needs to make a T map.  The function itself
+ * is renamed transplacement_linear because that's what it is.  This
+ * will allow changing to any arbitrary transplacement function in the
+ * (near) future.  Specification is currently done in the function
+ * that controls the analysis, and could be set using a flag or switch
+ * later.  This set of commits is good, everyone should cvs update
+ * as soon as possible, use the date if necessary.
+ *
  * Revision 1.28  2002/10/14 16:02:47  doolin
  * Lots of small clean up done.  No major changes in this commit.
  *
@@ -183,6 +194,9 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
 
    Geometrydata * GData = dda_get_geometrydata(dda);
    Analysisdata * AData = dda_get_analysisdata(dda);
+
+
+   TransMap transmap = transplacement_linear;
 
    Contacts * CTacts;
 
@@ -391,7 +405,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          * in df18() (?).  The analysis is in Shi 1988, Chapter 2,
          * pp. 60-96.  df10()-df16() are called from assemble().
          */
-         assemble(GData, AData,get_locks(CTacts),e0,k1,kk,n, U);
+         assemble(GData,AData,get_locks(CTacts),e0,k1,kk,n,U,transmap);
         /* The "classical" DDA derived in GHS 1988 used a forward
          * difference formulation to integrate over time.  This 
          * code currently uses a forward difference expansion
@@ -404,7 +418,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
          do {       /* the label formerly known as a002: */
          
            /* Add and subtract contact matrices */
-            df18(GData, AData, CTacts, kk,k1,c0,n);
+            df18(GData, AData, CTacts, kk,k1,c0,n, transmap);
             //printKForIthBlock(AData, 2, 1, kk, n, "After sparsestorage");
             //printKK(kk,n,GData->nBlocks,"Analysis driver");
 
@@ -446,11 +460,11 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
             * in this function as well.  See Shi 1988, Chapter 4, Section 
             * 4.3, p. 157 for details.
             */
-            df22(GData, AData, CTacts, k1);
+            df22(GData, AData, CTacts, k1, transmap);
    
            /* displacement ratio and iteration drawing.
             */
-            df24(GData, AData, k1);
+            df24(GData, AData, k1, transmap);
            
            /** @brief m9 = -1 means the OCI has converged, so if
             * it hasn't converged, the state of the stiffness and
@@ -485,7 +499,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath) {
      /* Compute step displacements.  FIXME: See if this function 
       * can be renamed "updateGeometry()".
       */
-      df25(GData, AData,k1,e0,U);
+      df25(GData, AData,k1,e0,U, transmap);
 
      /* writeMeasuredPoints must be called after df25().
       * We could remainder arithmetic to save this every

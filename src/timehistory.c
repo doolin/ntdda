@@ -3,9 +3,9 @@
  * used with SHAKE.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 01:16:08 $
+ * $Date: 2002/10/21 03:18:11 $
  * $Source: /cvsroot/dda/ntdda/src/timehistory.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #include<stdio.h>
@@ -30,10 +30,11 @@ struct _timehistory {
 static TimeHistory * getNewTimeHistory();
 static double * getTHData(int);
 
-int numseisdatapoints;
-double * seisdatarray;
 
-#define BUFSIZE 2000
+
+#ifndef SEISBUFSIZE
+#define SEISBUFSIZE 2000
+#endif
 
 
 
@@ -96,7 +97,7 @@ parseShakeFormat(FILE * motionfile)
    TimeHistory * th;
    char  firstline[256];
    char  secondline[256];
-   char linebuf[BUFSIZE];
+   char linebuf[SEISBUFSIZE];
    char * temp;
 
    //FILE * motionfile;
@@ -126,7 +127,7 @@ parseShakeFormat(FILE * motionfile)
    data = getTHData(th->number_of_datapoints);
 
    i = 0;
-   while (fgets (linebuf, BUFSIZE, motionfile) != NULL)
+   while (fgets (linebuf, SEISBUFSIZE, motionfile) != NULL)
    {
       data[i] = atof(strtok(linebuf, " "));
       i++;
@@ -147,14 +148,14 @@ TimeHistory *
 parseMatlabFormat(FILE * motionfile)
 {
    TimeHistory * th;
-   char linebuf[BUFSIZE];
+   char linebuf[SEISBUFSIZE];
    char * token;
    double * data;
    int i;
 
    th = getNewTimeHistory();
 
-   fgets(linebuf, BUFSIZE, motionfile);
+   fgets(linebuf, SEISBUFSIZE, motionfile);
 
    token = strtok(linebuf," ");
    //iface->displaymessage(token);
@@ -166,7 +167,7 @@ parseMatlabFormat(FILE * motionfile)
    data = getTHData(th->number_of_datapoints);
 
    i = 0;
-   while (fgets (linebuf, BUFSIZE, motionfile) != NULL)
+   while (fgets (linebuf, SEISBUFSIZE, motionfile) != NULL)
    {
       data[i] = atof(strtok(linebuf, " "));
       i++;

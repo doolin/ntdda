@@ -11,6 +11,7 @@
 #include "ddadlist.h"
 #include "datalog.h"
 #include "bolt.h"
+#include "timehistory.h"
 
 
 extern Datalog * DLog;
@@ -20,16 +21,20 @@ extern FILEPOINTERS fp;
 /* Helper var for examining variables */
 static char mess[80];
 
-
-static void seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F, double **blockArea, double ** matprops);
+/** Move this into its own file or the timehistory file. */
+static void seismicload(DList * seispoints,TimeHistory * timehistory, int timestep,
+                        int *k1, double **F, double ** moments, 
+                        double ** matprops, TransMap transmap);
 
 static void df09(Geometrydata *, Analysisdata *);
 static void df10(Geometrydata *, Analysisdata *, int **, double **);
 
-static void df12(Geometrydata *, Analysisdata *, int *, double **, double **, int **);
+static void df12(Geometrydata *, Analysisdata *, int *, double **, 
+                 double **, int **, TransMap transmap);
 static void df13(int numblocks, double ** K, const int *, double **, double **, int **, int planestrainflag);
 static void df14(int numblocks, const int *, double **, const double **, const double **);
-static void df15(Geometrydata *, Analysisdata *, int *, double **, double **);
+static void df15(Geometrydata *, Analysisdata *, int *, 
+                 double **, double **, TransMap transmap);
 static void df16(Geometrydata *, int *, double **, double **, double **);
 
 
@@ -39,7 +44,8 @@ static void df16(Geometrydata *, int *, double **, double **, double **);
 void
 assemble(Geometrydata * GData, Analysisdata * AData,
          int ** locks, double ** matprops,
-         int * k1, int * kk, int ** n, double ** U)
+         int * k1, int * kk, int ** n, double ** U,
+         TransMap transmap)
 {
 
    double ** f = AData->F;
@@ -70,7 +76,7 @@ assemble(Geometrydata * GData, Analysisdata * AData,
 	  /* submatrix of fixed points.  T should probably be 
       * either local or static extern scratch var.
       */
-      df12(GData,AData,k1,f,moments,n);
+      df12(GData,AData,k1,f,moments,n,transmap);
 
 
      /* submatrix of stiffness */
@@ -80,12 +86,13 @@ assemble(Geometrydata * GData, Analysisdata * AData,
 	   df14(GData->nBlocks,k1,f,matprops,moments);
 
      /* submatrix of point loading  */
-	   df15(GData,AData, k1,f,moments);
+	   df15(GData,AData, k1,f,moments, transmap);
 
      /* seismic loading */
       if (AData->timehistory != NULL) {
 
-         seismicload(GData, AData, k1, f, moments, matprops);
+         seismicload(GData->seispoints, AData->timehistory, AData->cts,
+                     k1, f, moments, matprops, transmap);
       }
 
      /* submatrix of volume force */
@@ -94,7 +101,8 @@ assemble(Geometrydata * GData, Analysisdata * AData,
       if (GData->nBolts > 0) {
 
          //rockbolts(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f);
-         bolt_stiffness_arrays(GData->rockbolts, GData->nBolts, AData->K, k1, kk, n, moments,f,computeDisplacement);
+         bolt_stiffness_a(GData->rockbolts, GData->nBolts, AData->K, 
+            k1, kk, n, moments,f,transmap);
       }
 
       /* start open-close iteration  m9:step iterations */
@@ -237,7 +245,8 @@ void df10(Geometrydata *bd, Analysisdata *ad, int **locks,
 /* df12: submatrix of fixed points                */
 /**************************************************/
 void df12(Geometrydata *gd, Analysisdata *ad, int *k1, 
-          double **F, double **blockArea, int **n)
+          double **F, double **blockArea, int **n,
+          TransMap transmap)
 {
    int i;
   /* i0 is the block number that the point is
@@ -291,7 +300,7 @@ void df12(Geometrydata *gd, Analysisdata *ad, int *k1,
       x=points[i][1];
       y=points[i][2];
 
-      computeDisplacement(blockArea,T,x,y,blocknumber);
+      transmap(blockArea,T,x,y,blocknumber);
       
       /* (GHS: 6*6 submatrix of fixed point for a[][]) */
       for (j=1; j<= 6; j++)
@@ -457,7 +466,7 @@ void df14(int nBlocks, const int *k1, double **F, const double **e0,
 /* df15: submatrix of point loading               */
 /**************************************************/
 void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F, 
-          double **blockArea)
+          double **blockArea, TransMap transmap)
 {
    int i, i0, i1, i2;
    int j;
@@ -482,7 +491,7 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       x=points[i][1];
       y=points[i][2];
 
-      computeDisplacement(blockArea,T,x,y,i0);
+      transmap(blockArea,T,x,y,i0);
    
      /* points[i][4] points[i][5] 
       * is time dependent loads initialized 
@@ -527,8 +536,9 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
 
 
 void
-seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F, 
-          double ** moments, double ** matprops)
+seismicload(DList * seispoints, TimeHistory * timehistory, int timestep,
+            int *k1, double ** F, double ** moments, 
+            double ** matprops, TransMap transmap)
 {
 
    DList * ptr;
@@ -541,21 +551,24 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    double T[7][7] = {0.0};
    double s[7] = {0.0};
 
-   if (ad->cts >= th_get_number_of_datapoints(ad->timehistory))
+   if (timestep >= th_get_number_of_datapoints(timehistory)) {
       return;
+   }
 
-   dlist_traverse(ptr, gd->seispoints) {
+   dlist_traverse(ptr, seispoints) {
 
       ptmp = (DDAPoint *)ptr->val;
       blocknumber = ptmp->blocknum;
       x = ptmp->x;
       y = ptmp->y;
-      computeDisplacement(moments,T,x,y,blocknumber);
-      accel = th_get_data_value(ad->timehistory, ad->cts);
+      transmap(moments,T,x,y,blocknumber);
+
+      accel = th_get_data_value(timehistory, timestep);
+
       mass = moments[blocknumber][1]*matprops[blocknumber][1];
       force = accel*mass;
-      for (j=1; j<= 6; j++)
-      {
+
+      for (j=1; j<= 6; j++) {
          s[j] = T[1][j]*force + T[2][j]*0.0;
       }  
 
@@ -565,14 +578,14 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       * having a point load located outside of the
       * rock mass.
       */
-      for (j=1; j<= 6; j++)
-      {
+      for (j=1; j<= 6; j++) {
          F[i2][j] += s[j];
       }  
-
    }
 
-}  /* close seismicload() */
+}  
+
+
 
 /**************************************************/
 /* df16: submatrix of volume force                */

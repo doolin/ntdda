@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/14 16:02:46 $
+ * $Date: 2002/10/21 03:18:10 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  */
 
 #ifndef __ANALYSIS_H__
@@ -21,10 +21,7 @@ extern "C" {
 }
 #endif
 
-#ifndef TRANSMAPFUNC
-typedef void (*TransMap)(double ** moments, double T[7][7], double x, double y, int i0);
-#define TRANSMAPFUNC
-#endif
+
 
 #include "dda.h"
 #include "contacts.h"
@@ -139,8 +136,7 @@ void sparsestorage(Geometrydata *, Analysisdata *, Contacts *,
                    int *, int *, 
                    int *, int **);
 
-void df18(Geometrydata *, Analysisdata *, Contacts *, 
-          int *, int *, double **,  int **);
+
 
 
 /******************  Solver *********************/
@@ -160,17 +156,24 @@ void congrad(double ** A, double ** F, int * colnums, int * k1, int ** colindex,
 
 void initCGTemp(Geometrydata * gd);
 
+void df18(Geometrydata *, Analysisdata *, Contacts *, 
+          int *, int *, double **,  int **,
+          TransMap transmap);
+
 
 void df22(Geometrydata *, Analysisdata *, Contacts *, 
-            /*double **,*/ int * /*, double ** moments */);
+            /*double **,*/ int * /*, double ** moments */,
+            TransMap);
 
 
 
 void df24(Geometrydata *, Analysisdata *, 
-          int * /*,double ** moments */);
+          int * /*,double ** moments */,
+          TransMap transmap);
 
 void df25(Geometrydata *, Analysisdata *, int *, 
-            double **, /* double ** moments,*/ double **);
+            double **, /* double ** moments,*/ double **,
+            TransMap transmap);
 
 
 
@@ -184,7 +187,7 @@ void mult(double [][7], double [][7], double [][7]);
 void multnew(double [][7], double [][7]);
 
 /* This needs to go into the geometrydata part. */
-void computeDisplacement(double **, double [7][7], double, double, int);
+void transplacement_linear(double **, double [7][7], double, double, int);
 
 void findContacts(Geometrydata * GData, Analysisdata * AData, 
                   Contacts * Ctacts,
@@ -193,7 +196,7 @@ void findContacts(Geometrydata * GData, Analysisdata * AData,
 
 void assemble(Geometrydata * GData, Analysisdata * AData,
             int ** locks, double ** e0, int * k1, int * kk,
-            /* double ** moments, */int ** n, double ** U);
+            /* double ** moments, */int ** n, double ** U, TransMap transmap);
 
 void timeintegration(Geometrydata * GData, Analysisdata * AData,
             double ** e0, int * k1,

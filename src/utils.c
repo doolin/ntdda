@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/10/11 15:44:45 $
+ * $Date: 2002/10/21 03:18:11 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.16 $
+ * $Revision: 1.17 $
  */
 
 
@@ -306,7 +306,7 @@ void dist(void)
 /* x10  y10  u2  v2  t[][]               i0  x  y */
 /* FIXME: Change the arguments for this function so that 
  * it will be easier to test:
- * computeDisplacement(double T[][7], double tX, tY)
+ * transplacement_linear(double T[][7], double tX, tY)
  * where T is the "return value", and tX,tY are 
  * \tilde X and \tilde Y respectively.  This way the 
  * moments array does not need to be continually 
@@ -316,8 +316,9 @@ void dist(void)
  * elsewhere for any other reason.  
  */
 void 
-computeDisplacement(double **moments, double T[][7], double x, double y, int i0)
-{
+transplacement_linear(double **moments, double T[][7], 
+                      double x, double y, int i0) {
+
    double x0, y0;
    double u2, v2;
    
@@ -349,8 +350,42 @@ computeDisplacement(double **moments, double T[][7], double x, double y, int i0)
   /* Shear strains. */
    T[1][6] = v2/2;
    T[2][6] = u2/2;
+}   
 
-}   /*  Close dspl()  */
+
+void 
+transplacement_finite(double **moments, double T[][7], 
+                      double x, double y, int i0) {
+
+   double x0, y0;
+   //double u2, v2;
+   double tX, tY;
+   
+  /* i0 is block number                         */
+  /* x10,y10:center of gravity of the block     */
+   x0 = moments[i0][2]/moments[i0][1];
+   y0 = moments[i0][3]/moments[i0][1];
+
+   tX      = x-x0;
+   tY      = y-y0;
+
+   T[1][1] = 1;
+   T[2][1] = 0;
+   T[1][2] = 0;
+   T[2][2] = 1;
+   T[1][3] = tX;
+   T[2][3] = 0;
+   T[1][4] = 0;
+   T[2][4] = tY;
+   T[1][5] = tX;
+   T[2][5] = 0;
+   T[1][6] = 0;
+   T[2][6] = tY;
+
+}   
+
+
+
 
 
 

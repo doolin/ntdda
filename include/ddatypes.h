@@ -49,6 +49,12 @@ typedef int  (*PrintFunc)(void *, const char *, ...);
 typedef void  (*DisplayFunc)(const char * message);
 #endif
 
+#ifndef TRANSMAPFUNC
+typedef void (*TransMap)(double ** moments, double T[7][7], double x, 
+                         double y, int i0);
+#define TRANSMAPFUNC
+#endif
+
 /* TODO: collect all the enums for the program to right here
  * for the time being.  Later, a more rational plan can be 
  * established for restricting scope.

@@ -110,6 +110,8 @@ struct _geo_data_tag {
    DList * hpoints;
    DList * dirpoints;
    DList * dispoints;
+
+
    DList * seispoints;
 
    int jointsize1;

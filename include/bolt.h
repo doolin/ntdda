@@ -1,4 +1,15 @@
 
+/**  Description: (add here)
+ *
+ *
+ * Parts of the code in this file are used for 
+ * DDAML processing.  Details of DDAML are 
+ * available from the author.  
+ *
+ * @author David M. Doolin dave@mail.gonesilent.com
+ */
+
+
 #ifndef __BOLT_H__
 #define __BOLT_H__
 
@@ -16,7 +27,8 @@ typedef int (*PrintFunc)(void * stream,const char * format,...);
 #endif
 
 #ifndef TRANSMAPFUNC
-typedef void (*TransMap)(double ** moments, double T[7][7], double x, double y, int i0);
+typedef void (*TransMap)(double ** moments, double T[7][7], double x, 
+                         double y, int i0);
 #define TRANSMAPFUNC
 #endif
 
@@ -38,7 +50,7 @@ Bolt *     bolt_new_1          (double x1,
  * This is primarily used for unit testing to ensure that 
  * the bolt append and retrieve functions work correctly.
  *
- * @return int a for passing, 0 for failing.
+ * @return int 1 for passing, 0 for failing.
  */
 int        bolt_equals           (Bolt * b1,
                              	    Bolt * b2);
@@ -90,7 +102,7 @@ double     bolt_get_length       (Bolt * b);
  * array?  One way is to split the memory allocation
  * for the double **.  Then each bolt can be allocated
  * as a "bolt".  This leaves the problem of allocating
- * the pointer array.  Arrays suck.
+ * the pointer array.
  */
 // Not implemented
 double *   bolt_new_a            (double size);
@@ -169,13 +181,13 @@ void       bolt_get_dir_cosine_a (double * bolt,
                                   double * lx, 
                                   double * ly);
 
-void       bolt_update_arrays    (double ** bolts, 
+void       bolt_update_a         (double ** bolts, 
                                   int numbolts, 
                                   double ** F,
                                   double ** moments, 
                                   TransMap transmap);
 
-void       bolt_stiffness_arrays (double ** bolts, 
+void       bolt_stiffness_a      (double ** bolts, 
                                   int numbolts, 
                                   double ** K, 
                                   int * k1, 
@@ -184,6 +196,8 @@ void       bolt_stiffness_arrays (double ** bolts,
                                   double ** blockArea,  
                                   double ** F, 
                                   TransMap transmap);
+
+
 
 /** Boltmat methods, which may go into their own header
  * file in the future.
@@ -200,10 +214,12 @@ void       boltmat_get_props   (Boltmat * bm,
                                 double * strength, 
                                 double * pretension);
 
+
+/********************************************************/
+
 /** Boltlist methods, which may go into their own
  * header file in the future.
  */
-
 
 Boltlist * boltlist_new        (void);
 
@@ -243,20 +259,6 @@ void       boltlist_get_array  (Boltlist *,
 void       boltlist_print      (Boltlist *,
 				                    PrintFunc printer,
 				                    void * stream);
-
-
-
-/***********************************************************/
-/*  Old, nasty stuff that needs to be changed. */
-
-void       rockbolts           (double ** bolts,
-                                int numbolts, 
-                                double ** K, 
-                                int *, 
-                                int * kk, 
-                                int **, 
-                                double **, 
-                                double **);
 
 
 

@@ -232,10 +232,6 @@ bolt_get_dir_cosine_a(double * bolt, double * lx, double * ly) {
   *lx = (x1-x2)/l;
   *ly = (y1-y2)/l;
 
- /* checking the obvious... doesn't seem to work.
-  * FIXME: Write a unit test for these asserts to see
-  * why they didn't fire on a 0 bolt length.
-  */
   assert ( (-1 <= *lx) && (*lx <= 1));
   assert ( (-1 <= *ly) && (*ly <= 1));
 
@@ -262,12 +258,12 @@ bolt_get_pretension_a(double * bolt) {
 }
 
 
-// writes bolt data to output file filename_bolt.log
-// NOTE: data is NOT in matlab format!
-// current implementation is minimal:
-// writes elapsed time followed by a colon and a list of bolt endpoints
-// each bolt has 2 pairs of x,y coordinates
-// semicolons separate data for each bolt
+/** writes bolt data to output file filename_bolt.log
+ * current implementation is minimal:
+ * writes elapsed time followed by a colon and a list of bolt endpoints
+ * each bolt has 2 pairs of x,y coordinates
+ * semicolons separate data for each bolt.
+ */
 void 
 bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, PrintFunc printer, void *stream) {
 
@@ -287,9 +283,11 @@ bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, PrintFunc pr
 	printer(stream,"\n");
 }
 
+
+
 void
-bolt_stiffness_arrays(double ** rockbolt, int numbolts, double ** K, 
-                      int * k1, int * kk, int ** n, double ** blockArea,  
+bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K, 
+                 int * k1, int * kk, int ** n, double ** blockArea,  
                       double ** F, TransMap transmap) {  
 
   /* loop counters */   
@@ -329,7 +327,6 @@ bolt_stiffness_arrays(double ** rockbolt, int numbolts, double ** K,
       * of a particular rockbolt.
       */
       ep1 = (int)rockbolt[bolt][5];
-      //computeDisplacement(blockArea, T, x,  y, ep1);
       transmap(blockArea, T, x,  y, ep1);
 
       bolt_get_dir_cosine_a(rockbolt[bolt],&lx,&ly);
@@ -346,7 +343,6 @@ bolt_stiffness_arrays(double ** rockbolt, int numbolts, double ** K,
       * endpoint of a particular rockbolt.
       */
       ep2 = (int)rockbolt[bolt][6];
-      //computeDisplacement(blockArea, T, x,  y, ep2);
       transmap(blockArea, T, x,  y, ep2);
 
      /* Do the inner product to construct Gj:
@@ -373,8 +369,6 @@ bolt_stiffness_arrays(double ** rockbolt, int numbolts, double ** K,
       }  
 
      /* Now try the second endpoint for Kjj*/
-     /* i2 
-      */
       i2=k1[ep2];
       i3=n[i2][1]+n[i2][2]-1;
 
@@ -449,15 +443,15 @@ bolt_stiffness_arrays(double ** rockbolt, int numbolts, double ** K,
 
 
 
-  /* Compute rock bolt end displacements.  Note that no
+  /** Compute rock bolt end displacements.  Note that no
    * rotation correction is supplied here.
    */
-  /* Move this whole loop into the bolts.c file, 
-   * supplying a callback or something for the 
+  /** @todo Supply a callback or something for the 
    * transplacement map function.
    */
 void
-bolt_update_arrays(double ** hb, int numbolts, double ** F, double ** moments, TransMap transmap) {
+bolt_update_a(double ** bolts, int numbolts, double ** F, 
+              double ** moments, TransMap transmap) {
 
    int i,j;
    int ep1,ep2;
@@ -474,45 +468,42 @@ bolt_update_arrays(double ** hb, int numbolts, double ** F, double ** moments, T
       * we have to cast the block numbers of the 
       * endpoints.
       */
-      ep1 = (int)hb[i][5];
-      x = hb[i][1];
-      y = hb[i][2];
+      ep1 = (int)bolts[i][5];
+      x = bolts[i][1];
+      y = bolts[i][2];
       u1=0;  // need to reset to zero each time due to += inside loops
 	   v1=0;
-	   //computeDisplacement(moments,T,x,y,ep1);
 	   transmap(moments,T,x,y,ep1);
 
       for (j=1; j<= 6; j++) {
          u1 += T[1][j]*F[ep1][j];
          v1 += T[2][j]*F[ep1][j];
       }  
-      hb[i][10] = u1;
-      hb[i][11] = v1;
+      bolts[i][10] = u1;
+      bolts[i][11] = v1;
       //replace
-      hb[i][1] +=  u1;
-      hb[i][2] +=  v1;
+      bolts[i][1] +=  u1;
+      bolts[i][2] +=  v1;
 
      /* Now for endpoint 2, the other end of the same bolt.
       */
-      ep2 = (int)hb[i][6];
+      ep2 = (int)bolts[i][6];
       //if (ep1 == ep2) exit(0);
-      x = hb[i][3];
-      y = hb[i][4];
+      x = bolts[i][3];
+      y = bolts[i][4];
 	   u2=0;
 	   v2=0;
-      /* Should be compute directors */
-      //computeDisplacement(moments,T,x,y,ep2);
 	   transmap(moments,T,x,y,ep1);
 
       for (j=1; j<= 6; j++) {
          u2 += T[1][j]*F[ep2][j];
          v2 += T[2][j]*F[ep2][j];
       }
-      hb[i][12] = u2;
-      hb[i][13] = v2;
+      bolts[i][12] = u2;
+      bolts[i][13] = v2;
       //replace
-      hb[i][3] +=  u2;
-      hb[i][4] +=  v2;
+      bolts[i][3] +=  u2;
+      bolts[i][4] +=  v2;
 
       /* If we do this instead of accessing the array entries
        * directly, we get something that is testable, and can 
@@ -523,9 +514,9 @@ bolt_update_arrays(double ** hb, int numbolts, double ** F, double ** moments, T
       /* This should be fired as a result of the previous 
        * call to update the endpoints, so remove it from here.
        */
-      bolt_set_length_a(hb[i]);
+      bolt_set_length_a(bolts[i]);
       
-      bolt_set_pretension_a(hb[i]);
+      bolt_set_pretension_a(bolts[i]);
    }  
 
 } 
@@ -534,16 +525,17 @@ bolt_update_arrays(double ** hb, int numbolts, double ** F, double ** moments, T
 
 Boltmat *
 boltmat_new(void) {
+
    Boltmat * bm;
-   //fprintf(stdout,"Getting new block mat\n");
    bm = (Boltmat *)malloc(sizeof(Boltmat));
    memset(bm,0xDA,sizeof(Boltmat));
    return bm;
-
 }
 
 void
-boltmat_set_props(Boltmat * bm, double stiffness, double strength, double pretension) {
+boltmat_set_props(Boltmat * bm, double stiffness, double strength, 
+                  double pretension) {
+
    bm->e00 = stiffness;
    bm->t0  = strength;
    bm->f0  = pretension;
@@ -551,7 +543,9 @@ boltmat_set_props(Boltmat * bm, double stiffness, double strength, double preten
 
 
 void
-boltmat_get_props(Boltmat * bm, double * stiffness, double * strength, double * pretension) {
+boltmat_get_props(Boltmat * bm, double * stiffness, double * strength, 
+                  double * pretension) {
+
   *stiffness  = bm->e00;
   *strength   = bm->t0;
   *pretension = bm->f0;
@@ -583,6 +577,7 @@ boltlist_append(Boltlist * boltlist, Bolt * bolt) {
 
    dl_insert_b(boltlist->list,bolt);
 }
+
 
 #if 0
 Bolt * 

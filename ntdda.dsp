@@ -294,10 +294,6 @@ SOURCE=.\src\joint.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\linsystem.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\loadpoint.c
 # End Source File
 # Begin Source File

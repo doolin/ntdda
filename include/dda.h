@@ -12,9 +12,10 @@ extern "C" {
 #endif
 
 
+
+#include "ddatypes.h"
 #include "geometrydata.h"
 #include "analysisdata.h"
-#include "ddatypes.h"
 
 
 #define WINDOWS 1

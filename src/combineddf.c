@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/14 16:02:47 $
+ * $Date: 2002/10/21 03:18:11 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.36 $
+ * $Revision: 1.37 $
  *
  */
 /*################################################*/
@@ -17,6 +17,17 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.37  2002/10/21 03:18:11  doolin
+ * All the computeDisplacement calls have been changed
+ * so that the T map is now built using whatever callback is passed
+ * into the function that needs to make a T map.  The function itself
+ * is renamed transplacement_linear because that's what it is.  This
+ * will allow changing to any arbitrary transplacement function in the
+ * (near) future.  Specification is currently done in the function
+ * that controls the analysis, and could be set using a flag or switch
+ * later.  This set of commits is good, everyone should cvs update
+ * as soon as possible, use the date if necessary.
+ *
  * Revision 1.36  2002/10/14 16:02:47  doolin
  * Lots of small clean up done.  No major changes in this commit.
  *
@@ -898,320 +909,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
 
 
 
-#if 0
-      /**************************************************/
-      /* df18: add and subtract submatrix of contact    */
-      /**************************************************/
-      /* This function segfaults */
-		void df18_(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts, 
-          int *kk, int *k1, double **c0, int **n)
-      {
 
-int i,j, jj;
-int i0,i1,i2,i3;
-int ji,j2,j3,j4;
-int l,l1,l2,l3;
-int qq[7][7];
-int n1 = gd->nBlocks;
-int n2 = gd->nContacts;
-double g0 = ad->contactpenalty;
-double ** h0 = gd->moments;
-double ** d = gd->vertices;
-double h2 = ad->constants->shear_norm_ratio;
-
-double tt = ad->delta_t;
-
-double ** a = ad->K;
-double ** f = ad->F;
-
-double dd = 3.1415926535/180;
-double x,x1,x2,x3;
-double y,yi,y2,y3;
-double s1,s2,s3,s4;
-double b1;
-
-double s[31];
-double t[7][7];
-double ** b0 = ad->materialProps;
-double t1,t2,e1;
-
-int k00 = ad->k00;
-int ** nn0 = gd->vindex;
-double g7;
-
-   int ** m = get_contacts(ctacts);
-   int ** m0 = get_locks(ctacts);
-   double ** o = get_contact_lengths(ctacts);
-   int ** m2 = get_previous_contacts(ctacts);
-
-
-   g7 = g0;
-      /*------------------------------------------------*/
-      /* c0[] free term of equations for friction force */
-  //    if (k02 == 1)  printf("---18000--- \n");
-      for (i=1; i<= n1; i++)
-      {
-      for (j=1; j<= 6;  j++)
-      {
-      c0[i][j]=0;
-      }  /*  j  */
-      }  /*  i  */
-      /**************************************************/
-      /* set off-on of normal and shear spring          */
-      for (i=1; i<= n2; i++)
-      {
-      for (j=1; j<= 2;  j++)
-      {
-      qq[j][1]=0;
-      qq[j][2]=0;
-      qq[j][3]=0;
-      qq[j][4]=0;
-      if (m0[i][j]==0) goto b801;
-      qq[j][1]=1;
-      qq[j][2]=0;
-      if (m0[i][j]==1) goto b801;
-      qq[j][1]=1;
-      qq[j][2]=1;
-      if (m0[i][j]==2) goto b801;
-      qq[j][1]=0;
-      qq[j][2]=0;
-      qq[j][3]=1;
- b801:;
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* set on-off modify coefficient                  */
-      for (j=1; j<= 4; j++)
-      {
-      qq[1][j]=(qq[2][j]-qq[1][j]);
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* comput 4 6*6  2 6*1 contact submatrices        */
-      /* if sliding force +- changing shear g0/h2 h2= 4 */
-      /* k00=0 set m0[][1]=0 still have friction force  */
-      for (jj=0; jj<= m[i][0]; jj++)
-      {
-      if (jj==0) goto b802;
-      qq[1][1]=qq[1][3];
-      qq[1][2]=qq[1][4];
- b802:;
-      qq[0][1]=qq[1][1];
-      qq[0][2]=qq[1][2];
-      qq[1][1]=qq[1][1]*g0;
-      qq[1][2]=qq[1][2]*g0/h2;
-      if (fabs(qq[0][1])>.5   ||   fabs(qq[0][2])>.5) goto b803;
-      if (m[i][0]==0 && m0[i][2]==1 &&      k00==0) goto b803;
-      if (m[i][0]==0 && m0[i][2]==1 && m0[i][1]!=0) goto b803;
-      goto b804;
-      /*================================================*/
-      /* submatrices of normal & shear spring frictions */
- b803:;
-      l1=m[i][3*jj+1];
-      l2=m[i][3*jj+2];
-      l3=m[i][3*jj+3];
-      i1=nn0[l1];
-      i2=nn0[l2];
-      ji=k1[i1];
-      j2=k1[i2];
-      /*------------------------------------------------*/
-      /* parameter:   i i1 i2 l1 l2 l3 s1 s2 m[] o[][2] */
-      x1=d[l1][1];
-      yi=d[l1][2];
-      x2=d[l2][1];
-      y2=d[l2][2];
-      x3=d[l3][1];
-      y3=d[l3][2];
-      /*------------------------------------------------*/
-      /* compute coefficients s1 s2      s3 ratio p2-p3 */
-      b1 = sqrt((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2));
-      s1 = (x2-x1)*(y3-yi)-(y2-yi)*(x3-x1);
-      s1 = s1/b1;
-      if (m[i][0] != 0) goto b805;
-      s3 = o[i][2];
-      s2 = (x1-(1-s3)*x2-s3*x3)*(x3-x2) + (yi-(1-s3)*y2-s3*y3)*(y3-y2);
-      s2 = s2/b1;
-      /*------------------------------------------------*/
-      /* i0 old block number         s13-s18 i friction */
-      /* p1 terms      s01-s06 i normal s13-s18 i shear */
- b805:;
-      i0=i1;
-      x =x1;
-      y =yi;
-      //dspl();
-      computeDisplacement(h0,t,x3,y3,i0);
-      for (j=1; j<= 6; j++)
-      {
-      s[j   ]  = (y2-y3)*t[1][j] + (x3-x2)*t[2][j];
-      s[j   ] /= b1;
-      if (m[i][0] != 0) goto b806;
-      s[j+12]  = (x3-x2)*t[1][j] + (y3-y2)*t[2][j];
-      s[j+12] /= b1;
- b806:;
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* p2 terms      s07-s12 j normal s19-s24 j shear */
-      /* p2 terms      s25-s32 j friction               */
-      i0=i2;
-      x =x2;
-      y =y2;
-      //dspl();
-      computeDisplacement(h0,t,x3,y3,i0);
-      for (j=1; j<= 6; j++)
-      {
-      s[j+6 ]  = (y3-yi)*t[1][j] + (x1-x3)*t[2][j];
-      if (m[i][0] != 0) goto b807;
-      s[j+18]  = (-x1+2*(1-s3)*x2-(1-2*s3)*x3)*t[1][j];
-      s[j+18] += (-yi+2*(1-s3)*y2-(1-2*s3)*y3)*t[2][j];
-      s[j+24]  = (1-s3)*((x3-x2)*t[1][j]+(y3-y2)*t[2][j]);
- b807:;
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* p3 terms      s07-s12 j normal s19-s24 j shear */
-      /* p3 terms      s25-s32 j friction               */
-      i0=i2;
-      x =x3;
-      y =y3;
-      //dspl();
-      computeDisplacement(h0,t,x3,y3,i0);
-      for (j=1; j<= 6; j++)
-      {
-      s[j+6 ] += (yi-y2)*t[1][j]+(x2-x1)*t[2][j];
-      s[j+6 ] /= b1;
-      if (m[i][0] != 0) goto b808;
-      s[j+18] += (x1-(1-2*s3)*x2-2*s3*x3)*t[1][j];
-      s[j+18] += (yi-(1-2*s3)*y2-2*s3*y3)*t[2][j];
-      s[j+18] /= b1;
-      s[j+24] += s3*((x3-x2)*t[1][j]+(y3-y2)*t[2][j]);
-      s[j+24] /= b1;
- b808:;
-      }  /*  j  */
-      /*================================================*/
-      /* submatrix ii  s01-06 i normal s13-18 i shear   */
-      /* 1st if for friction force                      */
-      if (fabs(qq[0][1])<.5 && fabs(qq[0][2])<.5) goto b809;
-      i3=n[ji][1]+n[ji][2]-1;
-      for (j=1; j<= 6; j++)
-      {
-      for (l=1; l<= 6; l++)
-      {
-      j3=6*(j-1)+l;
-      a[i3][j3] += qq[1][1]*s[j   ]*s[l   ];
-      if (fabs(qq[0][2]) > .5)
-      a[i3][j3] += qq[1][2]*s[j+12]*s[l+12];
-      }  /*  l  */
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* submatrix jj  s07-12 j normal s19-24 j shear   */
-      i3=n[j2][1]+n[j2][2]-1;
-      for (j=1; j<= 6; j++)
-      {
-      for (l=1; l<= 6; l++)
-      {
-      j3=6*(j-1)+l;
-      a[i3][j3] += qq[1][1]*s[j+6 ]*s[l+6 ];
-      if (fabs(qq[0][2]) > .5)
-      a[i3][j3] += qq[1][2]*s[j+18]*s[l+18];
-      }  /*  l  */
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* locate j1j2 in a[][] only lower triangle saved */
-      if (ji<j2) goto b811;
-      for (j=n[ji][1]; j<= n[ji][1]+n[ji][2]-1; j++)
-      {
-      i3=j;
-      if (kk[j]==j2) goto b810;
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* submatrix ij  s01-06 i normal s07-12 i shear   */
- b810:;
-      for (j=1; j<= 6; j++)
-      {
-      for (l=1; l<= 6; l++)
-      {
-      j3=6*(j-1)+l;
-      a[i3][j3] += qq[1][1]*s[j   ]*s[l+6 ];
-      if (fabs(qq[0][2]) > .5)
-      a[i3][j3] += qq[1][2]*s[j+12]*s[l+18];
-      }  /*  l  */
-      }  /*  j  */
-      goto b813;
-      /*------------------------------------------------*/
-      /* locate j2j1 in a[][] only lower triangle saved */
- b811:;
-      for (j=n[j2][1]; j<= n[j2][1]+n[j2][2]-1; j++)
-      {
-      i3=j;
-      if (kk[j]==ji) goto b812;
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* submatrix j1  s07-12 j normal s19-24 j shear   */
- b812:;
-      for (j=1; j<= 6; j++)
-      {
-      for (l=1; l<= 6; l++)
-      {
-      j3=6*(j-1)+l;
-      a[i3][j3] += qq[1][1]*s[j+6 ]*s[l   ];
-      if (fabs(qq[0][2]) > .5)
-      a[i3][j3] += qq[1][2]*s[j+18]*s[l+12];
-      }  /*  l  */
-      }  /*  j  */
-      /*------------------------------------------------*/
-      /* load term of normal & shear  s1 s2 coefficient */
- b813:;
-      for (j=1; j<= 6; j++)
-      {
-      f[ji][j] += -qq[1][1]*s1*s[j   ];
-      f[j2][j] += -qq[1][1]*s1*s[j+6 ];
-      if (fabs(qq[0][2])<.5) goto b814;
-      f[ji][j] += -qq[1][2]*s2*s[j+12];
-      f[j2][j] += -qq[1][2]*s2*s[j+18];
- b814:;
-      }  /*  j  */
-
-      {
-      double normalforce = -qq[1][1]*s1;
-      double shearforce = -qq[1][2]*s2;  // T in docs
-      fprintf(fp.cforce ,"contactforce %d  %f %f  %f\n",
-         ad->currTimeStep,tt,normalforce,shearforce);
-      }
-
-      /*------------------------------------------------*/
-      /* sliding friction force      s4*g0 normal force */
- b809:;
-      if (m[i][0] !=0 || m0[i][2]!=1) goto b804;
-      if (m0[i][1]==0 && k00     ==1) goto b804;
-      s4=o[i][0];
-      if (s4>0)  s4=0;
-      j4=m2[i ][0];
-      t1=b0[j4][0];
-	   //fprintf(file,"using friction %f\n", t1); 
-      t2=b0[j4][1]*o[i][3];
-      e1=0;
-      if (m0[i][0]==1)  e1=t2;
-      s4=(fabs(s4)*g7*tan(dd*t1)+e1)*sign(o[i][1]);
-      for (j=1; j<= 6; j++)
-      {
-      c0[ji][j] += -s4*s[j+12];
-      c0[j2][j] +=  s4*s[j+24];
-      }  /*  j  */
- b804:;
-      }  /*  jj */
-      }  /*  i  */
-      /*------------------------------------------------*/
-	/* added nov 20 '94 */
-	/* for(i=1; i<=n3; i++) {
-		printf("\nstiffness matrix = \t");
-		printf("%f\t%f\t%f\n", a[i][1], a[i][2], a[i][3]);
-		printf("\t\t\t%f\t%f\t%f\n", a[i][7], a[i][8], a[i][9]);
-		printf("\t\t\t%f\t%f\t%f\n", a[i][13], a[i][14], a[i][15]);
-	} end for i */
-	/* for(i=1; i<=n1; i++) {
-		printf("\nload vector for block %d: (%f, %f, %f)\n", i, f[i][1], f[i][2], f[i][3]);
-		printf("friction forces for block %d: (%f, %f, %f)\n", i, c0[i][1], c0[i][2], c0[i][3]);
-	} end for i */
-      }
-
-#endif
 
 
 
@@ -1230,7 +928,8 @@ double g7;
  * locks[][4] := contact transfer
  */
 void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts, 
-          int *kk, int *k1, double **c0, int **n)
+          int *kk, int *k1, double **c0, int **n,
+          TransMap transmap)
 {
    double ** F = ad->F;
    double ** K = ad->K;
@@ -1553,7 +1252,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* getDisplacement computes, essentially returns t for
          * the ith vertex.
          */
-         computeDisplacement(blockArea,T,x1,y1,blocknumber);
+         transmap(blockArea,T,x1,y1,blocknumber);
          
          for (j=1; j<= 6; j++)
          {
@@ -1573,7 +1272,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* Now we work with the other block. */
          blocknumber=i2;
         /* Get t for the ith vertex. */
-         computeDisplacement(blockArea,T,x2,y2,blocknumber);
+         transmap(blockArea,T,x2,y2,blocknumber);
          for (j=1; j<= 6; j++)
          {
            /* Compute gr normal. See Chapter 4, p. 161 Eq 4.18 Shi 1988 
@@ -1601,7 +1300,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          blocknumber=i2; /* i0 is block number */
         /* Get t for ith vertex. */
 
-         computeDisplacement(blockArea,T,x3,y3,blocknumber);
+         transmap(blockArea,T,x3,y3,blocknumber);
 
         /* This might be the second half of Eq 4.18.
          */
@@ -1864,8 +1563,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
  */
 /* FIXME: Try to get rid of the Geometrydata struct if possible. */
 void 
-df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
-{
+df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1,
+     TransMap transmap) {
+
    double ** F = ad->F;
    double ** vertices = gd->vertices;
    double ** moments = gd->moments;
@@ -2074,7 +1774,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
             qq[i][1]  = x  = vertices[vertexnumber][1];
             qq[i][2]  = y  = vertices[vertexnumber][2];
 
-            computeDisplacement(moments,T,x,y,blocknumber);
+            transmap(moments,T,x,y,blocknumber);
 
            /* FIXME: Use a memset on this outside of the loop. */
             p[i][1]  = 0;
@@ -2703,8 +2403,9 @@ restoreState(double ** K, double ** Kcopy, int n3,
 /**************************************************/
 /* df24: displacement ratio and iteration drawing */
 /**************************************************/
-void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
-{
+void df24(Geometrydata *gd, Analysisdata *ad, int *k1,
+          TransMap transmap) {
+
    int i, i0, i1, i2, i3;
    int j;
    int l;
@@ -2748,7 +2449,7 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
          */
 	      i0 = i;
 
-         computeDisplacement(moments,T,x,y,i0);
+         transmap(moments,T,x,y,i0);
          
          i3 = k1[i];
          
@@ -2834,7 +2535,7 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
  */
 void 
 df25(Geometrydata *gd, Analysisdata *ad, int *k1,
-          double **e0, double **U)
+          double **e0, double **U, TransMap transmap)
 {
    int i, i0, i1, i2;
    int j; 
@@ -2929,7 +2630,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
       x  = points[i][1];
       y  = points[i][2];
 
-      computeDisplacement(moments,T,x,y,i0);
+      transmap(moments,T,x,y,i0);
       
       i1 = k1[i0];
       x1 = 0;
@@ -2990,7 +2691,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
          i0 = ptmp->blocknum;
          x  = ptmp->x;
          y  = ptmp->y;
-         computeDisplacement(moments,T,x,y,i0);
+         transmap(moments,T,x,y,i0);
          i1 = k1[i0];
          x1 = 0;
          y1 = 0;
@@ -3084,7 +2785,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
 }
 
    
-   bolt_update_arrays(gd->rockbolts,gd->nBolts,ad->F,gd->moments, computeDisplacement);
+   bolt_update_a(gd->rockbolts,gd->nBolts,ad->F,gd->moments,transmap);
 
 
 
