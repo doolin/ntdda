@@ -71,6 +71,29 @@ loadpoint_clone(Loadpoint * lpo, int numloadpoints) {
    return lp;
 }  
 
+void
+loadpoint_print (Loadpoint * lp, int numloadpoints, void * bfp) {
+
+   int i, j, n;
+   double ** lpoints;
+
+   fprintf (bfp, "\nLoad point verify\n");
+
+   for (i = 0; i < numloadpoints; i++) {
+
+     	n = lp[i].loadpointsize1;
+     	fprintf (bfp, "loadpointsize1: %d\n", n);
+     	lpoints = lp[i].vals;
+
+     	for (j = 0; j < n; j++) {
+
+	        fprintf (bfp, "%.4f  %.4f  %.4f\n", 
+                    lpoints[j][0], lpoints[j][1], lpoints[j][2]);
+      }
+   }
+
+   fprintf (bfp, "End load point verify\n\n");
+}
 
 
 

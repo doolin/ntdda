@@ -744,7 +744,7 @@ printPreviousContacts(int ** prevcontacts, char * location)
    fprintf(fp.logfile, "End prevcontacts[][] output\n\n");
 }  /* close printM1() */
 
-//#if PRINTLOADPOINTS
+#if 0
 void
 printLoadPointStruct (Analysisdata * ad, FILE * bfp)
 {
@@ -773,7 +773,7 @@ printLoadPointStruct (Analysisdata * ad, FILE * bfp)
    fclose(ofp);
 
 }				/* close printLoadPointStruct() */
-//#endif
+#endif
 
 
 void 

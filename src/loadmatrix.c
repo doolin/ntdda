@@ -126,7 +126,6 @@ assemble(Geometrydata * GData, Analysisdata * AData,
 void df09(Geometrydata *gd, Analysisdata *ad)
 {
    int i;
-   //int i1;
    int j;
    int n;
    double a1;
@@ -142,10 +141,12 @@ void df09(Geometrydata *gd, Analysisdata *ad)
    * second slot, 1 from the leading slot.
    */
    int ** tindex = ad->tindex;
-   // int i, j, n;
    double **lpoints;
    const int TIME = 0;
    int nfp = gd->nFPoints;
+   int numloadpoints = ad->nLPoints;
+   
+   double dt;
 
   /* a3 is the elapsed time at the end of the current step.
    * This allows to find the force to apply in the current
@@ -157,28 +158,27 @@ void df09(Geometrydata *gd, Analysisdata *ad)
    current_time = globalTime[ad->currTimeStep-1][0]+(ad->delta_t);
       
 
-//#if NEWLOADPOINTS
-   for (i = 0; i < ad->nLPoints; i++)
-   {
+   for (i = 0; i < numloadpoints; i++) {
+
      	n = ad->loadpoints[i].loadpointsize1;
      	lpoints = ad->loadpoints[i].vals;
-     	for (j = 0; j < n-2; j++)
-   	  {
+     	for (j = 0; j < n-2; j++) {
          if ( (lpoints[j][TIME] <= current_time) && 
-              (current_time  <= lpoints[j+1][TIME]) ) 
-         {
+              (current_time  <= lpoints[j+1][TIME]) ) {
             break;
-         }   
-	     }
-      //printTimeDeps(timeDeps, ad->timedepsize1, "From df09");
-      //printK5(ad,"from df09");
-      //exit(0);
+          }   
+	    }
 
-		a1 = (current_time - lpoints[j][TIME]) / (lpoints[j+1][TIME] - lpoints[j][TIME]);
+      dt = (lpoints[j+1][TIME] - lpoints[j][TIME]);
+      /*
+      if (dt <= 0) {
+         ad->display_error("Loadpoint error: Adjacent time step values must be different.\n");
+      }
+      */
+		a1 = (current_time - lpoints[j][TIME]) / dt;
       points[i+nfp+1][4] = lpoints[j][1] + a1*(lpoints[j+1][1] - lpoints[j][1]);
       points[i+nfp+1][5] = lpoints[j][2] + a1*(lpoints[j+1][2] - lpoints[j][2]);
    }
-//#endif
 
 #define OLDPOINTS 0
 #if OLDLPOINTS
@@ -500,16 +500,14 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    int nLPoints = gd->nLPoints;
    int nFPoints = gd->nFPoints;
    double ** points = gd->points;
-   //double s[31];
    double s[7];
    double ** a = ad->K;
    double x, y;
    double T[7][7];
 
-//char mess[80];
 
-   for (i=nFPoints+1; i<= nFPoints+nLPoints; i++)
-   {
+   for (i=nFPoints+1; i<= nFPoints+nLPoints; i++) {
+
      /* i0 is probably the number of the block 
       * associated with a particular load point.
       */
@@ -520,24 +518,20 @@ void df15(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       x=points[i][1];
       y=points[i][2];
 
-      //sprintf(mess, "x: %f, y: %f\n", x,y);
-      //iface->displaymessage(mess);
-
-
       computeDisplacement(blockArea,T,x,y,i0);
    
      /* points[i][4] points[i][5] 
       * is time dependent loads initialized 
       * df09()  
       */
-      for (j=1; j<= 6; j++)
-      {
+      for (j=1; j<= 6; j++) {
          s[j] = T[1][j]*points[i][4] + T[2][j]*points[i][5];
-      }  /*  j  */
+      }  
 
-      if (i%2)
+      if (i%2) {
          fprintf(fp.logfile,"load point %d,  x: %f, y: %f\n",i,points[i][4],points[i][5]);
-     
+      }
+
       i1=(int)points[i][3];
       i2=k1[i1];
       
@@ -599,7 +593,7 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       for (j=1; j<= 6; j++)
       {
          s[j] = T[1][j]*force + T[2][j]*0.0;
-      }  /*  j  */
+      }  
 
       i2 = k1[blocknumber];
 
@@ -610,7 +604,7 @@ seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
       for (j=1; j<= 6; j++)
       {
          F[i2][j] += s[j];
-      }  /*  j  */
+      }  
 
    }
 

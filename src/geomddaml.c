@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:42 $
+ * $Date: 2002/06/09 15:53:16 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  */
 
 /**
@@ -21,7 +21,7 @@
  */
 
 /* FIXME: Point handling.  If there are no fixed points, the  
- * code fails.  HAs to do with how the structs are laid out.
+ * code fails.  Has to do with how the structs are laid out.
  * It would have been easier to understand if it had segfaulted.
  */
 #include <stdio.h>
@@ -81,14 +81,17 @@ static void  checkGeometryDoc(xmlDocPtr doc);
 static void initializeGLists(void);
 
 
+
 /**
  * @todo Move this struct definition into the 
  * ddaml header file and combine with the struct
  * definition in the analysisddaml parsing file.
  */
+#if 0
 typedef struct _gkwdtab {
 
-   char *kwd;			/* text of the keyword        */
+  /* text of the keyword        */   
+   char *kwd;		
   /* Token codes can be used to point at the relevant 
    * function pointer in the union.
    */
@@ -99,7 +102,7 @@ typedef struct _gkwdtab {
       void (*propparse)  (xmlDocPtr doc, xmlNodePtr cur, int );
    } pparse;
 } GKWDTAB;
-
+#endif
 
 
 Geometrydata * gdata;
@@ -167,12 +170,12 @@ void
 checkGeometryDoc(xmlDocPtr doc) {
 
    if (doc == NULL) {
-      ddaml_display_warning("Null document, really bad error somewhere");
+      ddaml_display_error("Invalid Geometry document, check geometry file syntax");
       exit (0);
    }
 
    if (doc->root == NULL) {
-       ddaml_display_warning("Empty geometry document.");
+       ddaml_display_error("Empty geometry document.");
 	    xmlFreeDoc(doc);
        exit (0);
    }
@@ -635,74 +638,58 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    char * tempstring;
    int checkval;
 
+  /** @todo postpone setting gdata field until transfer. */
    gdata->nBolts = 0;
 
-   fprintf(stdout, "Parsing Bolt list\n");
-
-  /* Don't care about parent */
    cur = cur->childs;
 
    while (cur != NULL) {
 
-      if ((!strcmp(cur->name, "Bolt")) )//&& (cur->ns == ns))
-      {
-
-         bolt = bolt_new();
+      if ((!strcmp(cur->name, "Bolt"))) {
 
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
-         if (tempstring == NULL)
-         {  
-            fprintf(stdout,"Warning: Empty bolts tag\n");
-         }
-         else 
-         {
-            fprintf(stdout,"%s\n", tempstring);
+         if (tempstring == NULL) {
+           
+            ddaml_display_error("Empty Bolt element.");
+         } else {
+
             checkval = sscanf(tempstring,"%lf%lf%lf%lf",
                               &temp[0],&temp[1],&temp[2], &temp[3]); 
-            if (checkval == 4)
-            { 
+            if (checkval == 4) {
+             
+               bolt = bolt_new();
                bolt_set_endpoints(bolt,temp[0],temp[1],temp[2],temp[3]);
                boltlist_append(boltlist,bolt);
+               /** @todo Postpone setting gdata until list transfer. */
                gdata->nBolts++;
-            }
-            else  /* Throw an error or warning */
-            {
-               fprintf(stdout,"Warning: Empty bolts tag.\n");
+            } else {
+
+               ddaml_display_error("Wrong number of values in Bolt element.");
             }
          } 
-      }
-      else
-      { 
+      } else { 
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
          */         
-         fprintf(stderr,"Validation failure in bolt parsing."  
-                        " Contact author.\n");
-
+         ddaml_display_warning("Validation failure in bolt parsing."  
+                               " Contact author.");
       }
 
       cur = cur->next;
    }
-
-}  /*  close parseBoltlist() */
+}
 
 
 void 
-parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
+
    DDALine * line;
   /* Make the compiler link the floating point libraries. */
    double temp[4] = {0.0};
    char * tempstring;
    int checkval;
-   char * val;
+   char * type_att;
 
-#if _DEBUG
-#ifdef WIN32
-   fprintf(stdout, "Parsing Matline list\n");
-   //iface->displaymessage("Parsing Matline list");
-#endif
-#endif
 
   /* Don't care about parent */
    cur = cur->childs;
@@ -715,13 +702,12 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          line = getNewLine();
 
         /* Added this to handle material line types. */
-         val = xmlGetProp(cur, "type");
-         if (val == NULL) {
-            ddaml_display_warning("Line elements must contain a type attribute.");
-            exit(0);
+         type_att = xmlGetProp(cur, "type");
+         if (type_att == NULL) {
+            ddaml_display_error("Line elements must contain a type attribute.");
          }
 
-         line->type = atoi(val);
+         line->type = atoi(type_att);
 
          tempstring = xmlNodeListGetString(doc, cur->childs, 1);
          if (tempstring == NULL)
@@ -745,7 +731,6 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             }
             else  /* Throw an error or warning */
             {
-               //iface->displaymessage("Warning: Malformed material lines tag.\n");
                ddaml_display_warning("Warning: Malformed material lines tag.\n");
             }
          } 
@@ -763,7 +748,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       cur = cur->next;
    }
 
-}  /*  close parseMatlinelist() */
+}  
 
 void 
 parseJointset(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
@@ -846,7 +831,6 @@ static DDAPoint *
 getNewPoint(void)
 {
    DDAPoint * p;
-   //fprintf(stdout,"Getting new point\n");
    p = (DDAPoint *)calloc(1,sizeof(DDAPoint));
 
   /* FIXME: Because DDA uses the value of "0" to designate 
@@ -875,15 +859,16 @@ getNewLine(void) {
 
 
 void
-transferGData(void)
-{
+transferGData(void) {
 
    transferJointlistToGeomStruct(gdata,jointlist);
    transferPointlistToGeomStruct(gdata,pointlist);
    transferBoltlistToGeomStruct(gdata,boltlist);
    transferMatlinelistToGeomStruct(gdata, matlinelist);
 
-}  /* close transferGData() */
+}  
+
+
 
 /* FIXME: Combine this with code in the geometry dialog.
  */
@@ -1052,9 +1037,7 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    }
 
    gd->origpoints = clone2DMatDoub(gd->points,gd->pointsize1,gd->pointsize2);
-
-
-}  /* close transferPointlistToGeomStruct()  */
+}  
 
 
 
@@ -1091,19 +1074,15 @@ DoubMat2DGetMem(int n, int m)
 
    assert ( (m!=0) && (n!=0) );
 
-   //x = (double **)malloc(sizeof(double *)*n);
    x = (double **)calloc(n,sizeof(double *));
    if (x == NULL)
       return NULL;
 
-   for ( i = 0; i < n; ++i)
-   {
-      //x[i] = (double *)malloc(sizeof(double)*m);
+   for ( i = 0; i < n; ++i) {
+
       x[i] = (double *)calloc(m,sizeof(double));
       if(x[i] == NULL)
          return NULL;
-      //else 
-         //memset(x[i], 0xDDA, m);
    }
 
    return x;
@@ -1148,7 +1127,7 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
 
 
 
-GKWDTAB gtab_type[] = {
+KWDTAB gtab_type[] = {
 {"Edgenodedist",     0, *parseEdgenodedist     },
 {"Jointlist",        0, *parseJointlist        },
 {"Fixedpointlist",   0, *parseFixedpointlist   },   
@@ -1197,15 +1176,15 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             switch(gtab_type[i].ktok)
             {
                case node:
-	                 gtab_type[i].pparse.nodeparse(doc,ns,cur);
+	                 gtab_type[i].parsefn.nodeparse(doc,ns,cur);
                break;
 
                case string:
-	                 gtab_type[i].pparse.stringparse(doc,cur,1);
+	                 gtab_type[i].parsefn.stringparse(doc,cur,1);
                break;
 
                case prop:
-	                 gtab_type[i].pparse.propparse(doc,cur,1);
+	                 gtab_type[i].parsefn.propparse(doc,cur,1);
                break;
 
                default:;

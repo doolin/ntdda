@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:44 $
+ * $Date: 2002/06/09 15:53:17 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  */
 
 
@@ -59,7 +59,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.19 2002/06/07 15:09:44 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.20 2002/06/09 15:53:17 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -139,6 +139,7 @@ void
 dda_display_error(const char * message) {
 
    MessageBox(NULL,message,"Error",MB_OK | MB_ICONERROR);
+   exit(0);
 }
 
 void
@@ -322,7 +323,6 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
    DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
-         MessageBox(NULL,"foo","bar",MB_OK);
 
    xnew = dda_get_xcur(dda);
    ynew = dda_get_ycur(dda);
@@ -359,6 +359,37 @@ handleChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
    return 0;
 
 }  /* close handleChar() */
+
+
+
+static int
+handleSysChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+
+
+   return 0;
+
+}  /* close handleSysChar() */
+
+
+static int
+handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+
+/*
+WM_KEYDOWN 
+nVirtKey = (int) wParam;    // virtual-key code 
+lKeyData = lParam;          // key data 
+*/
+
+   char mess[128];
+    
+   sprintf(mess, "nVirtKey: %d",wParam);
+
+   MessageBox(NULL,mess,"keydown",MB_OK);
+
+   return 0;
+
+}  /* close handleKeydown() */
+
 
 
 
@@ -1843,9 +1874,11 @@ WndProc (HWND hwMain, UINT message,
    switch (message)
    {
 
-   case WM_SYSCHAR:
-      MessageBox(NULL,"syschar",NULL,MB_OK);
-      break;
+      case WM_SYSCHAR:
+         return(handleSysChar(hwMain, wParam, lParam));
+
+      case WM_KEYDOWN:
+         return(handleKeydown(hwMain, wParam, lParam));
 
       case WM_CHAR:
          return(handleChar(hwMain, wParam, lParam));

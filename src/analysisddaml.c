@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/07 15:09:42 $
+ * $Date: 2002/06/09 15:53:16 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  */
 
 #include <stdio.h>
@@ -69,6 +69,7 @@ static void initializeALists(void);
 
 
 
+#if 0
 /**
  * @todo Move this struct definition into the 
  * ddaml header file and combine with the struct
@@ -86,6 +87,9 @@ typedef struct _akwdtab {
       void *(*propparse)(xmlDocPtr doc, xmlNodePtr cur, int );		
    }parsefn;
 } AKWDTAB;
+#endif
+
+
 
 Analysisdata * adata;
 
@@ -332,7 +336,7 @@ transferBlockMatlistToAStruct(Analysisdata * ad, BLOCKMATLIST * blockmatlist)
 
 
 
-static void *
+static void 
 parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
   /* Need to grab a tempstring, then switch for different 
@@ -354,13 +358,10 @@ parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       // big problem
       ;  // do nothing for now
 
-
-   return NULL;
-
-}  /*close parseRotation() */
+}  
 
 
-void *
+void 
 parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
 
@@ -404,12 +405,10 @@ parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    fprintf(stdout,"gravity flag: %d\n\n", adata->gravityflag);
 
-   return NULL;
-
 }  /*close parseGravity() */
 
 
-void *
+void 
 parseAutotimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    fprintf(stdout,"Parsing auto time step...\n");
@@ -427,12 +426,10 @@ parseAutotimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    fprintf(stdout,"autotimestep flag: %d\n\n", adata->autotimestepflag);
 
-   return NULL;
-
 }  /*close parseAutoTimestep() */
 
 
-void *
+void 
 parseAnalysistype(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
   
@@ -447,22 +444,19 @@ parseAnalysistype(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       adata->analysistype = 0;
    }
 
-   return NULL;
-
 }  /*close parseAnalysistype() */
 
-void *
+void 
 parseNumtimesteps(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
 
    adata->nTimeSteps = atoi(xmlGetProp(cur,"timesteps"));
 
-   return NULL;
 
 }  /*close parseNumtimesteps() */
 
 
-void *
+void 
 parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    char * pfactor;
@@ -497,13 +491,11 @@ parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    fprintf(stdout,"autopenalty flag: %d\n\n", adata->autopenaltyflag);
 
-   return NULL;
-
 }  /*close parseAutopenalty() */
 
 
 
-void *
+void 
 parsePlanestrain(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
 
@@ -523,12 +515,11 @@ parsePlanestrain(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout,"planestrain flag: %d\n\n", adata->planestrainflag);
 
 
-   return NULL;
 
 }  /*close parsePlanestrain() */
 
 
-void *
+void 
 parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
   /* constants needs to be changed into an instance 
@@ -543,13 +534,9 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    while (cur != NULL) 
    {
-      //fprintf(stderr,"Inside constants loop\n");
 
-      if (!strcmp(cur->name, "Openclose"))  // && (cur->ns == ns))
-      { //char mess[100];
+      if (!strcmp(cur->name, "Openclose")) {
         constants->openclose = atof(xmlGetProp(cur,"value"));
-        //sprintf(mess,"%.16f",constants->openclose);
-        //iface->displaymessage(mess);
       }
 
       if (!strcmp(cur->name, "Opencriteria")) //&& (cur->ns == ns))
@@ -602,63 +589,53 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    adata->constants = constants;   
 
-   return NULL;
 
 }  /*close parseAConstants() */
 
 
 
-void *
+void 
 parseOpencloselimit(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    adata->OCLimit = atoi(xmlGetProp(cur,"maxopenclose"));
-   return NULL;
 }  /*close parseOpencloselimit() */
 
 
 
-void *
+void 
 parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    char * filename;
    char * fileformat;
 
    filename = xmlGetProp(cur,"filename");
-   //iface->displaymessage(filename);
 
    fileformat = xmlGetProp(cur,"format");
-   //iface->displaymessage(fileformat);
 
    if (!strcmp(fileformat,"shake"))
-      //adata->timehistory = getTimeHistory(filename,shake);
       th_read_data_file(adata->timehistory,filename,shake);
    else if (!strcmp(fileformat,"matlab"))
-      //adata->timehistory = getTimeHistory(filename,matlab);
       th_read_data_file(adata->timehistory,filename,matlab);
    else // blow up
       dda_display_error("Bad motion file format");
-
-   return NULL;
-}  /*close parseTimehistory() */
+} 
 
 
-void *
+void 
 parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    char * grav_val = xmlGetProp(cur,"value");
 
    if (grav_val != NULL) {
       adata_set_grav_accel(adata,atof(grav_val));
-      //iface->displaymessage("got a grav value");
    } else {
       adata_set_grav_accel(adata,9.81);
-      //iface->displaymessage("NULL grav value");
    }
 
-   return NULL;
 }
 
-void *
+
+void 
 parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    char * step;
 
@@ -679,49 +656,38 @@ parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    if (adata->tsSaveInterval == 0)
       adata->tsSaveInterval = 10;
 
-   return NULL;
 
 }  /*close parseSaveinterval() */
 
 
-void *
-parseMaxtimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+void 
+parseMaxtimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    fprintf(stdout,"Parsing max time step...\n");
    adata->maxtimestep = atof(xmlGetProp(cur,"maxtimestep"));
-   return NULL;
-}  /*close parseMaxtimestep() */
+}  
 
 
-void *
-parseMintimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+void 
+parseMintimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    fprintf(stdout,"Parsing max time step...\n");
    adata->min_delta_t = atof(xmlGetProp(cur,"mintimestep"));
-   return NULL;
-}  /*close parseMinimestep() */
+}  
 
 
-void *
-parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+void 
+parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    fprintf(stdout,"Parsing max displacement...\n");
    adata->maxdisplacement = atof(xmlGetProp(cur,"maxdisplacement"));
-   return NULL;
-}  /*close parseAutoTimestep() */
+}  
 
 
-void *
-parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
+void 
+parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    double cn = atof(xmlGetProp(cur,"value"));
-   //fprintf(stdout,"Parsing max displacement...\n");
    adata_set_contact_damping(adata, cn);
-   return NULL;
+}  
 
-}  /*close parseAutoTimestep() */
-
-void *
+void 
 parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    Jointmat * jmat;
@@ -753,14 +719,11 @@ parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    dl_insert_b(jointmatlist,(void*)jmat);
 
-  /* Grab a node for the block materials list, 
-   * then add the parsed data to the list.
-   */
-   return NULL;
+
 }  /*close parseJointproperties() */
 
 
-void *
+void 
 parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
 {
    BlockMat * bmat;
@@ -846,8 +809,6 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    dl_insert_b(blockmatlist,(void*)bmat);
 
-   return NULL;
-
 }  
 
 
@@ -861,10 +822,12 @@ typedef struct _loadpoint {
    double ** vals;
 }LOADPOINT;
 */
-void *
+void 
 parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    int i;
+   int numloadpoints;
+   int parsepoints = 0;
    int checkval;
    double temp[3] = {0.0};
    Loadpoint * loadpoint;
@@ -888,7 +851,11 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          * pick some analysis with loading points, and delete the 
          * `numpoints="n"' attribute.
          */
-         loadpoint->loadpointsize1 = 1+atoi(xmlGetProp(cur,"numpoints"));
+         numloadpoints = atoi(xmlGetProp(cur,"numpoints"));
+         if (numloadpoints < 2) {
+            ddaml_display_error("2 or more load points are required.");
+         }
+         loadpoint->loadpointsize1 = numloadpoints+1;
          loadpoint->loadpointsize2 = 3+1;
          loadpoint->vals = DoubMat2DGetMem(loadpoint->loadpointsize1,
                                            loadpoint->loadpointsize2);
@@ -896,15 +863,16 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          timehiststring = xmlNodeListGetString(doc, cur->childs, 1);
         /* Now, lots of heinous parsing... */
          recordstring = strtok(timehiststring, ";");
+
         /* FIXME: Check the behavior of this with respect to the 
          * start of indexing value 0 or 1.
          */
-         for (i=0; i<loadpoint->loadpointsize1; i++) {
+         for (i=0; i<numloadpoints; i++) {
 
             checkval = sscanf(recordstring,"%lf%lf%lf",
                               &temp[0],&temp[1],&temp[2]);
-
             if (checkval == 3) {
+               parsepoints++;
                loadpoint->vals[i][0] = temp[0];
                loadpoint->vals[i][1] = temp[1];
                loadpoint->vals[i][2] = temp[2];
@@ -915,9 +883,13 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
          }  
 
+         if (parsepoints != numloadpoints) {
+            ddaml_display_error("Load point att and val inconsistent");
+         }
          dl_insert_b(loadpointlist, loadpoint);
 
       } else {
+
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
          */         
@@ -926,7 +898,6 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
       }
       cur = cur->next;
    }
-   return NULL;
 }  
 
 
@@ -934,7 +905,7 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 /* The values parsed here will correspond to the 
  * entries 7,8,9 in the geometry structure bolt array
  */ 
-void *
+void 
 parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    BoltMat * boltmat;
@@ -958,7 +929,6 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    }
 
    dl_insert_b(boltmatlist,(void*)boltmat);
-   return NULL;
 }  
 
 
@@ -1027,29 +997,30 @@ getNewBoltMat(void)
 }  /*  close getNewJointMat() */
 
 
-AKWDTAB atab_type[] = {
-   {"Rotation", node, *parseRotation},
-   {"Gravity", 0, *parseGravity},
-   {"Autotimestep", 0, *parseAutotimestep},
-   {"Autopenalty", 0, *parseAutopenalty},
-   {"Analysistype",0, *parseAnalysistype},
-   {"Numtimesteps", 0, *parseNumtimesteps},
-   {"Planestrain", 0, *parsePlanestrain},
-   //{"Analysis", 0, *parseAnalysis},
-   {"Jointproperties",0, *parseJointproperties},
-   {"Loadpointlist",0, *parseLoadpoints},
-   {"Blockmaterial",0, *parseBlockmaterial},
-   {"Boltproperties",0, *parseBoltproperties},
-   {"AConstants",0, *parseAConstants},
-   {"Opencloselimit",0, *parseOpencloselimit},
-   {"Saveinterval",0, *parseSaveinterval},
-   {"Maxtimestep",0, *parseMaxtimestep}, 
-   {"Mintimestep",0, *parseMintimestep}, 
-   {"Maxdisplacement",0,*parseMaxdisplacement},
-   {"Timehistory",0,*parseTimehistory},
-   {"ContactDamping",0,*parseContactDamping},
-   {"Gravaccel",0,*parseGravaccel},
-   {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
+
+KWDTAB atab_type[] = {
+{"Rotation",       0, *parseRotation       },
+{"Gravity",        0, *parseGravity        },
+{"Autotimestep",   0, *parseAutotimestep   },
+{"Autopenalty",    0, *parseAutopenalty    },
+{"Analysistype",   0, *parseAnalysistype   },
+{"Numtimesteps",   0, *parseNumtimesteps   },
+{"Planestrain",    0, *parsePlanestrain    },
+//{"Analysis",     0, *parseAnalysis       },
+{"Jointproperties",0, *parseJointproperties},
+{"Loadpointlist",  0, *parseLoadpoints     },
+{"Blockmaterial",  0, *parseBlockmaterial  },
+{"Boltproperties", 0, *parseBoltproperties },
+{"AConstants",     0, *parseAConstants     },
+{"Opencloselimit" ,0, *parseOpencloselimit },
+{"Saveinterval",   0, *parseSaveinterval   },
+{"Maxtimestep",    0, *parseMaxtimestep    }, 
+{"Mintimestep",    0, *parseMintimestep    }, 
+{"Maxdisplacement",0, *parseMaxdisplacement},
+{"Timehistory",    0, *parseTimehistory    },
+{"ContactDamping", 0, *parseContactDamping },
+{"Gravaccel",      0, *parseGravaccel      },
+{NULL,             0,  0                   }			
 };
 
 
