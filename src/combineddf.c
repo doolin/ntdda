@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/01 07:00:34 $
+ * $Date: 2001/07/01 20:37:56 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  *
  */
 /*################################################*/
@@ -14,6 +14,15 @@
 /*       discontinuous deformation analysis       */
 /*################################################*/
 
+
+/*
+ * $Log: combineddf.c,v $
+ * Revision 1.7  2001/07/01 20:37:56  doolin
+ * Changed dimension on the locks matrix QQ in df18.
+ * Note the revision number of this carefully, because these
+ * changes may need to be backed out.
+ *
+ */
 
 #include "analysis.h"
 #include <math.h>
@@ -751,6 +760,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    const int OPEN = 0;
    const int SLIDING = 1;
    const int LOCKED = 2;
+   /* Has to be 1 and 2 because of the locks */
    const int PREVIOUS = 1;
    const int CURRENT = 2;
 
@@ -776,7 +786,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    * the contact point project from P2, and  L_{23} is the 
    * length of the reference line P2P3.
    */  
-   double omega;  // was s3;
+  /* FIXME: Consider initializing omega to 0 when df18() is entered.
+   */
+   double omega; // = 0;  // was s3;
   /* vertex coordinates */
    double x1, x2, x3;
    double y1, y2, y3;
@@ -797,10 +809,17 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    * QQ = 0  :  The contact lock state has not changed.
    * QQ = 1  :  Lock state was {open,closed}, now {closed,open}
    */
+
   /* FIXME: QQ should probably be initted to {0} when 
    * df18() is entered.
    */
-   int QQ[1][3];// = {0};
+   //int QQ[1][3];// = {0};
+  /* This should further be broken down into two variables taking
+   * an enumeration value.
+   */
+   /* has to index 1 and 2 for const var to match lock values. */
+   int QQ[3];
+
   /* FIXME: Make this proveable 3x7, then change to 2x6. */
    double T[7][7];
    //double T[3][7];
@@ -865,8 +884,8 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* GUESS: QQ[0][1] = 0 means previous springs did not change;
          * QQ[0][2] = 0 means current did not change.
          */
-         QQ[0][1]=lockstate[1][1];
-         QQ[0][2]=lockstate[1][2];
+         QQ[PREVIOUS]=lockstate[1][1];
+         QQ[CURRENT]=lockstate[1][2];
  
         /* If the locks changed between the previous iteration
          * and the current iteration, then have to construct 
@@ -875,7 +894,8 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          * which get tested for in the following block.
          */
         /* FIXME: Use the tested macro in macrotest.c */
-         if ( (QQ[0][1] == 0) && (QQ[0][2] == 0)) 
+
+         if ( (QQ[PREVIOUS] == OPEN) && (QQ[CURRENT] == OPEN)) 
          {
             if (contacts[contact][TYPE]==VE)
             {
@@ -1083,7 +1103,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          */
         /* FIXME: Change this to use the tested macro in macrotest.c 
          */         
-         if ( (QQ[0][PREVIOUS] != 0)  || (QQ[0][CURRENT] != 0) ) 
+        /* PREVIOUS is 1, CURRENT is 2  */
+         //if ( (QQ[0][PREVIOUS] != 0)  || (QQ[0][CURRENT] != 0) ) 
+         if ( (QQ[PREVIOUS] != OPEN)  || (QQ[CURRENT] != OPEN) ) 
          {   
            /* location (?) of Kii (?) MMM */
             i3=n[j1][1]+n[j1][2]-1;
@@ -1101,8 +1123,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                   j3=6*(j-1)+l;
                   K[i3][j3] += p*lockstate[1][1]*s[j]*s[l];
                  /* These terms probably come from TCK */
-                  if ( QQ[0][CURRENT] != 0 )
-                     K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+12]*s[l+12];
+                  if (QQ[CURRENT] == OPEN)
+                     continue;
+                  K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+12]*s[l+12];
                }  
             }  
 
@@ -1117,8 +1140,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                   j3=6*(j-1)+l;
                  /* Eq. 4.40, p. 175, gr \otimes gr  */
                   K[i3][j3] += p*lockstate[1][1]*s[j+6 ]*s[l+6 ];
-                  if (QQ[0][CURRENT] != 0)
-                     K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+18]*s[l+18];
+                  if (QQ[CURRENT] == OPEN)
+                     continue;
+                  K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+18]*s[l+18];
                }  
             }  
 
@@ -1144,8 +1168,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                      j3=6*(j-1)+l;
                     /* Eq. 4.38, p. 174, er \otimes gr */
                      K[i3][j3] += p*lockstate[1][1]*s[j]*s[l+6 ];
-                     if (QQ[0][CURRENT] != 0)  // TCK
-                        K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+12]*s[l+18];
+                     if (QQ[CURRENT] == OPEN) 
+                        continue;
+                     K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+12]*s[l+18];
                   }  
                }  
              }
@@ -1168,8 +1193,9 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                    {
                       j3=6*(j-1)+l;
                       K[i3][j3] += p*lockstate[1][1]*s[j+6 ]*s[l];
-                      if (QQ[0][CURRENT] != 0)
-                         K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+18]*s[l+12];
+                      if (QQ[CURRENT] == OPEN)
+                         continue;
+                      K[i3][j3] += (p/s2n_ratio)*lockstate[1][2]*s[j+18]*s[l+12];
                    }  
                 }  
             }  /* end else j1 < j2 */
@@ -1188,7 +1214,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                   F[j1][j] += -lockstate[1][1]*(p*pen_dist)*s[j];
                   F[j2][j] += -lockstate[1][1]*(p*pen_dist)*s[j+6];
                  /* skip shear if no contact (?) */
-                  if (QQ[0][CURRENT] == 0)
+                  if (QQ[CURRENT] == OPEN)
                      continue;
                  /* sheardisp (s2) is normalized shear component for the 
                   * current open close cycle. TCK 1995, Eq. 64c, p. 1239. 
@@ -1219,6 +1245,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
         /* FIXME: Find out whether we can have a SLIDING lock when we have a 
          *  VV contact.  If not, these conditionals can be cleaned up a lot.
          */
+
          if (contacts[contact][TYPE] != VE || locks[contact][CURRENT] != SLIDING) 
             continue; 
         /* if prev step open and current iteration not first
@@ -1354,12 +1381,14 @@ void df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
   /* s (now pendist) is temp storage for penetration depths. 
    * pendist < 0 means penetration.
    */
-   double pendist[3];  // was s[]
+   double pendist[3];// = {0};  // was s[]
   /* p is temp storage for contact vertex displacements */
    double p[4][4];
   /* T is the usual, i.e., T \equiv [T] */
    double T[7][7];
+
   /* FIXME: Change this to: */
+
    //double T[3][7] = {0};
   /* x,y are temporary variables used to carry contact vertex
    * locations for computing displacements
