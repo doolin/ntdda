@@ -62,6 +62,25 @@ extern HPEN drawPen[10];
 extern FILEPATHS filepath;
 
 
+static int changeGridSpacing(HWND,LPARAM,WPARAM);
+static int handleWMCommand(HWND, LPARAM, WPARAM);
+static void handleLButtonDown(HWND hDlg, LPARAM lParam);
+static void handleLButtonUp(HWND hDlg, LPARAM lParam);
+static void handleMouseMove(HWND, LPARAM, WPARAM);
+static void handlePaint(HWND);
+static void freePointList();
+static void freeJointList();
+static void freeBoltList();
+
+static void drawSinglePoint(HDC, DPoint *);
+static int saveData(HWND hDlg);
+
+/* Mouse handling functions */
+static void addJoint(HWND);
+static void addPoint(HWND);
+static void addBolt(HWND);
+
+
 static enum context {selection, joint1, point1, bolt1} context;
 
 static DPoint DPointtoPPoint(HWND hwMain, int xpos, int ypos);

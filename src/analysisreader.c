@@ -6,9 +6,9 @@
  * .ana files.
  *
  * $Author: doolin $
- * $Date: 2001/11/02 13:38:41 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -21,10 +21,10 @@
 #define BUFSIZE 180
 
 Analysisdata *
-analysisReader1(/* HWND hwMain, */char * af, Geometrydata * gd)
+analysisReader1(char * af, Geometrydata * gd)
 {
    FILE * analysisFile;
-   Analysisdata * adn;  /* analysis data in  */
+   Analysisdata * adn;  
    int i, j, n7, n8;
    int jointmat;  /* Loop counter to initialize joint materials matrix. */
    double ** materialProps;

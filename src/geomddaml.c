@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 
@@ -22,14 +22,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ddaxmlparse.h"
+#include "ddaml.h"
 #include "ddamemory.h"
 #include "geometrydata.h"
-#include "interface.h"
-
-#include "ddaml.h"
-
-extern InterFace * iface;
 
 
 
@@ -53,22 +48,9 @@ static BOUNDLIST * boundlist = NULL;
 
 static xmlNsPtr nspace;
 
-//static enum pointtype {fixed=0,measured,load,hole} pointtype;
 
 static void  parseGeometry(Geometrydata *, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
-static void * parseEdgenodedist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseJoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseJointset(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 static Joint * getNewJoint(void);
 static DDAPoint * getNewPoint(void);
@@ -86,6 +68,7 @@ static double ** DoubMat2DGetMem(int n, int m);
 static void * checkGeometryDoc(xmlDocPtr doc);
 static void initializeGLists(void);
 
+
 typedef struct _gkwdtab
 {
    char *kwd;			/* text of the keyword        */
@@ -94,37 +77,17 @@ typedef struct _gkwdtab
    */
    enum  tokentype  {node = 0, string, prop} ktok;
    union {
-      void *(*nodeparse)(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);		/* function */
-      void *(*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );		/* function */
-      void *(*propparse)(xmlDocPtr doc, xmlNodePtr cur, int );		/* function */
+      void *(*nodeparse)  (xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
+      void *(*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );	
+      void *(*propparse)  (xmlDocPtr doc, xmlNodePtr cur, int );
    } pparse;
 
 } GKWDTAB;
 
-GKWDTAB gtab_type[] = {
-   {"Edgenodedist", 0, *parseEdgenodedist},
-   {"Jointlist", 0, *parseJointlist},
-   {"Fixedpointlist", 0, *parseFixedpointlist},
-   {"Measuredpointlist", 0, *parseMeasuredpointlist},
-   {"Loadpointlist", 0, *parseLoadpointlist},
-   {"Holepointlist", 0, *parseHolepointlist},
-   {"Seismicpointlist", 0, *parseSeismicpointlist},
-   {"Boltlist", 0, *parseBoltlist},
-   {"Matlinelist", 0, *parseMatlinelist},
-   {"Boundlist", 0, *parseBoundlist},
-//   {"Jointset",0,*parseJointset},  /* Don't need this yet.  */
-   {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
-};
-
-
 
 Geometrydata * gdata;
 
-
-
-
-//Geometrydata *
-//XMLparseDDA_Geometry_File(Geometrydata *, char *filename) 
+ 
 void
 ddaml_read_geometry_file(void * userdata, char *filename) {
 
@@ -132,6 +95,14 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    xmlNsPtr ns;
    xmlNodePtr cur;
    Geometrydata * gd = (Geometrydata *)userdata;
+
+   ddaml_display_warning = gd->display_warning;
+   ddaml_display_error   = gd->display_error;
+
+#if 0
+   ddaml_display_warning("Test warning");
+   ddaml_display_error("Test error");
+#endif
 
    xmlDoValidityCheckingDefaultValue = 1;
 
@@ -143,8 +114,9 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    checkGeometryDoc(doc);
 
   /* This is where we need an exception */
-   if (doc == NULL)
-     return;// NULL;
+   if (doc == NULL) {
+      return;
+   }
 
   /* FIXME: Handle a null document, which means that there
    * is a messed up tag or something.
@@ -166,12 +138,10 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    */
    cur = cur->childs->next;
 
-   //gd = parseGeometry(gd,doc, ns, cur); 
    parseGeometry(gd,doc, ns, cur); 
 
-   //return(gd);
 
-}  /* close XMLparseDDA_Analysis_File() */
+}  
 
 
 void *
@@ -198,18 +168,7 @@ checkGeometryDoc(xmlDocPtr doc)
 	     return(NULL);
    }
 
-  /*
-   * Allocate the structure to be returned.
-   */
-   //gdata = (Geometrydata *) malloc(sizeof(Geometrydata));
-   //memset(gdata, 0, sizeof(DDA));
 
-   //if (gdata == NULL) 
-   //{
-   //   fprintf(stderr,"out of memory for geometry data\n");
-	  //   xmlFreeDoc(doc);
-   //  	return(NULL);
-   // }
    
    //gdata->namespace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
   /* FIXME: The input files crash when some other name space is used.
@@ -235,97 +194,6 @@ checkGeometryDoc(xmlDocPtr doc)
 
 }  /* close checkGeometryDoc() */
 
-
-static void
-parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
-   int i = 0;
-   //FILE * outtestfile;
-
-   //outtestfile = fopen("testgeomxml.geo","w");
-
-  /* Easiest to parse into a list, then count 
-   * and grab array memory, then copy data into 
-   * arrays.  This will be good, because I will 
-   * now have lists of elements that can eventually
-   * be used in the main code.
-   */
-   initializeGLists(); 
-
-  /*
-   * allocate the struct
-   */
-   //gdata = (Geometrydata *) malloc(sizeof(Geometrydata));
-
-   //gdata = initGeometrydata();
-   //gdata = gdata_new();
-
-/** This is global and not thread safe. */
-gdata = gd;
-
-
-   if (gdata == NULL) 
-   {
-      fprintf(stderr,"out of memory\n");
-     	return;//(NULL);
-   }
-   
-   //memset(gdata, 0, sizeof(Geometrydata));
-
-  /* FIXME: This is bogus.  It is only in here because 
-   * of a single comment in front of the the <Geometry>
-   * and <Analysis> tags in the input files.
-   */
-   cur = cur->childs;
-
-   while (cur != NULL) 
-   {
-      i = 0;
-      while (gtab_type[i].kwd)
-      {
-         if ( ( !strcmp(gtab_type[i].kwd,cur->name) ) )//&&  (cur->ns == ns)  ) 
-         {
-            fprintf(stderr,"Keyscan loop: Current name %s:\n", cur->name);
-            switch(gtab_type[i].ktok)
-            {
-               case node:
-	                 gtab_type[i].pparse.nodeparse(doc,ns,cur);
-               break;
-
-               case string:
-	                 gtab_type[i].pparse.stringparse(doc,cur,1);
-               break;
-
-               case prop:
-	                 gtab_type[i].pparse.propparse(doc,cur,1);
-               break;
-
-               default:;
-               break;
-            }  /* end switch on node type */
-           /* Should probably have a continue or break in here */
-            break;
-         }  /* end if strcmp */
-         i++;
-      }   //close key scan loop 
-
-	     cur = cur->next;
-   }  /* end while cur != NULL  */
-   
-  /* Somewhere here there has to be a function for transferring
-   * data from the dlists to the arrays.  Might find something
-   * in the draw dialog box that does this.
-   */
-   transferGData();
-  /* Write it out and see if we can load it... */
-   //dumpGeometrydata(gdata, outtestfile);
-   //fclose(outtestfile);
-  /* Now clean everything up. */
-   //freeDlistsAndStuff();
-
-   //return(gdata);
-
-}  
 
 
 void 
@@ -906,7 +774,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             else  /* Throw an error or warning */
             {
                //iface->displaymessage("Warning: Malformed material lines tag.\n");
-               dda_display_warning("Warning: Malformed material lines tag.\n");
+               ddaml_display_warning("Warning: Malformed material lines tag.\n");
             }
          } 
       }
@@ -915,7 +783,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
          */         
-         dda_display_error("Validation failure in material lines parsing."  
+         ddaml_display_error("Validation failure in material lines parsing."  
                                       " Contact author.\n");
 
       }
@@ -1340,6 +1208,114 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
    } 
 
 }  /* close transferMatlinelistToGeomStruct() */
+
+
+
+
+
+GKWDTAB gtab_type[] = {
+{"Edgenodedist",     0, *parseEdgenodedist     },
+{"Jointlist",        0, *parseJointlist        },
+{"Fixedpointlist",   0, *parseFixedpointlist   },   
+{"Measuredpointlist",0, *parseMeasuredpointlist},
+{"Loadpointlist",    0, *parseLoadpointlist    },
+{"Holepointlist",    0, *parseHolepointlist    },
+{"Seismicpointlist", 0, *parseSeismicpointlist },
+{"Boltlist",         0, *parseBoltlist         },
+{"Matlinelist",      0, *parseMatlinelist      },
+{"Boundlist",        0, *parseBoundlist        },
+{NULL,               0,  0                     }			
+};
+
+
+static void
+parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+{
+   int i = 0;
+   //FILE * outtestfile;
+
+   //outtestfile = fopen("testgeomxml.geo","w");
+
+  /* Easiest to parse into a list, then count 
+   * and grab array memory, then copy data into 
+   * arrays.  This will be good, because I will 
+   * now have lists of elements that can eventually
+   * be used in the main code.
+   */
+   initializeGLists(); 
+
+  /*
+   * allocate the struct
+   */
+   //gdata = (Geometrydata *) malloc(sizeof(Geometrydata));
+
+   //gdata = initGeometrydata();
+   //gdata = gdata_new();
+
+/** This is global and not thread safe. */
+gdata = gd;
+
+
+   if (gdata == NULL) 
+   {
+      fprintf(stderr,"out of memory\n");
+     	return;//(NULL);
+   }
+   
+   //memset(gdata, 0, sizeof(Geometrydata));
+
+  /* FIXME: This is bogus.  It is only in here because 
+   * of a single comment in front of the the <Geometry>
+   * and <Analysis> tags in the input files.
+   */
+   cur = cur->childs;
+
+   while (cur != NULL) 
+   {
+      i = 0;
+      while (gtab_type[i].kwd)
+      {
+         if ( ( !strcmp(gtab_type[i].kwd,cur->name) ) )//&&  (cur->ns == ns)  ) 
+         {
+            fprintf(stderr,"Keyscan loop: Current name %s:\n", cur->name);
+            switch(gtab_type[i].ktok)
+            {
+               case node:
+	                 gtab_type[i].pparse.nodeparse(doc,ns,cur);
+               break;
+
+               case string:
+	                 gtab_type[i].pparse.stringparse(doc,cur,1);
+               break;
+
+               case prop:
+	                 gtab_type[i].pparse.propparse(doc,cur,1);
+               break;
+
+               default:;
+               break;
+            }  /* end switch on node type */
+           /* Should probably have a continue or break in here */
+            break;
+         }  /* end if strcmp */
+         i++;
+      }   //close key scan loop 
+
+	     cur = cur->next;
+   }  /* end while cur != NULL  */
+   
+  /* Somewhere here there has to be a function for transferring
+   * data from the dlists to the arrays.  Might find something
+   * in the draw dialog box that does this.
+   */
+   transferGData();
+  /* Write it out and see if we can load it... */
+   //dumpGeometrydata(gdata, outtestfile);
+   //fclose(outtestfile);
+  /* Now clean everything up. */
+   //freeDlistsAndStuff();
+
+}  
 
 
 #ifdef STANDALONE

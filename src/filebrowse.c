@@ -11,9 +11,9 @@
  * saved, so that it won't be necessary to rerun the problem to 
  * view that results.
  * $Author: doolin $
- * $Date: 2001/05/20 20:59:32 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/filebrowse.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  */
 #define STRICT
@@ -29,8 +29,8 @@
 
 void fileBrowse(HWND hwMain,
 				OPENFILENAME *ofn, LPCTSTR *szFilter, 
-				char *newpath, char *newfile, char *suffix)
-{
+				char *newpath, char *newfile, char *suffix) {
+
     /*  Being the only extern suggests 
 	 *  passing this in as a parameter. 
 	 */
@@ -49,7 +49,7 @@ void fileBrowse(HWND hwMain,
 	ofn->lpstrDefExt = suffix;
 	ofn->nMaxFileTitle = 256;
 	ofn->Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT;
-}  /* Close fileBrowse()  */
+} 
 
 
 

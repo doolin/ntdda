@@ -7,7 +7,6 @@
 #include <string.h>
 #include <assert.h>
 #include "analysisdata.h"
-#include "interface.h"
 #include "analysis.h"
 #include "ddamemory.h"
 #include "gravity.h"

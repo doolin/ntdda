@@ -4,14 +4,19 @@
  * and verification.
  */
 
-/********************** Debugging code *******************/
-/* These functions are testing the internal working of DDA.
- * The convention is to use "printStuff" for testing code,
- * and "writeStuff" for DDA output.
+
+
+/** @todo Almost all of these functions can be prototyped 
+ * with primitives to cut the dependency on the dda 
+ * derived types.  After this is done, it will be easier
+ * to abstract some printing functions, callbacks, 
+ * etc.
  */
 void printBlockAreas(Geometrydata *, Analysisdata *, double **, char *);
 void printBlockWeights(Geometrydata *, double **, double **, char *);
-void printContactLengths(Geometrydata *, double **, char *);
+
+void printContactLengths     (Geometrydata *, double **, char *);
+
 void printAngles(Geometrydata *, double **, char *);
 void printContacts(int **, char *);
 void printContactIndex(int **, char *);
@@ -29,7 +34,12 @@ void printN(int ** n, char * location);
 void printM1(int ** m1, char * location);
 void printPreviousContacts(int ** m1, char * location);
 void printVertices(Geometrydata *, double **, int **, char *);
-void printForces(Geometrydata *, double **, int *, char *);
+
+void printForces             (int numblocks, 
+                              double ** F, 
+                              int * k1, 
+                              char * calling_location);
+
 void print2DMat(double [][7], int, int, char *);
 void print2DArray(double **, int, int, FILE *, char *);
 void print1DIntArray(int *, int n, char *);

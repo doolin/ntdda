@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:06 $
+ * $Date: 2002/05/26 23:47:25 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  *
  */
 #include <assert.h>
@@ -15,11 +15,9 @@
 #include <memory.h>
 #include "analysis.h"
 #include "ddamemory.h"
-#include "interface.h"
 
 
 
-extern InterFace * iface;
 void sp_mult(double * Arow, double * x, double * y, int blocksize, int index);
 
 

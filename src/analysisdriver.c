@@ -7,6 +7,10 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.18  2002/05/26 23:47:24  doolin
+ * Large amounts of cleanup and some redundant code
+ * removed.
+ *
  * Revision 1.17  2002/05/26 15:56:05  doolin
  * Status bar handling is vastly improved, ready and
  * geometry states now unified.  Next, unify with analysis status,
@@ -96,8 +100,6 @@
 #include <assert.h>
 #include <string.h>
 #include "ddamemory.h"
-#include "interface.h"
-//#include "ddaerror.h"
 #include "printdebug.h"
 #include "gravity.h"
 #include "contacts.h"
@@ -111,8 +113,9 @@ Datalog * DLog;
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
  */
 int	
-ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
-{
+//ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
+ddanalysis(DDA * dda, FILEPATHS * filepath) {
+
    Geometrydata * GData = dda_get_geometrydata(dda);
 
    Analysisdata * AData;
@@ -232,7 +235,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    CTacts = getNewContacts(GData->nBlocks);
 
   /* Draw some stuff to the screen. */ 
-   display(GData, AData, gg);
+   display(GData, AData);
 
   /* Check to see how the forces look. */
    //printForces(GData, AData->F, k1, "Before main loop");
@@ -397,7 +400,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
 
      /* PASSED PARAMETER CHECKS */
 
-      //printForces(GData, AData->F, k1, "After OC convergence");
+      //printForces(GData->nBlocks, AData->F, k1, "After OC convergence");
 
      /* Compute step displacements.  FIXME: See if this function 
       * can be renamed "updateGeometry()".
@@ -435,7 +438,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
          checkGravityConvergence(AData->gravity, GData, AData);
 
      /* Draw some stuff to the screen. */ 
-      display(GData, AData, gg);
+      display(GData, AData);
 
    } /* END OF MAIN ANALYSIS LOOP  */
 
@@ -461,7 +464,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    * with flags for what to emit in post-processing 
    * phase.
    */
-   postProcess(GData, AData,gg);
+   postProcess(GData, AData);
 
    if (AData->options & VERTICES)
       writeBlockVertices(GData, 1);

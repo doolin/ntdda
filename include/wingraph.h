@@ -11,10 +11,7 @@
 
 /* New functions to change how the graphics are handled.
  */
-int setScale(HWND, 
-             HDC, 
-             GRAPHICS *, 
-             double []);
+int setScale(HWND,HDC,GRAPHICS *,double []);
 double setPrScale(HWND, HDC, GRAPHICS *, double []);
 
 //int drawLines(HDC, HPEN [9], double, POINT, Joint *, int, int);

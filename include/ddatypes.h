@@ -4,7 +4,6 @@
 #ifndef __DDATYPES_H_
 #define __DDATYPES_H_
 
-//#include <stdio.h>
 #include <sys/types.h>
 
 /* The reason 
@@ -16,11 +15,25 @@
  */
 typedef int ddaboolean;
 
+#ifndef PI
+#define PI 3.141592653
+#endif
+
+
+#ifndef FALSE
+#define FALSE 0
+#endif 
+#ifndef TRUE
+#define TRUE (!FALSE)
+#endif
+
+#define MACHEPS (3.*((4.0/3.0)-1.0)-1.0)
+
 
 /** Standard typedefs for constructing callbacks. */
 #ifndef PRINTFUNC
 #define PRINTFUNC
-typedef int  (*PrintFunc)(void *, const char *, const char *);
+typedef int  (*PrintFunc)(void *, const char *, ...);
 #endif
 
 #ifndef DISPLAYFUNC

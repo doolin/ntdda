@@ -15,16 +15,10 @@
 #include "printdebug.h"
 #endif
 #include "geometrydata.h"
-/* This is included only (initially) to get a definition
- * for the pointinpoly function.  Later, functions need to 
- * be separated out according where they belong.
- */
-//#include "geometry.h"
+
 #include "ddamemory.h"
-#include "interface.h"
-
 #include "ddaml.h"
-
+#include "inpoly.h"
 
 #define I1 "   "
 #define I2 "      "
@@ -38,11 +32,6 @@ static void deleteBlock(Geometrydata * gd, int blocknumber);
 //static void emitPoints(Geometrydata *, FILE *);
 //static void emitBolts(Geometrydata *, FILE *);
 //static void emitMatlines(Geometrydata *, FILE *);
-
-
-extern InterFace * iface;
-
-
 
 
 

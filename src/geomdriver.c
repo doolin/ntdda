@@ -5,9 +5,9 @@
  * from a set of lines (fracture traces).
  * 
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:25 $
  * $Source: /cvsroot/dda/ntdda/src/geomdriver.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #include <stdio.h>
@@ -16,7 +16,6 @@
 #include <assert.h>
 #include <string.h>
 #include "geometry.h"
-#include "interface.h"
 
 
 
@@ -50,8 +49,9 @@ void dc19(Geometrydata *, int **, double **);
  * ddacut is the driver routine for all of the dc code
  * functions.
  */
+ /* FIXME: Get rid of the GRAPHICS * */
 void
-ddacut(Geometrydata *geomdata, FILEPATHS *filestruct, GRAPHICS * graphics)
+ddacut(Geometrydata *geomdata, FILEPATHS *filestruct, GRAPHICS * ggraphics)
 {
   
    //HWND hwMain = geomhwnd;

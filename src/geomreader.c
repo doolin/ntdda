@@ -17,9 +17,9 @@
  * http://www.cyclic.com.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:25 $
  * $Source: /cvsroot/dda/ntdda/src/geomreader.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -29,7 +29,6 @@
 #include "assert.h"
 #include "geometry.h"
 #include "ddamemory.h"
-#include "interface.h"
 
 ///extern InterFace * iface;
 

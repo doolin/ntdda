@@ -5,12 +5,12 @@
  * General header file for the numerical geometry routines.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:39 $
+ * $Date: 2002/05/26 23:47:23 $
  * $Source: /cvsroot/dda/ntdda/include/geometry.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
-#include"dda.h"
+#include "dda.h"
 #include "geometrydata.h"
 
 /*
@@ -52,7 +52,6 @@ int lns(double, double, double, double, double,
 
 //int rlt(Geometrydata *pc, int, double, double, int **, double **, double **);
 int rlt(double w0, int, double, double, int **, double **, double **);
-//int pointinpoly(int blocknumber, double x11, double y11,int ** vindex, double ** vertices);
 
 
 

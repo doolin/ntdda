@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:05 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.24 $
+ * $Revision: 1.25 $
  *
  */
 /*################################################*/
@@ -17,6 +17,10 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.25  2002/05/26 23:47:24  doolin
+ * Large amounts of cleanup and some redundant code
+ * removed.
+ *
  * Revision 1.24  2002/05/26 15:56:05  doolin
  * Status bar handling is vastly improved, ready and
  * geometry states now unified.  Next, unify with analysis status,
@@ -126,8 +130,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "ddamemory.h"
-#include "interface.h"
-//#include "ddaerror.h"
 #include "printdebug.h"
 #include "gravity.h"
 #include "contacts.h"
@@ -149,7 +151,6 @@
 
 extern FILEPOINTERS fp;
 extern Datalog * DLog;
-extern InterFace * iface;
 
 /**************************************************/
 /* df01: input geometric data                     */
@@ -406,7 +407,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    initContactSpring(ad);
    initConstants(ad);
 
-   DLog = initDatalog(gd, ad);
+   DLog = datalog_new( ad->nTimeSteps, ad->nJointMats, gd->nBlocks);
   /* Clock stopped in postProces() */
    DLog->analysis_start = clock();
    DLog->assemble_runtime = 0;
@@ -434,11 +435,6 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
       ad->gravity = NULL;  // kludge
    }
 
-  /* Turn on the instrumentation.  This struct is really
-   * a combined instrumentation and data output struct,
-   * capabilities that will need to be separated later.
-   */
-   //DLog = initDatalog(GData, AData);
 
   /* File handling is global for now.  Since it is global
    * we can open everything at the same time, then later 
@@ -826,6 +822,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
 
 
 
+#if 0
       /**************************************************/
       /* df18: add and subtract submatrix of contact    */
       /**************************************************/
@@ -1137,6 +1134,8 @@ double g7;
 		printf("friction forces for block %d: (%f, %f, %f)\n", i, c0[i][1], c0[i][2], c0[i][3]);
 	} end for i */
       }
+
+#endif
 
 
 

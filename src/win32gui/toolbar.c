@@ -17,13 +17,51 @@ extern "C" {
 
 
 
+HWND hToolBar;
+
+static int visibility;
+
 struct _toolbar {
    int state;
 };
 
+#if 0
+static int
+toolbar_toggle_visibility() {
+
+   if (visibility == 1) {
+      visibility = 0;
+      ShowWindow(hToolBar, SW_HIDE);
+   } else {
+      visibility = 1;
+      ShowWindow(hToolBar, SW_SHOWNORMAL);
+   }
+}
+#endif
 
 
+int
+toolbar_get_visibility() {
+   return visibility;
+}
 
+
+void 
+toolbar_set_visibility(int v) {
+   visibility = v;
+   toolbar_show();
+}
+
+
+void
+toolbar_show(void) {
+
+   if (visibility == 1) {
+      ShowWindow(hToolBar, SW_SHOWNORMAL);
+   } else {
+      ShowWindow(hToolBar, SW_HIDE);
+   }
+}
 
 
 static void
@@ -33,10 +71,14 @@ toolbar_send_message(HWND hToolBar, unsigned int button, unsigned short state) {
 }
 
 
+void 
+toolbar_resize(void){
 
+   SendMessage(hToolBar,WM_SIZE,0,0);
+}
 
 void
-toolbar_set_state(HWND hToolBar, unsigned int state) {
+toolbar_set_state(unsigned int state) {
 
 
    switch (state) {
@@ -77,7 +119,7 @@ toolbar_set_state(HWND hToolBar, unsigned int state) {
 
 
 void 
-toolbar_init(HWND hwMain,HWND * hToolBar) {
+toolbar_init(HWND hwMain) {
 
    HINSTANCE hInst;
 
@@ -108,7 +150,7 @@ toolbar_init(HWND hwMain,HWND * hToolBar) {
 
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
-  *hToolBar = CreateToolbarEx(hwMain, 
+   hToolBar = CreateToolbarEx(hwMain, 
 	                           WS_CHILD | TBSTYLE_TOOLTIPS | CCS_ADJUSTABLE, 
 	                           TOOLBAR_DDA_MAIN,
                               NUMIMAGES,
@@ -122,6 +164,7 @@ toolbar_init(HWND hwMain,HWND * hToolBar) {
                               IMAGEHEIGHT, 
                               sizeof(TBBUTTON));
 
+   toolbar_set_visibility(1);
 }  
 
 

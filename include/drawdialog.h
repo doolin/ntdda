@@ -31,23 +31,6 @@ void handleRemovePoints(HWND, HDC hdc);
 double Scale (int, int);
 void handleCancel(HWND);
 int handleSave(HWND);
-static int changeGridSpacing(HWND,LPARAM,WPARAM);
-static int handleWMCommand(HWND, LPARAM, WPARAM);
-static void handleLButtonDown(HWND hDlg, LPARAM lParam);
-static void handleLButtonUp(HWND hDlg, LPARAM lParam);
-static void handleMouseMove(HWND, LPARAM, WPARAM);
-static void handlePaint(HWND);
-static void freePointList();
-static void freeJointList();
-static void freeBoltList();
-
-static void drawSinglePoint(HDC, DPoint *);
-static int saveData(HWND hDlg);
-
-/* Mouse handling functions */
-static void addJoint(HWND);
-static void addPoint(HWND);
-static void addBolt(HWND);
 
 
 /* These will probably mutate into general purpose functions.

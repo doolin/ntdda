@@ -137,9 +137,13 @@ typedef struct datalog_tag {
 } Datalog;
 
 
-void    datalog_delete (Datalog *);
+void       datalog_delete (Datalog *);
 
-
+/** 
+ * FIXME: Datalog should have no dependence on 
+ * either geometry or analysis data structures.
+ */
+Datalog * datalog_new     (int numtimesteps, int numjointmats, int numblocks);
 
 
 #endif /* __DATALOG_H__ */

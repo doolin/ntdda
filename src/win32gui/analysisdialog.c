@@ -4,14 +4,13 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:07 $
+ * $Date: 2002/05/26 23:47:26 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  */
 
 #include "analysisdlg.h"
 #include "ddamemory.h"
-#include "interface.h"
 
  
 /* Static variables declared outside of function calls
@@ -76,7 +75,6 @@ static void enableLoadBoxes(HWND hDlg, BOOLEAN flag);
 static void handleJointPlus(HWND hDlg);
 static void handleJointMinus(HWND hDlg);
 
-extern InterFace * iface;
 
 
 /* Externs from winmain.c  */
@@ -135,7 +133,7 @@ handleInitAnalysisDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
    if(filepath.afile[0] != '\0') 
    {
-      iface->setdisplay((unsigned int)hDlg);
+      //iface->setdisplay((unsigned int)hDlg);
       loadFileData(hDlg, &hFile, &of);
    } 
    else 

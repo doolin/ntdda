@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:06 $
- * $Revision: 1.5 $
+ * $Date: 2002/05/26 23:47:25 $
+ * $Revision: 1.6 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -27,7 +27,6 @@
 #include "datalog.h"
 #include "analysisdata.h"
 #include "geometrydata.h"
-#include "graphics.h"
 #include "options.h"
 
 #ifdef WIN32
@@ -36,7 +35,7 @@
 //#include "ddaerror.h"
 
 static void writeHTMLHeader(FILE * htmlfile);
-static void writeHTMLBody(GRAPHICS *, Analysisdata *, FILE * htmlfile);
+static void writeHTMLBody(Datalog * dlog, Analysisdata *, FILE * htmlfile);
 static void writeHTMLFooter(FILE * htmlfile);
 static void writeGnuplotFile();
 static void printBarTable(char *, FILE *);
@@ -51,7 +50,6 @@ extern FILEPOINTERS fp;
 #ifdef WIN32
 extern Options options;
 #endif
-//extern DDAError ddaerror;
 
 
 /* One way to get information into this function is
@@ -61,12 +59,12 @@ extern Options options;
  */
 int
 writeHTMLLogFile(Geometrydata * gd, Analysisdata * ad,
-                 Datalog * dlog, GRAPHICS * g, FILE * htmlfile) {
+                 Datalog * dlog, FILE * htmlfile) {
 
    writeHTMLHeader(htmlfile);
 
   /* Write the data */
-   writeHTMLBody(g, ad, htmlfile);
+   writeHTMLBody(dlog, ad, htmlfile);
 
    writeHTMLFooter(htmlfile);
 
@@ -119,8 +117,31 @@ writeHTMLHeader(FILE * htmlfile)
 
 
 static void
-writeHTMLBody(GRAPHICS * g, Analysisdata * ad, FILE * htmlfile)
-{
+writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
+
+
+   double analysis_runtime;
+   double assemble_runtime;
+   double integration_runtime;
+   double solve_runtime;
+   double openclose_runtime;
+   double contact_runtime;
+   double update_runtime;
+   int totaloc_count;
+
+
+/** @warning analysis_runtime will depend on the order in which these
+ * functions are called.
+ */
+   analysis_runtime = DLog->analysis_runtime/(double)CLOCKS_PER_SEC;
+   contact_runtime = DLog->contact_runtime/(double)CLOCKS_PER_SEC;
+   update_runtime = DLog->update_runtime/(double)CLOCKS_PER_SEC;
+   assemble_runtime = DLog->assemble_runtime/(double)CLOCKS_PER_SEC;
+   solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
+   integration_runtime = DLog->integration_runtime/(double)CLOCKS_PER_SEC;
+   openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
+
+   totaloc_count = ad->n9;
 
   /* FIXME: Bad division for breaking into functions.
    * All the following belongs in the body, but I need info
@@ -194,13 +215,13 @@ writeHTMLBody(GRAPHICS * g, Analysisdata * ad, FILE * htmlfile)
    fprintf(htmlfile,"<td align=\"top\">\n");
    fprintf(htmlfile,"<h3>Analysis timing (seconds)</h3>\n");
    fprintf(htmlfile,"<ul>\n");
-   fprintf(htmlfile,"<li>Total: %f</li>\n",g->analysis_runtime);
-   fprintf(htmlfile,"<li>Contacts: %f</li>\n",g->contact_runtime);
-   fprintf(htmlfile,"<li>Assembly: %f</li>\n",g->assemble_runtime);
-   fprintf(htmlfile,"<li>Time integration: %f</li>\n",g->integration_runtime);
-   fprintf(htmlfile,"<li>Solve: %f</li>\n",g->solve_runtime);
-   fprintf(htmlfile,"<li>Open-close: %f</li>\n",g->openclose_runtime);
-   fprintf(htmlfile,"<li>Update: %f</li>\n",g->update_runtime);
+   fprintf(htmlfile,"<li>Total: %f</li>\n",analysis_runtime);
+   fprintf(htmlfile,"<li>Contacts: %f</li>\n",contact_runtime);
+   fprintf(htmlfile,"<li>Assembly: %f</li>\n",assemble_runtime);
+   fprintf(htmlfile,"<li>Time integration: %f</li>\n",integration_runtime);
+   fprintf(htmlfile,"<li>Solve: %f</li>\n",solve_runtime);
+   fprintf(htmlfile,"<li>Open-close: %f</li>\n",openclose_runtime);
+   fprintf(htmlfile,"<li>Update: %f</li>\n",update_runtime);
    fprintf(htmlfile,"</ul>\n");
    fprintf(htmlfile,"</td>\n");
    
@@ -219,7 +240,7 @@ writeHTMLBody(GRAPHICS * g, Analysisdata * ad, FILE * htmlfile)
 
    fprintf(htmlfile,"<h3>Open-close count</h3>\n");
    fprintf(htmlfile,"Total number of open-close iterations was %d over %d time steps",
-           g->totaloc_count,ad->nTimeSteps);
+           totaloc_count,ad->nTimeSteps);
 
 #ifdef WIN32
    if (options.spyplots)

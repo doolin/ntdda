@@ -11,10 +11,8 @@
 #include"ddamemory.h"
 #include<assert.h>
 #include<malloc.h>
-#include "interface.h"
 #include "contacts.h"
 
-extern InterFace * iface;
 extern Datalog * DLog;
 
 static char mess[80];

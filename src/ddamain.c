@@ -5,9 +5,9 @@
  * on the unix side.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/ddamain.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 #define OPTIONS 0
@@ -30,7 +30,6 @@
 #include "geometrydata.h"
 #include "analysisdata.h"
 #include "graphics.h"
-#include "interface.h"
 
 
 /* This function will eventually get fixed to take only a

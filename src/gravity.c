@@ -23,20 +23,18 @@
  * iterations.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:25 $
  * $Source: /cvsroot/dda/ntdda/src/gravity.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 //#include "compilecontrol.h"
 #include<math.h>
 #include<assert.h>
 #include"analysis.h"
 #include"ddamemory.h"
-#include "interface.h"
 #include "gravity.h"
 
 
-extern InterFace * iface;
 
 /* Necessary evil. FIXME: Pass in an open file pointer or something
  * instead.  Find a way to kill extern globals.

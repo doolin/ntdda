@@ -17,11 +17,33 @@ extern "C" {
 #define STATUSBAR_TEXT_WIDTH 25
 
 
-void statusbar_init(HWND);
+void statusbar_init             (HWND);
 
-void updateAnalysisStatusBar(void);
-void updateGeometryStatusBar(int numblocks);
+void statusbar_show             (void);
 
+int  statusbar_get_visibility   (void);
+
+void statusbar_set_visibility   (int);
+
+void statusbar_resize           (void);
+
+void statusbar_set_state        (unsigned int state);
+
+void statusbar_set_text         (WPARAM wParam, 
+                                 LPARAM lParam);
+
+void statusbar_update_analysis  (int numblocks,
+                                 double elapsedtime,
+                                 int currtimestep, 
+                                 int numtimesteps,
+                                 int openclosecount);
+
+
+void statusbar_update_geometry   (int numblocks);
+
+void statusbar_update_progbar    (unsigned int timstep);
+
+void statusbar_set_progbar_range (unsigned short value);
 
 #ifdef __cplusplus
 }

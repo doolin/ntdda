@@ -8,7 +8,6 @@
 #include "replay.h"
 
 
-//extern Geometrydata * geometry2draw;
 extern int showOrig;
 
 extern FILEPOINTERS fp;

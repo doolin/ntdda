@@ -34,11 +34,8 @@ typedef struct _geo_data_tag Geometrydata;
  */
 struct _geo_data_tag {
 
-  /* We might need to point at ourself... */
-   //Geometrydata * this;
-
-
-   PrintFunc printer;
+   DisplayFunc display_warning;
+   DisplayFunc display_error;
 
   /* These will eventually get moved out to a more
    * appropriate structure.  In the original GHS code,
@@ -229,9 +226,6 @@ void freeBlockMasses(Geometrydata *);
 
 void dumpGeometrydata(Geometrydata *, void *);
 
-/* Moved from geometry.h */
-int pointinpoly(int blocknumber, double x11, double y11,
-                int ** vindex, double ** vertices);
 
 /* Moved from analysisdata.h */
 double computeMoments(Geometrydata *);  //, double ** moments);

@@ -7,9 +7,7 @@
 #include "dda.h"
 
 
-//extern FILEPATHS filepath;
 
-/* FIXME: Move to the same file as handleDropFiles() */
 void
 handleCommandLine(HWND hwMain, int argc, char ** argv, FILEPATHS * fpath)
 {
@@ -36,7 +34,6 @@ handleCommandLine(HWND hwMain, int argc, char ** argv, FILEPATHS * fpath)
 }  /* close handleCommandLine() */
 
 
-/* FIXME: Move this into its own file. */
 void
 handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam,FILEPATHS * fpath)
 {
@@ -68,8 +65,5 @@ handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam,FILEPATHS * fpath)
    else
       MessageBox(hwMain, "Wrong file type","File drop message", MB_OK);
 
-   //sprintf(message,"Dropped filename %s",dropfilebuf);
-   //sprintf(message,"Dropped filename %s",str);
-   //MessageBox(hwMain, message,"File drop message", MB_OK);
 
 }  /* close handleDropFiles() */

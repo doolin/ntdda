@@ -7,10 +7,8 @@
 #include<math.h>
 #include<assert.h>
 #include"ddamemory.h"
-#include "interface.h"
 #include "ddadlist.h"
 
-extern InterFace * iface;
 
 extern Datalog * DLog;
 

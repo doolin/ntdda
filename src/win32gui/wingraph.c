@@ -8,10 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <math.h>
+
 #include "dda.h"
 #include "wingraph.h"
-#include <assert.h>
 #include "geometrydata.h"
 
 
@@ -433,31 +434,6 @@ drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata, GRAPHICS * g, double *
 
 
 
-void 
-printTime(HDC hdc, GRAPHICS * g) 
-{
-   char c[80];
-   int length;
-   
-   sprintf(c, "Timestep: %d  Elapsed time: %.5lf Num. contacts: %d", 
-               g->timestep, g->elapsedtime,g->numcontacts);
-   length = strlen(c);
-   TextOut(hdc, 1000, 29000, c, length);
-
-  /* This is a kludge. It depends on the value of the conditional 
-   * being initialized to zero.  When I think of a better way to 
-   * handle this I will change it.  --dmd
-   */
-  /*
-   if (g->analysis_run_time)
-   {
-      sprintf(c, "CPU run time: %2.3f seconds", g->analysis_run_time);
-      length = strlen(c);
-      TextOut(hdc, 1000, 28000, c, length);
-   }
-   */
-  	return;
-}  /*Close printTime() */
 
 
 int 
@@ -468,7 +444,7 @@ drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, Data
 	  double scale = g->scale;
    POINT offset = g->offset;
    DPoint ** c = g->centroids;
-   int ts = g->timestep;
+   //int ts = g->timestep;
   //extern Geometrydata * geomdata;
  
    SelectObject(hdc, hpen[5]);
@@ -498,7 +474,6 @@ drawStresses(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g)
    POINT offset = g->offset;
    PStress ** s = g->stresses;
    int ts = g->timestep;
-   //extern Geometrydata * geomdata;
  
    if(ts == 0)
      return 1;
@@ -572,6 +547,9 @@ initializePens (void)
 			printPen[8] = CreatePen(PS_SOLID, 6, RGB(255,128,0));	// olive
 			printPen[9] = CreatePen(PS_SOLID, 6, RGB(192,192,192));	// gray
 } /*  Close initialize pens  */
+
+
+
 
 void InitializeBrush ( )
 {

@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:06 $
+ * $Date: 2002/05/26 23:47:25 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 #include <malloc.h>
@@ -17,20 +17,17 @@
 #include "analysis.h"
 #include "math.h"
 #include "ddamemory.h"
-#include "interface.h"
-#include "graphics.h"
 #include "printdebug.h"
 #include "postprocess.h"
 #include "dda.h"
 
-extern InterFace * iface;
 
 
 /* necessary evil right now. */
 extern FILEPOINTERS fp;
 extern Datalog * DLog;
 
-void writeHTMLLogFile(Geometrydata *, Analysisdata *, Datalog *, GRAPHICS *, FILE *);
+void writeHTMLLogFile(Geometrydata *, Analysisdata *, Datalog *, FILE *);
 void writeDataLog(Geometrydata *, Analysisdata *, Datalog *);
 
 /* This will eventually handle all of the postprocessing 
@@ -39,34 +36,42 @@ void writeDataLog(Geometrydata *, Analysisdata *, Datalog *);
  * flags in the struct.
  */
 void 
-//postProcess(HWND hw, Geometrydata * GData, Analysisdata * AData, GRAPHICS * g)
-postProcess(Geometrydata * GData, Analysisdata * AData, GRAPHICS * g)
-{
+postProcess(Geometrydata * GData, Analysisdata * AData) {
+
    char temp[100], mess[1000];
    //int length;
+   double analysis_runtime;
+   double assemble_runtime;
+   double integration_runtime;
+   double solve_runtime;
+   double openclose_runtime;
+   double contact_runtime;
+   double update_runtime;
+   int totaloc_count; 
+
 
    DLog->analysis_stop = clock();
    DLog->analysis_runtime = DLog->analysis_stop - DLog->analysis_start;
 
-   g->analysis_runtime = DLog->analysis_runtime/(double)CLOCKS_PER_SEC;
-   g->contact_runtime = DLog->contact_runtime/(double)CLOCKS_PER_SEC;
-   g->update_runtime = DLog->update_runtime/(double)CLOCKS_PER_SEC;
-   g->assemble_runtime = DLog->assemble_runtime/(double)CLOCKS_PER_SEC;
-   g->solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
-   g->integration_runtime = DLog->integration_runtime/(double)CLOCKS_PER_SEC;
-   g->openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
+   analysis_runtime = DLog->analysis_runtime/(double)CLOCKS_PER_SEC;
+   contact_runtime = DLog->contact_runtime/(double)CLOCKS_PER_SEC;
+   update_runtime = DLog->update_runtime/(double)CLOCKS_PER_SEC;
+   assemble_runtime = DLog->assemble_runtime/(double)CLOCKS_PER_SEC;
+   solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
+   integration_runtime = DLog->integration_runtime/(double)CLOCKS_PER_SEC;
+   openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
 
-   g->totaloc_count = AData->n9;
+   totaloc_count = AData->n9;
 
 
    sprintf(mess, "\nAnalysis complete.\n");
-   sprintf(temp, "CPU run time: %2.3f seconds\n", g->analysis_runtime);
+   sprintf(temp, "CPU run time: %2.3f seconds\n", analysis_runtime);
    strcat(mess, temp);
-   sprintf(temp, "Assembly run time: %2.3f seconds\n", g->assemble_runtime);
+   sprintf(temp, "Assembly run time: %2.3f seconds\n", assemble_runtime);
    strcat(mess, temp);
-   sprintf(temp, "Solve run time: %2.3f seconds\n", g->solve_runtime);
+   sprintf(temp, "Solve run time: %2.3f seconds\n", solve_runtime);
    strcat(mess, temp);
-   sprintf(temp, "Penalty run time: %2.3f seconds\n", g->openclose_runtime-g->solve_runtime);
+   sprintf(temp, "Penalty run time: %2.3f seconds\n", openclose_runtime-solve_runtime);
    strcat(mess, temp);
 
    dda_display_info(mess);
@@ -91,7 +96,7 @@ postProcess(Geometrydata * GData, Analysisdata * AData, GRAPHICS * g)
 
    writeDataLog(GData, AData, DLog);
 
-   writeHTMLLogFile(GData, AData, DLog, g, fp.htmlfile);
+   writeHTMLLogFile(GData, AData, DLog, fp.htmlfile);
    //computeStresses(GData, AData, e0, blockArea);
 
 

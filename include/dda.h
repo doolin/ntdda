@@ -38,30 +38,11 @@ extern "C" {
 #define STATIC 0
 #define DYNAMIC 1
 
-#ifndef PI
-#define PI 3.141592653
-#endif
-
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif 
-
-#define MACHEPS (3.*((4.0/3.0)-1.0)-1.0)
 
 
 
-/* windows.h probably defines these. */
-#ifndef TRUE
-#define TRUE 1
-#endif
 
-#ifndef FALSE
-#define FALSE 0
-#endif
+
 
 
 /* TODO: header file for functions that are common to 
@@ -93,8 +74,8 @@ typedef struct _dda_tag DDA;
 typedef struct _dda_gui DDAGui;
 
 
-int ddanalysis(DDA *, FILEPATHS *, GRAPHICS *);
-void display(Geometrydata * GData, Analysisdata *, GRAPHICS *gg);
+int ddanalysis(DDA *, FILEPATHS *);
+void display(Geometrydata * GData, Analysisdata *);
 void initFilePaths(FILEPATHS *);
 
 

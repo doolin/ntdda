@@ -1,5 +1,8 @@
 
-#include"geometry.h"
+//#include <stdio.h>
+//#include <stdlib.h>
+
+#include "inpoly.h"
 
 /*   1=inside, 0=outside                */
 /* is target point inside a 2D polygon? */
@@ -62,7 +65,7 @@ pointinpoly(int blocknumber, double x11, double y11,
 
    return(inside);
 
-}  /* close pointinpoly() */
+}  
 
 
 
@@ -86,8 +89,6 @@ pointinpoly(int blocknumber, double x11, double y11,
  *                                       craig@cse.fau.edu                 *
  *                                                                         *
  ***************************************************************************/
-#include<stdlib.h>
-#include<stdio.h>
 
 int                                /*   1=inside, 0=outside                */
 inpoly(                            /* is target point inside a 2D polygon? */

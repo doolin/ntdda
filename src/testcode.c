@@ -140,12 +140,12 @@ printVertices(Geometrydata * gd, double ** vertices, int ** vindex, char * locat
 
 
 void
-printForces(Geometrydata * gd, double ** F, int * k1, char * location)
-{
+printForces(int numblocks, double ** F, int * k1, char * location) {
+
    int i, i1;
 
    fprintf(fp.logfile, "\n%%  Begin block force verify output (from %s):\n", location);
-   for (i=1; i<= gd->nBlocks; i++)
+   for (i=1; i<= numblocks; i++)
    {
       //i1 = k1[i];
       i1 = i;
@@ -157,7 +157,7 @@ printForces(Geometrydata * gd, double ** F, int * k1, char * location)
    fprintf(fp.logfile, "%%  End block forces\n");
 
 
-}  /* close printForces() */
+}  
 
 
 /* FIXME: modify to compute file offsets so that the 

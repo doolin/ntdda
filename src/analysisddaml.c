@@ -9,21 +9,19 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/05/26 01:16:07 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ddaxmlparse.h"
+#include "ddaml.h"
 #include "ddamemory.h"
 #include "analysisdata.h"
-#include "interface.h"
 #include "timehistory.h"
-//#include "ddatypes.h"
 
 /** Get rid of this later. 
  * The way to get rid of it is to define 
@@ -49,33 +47,7 @@ static BOLTMATLIST * boltmatlist;
 
 static xmlNsPtr nspace;
 
-//static JointMat *jmat, *jmatOld = NULL;
-//static BlockMat *bmat, *bmatOld = NULL;
-
 static Analysisdata * parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-
-static void * parseAutotimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseAnalysistype(xmlDocPtr doc, xmlNsPtr n2, xmlNodePtr cur);
-static void * parseNumtimesteps(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parsePlanestrain(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-
-static void * parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-
-static void * parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseOpencloselimit(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseMaxtimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseMintimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-static void * parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 static JointMat * getNewJointMat(void);
 static BlockMat * getNewBlockMat(void);
@@ -110,31 +82,6 @@ typedef struct _akwdtab
 AKWDTAB;
 
 Analysisdata * adata;
-
-AKWDTAB atab_type[] = {
-   {"Rotation", node, *parseRotation},
-   {"Gravity", 0, *parseGravity},
-   {"Autotimestep", 0, *parseAutotimestep},
-   {"Autopenalty", 0, *parseAutopenalty},
-   {"Analysistype",0, *parseAnalysistype},
-   {"Numtimesteps", 0, *parseNumtimesteps},
-   {"Planestrain", 0, *parsePlanestrain},
-   {"Analysis", 0, *parseAnalysis},
-   {"Jointproperties",0, *parseJointproperties},
-   {"Loadpointlist",0, *parseLoadpoints},
-   {"Blockmaterial",0, *parseBlockmaterial},
-   {"Boltproperties",0, *parseBoltproperties},
-   {"AConstants",0, *parseAConstants},
-   {"Opencloselimit",0, *parseOpencloselimit},
-   {"Saveinterval",0, *parseSaveinterval},
-   {"Maxtimestep",0, *parseMaxtimestep}, 
-   {"Mintimestep",0, *parseMintimestep}, 
-   {"Maxdisplacement",0,*parseMaxdisplacement},
-   {"Timehistory",0,*parseTimehistory},
-   {"ContactDamping",0,*parseContactDamping},
-   {"Gravaccel",0,*parseGravaccel},
-   {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
-};
 
 
 
@@ -268,105 +215,7 @@ checkAnalysisDoc(xmlDocPtr doc)
 }  /* close checkAnalysisDoc() */
 
 
-Analysisdata *
-parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{
-   int i = 0;
-   //FILE * outtestfile;
 
-   //outtestfile = fopen("testemxml.ana","w");
-
-   fprintf (stderr,"From parseAnalysis...\n");
-  /*
-   * allocate the struct
-   */
-   adata = adata_new(); //(Analysisdata *) malloc(sizeof(Analysisdata));
-
-   if (adata == NULL) 
-   {
-      dda_display_error("out of memory for analysis data");
-     	return(NULL);
-   }
-   
-   //memset(adata, 0, sizeof(Analysisdata));
-
-  /* Easiest to parse into a list, then count 
-   * and grab array memory, then copy data into 
-   * arrays.  This will be good, because I will 
-   * now have lists of elements that can eventually
-   * be used in the main code.
-   */
-   initializeALists(); 
-
-   
-
-  /* We don't care what the top level element name is */
-   cur = cur->childs;
-
-   while (cur != NULL) 
-   {
-      i = 0;
-      while (atab_type[i].kwd)
-      {
-         if ((!strcmp(atab_type[i].kwd,cur->name)) ) //&& (cur->ns == ns)) 
-         {
-            fprintf(stderr,"A Keyscan loop: Current name %s:\n", cur->name);
-            switch(atab_type[i].ktok)
-            {
-               case node:
-	                 atab_type[i].parsefn.nodeparse(doc,ns,cur);
-               break;
-
-               case string:
-	                 atab_type[i].parsefn.stringparse(doc,cur,1);
-               break;
-
-               case prop:
-	                 atab_type[i].parsefn.propparse(doc,cur,1);
-               break;
-
-               default:;
-               break;
-            }  /* end switch on node type */
-         }
-         i++;
-      }   //close key scan loop 
-
-      cur = cur->next;
-
-   }  /* end loop over current pointer */
-
-  /* Somewhere here there has to be a function for transferring
-   * data from the dlists to the arrays.  Might find something
-   * in the draw dialog box that does this.
-   */
-   transferAData();
-  /* Pushing this into a separate function allows very clean
-   * and robust implementation.  What this function does is
-   * ensure that the data is "reasonable".  Example: negative
-   * time steps would at the very least trigger a warning, if not
-   * out right fail.
-   */
-   //rangecheckAnalysisdata(adata);
-  /* Write it out and see if we can load it... */
-   //dumpAnalysisData1(adata, outtestfile);
-   //fclose(outtestfile);
-  /* Now clean everything up. */
-   //freeDlistsAndStuff();
-
-   //assert(adata != NULL);
-
-  /* kludge this in here for the moment... 
-   * A better way to do this would be to check to see
-   * whether the gravity tag and attribute are seen
-   * and set properly.
-   */
-   if (adata->gravaccel == -1)
-      adata->gravaccel = 9.81;
-
-   return adata;
-
-}  /* close parseAnalysis() */
 
 
 void 
@@ -1256,3 +1105,127 @@ getNewBoltMat(void)
    return bm;
 
 }  /*  close getNewJointMat() */
+
+
+AKWDTAB atab_type[] = {
+   {"Rotation", node, *parseRotation},
+   {"Gravity", 0, *parseGravity},
+   {"Autotimestep", 0, *parseAutotimestep},
+   {"Autopenalty", 0, *parseAutopenalty},
+   {"Analysistype",0, *parseAnalysistype},
+   {"Numtimesteps", 0, *parseNumtimesteps},
+   {"Planestrain", 0, *parsePlanestrain},
+   {"Analysis", 0, *parseAnalysis},
+   {"Jointproperties",0, *parseJointproperties},
+   {"Loadpointlist",0, *parseLoadpoints},
+   {"Blockmaterial",0, *parseBlockmaterial},
+   {"Boltproperties",0, *parseBoltproperties},
+   {"AConstants",0, *parseAConstants},
+   {"Opencloselimit",0, *parseOpencloselimit},
+   {"Saveinterval",0, *parseSaveinterval},
+   {"Maxtimestep",0, *parseMaxtimestep}, 
+   {"Mintimestep",0, *parseMintimestep}, 
+   {"Maxdisplacement",0,*parseMaxdisplacement},
+   {"Timehistory",0,*parseTimehistory},
+   {"ContactDamping",0,*parseContactDamping},
+   {"Gravaccel",0,*parseGravaccel},
+   {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
+};
+
+Analysisdata *
+parseAnalysis(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+{
+   int i = 0;
+   //FILE * outtestfile;
+
+   //outtestfile = fopen("testemxml.ana","w");
+
+   fprintf (stderr,"From parseAnalysis...\n");
+  /*
+   * allocate the struct
+   */
+   adata = adata_new(); //(Analysisdata *) malloc(sizeof(Analysisdata));
+
+   if (adata == NULL) 
+   {
+      dda_display_error("out of memory for analysis data");
+     	return(NULL);
+   }
+   
+   //memset(adata, 0, sizeof(Analysisdata));
+
+  /* Easiest to parse into a list, then count 
+   * and grab array memory, then copy data into 
+   * arrays.  This will be good, because I will 
+   * now have lists of elements that can eventually
+   * be used in the main code.
+   */
+   initializeALists(); 
+
+   
+
+  /* We don't care what the top level element name is */
+   cur = cur->childs;
+
+   while (cur != NULL) 
+   {
+      i = 0;
+      while (atab_type[i].kwd)
+      {
+         if ((!strcmp(atab_type[i].kwd,cur->name)) ) //&& (cur->ns == ns)) 
+         {
+            fprintf(stderr,"A Keyscan loop: Current name %s:\n", cur->name);
+            switch(atab_type[i].ktok)
+            {
+               case node:
+	                 atab_type[i].parsefn.nodeparse(doc,ns,cur);
+               break;
+
+               case string:
+	                 atab_type[i].parsefn.stringparse(doc,cur,1);
+               break;
+
+               case prop:
+	                 atab_type[i].parsefn.propparse(doc,cur,1);
+               break;
+
+               default:;
+               break;
+            }  /* end switch on node type */
+         }
+         i++;
+      }   //close key scan loop 
+
+      cur = cur->next;
+
+   }  /* end loop over current pointer */
+
+  /* Somewhere here there has to be a function for transferring
+   * data from the dlists to the arrays.  Might find something
+   * in the draw dialog box that does this.
+   */
+   transferAData();
+  /* Pushing this into a separate function allows very clean
+   * and robust implementation.  What this function does is
+   * ensure that the data is "reasonable".  Example: negative
+   * time steps would at the very least trigger a warning, if not
+   * out right fail.
+   */
+   //rangecheckAnalysisdata(adata);
+  /* Write it out and see if we can load it... */
+   //dumpAnalysisData1(adata, outtestfile);
+   //fclose(outtestfile);
+  /* Now clean everything up. */
+   //freeDlistsAndStuff();
+
+  /* kludge this in here for the moment... 
+   * A better way to do this would be to check to see
+   * whether the gravity tag and attribute are seen
+   * and set properly.
+   */
+   if (adata->gravaccel == -1)
+      adata->gravaccel = 9.81;
+
+   return adata;
+}  
+

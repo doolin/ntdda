@@ -1,16 +1,12 @@
 
 /* FIXME: Everything in this file needs to be platform independent.
  */
-/* FIXME: Get rid of these somehow by fixing this display 
- * function to not depend on windows at all.
- */
-#define WINGRAPHICS 1
+
+#include <stdio.h>
 
 #include "analysis.h"
-#include "graphics.h"
-#include "interface.h"
 #include "postprocess.h"
-#include <stdio.h>
+#include "statusbar.h"
 
 
 #ifdef WIN32
@@ -26,67 +22,48 @@
 
 /* This should be the only extern global variable in this file.
  */
-extern InterFace * iface;
-
-
-#ifdef WIN32
-extern HWND anahwnd;
-extern HDC anahdc;
-extern HWND anastatus;
-#endif
-
 
 
 void
-display(Geometrydata * GData, Analysisdata * AData, GRAPHICS *gg)
-{
+display(Geometrydata * gd, Analysisdata * ad) {
 
 #ifdef WIN32
    MSG winMess;
    extern HWND hprogbar;  // yuck
-   //HWND hwMain = anahwnd;
-   //HDC hdc = anahdc;
+   extern HWND mainwindow;
 #endif
 
   /* FIXME: This is a kludge.  Need to get a proper header file for this. */
    //extern void writeReplayFile(Geometrydata * gd, Analysisdata * ad);
 
 
-   if (!(AData->currTimeStep%AData->tsSaveInterval))
-      writeReplayFile(GData, AData);  
-
-   //computeStresses(GData, AData, e0, moments, gg);
+   if (!(ad->currTimeStep%ad->tsSaveInterval))
+      writeReplayFile(gd,ad);  
 
 
 #ifdef WIN32
 
-  /* FIXME: Move all of this stuff into the analysis status bar 
-   * updating function.
-   */
-   if (AData->currTimeStep == 1 && AData->gravityflag == 0) {
-      SendMessage(hprogbar,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,AData->nTimeSteps));
+   if (ad->currTimeStep == 1 && ad->gravityflag == 0) {
+      //SendMessage(hprogbar,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,ad->nTimeSteps));
+      statusbar_set_progbar_range((unsigned short)ad->nTimeSteps);
    }
    
-   if (AData->currTimeStep > 1 && AData->gravityflag == 0) {
-      SendMessage(hprogbar,PBM_SETPOS,(WPARAM)AData->currTimeStep,(LPARAM)0);
+   if (ad->currTimeStep > 1 && ad->gravityflag == 0) {
+      //SendMessage(hprogbar,PBM_SETPOS,(WPARAM)ad->currTimeStep,(LPARAM)0);
+      statusbar_update_progbar((unsigned int)ad->currTimeStep);
    }
 
 
+   statusbar_update_analysis(gd->nBlocks,
+                             ad->elapsedTime,
+                             ad->currTimeStep,
+                             ad->nTimeSteps,
+                             ad->m9);
 
-/** FIXME: gg can be removed because AData should be 
- *  initialized back in the windows part, and accessed 
- *  through the DDA struct.
- */
-   gg->numcontacts = AData->nCurrentContacts;
-  /* FIXME: This only has to be set once, it is set here 
-   * on every time step because this is a kludge.
-   */
-   gg->numtimesteps = AData->nTimeSteps;
-   gg->timestep = AData->currTimeStep;
-   gg->elapsedtime = AData->elapsedTime;
-   gg->openclosecount = AData->m9;
+   InvalidateRect(mainwindow, NULL, TRUE);
+   UpdateWindow(mainwindow);
 
-   iface->updatedisplay();
+   //iface->updatedisplay();
 
      /* check for other messages (eg, abort)
       * FIXME: This code does not work very well right
@@ -106,4 +83,5 @@ display(Geometrydata * GData, Analysisdata * AData, GRAPHICS *gg)
 #else
    fprintf(stderr,".");
 #endif
-}  /* close display() */
+}
+

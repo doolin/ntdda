@@ -6,9 +6,13 @@
 
 #include "dda.h"
 
-/* This doesn't work yet, because the get/sets aren't 
- * written.
+/** @todo These are included to handle toggling 
+ * code, get rid of them as soon as possible.
  */
+#include "statusbar.h"
+#include "toolbar.h"
+
+
 
 struct _dda_tag  {
 
@@ -16,8 +20,8 @@ struct _dda_tag  {
    Analysisdata * analysis;
    FILEPATHS * filepaths;
    int menu_state;
-   ddaboolean toolbarvis;
-   ddaboolean statusbarvis;
+   //ddaboolean toolbarvis;
+   //ddaboolean statusbarvis;
    ddaboolean popupvis;
    ddaboolean tooltipvis;
    short xcur;
@@ -57,23 +61,26 @@ dda_set_ycur(DDA * dda, int ycur) {
 
 ddaboolean
 dda_get_toolbarvis(DDA * dda) {
-   return dda->toolbarvis;
+   return (ddaboolean)toolbar_get_visibility();
 }
 
 void
 dda_set_toolbarvis(DDA * dda, ddaboolean vis) {
-   dda->toolbarvis = vis;
+   toolbar_set_visibility((int)vis);
 }
 
 
+/** Kinda kludgy, need to get rid of the DDA struct
+ * layer for toggling status bar visibility.
+ */
 ddaboolean
 dda_get_statusbarvis(DDA * dda) {
-   return dda->statusbarvis;
+   return (ddaboolean)statusbar_get_visibility();
 }
 
 void
 dda_set_statusbarvis(DDA * dda, ddaboolean vis) {
-   dda->statusbarvis = vis;
+   statusbar_set_visibility((int)vis);
 }
 
 ddaboolean

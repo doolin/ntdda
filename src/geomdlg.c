@@ -4,7 +4,6 @@
 #include<stdio.h>
 #include"geomdlg.h"
 #include"ddamemory.h"
-#include "interface.h"
 
 
 

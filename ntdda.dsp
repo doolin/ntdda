@@ -218,10 +218,6 @@ SOURCE=.\src\win32gui\handlemainmenu.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\interface.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\print.c
 # End Source File
 # Begin Source File

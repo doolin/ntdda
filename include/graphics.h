@@ -36,10 +36,8 @@ struct _graphics_tag {
    double offsety;
    double scale;
  
-
+/*
    int totaloc_count;
-
-
    double analysis_runtime;
    double assemble_runtime;
    double integration_runtime;
@@ -47,7 +45,7 @@ struct _graphics_tag {
    double openclose_runtime;
    double contact_runtime;
    double update_runtime;
-
+ */
 
 #ifdef WIN32
    POINT offset;
@@ -55,11 +53,15 @@ struct _graphics_tag {
    double radius;
 
    int numtimesteps;
-   int numcontacts;
-   //double currenttime;
-   double elapsedtime;
    int timestep;
-   int openclosecount;
+
+#if 0
+   //int numcontacts;
+   //double currenttime;
+   //double elapsedtime;
+   //int openclosecount;
+#endif
+
 
    int centroidsize1;
    int centroidsize2;

@@ -17,12 +17,17 @@ extern "C" {
 
 typedef struct _toolbar Toolbar;
 
+void toolbar_init           (HWND hwMain);
 
-void    toolbar_init       (HWND hwMain, 
-                            HWND * htoolbar);
+void toolbar_show           (void);
 
-void    toolbar_set_state  (HWND htoolbar, 
-                            unsigned int state);
+int  toolbar_get_visibility (void);
+
+void toolbar_set_visibility (int);
+
+void toolbar_resize         (void);
+
+void toolbar_set_state      (unsigned int state);
 
 
 #ifdef __cplusplus

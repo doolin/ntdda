@@ -9,22 +9,22 @@
  * funky file handling business that needs to be cleaned up.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/blocks.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
-#include "geometry.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-//#include "resource.h"
 #include <string.h>
 #include "ddamemory.h"
-#include "interface.h"
+#include "geometry.h"
+
+
 
 /* Quick hack.  Geometry will need a full suite 
  * of logging files, etc.
@@ -32,7 +32,6 @@
 extern FILE * ddacutlog;
 extern FILE * pnpfile;
 extern FILEPATHS * filepath;
-extern InterFace * iface;
 
 /*------------------------------------------------*/
 /* a : 0-1 relation matrix point to line number   */

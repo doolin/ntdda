@@ -8,9 +8,6 @@
 #include <windowsx.h>
 
 
-/*
- * Add stuff so that the dda.h file is not so full
- */
 #include "dda.h"
 #include "options.h"
 
@@ -21,45 +18,9 @@
 
 
 
-
-#define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.9 2002/05/26 15:56:05 doolin Exp $\n", \
-				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
-              "Department of Civil Engineering, Geotechnical Group\n", \
-              "University of California, Berkeley, CA 94720\n", \
-              "This program is based on the original code by Dr. Gen-hua Shi.\n", \
-              "Original development was supported in part by funding from the\n", \
-              "U.S. Army Engineer Waterways Experiment Station, Vicksburg, MS.\n", \
-              "This executable was compiled for internal use only."
-
-
-/* This is to collect up a bunch of global 
- * variables and clean up the interface.  These
- * structs should only be shared between the windows
- * files.  None of the numerical back-end should have
- * any need of any information here.
- */
-typedef struct _win_options_tag   {
-	int showOrig;
-  /* Booleans for controlling output.  These probably need to 
-   * into a different struct.  These need to go into a project
-   * output struct.
-   */
-   int spyplots;
-   int flagstates;
-   int maxdisp;
-   int maxtstep;
-   int timing;
-   int parameters;
-   int fixedpoints;
-
-} WINOPTIONS;
-
-
 /* This should really go into the header file, but it needs 
  * windows.h to work properly.  Change it later.  
  */
-
 typedef struct tagParamBlock {
    WORD 		wEnvSeg;		  	// usually NULL
 	  LPSTR		lpCmdLine;	  	// command line string
@@ -68,27 +29,20 @@ typedef struct tagParamBlock {
 } PARAMBLOCK;
 
 
-//LRESULT CALLBACK WndProc ( HWND, UINT, WPARAM, LPARAM);
 BOOL CALLBACK  GeomDlgProc (HWND, UINT, WPARAM, LPARAM);
 BOOL CALLBACK  AnalDlgProc (HWND, UINT, WPARAM, LPARAM);
 BOOL CALLBACK  UnitDlgProc (HWND, UINT, WPARAM, LPARAM);
 
-/* Open GL Function Declaration */
-//LRESULT CALLBACK WndProc (HWND hwMain, UINT message, WPARAM wParam, LPARAM lParam);
-//VOID EnableOpenGL (HWND hwMain, HDC * hDC, HGLRC * hRC);
-//VOID DisableOpenGL (HWND hwMain, HDC hDC, HGLRC hRC);
-//VOID GLlines (HDC * hdc);
+
 
 void printGeom(HWND, PSTR, Geometrydata *, double [], GRAPHICS *);
 void fileBrowse(HWND, OPENFILENAME *, LPCTSTR *, char *, char *, char *);
 void loadNotepad(PARAMBLOCK *, char *);  /* Should return an int for error checking.  */
 void stub();
-//void DrawOrStore(HWND, HDC, GRAPHICS *, double [], Block *, Block *,
-//                 DPoint *, DPoint *, int *, int *);
+
 void initializePens(void);
 void initializeBrushes();
 void drawTitle(HWND, HDC);
-//void replay(HWND, Block *, DPoint *, int *, int *);
 void replay(HWND, Geometrydata *, GRAPHICS *, char * replayfilename);
 void handleTSlope(HWND);
 void handleGnuplot(HWND);
@@ -108,7 +62,6 @@ void handleCommandLine(HWND, int argc, char ** argv, FILEPATHS *);
 
 
 void handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam);
-//void showlasterror(DWORD);
 
 void handleMainAbout(HWND hwMain);
 
@@ -125,6 +78,5 @@ BOOL CALLBACK APWEDGEDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lP
 
 int handleAPWEDGE(HWND);
 
-/*** function declarations ***/
 
 #endif /*  __WINMAIN_H__  */

@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:06 $
+ * $Date: 2002/05/26 23:47:25 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  */
 
 
@@ -18,14 +18,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include "interface.h"
 #include "contacts.h"
 #include "utils.h"
 
 
 extern FILEPOINTERS fp;
 extern Datalog * DLog;
-extern InterFace * iface;
 
 
 
@@ -47,8 +45,6 @@ checkParameters(Geometrydata * gd, Analysisdata * ad,
 
    int ** locks = get_locks(ctacts);
    double ** contactlength = get_contact_lengths(ctacts);
-
-   //iface->setoc_count(ad->m9);
 
   /* after 6+2 interations reduce time interval by .3 */
   	if ((ad->m9) == ad->OCLimit /* (6+2) */ ) 

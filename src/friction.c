@@ -2,9 +2,9 @@
  * friction.c
  * 
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 23:47:24 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -17,9 +17,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "ddamemory.h"
-#include "interface.h"
 
-extern InterFace * iface;
 
 
 /* This function is written to provide a displacement dependent

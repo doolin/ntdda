@@ -6,12 +6,12 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/26 15:56:04 $
+ * $Date: 2002/05/26 23:47:22 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
-#include"dda.h"
+#include "dda.h"
 #include "datalog.h"
 #include "contacts.h"
 
@@ -192,8 +192,7 @@ void newmarkIntegration(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
           double **matprops, double **moments, int **n, double ** U);
 
 
-//void postProcess(HWND, Geometrydata * GData, Analysisdata * AData, GRAPHICS *);
-void postProcess(Geometrydata * GData, Analysisdata * AData, GRAPHICS *);
+void postProcess(Geometrydata * GData, Analysisdata * AData);
 
 
 /*  Functions for handling sparse storage */
@@ -303,11 +302,7 @@ Analysisdata * analysisReader1(char *, Geometrydata *);
 //Analysisdata * analysisReader2(char *, int pointcount);
 
 
-/** 
- * FIXME: Datalog should have no dependence on 
- * either geometry or analysis data structures.
- */
-Datalog * initDatalog(Geometrydata *, Analysisdata *);
+
 Analysisdata * cloneAnalysisData(Analysisdata *);
 void dumpAnalysisData(Analysisdata *, FILE *);
 

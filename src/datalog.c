@@ -2,16 +2,9 @@
 #include <assert.h>
 #include "datalog.h"
 #include "ddamemory.h"
-#include "analysisdata.h"
-#include "geometrydata.h"
 
 
 
-/*
-void 
-datalog_set_number_of_timesteps(Datalog * dl, int numtsteps) {
-}
-*/
 
 /* This struct records a large amount of data
  * collected during an analysis.  
@@ -24,7 +17,6 @@ datalog_delete(Datalog * dl) {
    if(dl->phi)
       free2DMat(dl->phi,dl->phisize1);
 
-  /* FIXME: Shred all this memory */
    if(dl->openclosecount)
       free(dl->openclosecount);
 
@@ -69,9 +61,11 @@ datalog_delete(Datalog * dl) {
 
 
 Datalog * 
-initDatalog(Geometrydata * gd, Analysisdata * ad)
+datalog_new(int numtimesteps, int numjointmats, int numblocks)
 {
-   int numtimesteplus1 = ad->nTimeSteps+1;
+   int numtimesteplus1   = numtimesteps + 1;
+   int numjointmatsplus1 = numjointmats + 1;
+   int numblocksplus1    = numblocks + 1;
 
   /* Log struct for collecting data during a run.
    */
@@ -82,8 +76,8 @@ initDatalog(Geometrydata * gd, Analysisdata * ad)
    * this function.   This will likely have to be rewritten
    * when disp dep params get implemented for real.
    */
-   dlo->phisize1 = ad->nTimeSteps + 1;
-   dlo->phisize2 = ad->nJointMats + 1;
+   dlo->phisize1 = numtimesteplus1;
+   dlo->phisize2 = numjointmatsplus1;
    dlo->phi = DoubMat2DGetMem(dlo->phisize1, dlo->phisize2);
 
    dlo->openclosesize1 = numtimesteplus1;
@@ -99,7 +93,7 @@ initDatalog(Geometrydata * gd, Analysisdata * ad)
    dlo->numanglecontact = (int*)calloc(numtimesteplus1, sizeof(int));
 
   /* This is the mean of all the blocks */
-   dlo->numsidessize1 = gd->nBlocks;
+   dlo->numsidessize1 = numblocksplus1-1;
    dlo->numsidesperblock = (int*)calloc(numtimesteplus1, sizeof(int));
 
    dlo->num_v_v_contactsize1 = numtimesteplus1;
@@ -119,7 +113,7 @@ initDatalog(Geometrydata * gd, Analysisdata * ad)
 
   /* Store the starting mass in slot 0 */
    dlo->blockmass_size1 = numtimesteplus1;
-   dlo->blockmass_size2 = gd->nBlocks+1;
+   dlo->blockmass_size2 = numblocksplus1;
    dlo->blockmass = DoubMat2DGetMem(dlo->blockmass_size1,dlo->blockmass_size2);
 
   /* Contact forces handled also.  This will be trickier. */
@@ -133,17 +127,3 @@ initDatalog(Geometrydata * gd, Analysisdata * ad)
 }  
 
 
-
-Datalog * 
-cloneDatalog(Datalog * dln)
-{
-  /* Log struct for collecting data during a run.
-   */
-   Datalog * dlo;
-
-   /* FIXME: call initDataLog() instead */
-   dlo = (Datalog *)malloc(sizeof(Datalog));
-
-   return dlo;
-
-}  /* Close DatalogStruct() */
