@@ -28,8 +28,9 @@
 #define ABORTED     0x000020
 
 
+
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.2 2001/08/18 02:54:37 doolin Exp $\n", \
+              "$Id: winmain.h,v 1.3 2001/08/25 02:28:45 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \

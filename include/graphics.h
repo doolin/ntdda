@@ -3,7 +3,8 @@
 #define _GRAPHICS_H_
 
 //#include "dda.h"
-#include "compilecontrol.h"
+//#include "compilecontrol.h"
+#define DDA_FOR_WINDOWS 1
 #include  "ddatypes.h"
 
 

@@ -4,6 +4,7 @@
 #ifndef _WINGRAPH_H_
 #define _WINGRAPH_H_
 
+#include "winmain.h"
 #include "datalog.h"
 #include "graphics.h"
 #include "geometrydata.h"
