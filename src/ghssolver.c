@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/06/25 20:02:29 $
+ * $Date: 2001/06/30 23:19:46 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  *
  */
 #include <assert.h>
@@ -222,7 +222,7 @@ static int lda = 6, ldb = 6, ldc = 6;
 static double alpha = 1, beta = 0;
 static int info;
 static int lwork = 37;
-static int incx = 1; incy = 1;
+static int incx = 1, incy = 1;
 
 
 /**************************************************/
@@ -385,6 +385,10 @@ c006:;
                * up quite a bit.
                */
               /* L_{ik} L_{kk}^{-1}   Q*E => Q      i2:i-k  k=j3 */
+              /* FIXME: Try and work out some way of doing a memcpy here. 
+               * It can be worked out and tested in the unit testing 
+               * code for matrices.
+               */
                for (h=index; h < blocksize+index;  h++)
                {
                   for (h1=index; h1< blocksize+index; h1++)
@@ -680,6 +684,10 @@ void multnew(double e[][7], double qq[][7])
    * conform to accepted practice.
    */
    int i, j, k;
+  /* FIXME: Explain why t needs to be static?
+   * FIXME: Init t[7][7] = {{0}} here instead of in
+   * the loop.
+   */
    static double t[7][7];
    
    for (i=1; i<= 6; i++)
@@ -687,7 +695,7 @@ void multnew(double e[][7], double qq[][7])
       for (j=1; j<= 6; j++)
       {
         /* FIXME: This assignment should not
-         * be necessary.
+         * be necessary. 
          */
          t[i][j]=0;
          for (k=1; k<= 6; k++)
@@ -703,6 +711,9 @@ void multnew(double e[][7], double qq[][7])
    * the t array in the previous, and just use
    * the qq array.
    */
+  /* FIXME: If this can't be removed, change to 
+   * a memcpy.
+   */
    for (i=1; i<= 6; i++)
    {
       for (j=1; j<= 6; j++)
@@ -711,8 +722,59 @@ void multnew(double e[][7], double qq[][7])
       }  /*  l2 */
    }  /*  l1 */
      
-}  /* Close mult() */
+}  /* Close multnew() */
 
+
+
+/* This is mutlnew with a bit of different
+ * initialization and memcpy.
+ */
+void
+multnewnew(double e[][7], double qq[][7])
+{
+  /* Array indices.  Should be renamed i, j, k just to 
+   * conform to accepted practice.
+   */
+   int i, j, k;
+  /* FIXME: Explain why t needs to be static?
+   * FIXME: Init t[7][7] = {{0}} here instead of in
+   * the loop.
+   */
+   double t[7][7] = {0};
+   
+   for (i=1; i<= 6; i++)
+   {
+      for (j=1; j<= 6; j++)
+      {
+         for (k=1; k<= 6; k++)
+         {
+            t[i][j] += qq[i][k]*e[k][j];
+         }  /*  l3 */
+      }  /*  l2 */
+   }  /*  l1 */
+      
+
+  /* This appears to be a simple cloning loop.
+   * FIXME: Check to see if we can get rid of 
+   * the t array in the previous, and just use
+   * the qq array.
+   */
+  /* FIXME: If this can't be removed, change to 
+   * a memcpy.
+   */
+  /*
+   for (i=1; i<= 6; i++)
+   {
+      for (j=1; j<= 6; j++)
+      {
+         qq[i][j]=t[i][j];
+      }  
+   }  
+   */
+      
+   memcpy(qq,t,sizeof(t));
+
+}  /* Close multnewnew() */
 
 /**************************************************/
 /* invr: inverse of 6*6 matrix               0002 */

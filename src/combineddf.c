@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/06/25 20:02:29 $
+ * $Date: 2001/06/30 23:19:46 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  *
  */
 /*################################################*/
@@ -593,7 +593,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
 
 
 
-assert(e11 == 0);
+//assert(e11 == 0);
 
   /* Moved from after friction block */
    normalforce = fabs(pen_dist2)*(ad->JointNormalSpring);
@@ -1204,9 +1204,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
             }  /* End penalty chooser */
          } /* end if penalty terms (b809): */
 
-
         /****  End block for constructing penalty matrices  ****/
-
 
         /* (GHS: sliding friction force     s4*g0 normal force) */
         /* if 2 ref lines, or current step is not
