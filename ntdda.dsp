@@ -189,7 +189,7 @@ SOURCE=.\src\apwedge.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\drawdialog1.c
+SOURCE=.\src\drawdialog3.c
 # End Source File
 # Begin Source File
 
