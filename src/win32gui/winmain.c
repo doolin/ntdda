@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/06/15 20:11:20 $
+ * $Date: 2001/08/18 02:54:37 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 
@@ -55,7 +55,7 @@ char mess[80];  /* mess appears to be a temporary variable.  Might be able to ge
 
 char mainWinTitle[120];
 
-char aText[8][256] = {ABOUT};
+char aText[9][256] = {ABOUT};
 int whatToDraw = TITLE;
 
 int showOrig = FALSE;
