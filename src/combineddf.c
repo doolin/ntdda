@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/21 14:53:55 $
+ * $Date: 2002/10/22 15:35:20 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.38 $
+ * $Revision: 1.39 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.39  2002/10/22 15:35:20  doolin
+ * minor cleanups
+ *
  * Revision 1.38  2002/10/21 14:53:55  doolin
  * Updating callbacks now implemented.  No more
  * switching on rotation types every time somethings position
@@ -2663,7 +2666,6 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /** @todo instead of switching on the flag, have it dereferenced
    * from ad, which turns this into a single call.
    */
-
    if (ad->planestrainflag == 1) { 
       stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestrain);
    } else {

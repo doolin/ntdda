@@ -95,12 +95,11 @@ stress_update(double ** e0, double ** D, int * k1,
 
       i1 = k1[i];
       apply_const_model(e0[i], D[i1]);
-      //stress_update_a(e0[i], D[i1], planestrainflag);
       //stress_rotate(e0[i],D[i1][3]);
    }
 }
 
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 /**
  * Plain strain from MacLaughlin 1997, p. 20
  */
