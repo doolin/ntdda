@@ -483,6 +483,10 @@ SOURCE=.\src\dda_error.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\ddadlist.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\geometrydata.h
 # End Source File
 # Begin Source File
