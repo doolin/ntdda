@@ -17,6 +17,7 @@
 #define PENALTYFORCES   1 << 5
 #define MOMENTS         1 << 6  
 #define FRICTIONFORCES  1 << 7  
+#define MEASPOINTS      1 << 8
 
 
 /******************** Post-processing code ******************/

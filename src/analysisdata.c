@@ -742,5 +742,15 @@ initAnalysisData()
 }  /* Close initAnalysisData() */
 
 
+void
+adata_set_contact_damping(Analysisdata * ad, double d)
+{
+   ad->contact_damping = d;
+}
 
+double
+adata_get_contact_damping(Analysisdata * ad)
+{
+   return ad->contact_damping;
+}
 

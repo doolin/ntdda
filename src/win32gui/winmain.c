@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/09/03 03:45:38 $
+ * $Date: 2001/09/15 14:14:35 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  */
 
 
@@ -164,8 +164,9 @@ static void
 writeDDAProfile()
 {
 
+   /*
    //char message[240];
-  /*
+  
    char winbuf[240];
    char sysbuf[240];
    char retbuf[8192*4];
@@ -174,7 +175,14 @@ writeDDAProfile()
                              "Foo",       // key
                              "Bar",       // value
                              "dda.ini\0");  // filename
-
+   WritePrivateProfileString("DDA_Top_Level_Section",  // section name
+                             "Bar",       // key
+                             "Baz",       // value
+                             "dda.ini\0");  // filename   
+   WritePrivateProfileString("DDA_Output_Options_Section",  // section name
+                             "mpoints",       // key
+                             "1",       // value
+                             "dda.ini\0");  // filename
    
    GetWindowsDirectory(winbuf,240);
    MessageBox(NULL,winbuf,NULL,MB_OK);
@@ -185,9 +193,10 @@ writeDDAProfile()
                              retbuf,
                              8192*4,
                              "dda.ini");
+   MessageBox(NULL,retbuf,NULL,MB_OK);
+
    showlasterror(GetLastError());
-   */
-                             
+*/
 
 }  /* close writeDDAProfile() */
 
@@ -509,7 +518,8 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    } // end switch whatToDraw
 
    EndPaint(draw_wnd, &ps );
-
+//return 0;
+   //DeleteDC(hdc);
    //ReleaseDC(draw_wnd, hdc);
 
 }  /* close handleWinPaint() */
@@ -1545,7 +1555,7 @@ updateGeometryStatusBar(HWND hwMain)
 void
 updateAnalysisStatusBar(HWND hwMain)
 {
-   HICON redoff;
+   //HICON redoff;
    HINSTANCE hInst;
 
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
@@ -1584,8 +1594,8 @@ updateAnalysisStatusBar(HWND hwMain)
   /* Progress bar in slot 4 */
    SendMessage(anastatus,SB_SETTEXT,(WPARAM)5,(LPARAM)rcondtext);
 
-   redoff = LoadImage(hInst,MAKEINTRESOURCE(ICON_REDLEDOFF),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-   SendMessage(anastatus,SB_SETICON,9,(LPARAM)redoff);
+   //redoff = LoadImage(hInst,MAKEINTRESOURCE(ICON_REDLEDOFF),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
+   //SendMessage(anastatus,SB_SETICON,9,(LPARAM)redoff);
 
    ShowWindow(readystatus, SW_HIDE);
    ShowWindow(geomstatus, SW_HIDE);

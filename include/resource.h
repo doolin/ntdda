@@ -95,6 +95,7 @@
 #define IDD_GRAVITY                     166
 #define ICON_FLAGS                      167
 #define ICON_GRAVITY                    168
+#define IDD_CONTACT                     170
 #define IDD_DIALOG1                     200
 #define IDD_BLOCKPROPS                  200
 #define IDD_DIALOG2                     201
@@ -349,7 +350,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        170
+#define _APS_NEXT_RESOURCE_VALUE        171
 #define _APS_NEXT_COMMAND_VALUE         40062
 #define _APS_NEXT_CONTROL_VALUE         1072
 #define _APS_NEXT_SYMED_VALUE           101

@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2001/05/20 21:00:58 $
+ * $Date: 2001/09/15 14:14:34 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  */
 
 #include <stdio.h>
@@ -69,6 +69,7 @@ static void * parseMaxtimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseMintimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 static void * parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
+static void * parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 
 static JointMat * getNewJointMat(void);
@@ -125,6 +126,7 @@ AKWDTAB atab_type[] = {
    {"Mintimestep",0, *parseMintimestep}, 
    {"Maxdisplacement",0,*parseMaxdisplacement},
    {"Timehistory",0,*parseTimehistory},
+   {"ContactDamping",0,*parseContactDamping},
    {NULL, 0, 0}			/* Ends a scanning loop.  See comment above. */
 };
 
@@ -892,6 +894,16 @@ parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    return NULL;
 }  /*close parseAutoTimestep() */
 
+
+void *
+parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+{
+   double cn = atof(xmlGetProp(cur,"value"));
+   //fprintf(stdout,"Parsing max displacement...\n");
+   adata_set_contact_damping(adata, cn);
+   return NULL;
+
+}  /*close parseAutoTimestep() */
 
 void *
 parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 

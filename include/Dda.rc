@@ -596,6 +596,19 @@ BEGIN
     EDITTEXT        IDC_SHEARFORCETOL,99,90,40,14,ES_AUTOHSCROLL
 END
 
+IDD_CONTACT DIALOG DISCARDABLE  0, 0, 242, 166
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT1,166,28,40,14,ES_AUTOHSCROLL
+    LTEXT           "Contact normal penalty",IDC_STATIC,73,31,78,8
+    LTEXT           "Shear penalty ratio",IDC_STATIC,69,57,79,8
+    EDITTEXT        IDC_EDIT2,147,56,40,14,ES_AUTOHSCROLL
+    LTEXT           "Angle overlap tol",IDC_STATIC,69,84,66,8
+    EDITTEXT        IDC_EDIT3,148,83,40,14,ES_AUTOHSCROLL
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -711,6 +724,14 @@ BEGIN
         RIGHTMARGIN, 178
         TOPMARGIN, 7
         BOTTOMMARGIN, 128
+    END
+
+    IDD_CONTACT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
     END
 END
 #endif    // APSTUDIO_INVOKED

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/09/03 03:45:37 $
+ * $Date: 2001/09/15 14:14:35 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  *
  */
 /*################################################*/
@@ -17,6 +17,20 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.16  2001/09/15 14:14:35  doolin
+ * This has been a very long week.  It is hard to recall exactly
+ * what was done last weekend, after the events on Tues. Sept. 11 2001, and
+ * hard to really care.   At the minimum, TCKs 1995 contact damping has been
+ * *fully* implemented, from the code in the forcing vector to the requisite
+ * DDAML file handling changes.  As usual, there is not a clear (to me) way
+ * of checking the correctness of the code other than single stepping through
+ * and checking values.  This has _not_ yet been done.  The contact
+ * damping code is only in the development version, and will not be released
+ * in the next release version.  There will probably be a couple more commits
+ * after this (small) as the rest of last weeks changes come to light.  Also,
+ * changes made in the release branch are still propagating into the dev
+ * branch, which is ugly and will have to be fixed.
+ *
  * Revision 1.15  2001/09/03 03:45:37  doolin
  * REALLY IMPORTANT:  This set of commits will be
  * tagged, then version 1.6 release candidate 1 will be branched
@@ -484,6 +498,7 @@ allocateK(Analysisdata * ad)
 }  /* close allocateK() */
 
 
+#if JKJIOUOI
 static void 
 getLockStatesOld(int ** locks, int lockstate[3][5], int contact)
 {
@@ -551,7 +566,7 @@ getLockStatesOld(int ** locks, int lockstate[3][5], int contact)
 
 
 }  /* close getLockStatesOld() */
-
+#endif 
 
 static void 
 getLockStates(int ** locks, int lockstate[3][5], int contact)
@@ -879,6 +894,10 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    */
   /* FIXME: Change to TCK notation kn */
    double p = ad->contactpenalty;
+
+  /* Damping, from TCK */
+   double cn = adata_get_contact_damping(ad);
+
   /* FIXME: The shear spring uses a different penalty value.
    * Since the springs are global, the shear spring value
    * can be set here, instead of in all of the inner loops.
@@ -942,7 +961,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    * "punishment projector".
    */   
    //double qq[3][5];  
-   int lockstate[3][5];
+   int lockstate[3][5] = {{0}};
   /* QQ is some funny kind of flag.  It used to hide in 
    * qq[0][1,2], but moved out to make the code more readable.
    * It is used to construct the penalty matrix/vectors.  It can 
@@ -1136,12 +1155,13 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          //   goto b805;
          if (contacts[contact][TYPE] == VE)
          {
-           /* shear component? Some kind of ratio.  o is listed 
-            * as a matrix holding penetration values.  o[i][2]
-            * is the "contact edge ratio".  This value is set in
-            * function either df06(), df07() or proj().
-            */
-           /* The analysis for this is in Te-Chih Ke 1995, "Modeling
+           /* c_length (was o) is listed as a matrix holding 
+            * penetration values.  o[i][2] is the "contact edge ratio",
+            * which is the shear parameter omega.  This value is initially
+            * set in function proj(), then recomputed in df22(). 
+            * Ostensibly, the recomputed value is whats used during 
+            * subsequent OCI.
+            * The analysis for this is in Te-Chih Ke 1995, "Modeling
             * of particulate Media Using Discontinuous Deformation
             * Analysis. Print these out to look at 
             * them.  omega is the "lock index", Eq. 56, TCK 1995, 
@@ -1363,24 +1383,46 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
            /***  Contact constraint methods ***/
             if (ad->contactmethod == penalty)
             {
+               double damping[7] = {0};
+               extern double ** __V0;
               /* load term of normal & shear  s1 s2 coefficient */
               /* Add penetration penalty load to Fi and Fj:
                * Chapter 4, p. 175, Eq. 4.43-4.46, but check to 
                * see if these are fixed point forcing terms.
                */
-               for (j=1; j<= 6; j++)
-               {
+               for (j=1; j<= 6; j++) {
+
                  /* normal component */
-                  F[j1][j] += -lockstate[1][1]*(p*pen_dist)*s[j];
-                  F[j2][j] += -lockstate[1][1]*(p*pen_dist)*s[j+6];
+                  damping[j] = 0;
+                  for (l=1; l<=6;l++) {
+                     damping[j] += cn*s[j]*s[l]*__V0[j1][l];
+                  }
+                  F[j1][j] += -lockstate[1][1]*((p*pen_dist)*s[j] - damping[j]);
+
+                  damping[j] = 0;
+                  for (l=1; l<=6;l++) {
+                     damping[j] += cn*s[j+6]*s[l+6]*__V0[j2][l];
+                  }
+                  F[j2][j] += -lockstate[1][1]*((p*pen_dist)*s[j+6] - damping[j]);
+
                  /* skip shear if no contact (?) */
                   if (QQ[CURRENT] == OPEN)
                      continue;
+
                  /* sheardisp (s2) is normalized shear component for the 
                   * current open close cycle. TCK 1995, Eq. 64c, p. 1239. 
-                  */
-                  F[j1][j] += -lockstate[1][2]*(p*sheardisp/s2n_ratio)*s[j+12];
-                  F[j2][j] += -lockstate[1][2]*(p*sheardisp/s2n_ratio)*s[j+18];
+                  */              
+                  damping[j] = 0;
+                  for (l=1; l<=6;l++) {
+                     damping[j] += cn*s[j+12]*s[l+12]*__V0[j1][l];
+                  }
+                  F[j1][j] += -lockstate[1][2]*((p*sheardisp/s2n_ratio)*s[j+12]-damping[j]);
+
+                  damping[j] = 0;
+                  for (l=1; l<=6;l++) {
+                     damping[j] += cn*s[j+18]*s[l+18]*__V0[j2][l];
+                  }
+                  F[j2][j] += -lockstate[1][2]*((p*sheardisp/s2n_ratio)*s[j+18]-damping[j]);
                }
             }
             else if (ad->contactmethod == auglagrange)

@@ -7,6 +7,20 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.12  2001/09/15 14:14:34  doolin
+ * This has been a very long week.  It is hard to recall exactly
+ * what was done last weekend, after the events on Tues. Sept. 11 2001, and
+ * hard to really care.   At the minimum, TCKs 1995 contact damping has been
+ * *fully* implemented, from the code in the forcing vector to the requisite
+ * DDAML file handling changes.  As usual, there is not a clear (to me) way
+ * of checking the correctness of the code other than single stepping through
+ * and checking values.  This has _not_ yet been done.  The contact
+ * damping code is only in the development version, and will not be released
+ * in the next release version.  There will probably be a couple more commits
+ * after this (small) as the rest of last weeks changes come to light.  Also,
+ * changes made in the release branch are still propagating into the dev
+ * branch, which is ugly and will have to be fixed.
+ *
  * Revision 1.11  2001/09/03 03:45:37  doolin
  * REALLY IMPORTANT:  This set of commits will be
  * tagged, then version 1.6 release candidate 1 will be branched
@@ -174,6 +188,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
  */
    //adata_set_output_flag(AData, VERTICES);
    adata_set_output_flag(AData, FIXEDPOINTS);
+   adata_set_output_flag(AData, MEASPOINTS);
    adata_set_output_flag(AData, SOLUTIONVECTOR);
    adata_set_output_flag(AData, BLOCKMASSES);
    //adata_set_output_flag(AData, BLOCKSTRESSES);
@@ -293,7 +308,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
          * pp. 60-96.  df10()-df16() are called from assemble().
          */
          assemble(GData, AData,get_locks(CTacts),e0,k1,kk,n, U);
-        /* The "classical" DDA derived in GHS 1988 used a central
+        /* The "classical" DDA derived in GHS 1988 used a forward
          * difference formulation to integrate over time.  This 
          * code currently uses a forward difference expansion
          * outlined in the 1996 1st DDA Int forum.
@@ -376,10 +391,10 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
       * n steps, or to not save at all at user request.
       * This would just cost a conditional. 
       * FIXME: Buffer this to be written out after the analysis.
-      * FIXME: Put a conditional in front of this.  No need to 
-      * call it every time if there are no measured points.
       */
-      writeMeasuredPoints(GData, AData); 
+
+      if (AData->options & MEASPOINTS)
+         writeMeasuredPoints(GData, AData); 
   
       if (AData->options & FIXEDPOINTS)
          writeFixedPoints(GData, AData);

@@ -293,6 +293,8 @@ struct _analysisdata_tag
    * be to call the function initContactSpring() again (maybe).
    */
    double g0initial;
+  /* TCKs contact damping parameters... */
+   double contact_damping;  // change to cn, cs
 
   /* WARNING: Array must be allocated for nTimeSteps
    * + 1 to catch the initial value.  Move this out of
@@ -483,6 +485,9 @@ Analysisdata * adata_new(void);
 
 void adata_set_output_flag(Analysisdata *, int flag);
 void adata_clear_output_flag(Analysisdata *, int flag);
+
+void adata_set_contact_damping(Analysisdata *, double);
+double adata_get_contact_damping(Analysisdata *);
 
 
 

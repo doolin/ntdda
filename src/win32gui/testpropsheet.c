@@ -56,7 +56,7 @@ int CreateTestPropSheet(HWND hwndOwner, Analysisdata * ad)
 	FillInPropertyPage( &psp[2], IDD_AFLAGS, TEXT("Flags"), AFlagsProc, ICON_FLAGS, lparam, hInst);
 	FillInPropertyPage( &psp[3], IDD_LOADPOINTS, TEXT("Load Points"), LPointsProc, ICON_LOADPOINT, lparam, hInst);
 	FillInPropertyPage( &psp[4], IDD_TIMESTEP, TEXT("Time steps"), TimeStepProc, ICON_STOPWATCH, lparam, hInst);
-	FillInPropertyPage( &psp[5], IDD_SEISMIC, TEXT("Contact"), ContactProc, ICON_CONTACT, lparam, hInst);
+	FillInPropertyPage( &psp[5], IDD_CONTACT, TEXT("Contact"), ContactProc, ICON_CONTACT, lparam, hInst);
 	FillInPropertyPage( &psp[6], IDD_BOLTPROPERTIES, TEXT("Bolts"), BoltMatsProc, ICON_ROCKBOLT, lparam, hInst);
 	FillInPropertyPage( &psp[7], IDD_GRAVITY, TEXT("Gravity"), GravityProc, ICON_GRAVITY, lparam, hInst);
 	FillInPropertyPage( &psp[8], IDD_SEISMIC, TEXT("Seismic"), AnaSeismicProc, ICON_EARTHQUAKE, lparam, hInst);

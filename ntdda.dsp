@@ -199,10 +199,6 @@ SOURCE=.\src\geomdlg.c
 
 SOURCE=.\src\unitdialog.c
 # End Source File
-# Begin Source File
-
-SOURCE=.\src\win32gui\wingraph.c
-# End Source File
 # End Group
 # Begin Source File
 
@@ -243,6 +239,10 @@ SOURCE=.\src\visedhandle.c
 # Begin Source File
 
 SOURCE=.\src\win32gui\win32utils.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\win32gui\wingraph.c
 # End Source File
 # Begin Source File
 

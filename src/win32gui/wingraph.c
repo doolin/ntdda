@@ -165,7 +165,9 @@ drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd,
    double scale = g->scale;
    int numblocks = gd->nBlocks;
    POINT offset = g->offset;
+   //HGDIOBJ horigpen;
 
+   //horigpen = 
    SelectObject(hdc, hpen[0]);
 
    for (i = 0; i< numblocks; i++) 
@@ -181,7 +183,8 @@ drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd,
 			      ii = (int)(d[firstvertex+j+1][0]+0.1);
 			      if(ii < 0 || ii > 8) 
                   ii = 9;
-			      SelectObject(hdc, hpen[ii]);
+			      //horigpen = 
+                  SelectObject(hdc, hpen[ii]);
             }
          }  
       
@@ -191,6 +194,10 @@ drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd,
          p2.y = (long)(d[firstvertex+j+1][2]*scale + .5 + offset.y);
          MoveToEx(hdc, p1.x, p1.y, NULL);
          LineTo(hdc, p2.x, p2.y);
+
+      //SelectObject(hdc,horigpen);
+      //DeleteObject(hpen[ii]);
+
       }  // end for() each joint
    } /* end for each block*/
 
@@ -323,10 +330,7 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd)
    //ofp = fopen("blocks","w");
    //fprintf(ofp,"Scale: %f, offx: %d, offy: %d\n",scale, g->offset.x, g->offset.y);
    assert (hdc != NULL);
-  /* Block set at compile time because there is only 
-   * one block type right now.
-   */
-	SelectObject(hdc, hbr[3]);
+
    for (i = 0; i< numblocks; i++) 
    {
   		//hBr[0] = light blue
@@ -342,14 +346,10 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd)
          j = k0[i+1][0];
          if(j < 0 || j > 4) 
             j = 5;
-         	SelectObject(hdc, hbr[j]);
+         	//horigbrush2 = 
+         SelectObject(hdc, hbr[j]);
 	   }
       
-
-     /* Block set at compile time because there is only 
-      * one block type right now.
-      */
-      //SelectObject(hdc, hbr[3]);
       firstvertex = k0[i+1][1];
       numSides = k0[i+1][2] - firstvertex + 1;
       //p = (POINT *) malloc(sizeof(POINT) * (numSides+1));
@@ -372,13 +372,12 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd)
       SetPolyFillMode (hdc, WINDING) ;
       Polygon(hdc, p, numSides);
 
-   	//SelectObject(hdc,horigbrush2);
+      //SelectObject(hdc,horigbrush2);
       //DeleteObject(hbr[j]);
 
    } // end for each block
 
-	//SelectObject(hdc,horigbrush);
-   //DeleteObject(hbr[3]);
+
 
      /* Draw a bounding box. */
 /*
@@ -396,24 +395,6 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd)
 */
 
 
-
-  /* The next block of code is now handled by sending the 
-   * info to the status bar.
-   */
-  /*
-   if(g->timestep>0) 
-   {  
-		    printTime(hdc,g);
-	} 
-   else 
-   {
-	    sprintf(c, "Initial Configuration: Number of Blocks = %d", numblocks);
-	    length = strlen(c);
-	    TextOut(hdc, 1000, 29000, c, length);
-   }
-   */
-
-   //fclose(ofp);
 
    return(0);
 }  /* Close  drawBlocks() */
