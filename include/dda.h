@@ -119,7 +119,11 @@ void dda_set_menustate(DDA *, int);
 
 int dda_run(DDA *);
 
+DDA * dda_new();
+
 int ddanalysis(DDA *, FILEPATHS *, GRAPHICS *);
+
+void display(Geometrydata * GData, Analysisdata *, GRAPHICS *gg);
 
 
 #endif /* _DDA_H_ */

@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 03:16:27 $
+ * $Date: 2001/09/03 03:45:38 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 
@@ -87,7 +87,7 @@ FILEPATHS filepath;
 FILEPOINTERS fp;
 
 //Geometrydata * geomdata = NULL;
-Geometrydata * geometry2draw;
+//Geometrydata * geometry2draw;
 
 
 GRAPHICS * g = NULL;
@@ -97,7 +97,7 @@ GRAPHICS * g = NULL;
 DWORD dwHTMLCookie;
 
 /* FIXME: Get rid of the external Analysisdata * ad */
-Analysisdata * ad = NULL;
+//Analysisdata * ad = NULL;
 
 
 
@@ -452,11 +452,6 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    Geometrydata * geomdata;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
-  /* This is what it will take to get rid of all the silly 
-   * externs.
-   */
-   // Geometrydata * gd = dda_get_geometry(dda);
-   
    draw_wnd = hwMain;
 
    hdc = BeginPaint(draw_wnd, &ps );
@@ -467,14 +462,14 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          geomdata = dda_get_geometrydata(dda);
          g->scale = setScale(draw_wnd, hdc, g, geomdata->scale);
 			//drawLines(hdc, screenPen, g->scale, g->offset, g->joints, geomdata->nJoints, TRUE);
-         drawJoints(hdc, screenPen, g, geometry2draw, geometry2draw->vertices, FALSE);
- 			drawPoints(hdc, g, geomdata, geometry2draw->points);
+         drawJoints(hdc, screenPen, g, geomdata, geomdata->vertices, FALSE);
+ 			drawPoints(hdc, g, geomdata, geomdata->points);
 	      break;
 
       case BLOCKS:
          geomdata = dda_get_geometrydata(dda);
          g->scale = setScale(draw_wnd, hdc, g, geomdata->scale);
-         drawBlocks(hdc, hBr, g, geometry2draw);
+         drawBlocks(hdc, hBr, g, geomdata);
         /* All this code here does is draw outlines of the
          * blocks in their original position using the dashed 
          * line pen.  FIXME: replace with a drawOBlocks or 
@@ -482,10 +477,10 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          */
          if(showOrig) 
          {
-            drawJoints(hdc, screenPen, g, geometry2draw, geometry2draw->origvertices, TRUE);
+            drawJoints(hdc, screenPen, g, geomdata, geomdata->origvertices, TRUE);
             //drawLines(hdc, screenPen, g->scale, g->offset, g->origblocks[i].jp, g->origblocks[i].nSides, FALSE);
          }
-         drawJoints(hdc, screenPen, g, geometry2draw, geometry2draw->vertices, FALSE);
+         drawJoints(hdc, screenPen, g, geomdata, geomdata->vertices, FALSE);
          //drawLines(hdc, screenPen, g->scale, g->offset, g->blocks[i].jp, g->blocks[i].nSides, TRUE);
                   
         /* BUG: Can't use showOrig until the analysis at least starts to 
@@ -493,13 +488,13 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          */
          if(showOrig) 
          {
-            drawPoints(hdc, g, geomdata, geometry2draw->origpoints);
-			   drawBolts(hdc, screenPen, geometry2draw, g, geometry2draw->origbolts);
+            drawPoints(hdc, g, geomdata, geomdata->origpoints);
+			   drawBolts(hdc, screenPen, geomdata, g, geomdata->origbolts);
          }
-         drawPoints(hdc, g, geomdata, geometry2draw->points);
-         drawBolts(hdc, screenPen, geometry2draw, g, geometry2draw->rockbolts);
+         drawPoints(hdc, g, geomdata, geomdata->points);
+         drawBolts(hdc, screenPen, geomdata, g, geomdata->rockbolts);
          if (0/* g->stresses */)
-            drawStresses(hdc, screenPen, geometry2draw, g);
+            drawStresses(hdc, screenPen, geomdata, g);
          break;
 
       case TITLE:	 	
@@ -560,7 +555,7 @@ handleGeomApply(HWND hwMain, double scale_params[])
    geomdata = ddacut(&filepath, g);
    dda_set_geometrydata(dda,geomdata);
 
-   geometry2draw = geomdata;
+   //geometry2draw = geomdata;
 
   /* This handles having a bad geometry file.  An alternative 
    * would be to have it come back to the geometry dialog,
@@ -739,7 +734,7 @@ handleGeomPrintGraphics(HWND hwMain)
    * value instead of reference b/c it is not changed in 
    * the printGeom function.
    */
-	printGeom(hwMain, szDocName, geometry2draw, geomdata->scale, g);
+	printGeom(hwMain, szDocName, geomdata, geomdata->scale, g);
 
   /* FIXME: Check the return value */
    return 0;
@@ -832,6 +827,9 @@ handleAnalRun(HWND hwMain)
    SwapBuffers(hdc);
 #endif /* WINGRAPHICS */
 
+   /* So I really need to grab the analysis struct before calling
+    * so that all the initialization can be done...  
+    */
    retval = ddanalysis(dda, &filepath, g);
 
   /* FIXME: Check retval for error codes.  Here we set the 
@@ -840,7 +838,7 @@ handleAnalRun(HWND hwMain)
    * b/c the data pointed to by ad has been freed in the 
    * analysis function.
    */
-   ad = NULL;
+   //ad = NULL;
 
   /* This handles having a bad geometry file.  An alternative 
    * would be to have it come back to the geometry dialog,
@@ -1010,7 +1008,7 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
    * instead of by reference b/c printGeom doesn't change 
    * the value.
    */
-   printGeom(hwMain, szDocName, geometry2draw, geomdata->scale, g);
+   printGeom(hwMain, szDocName, geomdata, geomdata->scale, g);
 
   /* FIXME: Check the return value */
    return 0;
@@ -1131,12 +1129,17 @@ handlePauseAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
 static void 
 handleAbortAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
+   DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
+   Analysisdata * ad = dda_get_analysisdata(dda);
+
   /* If for some reason we get here without having an analysis
    * running, just send it back.  This is kludge to compensate
    * for bad menu item enablng.
    */
+   
    if (ad == NULL)
       return;
+   
 
    ad->abort(ad->this);
 
@@ -1170,7 +1173,7 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
    HINSTANCE hInst;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
-
+   Analysisdata * ad = dda_get_analysisdata(dda);
 
    if(dda->popupvis == 0)
       return;
@@ -1547,7 +1550,7 @@ updateAnalysisStatusBar(HWND hwMain)
 
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
-
+   Analysisdata * ad = dda_get_analysisdata(dda);
 
   /* This is ill-advised, and is only a kludge until 
    * status text size can be computed.
@@ -1857,12 +1860,12 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 #endif
     
    g->scale = setScale(hwMain, mfdc, g, geomdata->scale);
-   drawBlocks(mfdc, hBr, g, geometry2draw);
+   drawBlocks(mfdc, hBr, g, geomdata);
    if(showOrig)
-      drawJoints(mfdc, screenPen, g, geometry2draw, geometry2draw->origvertices, TRUE);
-   drawJoints(mfdc, screenPen, g, geometry2draw, geometry2draw->vertices, FALSE);
-   drawPoints(mfdc, g, geomdata, geometry2draw->points);
-   drawBolts(mfdc, screenPen, geometry2draw, g, geometry2draw->rockbolts);
+      drawJoints(mfdc, screenPen, g, geomdata, geomdata->origvertices, TRUE);
+   drawJoints(mfdc, screenPen, g, geomdata, geomdata->vertices, FALSE);
+   drawPoints(mfdc, g, geomdata, geomdata->points);
+   drawBolts(mfdc, screenPen, geomdata, g, geomdata->rockbolts);
 
    hmf = CloseEnhMetaFile(mfdc);
    DeleteEnhMetaFile(hmf);
@@ -1882,6 +1885,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
    static PARAMBLOCK pb;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
+   Analysisdata * ad = dda_get_analysisdata(dda);
 
    switch (wParam)
  	{

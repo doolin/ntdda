@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:18 $
+ * $Date: 2001/09/03 03:45:36 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #include"dda.h"
@@ -267,12 +267,6 @@ double computeSpringStiffness(Geometrydata *, Analysisdata *, int **, double **)
       
 int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *);  
 
-
-//void display(HWND hwMain, HDC hdc, Geometrydata * GData, 
-//             Analysisdata * AData, GRAPHICS *gg);
-
-void display(Geometrydata * GData, 
-             Analysisdata * AData, GRAPHICS *gg);
 
 /******************** Gravity stuff *************************/
 //void checkGravityConvergence(HWND hwMain, Geometrydata * Gdata, Analysisdata * AData);

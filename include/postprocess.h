@@ -14,8 +14,9 @@
 #define SOLUTIONVECTOR  1 << 2
 #define BLOCKMASSES     1 << 3
 #define BLOCKSTRESSES   1 << 4  
-#define CONTACTFORCES   1 << 5
-#define MOMENTS         1 << 6    
+#define PENALTYFORCES   1 << 5
+#define MOMENTS         1 << 6  
+#define FRICTIONFORCES  1 << 7  
 
 
 /******************** Post-processing code ******************/

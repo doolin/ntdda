@@ -8,7 +8,7 @@
 #include "replay.h"
 
 
-extern Geometrydata * geometry2draw;
+//extern Geometrydata * geometry2draw;
 extern int showOrig;
 
 extern FILEPOINTERS fp;
@@ -155,10 +155,15 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
    double ** points;
    double ** rockbolts;
    Geometrydata * gd;
+   DDA * dda;
 
-   gd = initGeometrydata();
+   dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
-   geometry2draw = gd;
+
+   //gd = initGeometrydata();
+   gd = gdata_new();
+
+   //geometry2draw = gd;
 
   /* Open the replay file */
    rpfile = fopen(replayfilename,"r");
@@ -225,7 +230,7 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
    */
 
 
- 		for (i=0; i<= gd->nBlocks; i++)
+	for (i=0; i<= gd->nBlocks; i++)
    {
       fscanf(rpfile,"%d %d %d",
          &vindex[i][0], &vindex[i][1], &vindex[i][2]);
@@ -239,7 +244,7 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
    * geometry data for the rest of the data.
    */
   /* Suck up the first set of data */
-     /* 0:joint material   1:x   2:y  of block vertices */
+  /* 0:joint material   1:x   2:y  of block vertices */
   /* The "number of vertices" is stored in vertexCount, but note that 
    * this number is more than the actual number of vertices.
    * Each block has one repeated vertex, to "close the loop".
@@ -270,23 +275,26 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
    }
 
   /* x  y  n  of fixed measured loading points      */
-	 	for (i=0; i<= gd->pointCount; i++)
+ 	for (i=0; i<= gd->pointCount; i++)
    {
-		    fscanf(rpfile,"%lf %lf %lf %lf",
+      fscanf(rpfile,"%lf %lf %lf %lf",
          &points[i][0],&points[i][1],
          &points[i][2],&points[i][3]);
-   }  /*  i  */
+   }  
 
 
-/* This should have the first or original time step now. */
+  /* Now that everything is initialized... */
+   dda_set_geometrydata(dda,gd);
 
+
+  /* This should have the first or original time step now. */
    for (j=0;j<nsteps_saved;j++)
    {
 
      /* Grab the time info */
       //fscanf(rpfile,"%d %f %d", &g->timestep, &g->currenttime, &g->numcontacts);
 
-   	 	for (i=0; i<= gd->vertexCount; i++)
+    	for (i=0; i<= gd->vertexCount; i++)
       {
          fscanf(rpfile,"%lf %lf %lf",
             &vertices[i][0],&vertices[i][1],&vertices[i][2]);
@@ -329,6 +337,5 @@ readReplayFile(HWND hwMain, GRAPHICS * g, char *replayfilename)
 	//showOrig--;
 
    fclose(rpfile);
-
 
 }  //  Close replay.

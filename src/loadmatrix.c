@@ -16,6 +16,8 @@ extern DATALOG * DLog;
 
 extern FILEPOINTERS fp;
 
+/* Helper var for examining variables */
+static char mess[80];
 
 
 static void seismicload(Geometrydata *gd, Analysisdata *ad, int *k1, double **F, double **blockArea, double ** matprops);
@@ -650,6 +652,7 @@ void df16(Geometrydata *gd, int *k1, double **F, double **e0,
       F[i2][1] += o1*moments[block][1];
       F[i2][2] += o2*moments[block][1];
    }  /*  i  */
+
 
    //printBlockWeights(gd, moments, e0);
 

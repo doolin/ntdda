@@ -154,7 +154,9 @@ void df11(Geometrydata *gd, Analysisdata *ad, int *k1, double **F,
    double S0,S1,S2,S3;
   /* x and y coordinates of centroid for each block */
    double x0, y0;
-  /* TT is integrated moments matrix, Eq. 2.57, p. 85 */
+  /* TT is integrated moments matrix, Eq. 2.57, p. 85.
+   * FIXME: Change this to SX0.
+   */
    double TT[7][7] = {{0}};
   /* nBlocks := number of blocks in analysis */
    int nBlocks = gd->nBlocks;

@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/08/26 00:21:21 $
+ * $Date: 2001/09/03 03:45:37 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  *
  */
 /*################################################*/
@@ -17,6 +17,12 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.15  2001/09/03 03:45:37  doolin
+ * REALLY IMPORTANT:  This set of commits will be
+ * tagged, then version 1.6 release candidate 1 will be branched
+ * from the main code.  Development will then proceed in parallel
+ * between the development version and the release version.
+ *
  * Revision 1.14  2001/08/26 00:21:21  doolin
  * Major output format change for block areas to handle all
  * the moments for each block at each time step.  The downside of this is
@@ -679,7 +685,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
 {
    int j;
 
-   double normalforce, shearforce;
+   double normalforce, frictionforce;
    double e11;
    double pen_dist2;  // was s4?
    double phi, cohesion;
@@ -751,7 +757,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       else 
          phi=phiCohesion[joint_type][0];
   
-      shearforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
+      frictionforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
    }
    else if (ad->frictionlaw == negexp)
    {
@@ -769,12 +775,12 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
       else 
          phi=phiCohesion[joint_type][0];
 
-      shearforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
+      frictionforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
    }
    else if (ad->frictionlaw == tpmc)
    {
       phi=phiCohesion[joint_type][0];
-      shearforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
+      frictionforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
    }
    else 
    {
@@ -787,7 +793,7 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    if (ad->gravityflag == 1)
    {
       phi = 89.0;
-      shearforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
+      frictionforce=(normalforce*tan(dd*phi)+e11)*sign(c_length[contact][1]);
    } /* end if gravity flag */
 
 
@@ -833,14 +839,14 @@ setFrictionForces(Analysisdata * ad, Contacts * c,
    */
    for (j=1; j<= 6; j++)
    {
-      c0[j1][j] += -shearforce*s[j+12];  // was s4
-      c0[j2][j] +=  shearforce*s[j+24];  // was s4
+      c0[j1][j] += -frictionforce*s[j+12];  // was s4
+      c0[j2][j] +=  frictionforce*s[j+24];  // was s4
    }  
 
-   if (ad->options & CONTACTFORCES)
+   if (ad->options & FRICTIONFORCES)
    {
       char mess[80];
-      sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,shearforce);
+      sprintf(mess,"%d %f %f\n",ad->currTimeStep,normalforce,frictionforce);
       fprintf(fp.cforce,mess);
       //iface->displaymessage(mess);
    }
@@ -914,11 +920,11 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    double reflinelength; /* Eq. 4.12, p. 157, Shi 1988 (was b1). */
    double	dd = 3.1415926535/180; /* radians to degrees */
   /* pen_dist was s1, which was overloaded: area, then distance */
-   double pen_dist;  /* Eq. 4.12, p. 158, Shi 1988. */  
+   double pen_dist = 0;  /* Eq. 4.12, p. 158, Shi 1988. */  
   /* s2 is normalized shear displacement for the current cycle 
    * of open-close iteration.
    */
-   double sheardisp;  // was s2
+   double sheardisp = 0;  // was s2
   /* omega is "locked index" from TCK 1995, p. 1239, Eq. 56.
    * omega = L_{20}/L_{23} where L_{20} is the length from 
    * the contact point project from P2, and  L_{23} is the 
@@ -979,6 +985,8 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
    double h5[7];
    double h6[7];
    */
+
+   double normalforce, shearforce;
 
   /* To continue using TCK notation, use P and Q for the 
    * matrix elements if possible.
@@ -1083,7 +1091,7 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
          j1=k1[i1];  /* (memory?) location of load vector for block i1 */
          j2=k1[i2];  /* (memory?) location of load vector for block i2 */
          
-        /* parameter:   i i1 i2 l1 l2 l3 s1 s2 m[] o[][2] */ 
+        /* (GHS: parameter:   i i1 i2 l1 l2 l3 s1 s2 m[] o[][2]) */ 
         /* Here, we gather some vertices to determine (in the 
          * next block of code) there is penetration between
          * the vertex and the reference formed from adjacent
@@ -1385,6 +1393,14 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
                 * and go home.  Try again later.
                 */
             }  /* End penalty chooser */
+
+            if (ad->options & PENALTYFORCES)
+            {
+               normalforce = -lockstate[1][1]*(p*pen_dist);
+               shearforce = -lockstate[1][2]*(p*sheardisp/s2n_ratio);  // T in docs
+               fprintf(fp.logfile,"%d  %f  %f\n",ad->currTimeStep, normalforce,shearforce);
+            }
+
          } /* end if penalty terms (b809): */
 
         /****  End block for constructing penalty matrices  ****/
@@ -1415,6 +1431,8 @@ void df18(Geometrydata * gd, Analysisdata *ad, Contacts * ctacts,
       */
       }  /*  jj, if VE contact, loop once, if VV contact, loop twice */
 
+ 
+      
    }  /*  end loop over each contact (was i)  */
 
 }   /*  Close df18()  */
@@ -1469,7 +1487,7 @@ df22(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts, int *k1)
    double shear_norm_ratio = ad->constants->shear_norm_ratio;  //  was h2
 
    int contact, blocknumber;  // was i, i0 
-   int CTYPE; //i1;
+   int CTYPE; //i1; 
    const int VE = 0;
    const int VV = 1;
    const int OPEN = 0;

@@ -5,8 +5,7 @@
 #define _REPLAY_H_
 
 #include <windef.h>
-#include "analysisdata.h"
-#include "geometrydata.h"
+#include "dda.h"
 #include "graphics.h"
 
 

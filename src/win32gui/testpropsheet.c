@@ -122,6 +122,38 @@ FillInPropertyPage( PROPSHEETPAGE* psp,
 }  /* close FillPropertyPage() */
 
 
+
+
+void
+handleNotify(HWND hparent, LPARAM lParam)
+{
+   
+   switch (((NMHDR FAR *) lParam)->code) 
+   {
+   case PSN_SETACTIVE:
+      //MessageBox(NULL,"SETACTIVE","SETACTIVE",MB_OK);
+      break;
+
+   case PSN_APPLY:
+      {
+         PostMessage(hparent,WM_DESTROY,0,0);
+      }
+      break;
+
+   case PSN_KILLACTIVE:
+      //(NULL,"KILLACTIVE","KILLACTIVE",MB_OK);
+      //PostMessage(hparent,WM_DESTROY,0,0);
+      break;
+
+   case PSN_RESET:
+      //MessageBox(NULL,"RESET","RESET",MB_OK);
+      PostMessage(hparent,WM_DESTROY,0,0);
+      break;
+   }
+}
+
+
+
 BOOL APIENTRY
 GravityProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 {
@@ -133,6 +165,11 @@ GravityProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          PROPSHEETPAGE * psp = (PROPSHEETPAGE *)lParam;
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
+
+
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
 
       case WM_COMMAND:
       {
@@ -167,6 +204,11 @@ BoltMatsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
 
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
+
       case WM_COMMAND:
       {
          int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
@@ -198,6 +240,11 @@ JointMatsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          PROPSHEETPAGE * psp = (PROPSHEETPAGE *)lParam;
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
+
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
 
       case WM_COMMAND:
       {
@@ -231,6 +278,11 @@ BlockMatsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          PROPSHEETPAGE * psp = (PROPSHEETPAGE *)lParam;
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
+
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
 
       case WM_COMMAND:
       {
@@ -275,6 +327,11 @@ AFlagsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          //return TRUE;
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
+
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
 
       case WM_COMMAND:
       {
@@ -353,6 +410,11 @@ ContactProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
 
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
+
       case WM_COMMAND:
       {
          int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
@@ -385,6 +447,11 @@ TimeStepProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          PROPSHEETPAGE * psp = (PROPSHEETPAGE *)lParam;
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
+
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
 
       case WM_COMMAND:
       {
@@ -419,6 +486,11 @@ LPointsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
 
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
+
+
       case WM_COMMAND:
       {
          int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
@@ -450,6 +522,11 @@ AnaSeismicProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          PROPSHEETPAGE * psp = (PROPSHEETPAGE *)lParam;
          //assert((Analysisdata *)psp->lParam == adglobalfortest);
       }  break;
+
+
+      case WM_NOTIFY:
+         handleNotify(hDlg, lParam);
+         break;
 
       case WM_COMMAND:
       {

@@ -30,7 +30,7 @@
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.5 2001/08/26 03:16:23 doolin Exp $\n", \
+              "$Id: winmain.h,v 1.6 2001/09/03 03:45:36 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -96,7 +96,7 @@ void initializePens(void);
 void initializeBrushes();
 void drawTitle(HWND, HDC);
 //void replay(HWND, Block *, DPoint *, int *, int *);
-void replay(HWND, GRAPHICS *, char * replayfilename);
+void replay(HWND, Geometrydata *, GRAPHICS *, char * replayfilename);
 void handleTSlope(HWND);
 void handleGnuplot(HWND);
 void handleARS(HWND);

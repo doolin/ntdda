@@ -7,6 +7,12 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.11  2001/09/03 03:45:37  doolin
+ * REALLY IMPORTANT:  This set of commits will be
+ * tagged, then version 1.6 release candidate 1 will be branched
+ * from the main code.  Development will then proceed in parallel
+ * between the development version and the release version.
+ *
  * Revision 1.10  2001/08/26 03:16:26  doolin
  * One extern out, 2 more to go.  Lots of small API argument
  * changes.  Also, the formerly externally declared var was a struct,
@@ -15,7 +21,8 @@
  * externs are done.
  *
  * Revision 1.9  2001/08/26 02:15:49  doolin
- * Some minor changes leading up to a major memory overhaul to eliminate externs.  This commit will be tagged as 1.5.126
+ * Some minor changes leading up to a major memory overhaul to eliminate externs.  
+ * This commit will be tagged as 1.5.126
  *
  * Revision 1.8  2001/08/26 00:21:20  doolin
  * Major output format change for block areas to handle all
@@ -60,15 +67,11 @@
 #include "contacts.h"
 #include "postprocess.h"
 
+
 /* This should be the only allowable extern. */
 extern InterFace * iface;
 
-/* FIXME: externs, necessary evil right now.
- * This MUST be cleaned up later.
- */
-//extern Geometrydata * geomdata;
-extern Geometrydata * geometry2draw;
-extern Analysisdata * ad;
+
 
 extern FILEPOINTERS fp;
 
@@ -154,19 +157,12 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    */
    int **n;
 
-
-
-  /* FIXME: Find a way to get rid of this and have only one
-   * geometry data structure at a time.
-   */
-   //GData = cloneGeometrydata(geomdata);
-   geometry2draw = GData;
-
    doublesize = sizeof(double);
 
    AData = analysisInput(filepath->afile, GData);   
    if (AData == NULL)
       return 0;
+   dda_set_analysisdata(dda,AData);
 
 
 
@@ -176,24 +172,18 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
  * compile control because I want to deal with it asap.  And 
  * I want to get rid of compilecontrol asap.
  */
-   adata_set_output_flag(AData, VERTICES);
+   //adata_set_output_flag(AData, VERTICES);
    adata_set_output_flag(AData, FIXEDPOINTS);
    adata_set_output_flag(AData, SOLUTIONVECTOR);
    adata_set_output_flag(AData, BLOCKMASSES);
    //adata_set_output_flag(AData, BLOCKSTRESSES);
-   adata_set_output_flag(AData, CONTACTFORCES);
+   adata_set_output_flag(AData, PENALTYFORCES);
+   adata_set_output_flag(AData, FRICTIONFORCES);
   /* FIXME: This is a horrible bogosity: moments need to 
    * be written from the geometry data, not the analysis
    * data.  
    */
    adata_set_output_flag(AData, MOMENTS);
-
-
-  /* Copy this pointer to extern so that we can access the 
-   * analysis data from the analysis dialog box.
-   * FIXME: Find a way to remove this crappy extern.
-   */
-   ad = AData;
 
   /* Allocating arrays in a function removes lots of superfluous
    * code. 
@@ -222,7 +212,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
       writeBlockVertices(GData, 1);      
    
    if (AData->options & MOMENTS)
-      writeMoments(GData, ad->currTimeStep, ad->nTimeSteps);
+      writeMoments(GData, AData->currTimeStep, AData->nTimeSteps);
 
    //writeBlockMasses(AData,GData);
   /* If arg 2 is greater than the number of blocks, 
@@ -277,7 +267,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
       * when the time step is cut during an increment.
       */
       AData->k00=0;
-      //AData->first_openclose_iteration = TRUE;
 
 
       /************END TEST ***********************/		   
@@ -321,7 +310,10 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
             //printKForIthBlock(AData, 2, 1, kk, n, "After sparsestorage");
             //printKK(kk,n,GData->nBlocks,"Analysis driver");
 
-           /* saveState() handles copying loops from df20(). */
+           /* saveState() handles copying loops from df20(). 
+            * This function saves a copy of K and F because the 
+            * solver overwrites both.
+            */
             saveState(AData, c0, GData->nBlocks);
            /* U = K^{-1}F  df20() and df21() are still called from solve(). 
             * U is overwritten into F as a result of the LU solver.
@@ -348,7 +340,11 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
             */
             df22(GData, AData, CTacts, k1);
    
-           /* displacement ratio and iteration drawing  */
+           /* displacement ratio and iteration drawing.
+            * This function also restores K and F by copying
+            * the saved value (from saveState) back into 
+            * K and F.
+            */
             df24(GData, AData, k1);
 
         /* close do-while loop for open-close iteration */
@@ -398,14 +394,13 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
          writeBlockStresses(e0,4);
 
       if (AData->options & MOMENTS)
-         writeMoments(GData, ad->currTimeStep, ad->nTimeSteps);
+         writeMoments(GData, AData->currTimeStep, AData->nTimeSteps);
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
       if (AData->gravityflag == 1)
          checkGravityConvergence(AData->gravity, GData, AData);
 
      /* Draw some stuff to the screen. */ 
-     ///*iface->*/display(hwMain, hdc, GData, AData, gg);
       display(GData, AData, gg);
 
    } /* END OF MAIN ANALYSIS LOOP  */
@@ -429,7 +424,6 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    * with flags for what to emit in post-processing 
    * phase.
    */
-   //postProcess(hwMain, GData, AData,gg);
    postProcess(GData, AData,gg);
 
    if (AData->options & VERTICES)
@@ -443,18 +437,9 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
    */
    deallocateAnalysisArrays(kk,k1,c0,e0,U,n);
 
-  /* This is weird stuff to update the stupid extern that we
-   * need to interact with win32 to draw on the screen.  Hopefully,
-   * this does not leak any memory.
-   */
-   //freeGeometrydata(geomdata);
-   //geomdata = cloneGeometrydata(GData);
-   //geometry2draw = geomdata;
-   //freeGeometrydata(GData);
-
-
-   AData = freeAnalysisData(AData);
-   freeDatalog(DLog);
+  /* This should probably be freed in the calling function. */
+   AData = freeAnalysisData(AData);  //adata_destroy(AData);
+   freeDatalog(DLog); //datalog_destroy(DLog);
 
   /* New contacts structure */
    CTacts = freeContacts(CTacts);
