@@ -21,6 +21,8 @@ all: $(OBJECTS)
 bolttest: bolttest.c 
 	gcc $(CFLAGS)  -o bolttest bolttest.c ../bolt.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
 
+stress_test: stress_test.c 
+	gcc $(CFLAGS)  -o stress_test stress_test.c ../stress.c  -I ../../include -lm
 
 
 loadpointtest: loadpointtest.c 
