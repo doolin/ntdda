@@ -1,9 +1,10 @@
 
 #define STRICT
-#include<windows.h>
-#include<stdio.h>
-#include"geomdlg.h"
-#include"ddamemory.h"
+#include <windows.h>
+#include <stdio.h>
+#include "geomdlg.h"
+#include "ddamemory.h"
+#include "joint.h"
 
 
 
@@ -270,16 +271,16 @@ handleVScroll(HWND hDlg, LPARAM lParam, WPARAM wParam)
       else
          j = 5;
 
-      for(i=0; i<j; i++) 
-      {
+      for(i=0; i<j; i++)  {
+
          SetDlgItemInt(hDlg, GD_JLAB1+i, jindex+i+1, FALSE);
-         gcvt(joints[jindex + i].d1.x, 4, temp);
+         gcvt(joints[jindex + i].epx1, 4, temp);
          SetDlgItemText(hDlg, GD_J1X1+5*i, temp);
-         gcvt(joints[jindex + i].d1.y, 4, temp);
+         gcvt(joints[jindex + i].epy1, 4, temp);
          SetDlgItemText(hDlg, GD_J1X1+5*i+1, temp);
-         gcvt(joints[jindex + i].d2.x, 4, temp);
+         gcvt(joints[jindex + i].epx2, 4, temp);
          SetDlgItemText(hDlg, GD_J1X1+5*i+2, temp);
-         gcvt(joints[jindex + i].d2.y, 4, temp);
+         gcvt(joints[jindex + i].epy2, 4, temp);
          SetDlgItemText(hDlg, GD_J1X1+5*i+3, temp);
          SetDlgItemInt(hDlg, GD_J1X1+5*i+4, joints[jindex + i].type, FALSE);
       }
@@ -349,10 +350,10 @@ loadDefaults()
    
    for(i=0; i<nj; i++) 
    {
-      joints[i].d1.x = 0;
-      joints[i].d1.y = 0;
-      joints[i].d2.x = 0;
-      joints[i].d2.y = 0;
+      joints[i].epx1 = 0;
+      joints[i].epy1 = 0;
+      joints[i].epx2 = 0;
+      joints[i].epy2 = 0;
       joints[i].type = 1;
    }
 
@@ -392,8 +393,8 @@ loadFromFile1(HWND hDlg)
    */
    for(i=0; i<nj; i++) 
    {
-      fscanf(fp, "%lf %lf %lf %lf %d", &joints[i].d1.x,
-             &joints[i].d1.y, &joints[i].d2.x, &joints[i].d2.y,
+      fscanf(fp, "%lf %lf %lf %lf %d", &joints[i].epx1,
+             &joints[i].epy1, &joints[i].epx2, &joints[i].epy2,
              &joints[i].type);
    }  /* Close for() reading joints. */
 
@@ -449,12 +450,11 @@ loadFromFile2(HWND hDlg)
    joints = (Joint *) malloc(sizeof(Joint) * nj);
 
   /* Transfer joint data   */
-   for(i=0; i<nj; i++) 
-   {
-      joints[i].d1.x = gd->joints[i+1][1];
-      joints[i].d1.y = gd->joints[i+1][2]; 
-      joints[i].d2.x = gd->joints[i+1][3];
-      joints[i].d2.y = gd->joints[i+1][4];
+   for(i=0; i<nj; i++) {
+      joints[i].epx1 = gd->joints[i+1][1];
+      joints[i].epy1 = gd->joints[i+1][2]; 
+      joints[i].epx2 = gd->joints[i+1][3];
+      joints[i].epy2 = gd->joints[i+1][4];
       joints[i].type = (int)gd->joints[i+1][5];
    } 
 
@@ -494,13 +494,13 @@ setDialogValues(HWND hDlg)
    j = (nj < 5)? nj: 5;
    for(i=0; i<j; i++) 
    {
-      gcvt(joints[i].d1.x, 4, temp);
+      gcvt(joints[i].epx1, 4, temp);
       SetDlgItemText(hDlg, GD_J1X1+5*i, temp);
-      gcvt(joints[i].d1.y, 4, temp);
+      gcvt(joints[i].epy1, 4, temp);
       SetDlgItemText(hDlg, GD_J1X1+5*i+1, temp);
-      gcvt(joints[i].d2.x, 4, temp);
+      gcvt(joints[i].epx2, 4, temp);
       SetDlgItemText(hDlg, GD_J1X1+5*i+2, temp);
-      gcvt(joints[i].d2.y, 4, temp);
+      gcvt(joints[i].epy2, 4, temp);
       SetDlgItemText(hDlg, GD_J1X1+5*i+3, temp);
       SetDlgItemInt(hDlg, GD_J1X1+5*i+4, joints[i].type, FALSE);
    }
@@ -602,10 +602,10 @@ saveData(HWND hDlg)
      /* Transfer joint data   */ 
       for(i=0; i<nj; i++) 
       {
-         gd->joints[i+1][1] = joints[i].d1.x;
-         gd->joints[i+1][2] = joints[i].d1.y; 
-         gd->joints[i+1][3] = joints[i].d2.x;
-         gd->joints[i+1][4] = joints[i].d2.y;
+         gd->joints[i+1][1] = joints[i].epx1;
+         gd->joints[i+1][2] = joints[i].epy1; 
+         gd->joints[i+1][3] = joints[i].epx2;
+         gd->joints[i+1][4] = joints[i].epy2;
          gd->joints[i+1][5] = joints[i].type;
       } 
 
@@ -663,20 +663,20 @@ changeNumberOfJoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
         /*  These look like cloning loops.  */
          for(i=0; i<nOld; i++) 
          {
-            joints[i].d1.x = jOld[i].d1.x;
-            joints[i].d1.y = jOld[i].d1.y;
-            joints[i].d2.x = jOld[i].d2.x;
-            joints[i].d2.y = jOld[i].d2.y;
+            joints[i].epx1 = jOld[i].epx1;
+            joints[i].epy1 = jOld[i].epy1;
+            joints[i].epx2 = jOld[i].epx2;
+            joints[i].epy2 = jOld[i].epy2;
             joints[i].type = jOld[i].type;
          }
          free(jOld);
 
          for(i=nOld; i<nj; i++) 
          {
-            joints[i].d1.x = 0;
-            joints[i].d1.y = 0;
-            joints[i].d2.x = 0;
-            joints[i].d2.y = 0;
+            joints[i].epx1 = 0;
+            joints[i].epy1 = 0;
+            joints[i].epx2 = 0;
+            joints[i].epy2 = 0;
             joints[i].type = 1;
          }
 
@@ -685,13 +685,13 @@ changeNumberOfJoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
          for(i=0; i<j; i++) 
          {
             SetDlgItemInt(hDlg, GD_JLAB1+i, i+1, FALSE);
-            gcvt(joints[i].d1.x, 4, temp);
+            gcvt(joints[i].epx1, 4, temp);
             SetDlgItemText(hDlg, GD_J1X1+5*i, temp);
-            gcvt(joints[i].d1.y, 4, temp);
+            gcvt(joints[i].epy1, 4, temp);
             SetDlgItemText(hDlg, GD_J1X1+5*i+1, temp);
-            gcvt(joints[i].d2.x, 4, temp);
+            gcvt(joints[i].epx2, 4, temp);
             SetDlgItemText(hDlg, GD_J1X1+5*i+2, temp);
-            gcvt(joints[i].d2.y, 4, temp);
+            gcvt(joints[i].epy2, 4, temp);
             SetDlgItemText(hDlg, GD_J1X1+5*i+3, temp);
             SetDlgItemInt(hDlg, GD_J1X1+5*i+4, joints[i].type, FALSE);
          }
@@ -851,13 +851,13 @@ changeJointRow1(HWND hDlg,LPARAM lParam,WPARAM wParam)
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, GD_J1X1, temp, 20);
-         joints[jindex + 0].d1.x = strtod(temp, NULL);
+         joints[jindex + 0].epx1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J1Y1, temp, 20);
-         joints[jindex + 0].d1.y = strtod(temp, NULL);
+         joints[jindex + 0].epy1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J1X2, temp, 20);
-         joints[jindex + 0].d2.x = strtod(temp, NULL);
+         joints[jindex + 0].epx2 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J1Y2, temp, 20);
-         joints[jindex + 0].d2.y = strtod(temp, NULL);
+         joints[jindex + 0].epy2 = strtod(temp, NULL);
          joints[jindex + 0].type = GetDlgItemInt(hDlg, GD_J1T, NULL, FALSE);
       } // end if
 
@@ -873,21 +873,25 @@ changeJointRow2(HWND hDlg,LPARAM lParam,WPARAM wParam)
    {
       //if(lParam == EN_KILLFOCUS) {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
-      {
-         SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
-         GetDlgItemText(hDlg, GD_J2X1, temp, 20);
-         joints[jindex + 1].d1.x = strtod(temp, NULL);
-         GetDlgItemText(hDlg, GD_J2Y1, temp, 20);
-         joints[jindex + 1].d1.y = strtod(temp, NULL);
-         GetDlgItemText(hDlg, GD_J2X2, temp, 20);
-         joints[jindex + 1].d2.x = strtod(temp, NULL);
-         GetDlgItemText(hDlg, GD_J2Y2, temp, 20);
-         joints[jindex + 1].d2.y = strtod(temp, NULL);
-         joints[jindex + 1].type = GetDlgItemInt(hDlg, GD_J2T, NULL, FALSE);
-      } // end if
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))  {
 
-   } // end if
+         SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
+
+         GetDlgItemText(hDlg, GD_J2X1, temp, 20);
+         joints[jindex + 1].epx1 = strtod(temp, NULL);
+
+         GetDlgItemText(hDlg, GD_J2Y1, temp, 20);
+         joints[jindex + 1].epy1 = strtod(temp, NULL);
+
+         GetDlgItemText(hDlg, GD_J2X2, temp, 20);
+         joints[jindex + 1].epx2 = strtod(temp, NULL);
+
+         GetDlgItemText(hDlg, GD_J2Y2, temp, 20);
+         joints[jindex + 1].epy2 = strtod(temp, NULL);
+         joints[jindex + 1].type = GetDlgItemInt(hDlg, GD_J2T, NULL, FALSE);
+      } 
+
+   } 
 
 } /* close changeJointRow2() */
 
@@ -902,13 +906,13 @@ changeJointRow3(HWND hDlg,LPARAM lParam,WPARAM wParam)
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, GD_J3X1, temp, 20);
-         joints[jindex + 2].d1.x = strtod(temp, NULL);
+         joints[jindex + 2].epx1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J3Y1, temp, 20);
-         joints[jindex + 2].d1.y = strtod(temp, NULL);
+         joints[jindex + 2].epy1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J3X2, temp, 20);
-         joints[jindex + 2].d2.x = strtod(temp, NULL);
+         joints[jindex + 2].epx2 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J3Y2, temp, 20);
-         joints[jindex + 2].d2.y = strtod(temp, NULL);
+         joints[jindex + 2].epy2 = strtod(temp, NULL);
          joints[jindex + 2].type = GetDlgItemInt(hDlg, GD_J3T, NULL, FALSE);
       } // end if
 
@@ -927,13 +931,13 @@ changeJointRow4(HWND hDlg,LPARAM lParam,WPARAM wParam)
       {
          SendMessage((HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, GD_J4X1, temp, 20);
-         joints[jindex + 3].d1.x = strtod(temp, NULL);
+         joints[jindex + 3].epx1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J4Y1, temp, 20);
-         joints[jindex + 3].d1.y = strtod(temp, NULL);
+         joints[jindex + 3].epy1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J4X2, temp, 20);
-         joints[jindex + 3].d2.x = strtod(temp, NULL);
+         joints[jindex + 3].epx2 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J4Y2, temp, 20);
-         joints[jindex + 3].d2.y = strtod(temp, NULL);
+         joints[jindex + 3].epy2 = strtod(temp, NULL);
          joints[jindex + 3].type = GetDlgItemInt(hDlg, GD_J4T, NULL, FALSE);
       } // end if
 
@@ -952,13 +956,13 @@ changeJointRow5(HWND hDlg,LPARAM lParam,WPARAM wParam)
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, GD_J5X1, temp, 20);
-         joints[jindex + 4].d1.x = strtod(temp, NULL);
+         joints[jindex + 4].epx1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J5Y1, temp, 20);
-         joints[jindex + 4].d1.y = strtod(temp, NULL);
+         joints[jindex + 4].epy1 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J5X2, temp, 20);
-         joints[jindex + 4].d2.x = strtod(temp, NULL);
+         joints[jindex + 4].epx2 = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_J5Y2, temp, 20);
-         joints[jindex + 4].d2.y = strtod(temp, NULL);
+         joints[jindex + 4].epy2 = strtod(temp, NULL);
          joints[jindex + 4].type = GetDlgItemInt(hDlg, GD_J5T, NULL, FALSE);
       } // end if
 

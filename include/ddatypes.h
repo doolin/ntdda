@@ -53,7 +53,6 @@ typedef void  (*DisplayFunc)(const char * message);
 typedef struct _jointmat JointMat;
 typedef struct _blockmat BlockMat;
 typedef struct _pstress PStress;
-typedef struct _joint Joint;
 typedef struct _ddapoint DDAPoint;
 typedef struct _ddaline DDALine;
 typedef struct _ddarect DDARect;
@@ -69,24 +68,7 @@ typedef struct {
 } DPoint;
 
 
-/* Joint: pointer to 2 endpoints, material type, number of intersections,
- * and pointer to list of node addresses 
- */
-struct _joint {
-  	DPoint d1;
-  	DPoint d2;
-  	int	type;
-  	DPoint *endpt1; 
-  	DPoint *endpt2;
-   double epx1, epy1, epx2, epy2;
-  	//EqnCoeff *coeff;
-  	int jmatype;
-  	int numintersect;
-  	//Nodelist *firstNode;
-  	//Joint *next;
-   double length;
-   ddaboolean is_selected;
-};
+
 
 struct _jointmat {
 
@@ -117,6 +99,9 @@ struct _ddapoint{
 };
 
 
+/** Used in geometry reading code to specify a fixed line,
+ * could also be used to specify a material line.
+ */
 struct _ddaline{
 	double x1;
 	double y1;

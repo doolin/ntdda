@@ -11,6 +11,7 @@
 #endif  
 
 #include "bolt.h"
+#include "joint.h"
 
 #ifdef WIN32
 #pragma warning( disable : 4115 )        
@@ -172,32 +173,32 @@ static ddaboolean //entirely trg error here
 inBoundingBox(Joint * jp, POINT p, double eps)
 {
    //int flag = 1;
-   double endp1x,endp1y,endp2x,endp2y,currentx,currenty; 
-   endp1x = jp->d1.x;
-   endp1y = jp->d1.y;
-   endp2x = jp->d2.x;
-   endp2y = jp->d2.y;
+   double endpx1,endpy1,endpx2,endpy2,currentx,currenty; 
+   endpx1 = jp->epx1;
+   endpy1 = jp->epy1;
+   endpx2 = jp->epx2;
+   endpy2 = jp->epy2;
    currentx = p.x;
    currenty = p.y;
 
-   if (endp1x > endp2x)
+   if (endpx1 > endpx2)
    {
-     if ((currentx < endp2x-eps) || (currentx > endp1x+eps))
+     if ((currentx < endpx2-eps) || (currentx > endpx1+eps))
          return FALSE;
    }
    else 
    {
-     if ((currentx > endp2x+eps) || (currentx < endp1x-eps))
+     if ((currentx > endpx2+eps) || (currentx < endpx1-eps))
          return FALSE;
    }
-   if (endp1y > endp2y)
+   if (endpy1 > endpy2)
    {
-     if ((currenty < endp2y-eps) || (currenty > endp1y+eps))
+     if ((currenty < endpy2-eps) || (currenty > endpy1+eps))
          return FALSE;
    }
    else 
    {
-     if ((currenty > endp2y+eps) || (currenty < endp1y-eps))
+     if ((currenty > endpy2+eps) || (currenty < endpy1-eps))
          return FALSE;
    }
    return TRUE;
@@ -211,10 +212,10 @@ inBoundingBoxEP(Joint * jp, POINT p)
    double eps;
    double endp1x,endp1y,endp2x,endp2y,currentx,currenty; 
    eps = 7.0;
-   endp1x = jp->d1.x;
-   endp1y = jp->d1.y;
-   endp2x = jp->d2.x;
-   endp2y = jp->d2.y;
+   endp1x = jp->epx1;
+   endp1y = jp->epy1;
+   endp2x = jp->epx2;
+   endp2y = jp->epy2;
    currentx = p.x;
    currenty = p.y;
 
@@ -241,10 +242,10 @@ closetoJoint(Joint * jp, POINT p)
        //MessageBox(NULL, message, NULL, MB_OK);
        return FALSE;
    }
-   a = jp->d2.x - jp->d1.x;
-   b = p.x  - jp->d1.x;
-   c = jp->d2.y - jp->d1.y;
-   d = p.y  - jp->d1.y;
+   a = jp->epx2 - jp->epx1;
+   b = p.x  - jp->epx1;
+   c = jp->epy2 - jp->epy1;
+   d = p.y  - jp->epy1;
   /* we want half the determinant ad-bc */
    twicearea  = fabs( a*d - b*c );
    
@@ -275,8 +276,8 @@ distBtwPoints(POINT p1, POINT p2)
 
 
 static void      //travis
-drawBlackSquare(DPoint * ptmp, int radius)
-{
+//drawBlackSquare(DPoint * ptmp, int radius)
+drawBlackSquare(double x, double y, int radius) {
 
    //POINT tri[3];
    POINT square[4];
@@ -291,14 +292,14 @@ drawBlackSquare(DPoint * ptmp, int radius)
 
    //drawSinglePoint(hdc, newpoint);
 
-   square[0].x = (int) (ptmp->x + radius);
-   square[0].y = (int) (ptmp->y + radius);
-   square[1].x = (int) (ptmp->x + radius);
-   square[1].y = (int) (ptmp->y - radius);
-   square[2].x = (int) (ptmp->x - radius);
-   square[2].y = (int) (ptmp->y - radius);
-   square[3].x = (int) (ptmp->x - radius);
-   square[3].y = (int) (ptmp->y + radius);
+   square[0].x = (int) (x + radius);
+   square[0].y = (int) (y + radius);
+   square[1].x = (int) (x + radius);
+   square[1].y = (int) (y - radius);
+   square[2].x = (int) (x - radius);
+   square[2].y = (int) (y - radius);
+   square[3].x = (int) (x - radius);
+   square[3].y = (int) (y + radius);
 
 	SetPolyFillMode (hdc, WINDING) ;
 	Polygon(hdc, square, 4);
@@ -309,28 +310,27 @@ drawBlackSquare(DPoint * ptmp, int radius)
 
 
 static void
-drawJointHandles(Joint * jp)
-{
+drawJointHandles(Joint * jp) {
+
    int radius = 3; // pixels
+   drawBlackSquare(jp->epx1, jp->epy1, radius);
+   drawBlackSquare(jp->epx2, jp->epy2, radius);
 
-   
-
-   drawBlackSquare(&jp->d1, radius);
-   drawBlackSquare(&jp->d2, radius);
-
-}  /* close drawJointHandles() */
+} 
 
 
-
+/** @todo Fix the api to not take the point struct. */
 static void  //trg
 drawJointHandle(Joint * jp, int num)
 {
    int radius = 3; // pixels
 
+
    if (num == 1)
-	   drawBlackSquare(&jp->d1, radius);
+	   drawBlackSquare(jp->epx1, jp->epy1, radius);
    if (num == 2)
-	   drawBlackSquare(&jp->d2, radius);
+	   drawBlackSquare(jp->epx2, jp->epy2, radius);
+
 
 }  /* close drawJointHandles() */
 
@@ -339,10 +339,10 @@ static void //trg
 redrawJoint(Joint * jp)
 {
   int endp1x,endp1y,endp2x,endp2y; 
-   endp1x = (int)jp->d1.x;
-   endp1y = (int)jp->d1.y;
-   endp2x = (int)jp->d2.x;
-   endp2y = (int)jp->d2.y; 
+   endp1x = (int)jp->epx1;
+   endp1y = (int)jp->epy1;
+   endp2x = (int)jp->epx2;
+   endp2y = (int)jp->epy2; 
    
    MoveToEx(hdc, endp1x, endp1y, NULL);
 
@@ -553,10 +553,10 @@ addJoint(HWND hDlg)
      /* Grab a new joint.. */
       newjoint = (Joint *)calloc(1,sizeof(Joint));
      /* Set the endpoints */
-		newjoint->d1.x = ptBegin.x;
-		newjoint->d1.y = ptBegin.y;
-		newjoint->d2.x = ptNew.x;
-	  	newjoint->d2.y = ptNew.y;
+		newjoint->epx1 = ptBegin.x;
+		newjoint->epy1 = ptBegin.y;
+		newjoint->epx2 = ptNew.x;
+	  	newjoint->epy2 = ptNew.y;
 		newjoint->type = type;
 
      /* Let's compute the length by distance formula future reference. */
@@ -788,8 +788,8 @@ drawJoints(HDC hdc)
       jtmp = ptr->val;
       color = jtmp->type;
 		SelectObject(hdc, drawPen[color]);
-		MoveToEx(hdc, (int) jtmp->d1.x, (int) jtmp->d1.y, NULL);
-		LineTo(hdc, (int) jtmp->d2.x, (int) jtmp->d2.y);
+		MoveToEx(hdc, (int) jtmp->epx1, (int) jtmp->epy1, NULL);
+		LineTo(hdc, (int) jtmp->epx2, (int) jtmp->epy2);
    }
 
 }  /* close drawJoints() */
@@ -838,8 +838,8 @@ handleRemoveJoints(HWND hDlg, HDC hdc)
 
 	SelectObject(hdc, drawPen[0]); // 0 is white
 	SetROP2(hdc, R2_COPYPEN);
-	MoveToEx(hdc, (int) jtmp->d1.x, (int) jtmp->d1.y, NULL);
-	LineTo(hdc, (int) jtmp->d2.x, (int) jtmp->d2.y);
+	MoveToEx(hdc, (int) jtmp->epx1, (int) jtmp->epy1, NULL);
+	LineTo(hdc, (int) jtmp->epx2, (int) jtmp->epy2);
 
   /* Clean up. */
    free(jtmp);
@@ -1146,10 +1146,10 @@ transferJointlistToGeomStruct(Geometrydata * gd,
    {
       jtmp = ptr->val;
 
-      gd->joints[i+1][1] = jtmp->d1.x;
-      gd->joints[i+1][2] = jtmp->d1.y; 
-      gd->joints[i+1][3] = jtmp->d2.x;
-      gd->joints[i+1][4] = jtmp->d2.y;
+      gd->joints[i+1][1] = jtmp->epx1;
+      gd->joints[i+1][2] = jtmp->epy1; 
+      gd->joints[i+1][3] = jtmp->epx2;
+      gd->joints[i+1][4] = jtmp->epy2;
       gd->joints[i+1][5] = jtmp->type;
       i++;
    } 

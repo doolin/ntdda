@@ -286,6 +286,10 @@ SOURCE=.\src\inpoly.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\joint.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\resource.h
 # End Source File
 # Begin Source File

@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/06/01 15:07:47 $
+ * $Date: 2002/06/04 03:41:17 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  */
 
 
@@ -27,6 +27,7 @@
 #include "geometrydata.h"
 
 #include "bolt.h"
+#include "joint.h"
 
 
 typedef DList JOINTLIST;

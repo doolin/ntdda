@@ -45,7 +45,7 @@ Bolt *     bolt_new_1          (double x1,
  * @return int a for passing, 0 for failing.
  */
 int        bolt_equals         (Bolt * b1,
-				Bolt * b2);
+                           	  Bolt * b2);
 
 void       bolt_delete         (Bolt *);
 

@@ -14,6 +14,7 @@
 #include "dda.h"
 #include "wingraph.h"
 #include "geometrydata.h"
+#include "joint.h"
 
 
 /* GEOMSCALE is for printing */
@@ -137,10 +138,10 @@ drawLines(HDC hdc, HPEN hpen[10], double scale, POINT offset,
         SelectObject(hdc, hpen[ii]);
       }  
 
-	    p1.x = (int)(j[i].d1.x*scale + .5 + offset.x);
-	    p1.y = (int)(j[i].d1.y*scale + .5 + offset.y);
-	    p2.x = (int)(j[i].d2.x*scale + .5 + offset.x);
-	    p2.y = (int)(j[i].d2.y*scale + .5 + offset.y);
+	    p1.x = (int)(j[i].epx1*scale + .5 + offset.x);
+	    p1.y = (int)(j[i].epy1*scale + .5 + offset.y);
+	    p2.x = (int)(j[i].epx2*scale + .5 + offset.x);
+	    p2.y = (int)(j[i].epy2*scale + .5 + offset.y);
 
 	    MoveToEx(hdc, p1.x, p1.y, NULL);
 	    LineTo(hdc, p2.x, p2.y);
