@@ -279,7 +279,8 @@ openAnalysisFiles(Filepaths * filepath) {
 
    fp.boltfile = fopen(filepath->boltfile, "w");
    fp.boltlogfile = fopen(filepath->boltlogfile, "w");
-   fprintf(fp.boltlogfile, "Elapsed Time: bolt1x1,bolt1y1 bolt1x2,bolt1y2; bolt2x1,bolt2y1 bolt2x2,bolt2y2; etc\n");
+   //mmm: added force in bolt
+   fprintf(fp.boltlogfile, "Elapsed Time: bolt1x1,bolt1y1 bolt1x2,bolt1y2 bolt1force; bolt2x1,bolt2y1 bolt2x2,bolt2y2 bolt2force; etc\n");
    fp.vertexfile = fopen(filepath->vertexfile, "w");
    fp.vertexlogfile = fopen(filepath->vertexlogfile, "w");
 

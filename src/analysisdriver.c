@@ -7,6 +7,9 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.41  2003/06/10 19:03:21  doolin
+ * bolt output file now contains bolt forces.
+ *
  * Revision 1.40  2002/12/20 05:20:02  doolin
  * Catch up commit.
  *
@@ -364,7 +367,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    //adata_set_output_flag(AData, BLOCKSTRESSES);
    //adata_set_output_flag(AData, PENALTYFORCES);
    //adata_set_output_flag(AData, FRICTIONFORCES);
-   //adata_set_output_flag(AData, BOLTS);
+   adata_set_output_flag(AData, BOLTS);
   /* FIXME: This is a horrible bogosity: moments need to 
    * be written from the geometry data, not the analysis
    * data.  
