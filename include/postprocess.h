@@ -23,7 +23,7 @@
 /******************** Post-processing code ******************/
 void writeCentroids(Analysisdata *, GRAPHICS *, int numblocks);
 void writeSpringStiffness(Analysisdata *);
-void writeFriction(DATALOG *);
+void writeFriction(Datalog *);
 void writeBlocks(Geometrydata *, char *);
 void writeReplayFile(Geometrydata *, Analysisdata *);
 void writeAvgArea(Analysisdata * ad);

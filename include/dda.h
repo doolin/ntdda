@@ -76,7 +76,6 @@ typedef enum inputfiletype IFT;
 
 
 /* FIXME: move this into a better header. */
-void initFilePaths(FILEPATHS *);
 
 typedef struct gui_tag Gui;
 
@@ -95,8 +94,8 @@ typedef struct _dda_gui DDAGui;
 
 
 int ddanalysis(DDA *, FILEPATHS *, GRAPHICS *);
-
 void display(Geometrydata * GData, Analysisdata *, GRAPHICS *gg);
+void initFilePaths(FILEPATHS *);
 
 
 
@@ -112,11 +111,11 @@ int            dda_run(DDA *);
 
 Geometrydata * dda_get_geometrydata   (DDA *);
 void           dda_set_geometrydata   (DDA *, 
-                                       Geometrydata *);
+                                       Geometrydata * geometrydata);
 
 Analysisdata * dda_get_analysisdata   (DDA *);
 void           dda_set_analysisdata   (DDA *, 
-                                       Analysisdata *);
+                                       Analysisdata * analysisdata);
 
 ddaboolean     dda_get_toolbarvis     (DDA *);
 void           dda_set_toolbarvis     (DDA *, 

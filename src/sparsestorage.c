@@ -25,7 +25,7 @@
  */
 //#include "sparsestorage.h"
 
-extern DATALOG * DLog;
+extern Datalog * DLog;
 extern FILEPOINTERS fp;
 
 /* These used to be globals, then they were passed around as

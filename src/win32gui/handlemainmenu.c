@@ -1,13 +1,16 @@
 /* 
  * handlemainmenu.c
  *
- * All of the main menu code gets handled her in 
+ * All of the main menu code gets handled here in 
  * response to a WM_INITMENU message.
  */
 
 #include "winmain.h"
 #include "win32utils.h"
 #include "resource.h"
+#include "menu.h"
+#include "options.h"
+#include "runstates.h"
 
 
 
@@ -21,8 +24,8 @@ updateMainMenuA(HWND hwMain, int state)
 
    hMainMenu = GetMenu(hwMain);
 
-   switch(state)
-   {
+   switch(state) {
+
       case READY_STATE:
          //MessageBox(NULL,"Ready menu state",NULL,MB_OK);
          break;
@@ -124,7 +127,7 @@ updateMainMenuA(HWND hwMain, int state)
  * docs that shipped with msvc++ v6. 
  */  
 void 
-handleOptionsMenu(HWND hwMain, WPARAM wParam, OPTIONS * o)
+handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
 {  
    int submenuposition;
    MENUITEMINFO mii;

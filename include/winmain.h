@@ -1,37 +1,29 @@
 
 
-#ifndef _WINMAIN
-#define _WINMAIN
+#ifndef __WINMAIN_H__
+#define __WINMAIN_H__
 
-//#define WINDOWS 1
 
 #include <windows.h>
 #include <windowsx.h>
-//#include <winuser.h>
 
 
 /*
  * Add stuff so that the dda.h file is not so full
  */
 #include "dda.h"
+#include "options.h"
 
 
 /* These were moved in from dda.h */
 #define WINGRAPHICS 1
 #define OPENGL 0
 
-/* Use these to set top level menu items */
-#define READY_STATE 0x000001
-#define GEOM_STATE  0x000002
-#define ANA_STATE   0x000004
-#define RUNNING     0x000008
-#define FINISHED    0x000010
-#define ABORTED     0x000020
 
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.h,v 1.8 2002/05/25 14:49:39 doolin Exp $\n", \
+              "$Id: winmain.h,v 1.9 2002/05/26 15:56:05 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -109,8 +101,8 @@ void handleWinPaint(HWND,WPARAM,LPARAM,int ,int);
 void handleGeomDraw(HWND);
 void handleVisualEditor(HWND hwMain, LPARAM);
 void handleGeometryDialog(HWND hwMain, LPARAM);
-/* This function is actually in winmain.c */
-void updateAnalysisStatusBar(HWND);
+
+
 void handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam, FILEPATHS *);
 void handleCommandLine(HWND, int argc, char ** argv, FILEPATHS *);
 
@@ -122,7 +114,7 @@ void handleMainAbout(HWND hwMain);
 
 void handleHtmlHelp(HWND hwMain, WPARAM wParam, LPARAM lParam);
 void updateMainMenuA(HWND hwMain, int state);
-void handleOptionsMenu(HWND hwMain, WPARAM wParam, OPTIONS * o);
+void handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o);
 
 
 /* FIXME: Definitely move this out of this 
@@ -135,4 +127,4 @@ int handleAPWEDGE(HWND);
 
 /*** function declarations ***/
 
-#endif /*  _WINMAIN  */
+#endif /*  __WINMAIN_H__  */

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "winmain.h"
+#include "statusbar.h"
 
 
 /* Who gets to initialize this interface, and where
@@ -51,16 +52,14 @@ getNewIFace()
 {
     InterFace * iface;
     iface = (InterFace*)calloc(1,sizeof(InterFace));
-    if (iface)
-    {  
-       //iface->rungeometry = ddacut;
-       //iface->runanalysis = ddanalysis;
-       //iface->displaymessage = displayMessage;
+
+    if (iface != NULL) {  
+
        iface->setdisplay = setDisplay;
        iface->setafetext = setAnalysisFText;
 	    iface->updatedisplay = updateDisplay;
        iface->updatestatusbar = updateStatusBar;
-       iface->displaywarning = displayWarning;
+       //iface->displaywarning = displayWarning;
        iface->setoc_count = setOCCount;
 
        iface->this = iface;
@@ -101,7 +100,8 @@ displayMessage(char * message)
    char * str = NULL;
    //char temp[10];
    //char * str2;
-#if WINDOWS
+
+#ifdef WIN32   //#if WINDOWS
    HWND currentwindow;
   // int i = 1;
    currentwindow = getCurrentHWND();
@@ -237,7 +237,7 @@ updateDisplay(void)
    * win32 feature only. 
    * Update the status bar for the next time step. 
    */
-   updateAnalysisStatusBar(hwMain);
+   updateAnalysisStatusBar();
 
 
 }  /* close updateDisplay() */

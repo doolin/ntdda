@@ -5,8 +5,13 @@
  * data structures in dda.  
  *
  * $Author: doolin $
- * $Date: 2002/05/19 16:43:03 $
+ * $Date: 2002/05/26 15:56:06 $
  * $Log: ddamemory.c,v $
+ * Revision 1.3  2002/05/26 15:56:06  doolin
+ * Status bar handling is vastly improved, ready and
+ * geometry states now unified.  Next, unify with analysis status,
+ * then define a callback framework to shorten the code by half.
+ *
  * Revision 1.2  2002/05/19 16:43:03  doolin
  * More general source cleanup.
  *
@@ -17,7 +22,7 @@
 
 #include <stdlib.h>
 #include <memory.h>
-#include<assert.h>
+#include <assert.h>
 #include "ddamemory.h"
 
 

@@ -5,6 +5,8 @@
 #ifndef __TOOLBAR_H__
 #define __TOOLBAR_H__
 
+#include <windef.h>
+
 #ifdef __cpluplus
 extern "C" {
 #endif
@@ -13,12 +15,14 @@ extern "C" {
 #endif
 
 
-
-void    dda_set_toolbar_state(void);
-
+typedef struct _toolbar Toolbar;
 
 
+void    toolbar_init       (HWND hwMain, 
+                            HWND * htoolbar);
 
+void    toolbar_set_state  (HWND htoolbar, 
+                            unsigned int state);
 
 
 #ifdef __cplusplus

@@ -603,15 +603,7 @@ handleInit(HWND hDlg, WPARAM wParam, LPARAM lParam)
          CheckRadioButton(hDlg, IDC_RADIO1, IDC_RADIO4, IDC_RADIO1);
 
 			tool=0; type=1; inside = TRUE;
-
-//   if (grid == TRUE)
-//      SendMessage(hDlg, WM_COMMAND, DD_GRON, 0L);
-
-			//ReleaseDC(hDlg, hdc);
-
-   //initMainToolbar(hDlg);
-
-}  /* close handleInit() */
+}  
 
 
 

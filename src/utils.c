@@ -6,9 +6,9 @@
  * matrix inverse, etc.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:41 $
+ * $Date: 2002/05/26 15:56:06 $
  * $Source: /cvsroot/dda/ntdda/src/utils.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  */
 
 
@@ -24,7 +24,7 @@
 
 
 extern FILEPOINTERS fp;
-extern DATALOG * DLog;
+extern Datalog * DLog;
 extern InterFace * iface;
 
 

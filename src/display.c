@@ -36,10 +36,6 @@ extern HWND anastatus;
 #endif
 
 
-/* FIXME: Get rid of this function prototype by moving the 
- * function call into interface file.
- */
-//void updateAnalysisStatusBar();
 
 void
 display(Geometrydata * GData, Analysisdata * AData, GRAPHICS *gg)

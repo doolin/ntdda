@@ -5,9 +5,9 @@
  * Handle a number of postprocessing chores.
  * 
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:41 $
+ * $Date: 2002/05/26 15:56:06 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  */
 
 #include <malloc.h>
@@ -28,10 +28,10 @@ extern InterFace * iface;
 
 /* necessary evil right now. */
 extern FILEPOINTERS fp;
-extern DATALOG * DLog;
+extern Datalog * DLog;
 
-void writeHTMLLogFile(Geometrydata *, Analysisdata *, DATALOG *, GRAPHICS *, FILE *);
-void writeDataLog(Geometrydata *, Analysisdata *, DATALOG *);
+void writeHTMLLogFile(Geometrydata *, Analysisdata *, Datalog *, GRAPHICS *, FILE *);
+void writeDataLog(Geometrydata *, Analysisdata *, Datalog *);
 
 /* This will eventually handle all of the postprocessing 
  * requested by the user through using flags, etc.  For 
@@ -100,7 +100,7 @@ postProcess(Geometrydata * GData, Analysisdata * AData, GRAPHICS * g)
 
 
 void
-writeDataLog(Geometrydata * gd, Analysisdata * ad, DATALOG * dlog)
+writeDataLog(Geometrydata * gd, Analysisdata * ad, Datalog * dlog)
 {
    int i;
    char  * matlabcomment = "%% ";
@@ -323,7 +323,7 @@ writeSpringStiffness(Analysisdata * ad)
  * according to the friction relationship.
  */
 void
-writeFriction(DATALOG * data)
+writeFriction(Datalog * data)
 {
    int i,j;
   /* matlab style comments */

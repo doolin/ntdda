@@ -4,9 +4,9 @@
  * Handles the result of message passing from the 
  * analysis dialog box.
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:42 $
+ * $Date: 2002/05/26 15:56:07 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/analysisdialog.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  */
 
 #include "analysisdlg.h"
@@ -985,7 +985,7 @@ saveData()
   /* in with the new. */
    ad->loadpoints = lpoints;
 
-   ad->dump(ad->this,fp);
+   ad->dump(ad,fp);
    //dumpAnalysisData(ad,fp);
 
   /* Leave this stuff for clean up. */

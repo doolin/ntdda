@@ -5,8 +5,8 @@
  * Provides nicely formatted html output from DDA 
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:41 $
- * $Revision: 1.4 $
+ * $Date: 2002/05/26 15:56:06 $
+ * $Revision: 1.5 $
  * $Source: /cvsroot/dda/ntdda/src/loghtml.c,v $
  */
 
@@ -28,6 +28,7 @@
 #include "analysisdata.h"
 #include "geometrydata.h"
 #include "graphics.h"
+#include "options.h"
 
 #ifdef WIN32
 #include "winmain.h"
@@ -48,7 +49,7 @@ extern FILEPATHS filepath;
 extern FILEPOINTERS fp;
 
 #ifdef WIN32
-extern OPTIONS options;
+extern Options options;
 #endif
 //extern DDAError ddaerror;
 
@@ -60,8 +61,7 @@ extern OPTIONS options;
  */
 int
 writeHTMLLogFile(Geometrydata * gd, Analysisdata * ad,
-                 DATALOG * dlog, GRAPHICS * g, FILE * htmlfile)
-{
+                 Datalog * dlog, GRAPHICS * g, FILE * htmlfile) {
 
    writeHTMLHeader(htmlfile);
 

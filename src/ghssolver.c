@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2001/07/14 15:39:37 $
+ * $Date: 2002/05/26 15:56:06 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  *
  */
 #include <assert.h>
@@ -38,7 +38,7 @@ int * ipiv;
  * data to write to arbitrary files.
  */
 extern FILEPOINTERS fp;
-extern DATALOG * DLog;
+extern Datalog * DLog;
 
 void df20(double ** K, double ** F,int *, int **, int numblocks);
 void df20blas(double ** K, double ** F,int *, int **, int numblocks);

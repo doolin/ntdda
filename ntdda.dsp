@@ -226,11 +226,23 @@ SOURCE=.\src\print.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\win32gui\profile.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\replay.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\win32gui\statusbar.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\win32gui\testpropsheet.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\win32gui\toolbar.c
 # End Source File
 # Begin Source File
 

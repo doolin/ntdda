@@ -6,9 +6,9 @@
  * in DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:38 $
+ * $Date: 2002/05/26 15:56:04 $
  * $Source: /cvsroot/dda/ntdda/include/analysis.h,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  */
 
 #include"dda.h"
@@ -110,11 +110,8 @@
 
 
 void allocateAnalysisArrays(Geometrydata * GData, 
-                      /*int *** contacts, int *** locks, int *** m1,*/
-                       /*int *** prevcontacts,*/ 
-                       /*double *** contactlength,*/
-                       int ** kk, int ** k1, double *** c0, double *** e0,
-                       double *** angles, int *** n);
+                            int ** kk, int ** k1, double *** c0, double *** e0,
+                            double *** angles, int *** n);
 
 double df01(Geometrydata *);
 void df02(void);
@@ -227,17 +224,7 @@ void vertexInit(Geometrydata *);
 void blockNumberOfVertex(Geometrydata *);
 void savePreviousContacts(Geometrydata *, Analysisdata *,int **, int **, int **, double **);
 
-/* These may be duplicated in the geometry header file.
- */
-//int ** IntMat2DGetMem(int, int);
-//double ** DoubMat2DGetMem(int, int);
-//void freemat(void **, int);
 
-
-//void * freeAnalysisData(Analysisdata *);
-//#if UIOIUYIUYOIUYOIU
-//void openAnalysisFiles(FILEPATHS *);
-//#endif
 void closeAnalysisFiles();
 int porepressure(Geometrydata *, int *, double **, double **, double **);
 int inpoly(double **, int, double, double);
@@ -315,8 +302,12 @@ Analysisdata * analysisInput(char *, Geometrydata *);
 Analysisdata * analysisReader1(char *, Geometrydata *);
 //Analysisdata * analysisReader2(char *, int pointcount);
 
-DATALOG * initDatalog(Geometrydata *, Analysisdata *);
-int freeDatalog(DATALOG *);
+
+/** 
+ * FIXME: Datalog should have no dependence on 
+ * either geometry or analysis data structures.
+ */
+Datalog * initDatalog(Geometrydata *, Analysisdata *);
 Analysisdata * cloneAnalysisData(Analysisdata *);
 void dumpAnalysisData(Analysisdata *, FILE *);
 

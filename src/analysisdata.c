@@ -715,7 +715,6 @@ adata_new() {
    */
    //memset(ado, 0xDA, sizeof(Analysisdata));
 
-   ado->this = ado;
 
    /* Doing this basically introduces a user interface bug.
     * We need something to note whether the gravity tag is 

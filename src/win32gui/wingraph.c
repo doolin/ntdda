@@ -461,7 +461,7 @@ printTime(HDC hdc, GRAPHICS * g)
 
 
 int 
-drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, DATALOG * dl)
+drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, Datalog * dl)
 {   
    int i, j;
    POINT p1, p2;

@@ -15,7 +15,7 @@
 #include "contacts.h"
 
 extern InterFace * iface;
-extern DATALOG * DLog;
+extern Datalog * DLog;
 
 static char mess[80];
 

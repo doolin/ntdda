@@ -1,6 +1,6 @@
 
-#ifndef _DATALOG_H_
-#define _DATALOG_H_
+#ifndef __DATALOG_H__
+#define __DATALOG_H__
 
 #include <time.h>
 
@@ -122,7 +122,7 @@ typedef struct datalog_tag {
 
   /* Track diagonal dominance.  This should probably be moved to
    * struct that tracks numerical stuff separate from the
-   * DATALOG struct.
+   * Datalog struct.
    */
    int diagsize1;  // 2 + index
    int diagsize2;  // nBlocks + index
@@ -134,6 +134,12 @@ typedef struct datalog_tag {
    * handled with a struct *.
    */
    
-} DATALOG;
+} Datalog;
 
-#endif /* _DATALOG */
+
+void    datalog_delete (Datalog *);
+
+
+
+
+#endif /* __DATALOG_H__ */

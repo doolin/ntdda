@@ -6,12 +6,18 @@
 #include "geometrydata.h"
 
 
+
+/*
+void 
+datalog_set_number_of_timesteps(Datalog * dl, int numtsteps) {
+}
+*/
+
 /* This struct records a large amount of data
  * collected during an analysis.  
  */
-int
-freeDatalog(DATALOG * dl)
-{
+void
+datalog_delete(Datalog * dl) {
 
    assert(dl != NULL);
 
@@ -58,21 +64,19 @@ freeDatalog(DATALOG * dl)
 
    free(dl);
 
-   return 0;
-
-} /* Close freeDatalogStruct() */
+} 
 
 
 
-DATALOG * 
+Datalog * 
 initDatalog(Geometrydata * gd, Analysisdata * ad)
 {
    int numtimesteplus1 = ad->nTimeSteps+1;
 
   /* Log struct for collecting data during a run.
    */
-   DATALOG * dlo;
-   dlo = (DATALOG *)calloc(1,sizeof(DATALOG));
+   Datalog * dlo;
+   dlo = (Datalog *)calloc(1,sizeof(Datalog));
    
   /* At some point this stuff will need to be set in 
    * this function.   This will likely have to be rewritten
@@ -126,35 +130,19 @@ initDatalog(Geometrydata * gd, Analysisdata * ad)
 
    return dlo;
 
-}  /* Close DatalogStruct() */
+}  
 
-DATALOG * 
-cloneDatalog(DATALOG * dln)
+
+
+Datalog * 
+cloneDatalog(Datalog * dln)
 {
   /* Log struct for collecting data during a run.
    */
-   DATALOG * dlo;
+   Datalog * dlo;
 
    /* FIXME: call initDataLog() instead */
-   dlo = (DATALOG *)malloc(sizeof(DATALOG));
-   /* Then do a memset here. */
-   //memset(dlo,dln,sizeof(DATALOG));
-   
-   /* Now reset the pointers to new copies of data */
-   
-   //dlo = initDatalog();
-
-   //dlo->centroidsize1 = dln->centroidsize1;
-   //dlo->centroidsize2 = dln->centroidsize2;
-   //dlo->centroids = clone2DMatDoub(dln->centroids, dln->centroidsize1, dln->centroidsize2);
-
-   //dlo->stressessize1 = dln->stressessize1;
-   //dlo->stressessize2 = dln->stressessize2;
-   //dlo->stresses = clone2DMatDoub(dln->stresses,dln->stressessize1, dln->stressessize2);
-
-   //dlo->phisize1 = dln->phisize1;
-   //dlo->phisize2 = dln->phisize2;
-   //dlo->phi = clone2DMatDoub(dln->phi,dln->phisize1,dln->phisize2);
+   dlo = (Datalog *)malloc(sizeof(Datalog));
 
    return dlo;
 

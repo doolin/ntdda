@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/05/25 14:49:40 $
+ * $Date: 2002/05/26 15:56:05 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.23 $
+ * $Revision: 1.24 $
  *
  */
 /*################################################*/
@@ -17,6 +17,11 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.24  2002/05/26 15:56:05  doolin
+ * Status bar handling is vastly improved, ready and
+ * geometry states now unified.  Next, unify with analysis status,
+ * then define a callback framework to shorten the code by half.
+ *
  * Revision 1.23  2002/05/25 14:49:40  doolin
  * Many changes in gui and file handling code to help
  * ease memory management and control of flow problems.
@@ -143,7 +148,7 @@
 //#define DISPDEP 0
 
 extern FILEPOINTERS fp;
-extern DATALOG * DLog;
+extern Datalog * DLog;
 extern InterFace * iface;
 
 /**************************************************/
@@ -211,7 +216,7 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
    int nJointMats = ad->nJointMats;
    int **vindex = gd->vindex;
    //int nBlocks = gd->nBlocks;
-   extern DATALOG * DLog;
+   extern Datalog * DLog;
     
   /* This will be reset if adaptive time-stepping
    * is enabled.
@@ -3047,7 +3052,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    avgarea = computeMoments(gd); //, moments);
    if (avgarea == 0)
    {
-      ad->abort(ad->this);
+      ad->abort(ad);
       /* Not the right way to do this. */
       //ddaerror.error = __ZERO_MOMENT_ERROR__;
       //iface->displaymessage("Zero block area");

@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2002/05/26 01:16:08 $
+ * $Date: 2002/05/26 15:56:07 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  */
 
 
@@ -36,7 +36,9 @@
 #include "wingraph.h"
 #include "graphics.h"
 #include "replay.h"
-
+#include "toolbar.h"
+#include "statusbar.h"
+#include "runstates.h"
 
 /* Win32 calling conventions. */
 #ifndef CALLBACK
@@ -71,11 +73,6 @@ int xcursor;
 int ycursor;
 
 
-/* FIXME: Move to local if possible */
-/* These won't work until version msvc 6 */
-// User global variables
-HICON g_hIcon0 = NULL;		// User icon 0, handle return by parser when 'Icon0' keyword is used
-HICON g_hIcon1 = NULL;		// User icon 1, handle return by parser when 'Icon1' keyword is used
 
 
 /* Unfortunately, several variables are better 
@@ -84,7 +81,7 @@ HICON g_hIcon1 = NULL;		// User icon 1, handle return by parser when 'Icon1' key
  * to provide the ability for more than one analysis
  * at a time.
  */
-OPTIONS options;
+Options options;
 FILEPATHS filepath;
 FILEPOINTERS fp;
 
@@ -103,7 +100,12 @@ DWORD dwHTMLCookie;
 
 
 /* FIXME: Make these into just one status bar. */
-HWND readystatus, geomstatus, anastatus;
+//HWND readystatus;
+//HWND geomstatus;
+HWND anastatus;
+HWND statusbar;
+
+
 HWND hprogbar;
 HWND hToolBar;
 
@@ -141,15 +143,12 @@ void initMainToolbar(HWND hwMain);
 void displayPhysicalCoordinates(HWND hwMain, WPARAM wParam, LPARAM lParam);
 DPoint DPtoPP(HWND hwMain, int xpos, int ypos);
 
-static void updateGeometryStatusBar(HWND);
    
 /* Move this to its own header file. */
 int CreateTestPropSheet(HWND hwMain, Analysisdata *);
 
 
-/* LAST LONELY GLOBAL, PASSED AROUND WHEREVER
- * NEEDED!
- */
+
 InterFace * iface;
 
 
@@ -178,51 +177,7 @@ dda_display_info(const char * message) {
    return 0;
 }
 
-/* TODO: Flesh out a preferences API.  The 
- * default location for the .ini files are
- * the Windows directory, which is reasonable.
- * It would take quite a bit of work to implement
- * all the ini reading and writing into some 
- * specified directory.
- */
-static void
-writeDDAProfile() {
 
-   /*
-   //char message[240];
-  
-   char winbuf[240];
-   char sysbuf[240];
-   char retbuf[8192*4];
-
-   WritePrivateProfileString("DDA_Top_Level_Section",  // section name
-                             "Foo",       // key
-                             "Bar",       // value
-                             "dda.ini\0");  // filename
-   WritePrivateProfileString("DDA_Top_Level_Section",  // section name
-                             "Bar",       // key
-                             "Baz",       // value
-                             "dda.ini\0");  // filename   
-   WritePrivateProfileString("DDA_Output_Options_Section",  // section name
-                             "mpoints",       // key
-                             "1",       // value
-                             "dda.ini\0");  // filename
-   
-   GetWindowsDirectory(winbuf,240);
-   MessageBox(NULL,winbuf,NULL,MB_OK);
-   GetSystemDirectory(sysbuf,240);
-   MessageBox(NULL,sysbuf,NULL,MB_OK);
-
-   GetPrivateProfileSection("DDA_Top_Level_Section",
-                             retbuf,
-                             8192*4,
-                             "dda.ini");
-   MessageBox(NULL,retbuf,NULL,MB_OK);
-
-   showlasterror(GetLastError());
-*/
-
-}  /* close writeDDAProfile() */
 
 
 static void 
@@ -231,27 +186,9 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
    HINSTANCE hInst;
    INITCOMMONCONTROLSEX icex;
 
-  /* FIXME: This needs to be just one control ID for 
-   * one status bar, and it should be set from the 
-   * appropriate value in the resource.h file.
-   */
-   UINT DDA_R_STATUSBAR = 0;
-   UINT DDA_G_STATUSBAR = 1;
-   UINT DDA_A_STATUSBAR = 2;
-
-   int readyparts[1] = { -1 };
-#define SB_GEOM_PARTS 7
-   int geomparts[SB_GEOM_PARTS];
-#define SB_ANAL_PARTS 10
-   int anaparts[SB_ANAL_PARTS];
-
    icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
    icex.dwICC = ICC_COOL_CLASSES | ICC_BAR_CLASSES;
    InitCommonControlsEx(&icex);
-
-
-//sprintf(mess,"WM_KEYDOWN: %p",WM_KEYDOWN);
-//MessageBox(NULL,mess,mess,MB_OK);
 
 
   /* This might be a problem too... */
@@ -270,52 +207,8 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
    iface = getNewIFace();
    iface->setdisplay((unsigned int)hwMain);
 
-  /* Create this initially invisible, the use the view menu to 
-   * toggle whether or not it shows itself.
-   */
-   readystatus = CreateStatusWindow(WS_CHILD | WS_MINIMIZE | WS_CLIPCHILDREN,
-      "", hwMain, DDA_R_STATUSBAR);
 
-  /* These field stops need to be handled with a finite state
-   * machine after font metric handling is implemented.  The 
-   * (x,y) coordinates field can be computed using domain 
-   * scaling width g0.
-   */
-   geomparts[0] = 45+45; // gfs[0] field stop 0
-   geomparts[1] = 90+45;
-   geomparts[2] = 140+45;
-   geomparts[3] = 200+45;
-   geomparts[4] = 250+45;
-   geomparts[5] = 350+85;  // This is the (x,y) field
-   geomparts[6] = -1;
-
-   geomstatus = CreateStatusWindow(WS_CHILD | WS_MINIMIZE | WS_CLIPCHILDREN,
-      "", hwMain, DDA_G_STATUSBAR);
-   SendMessage(geomstatus,SB_SETPARTS,(WPARAM)SB_GEOM_PARTS,(LPARAM)geomparts);
-   
-
-  /* These field stops need to be handled with a finite state
-   * machine after font metric handling is implemented.
-   */
-   anaparts[0] = 45;  // afs[0] = field stop 0
-   anaparts[1] = 110;
-   anaparts[2] = 180;
-   anaparts[3] = 225;
-   anaparts[4] = 350;
-   anaparts[5] = 400;
-   anaparts[6] = 450;
-   anaparts[7] = 490;
-   anaparts[8] = 560;
-   anaparts[9] = -1;
-
-   anastatus = CreateStatusWindow(WS_CHILD | WS_MINIMIZE | WS_CLIPCHILDREN,
-      "", hwMain, DDA_A_STATUSBAR);
-   SendMessage(anastatus,SB_SETPARTS,(WPARAM)SB_ANAL_PARTS,(LPARAM)anaparts);
-
-  /* FIXME: Explain the structure of the parameter cast by (WPARAM) 
-   * or (LPARAM).  Where are the relevant bits?
-   */
-   SendMessage(readystatus, SB_SETTEXT,(WPARAM)(SBT_NOBORDERS),(LPARAM)"Ready");
+   statusbar_init(hwMain);
 
    //if(dda->statusbarvis)
    //   ShowWindow(readystatus, SW_MAXIMIZE);
@@ -331,11 +224,10 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    ShowWindow(hprogbar, SW_SHOWNORMAL);
 
-   initMainToolbar(hwMain);
+   toolbar_init(hwMain,&hToolBar);
    ShowWindow(hToolBar, SW_SHOWNORMAL);
-   ShowWindow(readystatus, SW_SHOWNORMAL);
+   ShowWindow(statusbar, SW_SHOWNORMAL);
 
-   writeDDAProfile();
 
   /* Handle a possible command line argument from 
    * a file drag and drop.
@@ -347,10 +239,7 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-/* This is ill-advised, and is only a kludge until 
- * status text size can be computed.
- */
-#define STATUSBAR_TEXT_WIDTH 25
+
 static void 
 handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
@@ -395,8 +284,10 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
       blocknumber = gdata_get_block_number(geomdata,p.x,p.y);
       sprintf(blocknumtext,"BN: %d",blocknumber);
       sprintf(xycoordstext,"\t(%.3f,%.3f)\t",p.x,p.y);
-      SendMessage(geomstatus,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
-      SendMessage(geomstatus,SB_SETTEXT,(WPARAM)5,(LPARAM)xycoordstext);
+      //SendMessage(geomstatus,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
+      //SendMessage(geomstatus,SB_SETTEXT,(WPARAM)5,(LPARAM)xycoordstext);
+      SendMessage(statusbar,SB_SETTEXT,(WPARAM)2,(LPARAM)blocknumtext);
+      SendMessage(statusbar,SB_SETTEXT,(WPARAM)5,(LPARAM)xycoordstext);
 
    }
 
@@ -667,7 +558,8 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
 
       whatToDraw = BLOCKS;
       dda_set_menu_state(dda,GEOM_STATE | FINISHED);
-      updateGeometryStatusBar(hwMain);
+      toolbar_set_state(hToolBar,GEOM_STATE | FINISHED);
+      updateGeometryStatusBar(geomdata->nBlocks);
 
 	} else {
 
@@ -686,14 +578,6 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
 
    InvalidateRect(hwMain, NULL, TRUE);
    UpdateWindow(hwMain);
-
-  /* These functions were previously handled in the menu code,
-   * which is the wrong place.  This is not the right place
-   * either, so FIXME: Find a home for the following toolbar code.
-   */
-   SendMessage(hToolBar, TB_SETSTATE, GEOM_APPLY, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, ANAL_BROWSE, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, ANAL_NEW, MAKELPARAM(TBSTATE_ENABLED,0));
 
 	return 0; 
 }  
@@ -772,8 +656,7 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
       sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
 
       SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
-      //updateMainMenu(hwMain, geomstate);
-      //dda->menustate = GEOM_STATE;
+
       dda_set_menu_state(dda,GEOM_STATE);
 
      /* Initialize the path. Note that the .geo file is already loaded into 
@@ -904,17 +787,8 @@ handleAnalRun(HWND hwMain)
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    int retval;
 
-   //dda->menustate = ANA_STATE | RUNNING;
    dda_set_menu_state(dda,ANA_STATE | RUNNING);
-
-   /* FIXME: Move the toolbar code to a handler
-    */
-    SendMessage(hToolBar, TB_SETSTATE,ANAL_ABORT,MAKELPARAM(TBSTATE_ENABLED,0));
-    SendMessage(hToolBar, TB_SETSTATE, GEOM_APPLY, MAKELPARAM(0,0));
-    SendMessage(hToolBar, TB_SETSTATE, GEOM_NEW, MAKELPARAM(0,0));
-    SendMessage(hToolBar, TB_SETSTATE, GEOM_BROWSE, MAKELPARAM(0,0));
-    SendMessage(hToolBar, TB_SETSTATE, ANAL_BROWSE, MAKELPARAM(0,0));
-    SendMessage(hToolBar, TB_SETSTATE, ANAL_NEW, MAKELPARAM(0,0));
+   toolbar_set_state(hToolBar,ANA_STATE | RUNNING);
 
    whatToDraw = BLOCKS;
 
@@ -954,17 +828,10 @@ handleAnalRun(HWND hwMain)
    }
 
    dda_set_menu_state(dda,ANA_STATE | FINISHED);
+   toolbar_set_state(hToolBar,ANA_STATE | FINISHED);
 
-  /* FIXME: Move the following code to a handler.
-   */
-   SendMessage(hToolBar, TB_SETSTATE, GEOM_APPLY, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, ANAL_BROWSE, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, GEOM_NEW, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, GEOM_BROWSE, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, ANAL_NEW, MAKELPARAM(TBSTATE_ENABLED,0));
-   SendMessage(hToolBar, TB_SETSTATE, ANAL_ABORT,MAKELPARAM(0,0));
-
-   showOrig = TRUE;  /*  showOrig is a global int masquerading as a boolean. */
+  /* showOrig is a global int masquerading as a boolean. */   
+   showOrig = TRUE;  
    whatToDraw = BLOCKS;
   /* FALSE for openGL, TRUE for win32??? */
    InvalidateRect(hwMain, NULL, TRUE);
@@ -1239,7 +1106,7 @@ handleAbortAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
       return;
    
 
-   ad->abort(ad->this);
+   ad->abort(ad);
 
 
   /* FIXME: Here is a good place to disable some menu 
@@ -1535,7 +1402,7 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
    geomdata->deleteblock(geomdata, blocknum);
 
 
-   updateGeometryStatusBar(hwMain);
+   updateGeometryStatusBar(geomdata->nBlocks);
 
 			InvalidateRect(hwMain, NULL, TRUE);
 			UpdateWindow(hwMain);
@@ -1566,8 +1433,8 @@ updateStatusBar(HWND hwMain) //, WPARAM wParam, LPARAM lParam)
 
       case BLOCKS:
          sprintf(nblock,"NB: %d", geomdata->nBlocks);
-  			SendMessage(readystatus,SB_SETTEXT,0,(LPARAM)nblock);
-	   	SendMessage(readystatus,SB_SETTEXT,2,(LPARAM)"Status Bar");
+  			//SendMessage(readystatus,SB_SETTEXT,0,(LPARAM)nblock);
+	   	//SendMessage(readystatus,SB_SETTEXT,2,(LPARAM)"Status Bar");
          break;
 
       default:
@@ -1579,11 +1446,12 @@ updateStatusBar(HWND hwMain) //, WPARAM wParam, LPARAM lParam)
 
 
 static void 
-handleWMSize(HWND hwMain, WPARAM wParam, LPARAM lParam)
-{
-   SendMessage(readystatus,WM_SIZE,0,0);
-   SendMessage(geomstatus,WM_SIZE,0,0);
+handleWMSize(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+
+   //SendMessage(readystatus,WM_SIZE,0,0);
+   //SendMessage(geomstatus,WM_SIZE,0,0);
    SendMessage(anastatus,WM_SIZE,0,0);
+   SendMessage(statusbar,WM_SIZE,0,0);
    SendMessage(hToolBar,WM_SIZE,0,0);
 
    return;
@@ -1591,108 +1459,9 @@ handleWMSize(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-static void 
-updateGeometryStatusBar(HWND hwMain)
-{
-   HINSTANCE hInst;
-   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-   Geometrydata * geomdata = dda_get_geometrydata(dda);
-
-  /* This is ill-advised, and is only a kludge until 
-   * status text size can be computed.
-   */
-   char numblocktext[STATUSBAR_TEXT_WIDTH];
-   char numcontactext[STATUSBAR_TEXT_WIDTH];
-   char maxareatext[STATUSBAR_TEXT_WIDTH];
-   char minareatext[STATUSBAR_TEXT_WIDTH];
-
-   //char blocknumtext[STATUSBAR_TEXT_WIDTH];
-   //char xycoordstext[STATUSBAR_TEXT_WIDTH];
-
-   hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
-
-  /* This should never happen because this function is only called 
-   * after a geometry is successfully loaded.
-   */
-   assert(geomdata != NULL);
-
-   sprintf(numblocktext,"NB: %d", geomdata->nBlocks);
-   sprintf(numcontactext,"NC: %s", "000");
-   sprintf(maxareatext,"Max: %.3f", 0.0);
-   sprintf(minareatext,"Min: %.3f", 0.0);
-
-   g_hIcon0 = LoadImage(hInst,MAKEINTRESOURCE(ICON_GREENLEDON),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-   g_hIcon1 = LoadImage(hInst,MAKEINTRESOURCE(ICON_GREENLEDOFF),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-   // Setup icons
-   SendMessage(geomstatus,SB_SETICON,0,(LPARAM)g_hIcon0);
-   SendMessage(geomstatus,SB_SETICON,1,(LPARAM)g_hIcon1);
-
-   SendMessage(geomstatus,SB_SETTEXT,(WPARAM)0,(LPARAM)numblocktext);
-   SendMessage(geomstatus,SB_SETTEXT,(WPARAM)1,(LPARAM)numcontactext);
-   SendMessage(geomstatus,SB_SETTEXT,(WPARAM)3,(LPARAM)maxareatext);
-   SendMessage(geomstatus,SB_SETTEXT,(WPARAM)4,(LPARAM)minareatext);
-   SendMessage(geomstatus,SB_SETTEXT,(WPARAM)(6|SBT_NOBORDERS),(LPARAM)"");
 
 
-   ShowWindow(readystatus, SW_HIDE);
-   ShowWindow(anastatus, SW_HIDE);
-   if(dda_get_statusbarvis(dda) == 1)
-      ShowWindow(geomstatus, SW_MAXIMIZE);
 
-}  /* close updateGeometryStatusBar() */
-
-
-void
-updateAnalysisStatusBar(HWND hwMain)
-{
-   //HICON redoff;
-   HINSTANCE hInst;
-
-   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-   Geometrydata * geomdata = dda_get_geometrydata(dda);
-   Analysisdata * ad = dda_get_analysisdata(dda);
-
-  /* This is ill-advised, and is only a kludge until 
-   * status text size can be computed.
-   */
-   char numblocktext[STATUSBAR_TEXT_WIDTH];
-   char elapsedtimetext[STATUSBAR_TEXT_WIDTH];
-   char currtimesteptext[STATUSBAR_TEXT_WIDTH];
-   char oc_contactext[STATUSBAR_TEXT_WIDTH];
-   char rcondtext[STATUSBAR_TEXT_WIDTH];
-
-   hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
-
-   //gg->numtimesteps = AData->nTimeSteps;
-  /* FIXME: Change gg->timestep to gg->delta_t */
-   //gg->timestep = AData->currTimeStep;
-   //g->currenttime = ad->currentTime;
-
-   sprintf(numblocktext,"NB: %d", geomdata->nBlocks);
-   //sprintf(elapsedtimetext,"ET: %.4f", ad->currentTime); // /*g->currenttime*/);
-   sprintf(elapsedtimetext,"ET: %.4f", ad->elapsedTime); // /*g->currenttime*/);
-   sprintf(currtimesteptext,"TS: %d/%d",ad->currTimeStep,ad->nTimeSteps);//g->timestep,g->numtimesteps);
-   
-
-   sprintf(oc_contactext,"OC: %d", g->openclosecount);
-   sprintf(rcondtext,"|1|: %.4f", 0.0);
-
-   SendMessage(anastatus,SB_SETTEXT,(WPARAM)0,(LPARAM)numblocktext);
-   SendMessage(anastatus,SB_SETTEXT,(WPARAM)1,(LPARAM)elapsedtimetext);
-   SendMessage(anastatus,SB_SETTEXT,(WPARAM)2,(LPARAM)currtimesteptext);
-   SendMessage(anastatus,SB_SETTEXT,(WPARAM)3,(LPARAM)oc_contactext);
-  /* Progress bar in slot 4 */
-   SendMessage(anastatus,SB_SETTEXT,(WPARAM)5,(LPARAM)rcondtext);
-
-   //redoff = LoadImage(hInst,MAKEINTRESOURCE(ICON_REDLEDOFF),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-   //SendMessage(anastatus,SB_SETICON,9,(LPARAM)redoff);
-
-   ShowWindow(readystatus, SW_HIDE);
-   ShowWindow(geomstatus, SW_HIDE);
-   if(dda_get_statusbarvis(dda))
-      ShowWindow(anastatus, SW_MAXIMIZE);
-
-}  /* close updateAnalysisStatusBar() */
 
 		  
 LRESULT
@@ -1836,11 +1605,12 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
                        dda_get_toolbarvis,hSubMenu,"&Tool Bar");
          break;
 
+/*
       case VIEW_SBAR:
          handle_toggle(dda,readystatus,wParam,dda_set_statusbarvis,
                        dda_get_statusbarvis,hSubMenu,"&Status Bar");
          break;
-     
+*/     
       case VIEW_POPUP:
          handle_toggle(dda,NULL,wParam,dda_set_popupvis,
                        dda_get_popupvis,hSubMenu,"&Enable Pop-up");
@@ -1858,64 +1628,7 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
 } /* close handleViewToggles() */
 
 
-void 
-initMainToolbar(HWND hwMain)
-{
-   HINSTANCE hInst;
-  /* Called from WM_CREATE before the dda struct is passed to 
-   * the window handle.
-   */
-   //DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-   TBBUTTON tbbutton[] = 
-   {  
-	  /* FIXME:  Second member of array is actually the command. */
-	   {0, GEOM_NEW, TBSTATE_ENABLED, TBSTYLE_BUTTON , 0, 0},
-	   {1, ANAL_NEW, 0, TBSTYLE_BUTTON, 0, 0},
-      {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0L, -1},
-	   {2, GEOM_BROWSE, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0},
-	   {3, ANAL_BROWSE, 0, TBSTYLE_BUTTON, 0, 0},
-	   {4, ANAL_ABORT, 0, TBSTYLE_BUTTON, 0, 0},
-	   //{4, GEOM_NEW, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
-	   {5, GEOM_APPLY, 0, TBSTYLE_BUTTON, 0, 0},
-      {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0L, -1},
-      //{6, TOOLBAR_ZOOMIN, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
-      //{7, TOOLBAR_ZOOMOUT, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
-      {6, TOOLBAR_PRINT, 0, TBSTYLE_BUTTON, 0, 0}
-      //{0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0L, -1},
-      //{9, TOOLBAR_PRINT, 0, TBSTYLE_BUTTON, 0, 0}
 
-   };
-
-//#define NUMIMAGES 5 
-#define NUMIMAGES 18
-#define IMAGEWIDTH 16
-#define IMAGEHEIGHT 16
-#define BUTTONWIDTH 0
-#define BUTTONHEIGHT 0
-
-   hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
-
-   hToolBar = CreateToolbarEx(hwMain, 
-	                           WS_CHILD | TBSTYLE_TOOLTIPS | CCS_ADJUSTABLE, 
-	                           TOOLBAR_DDA_MAIN,
-                              NUMIMAGES,
-                              hInst, 
-                              TOOLBAR_DDA_MAIN,
-                              tbbutton,
-                              sizeof(tbbutton)/sizeof(TBBUTTON),
-                              BUTTONWIDTH,
-                              BUTTONHEIGHT, 
-                              IMAGEWIDTH,
-                              IMAGEHEIGHT, 
-                              sizeof(TBBUTTON));
-
-  /* FIXME: Send a message to uncheck the appropriate menu item.
-   * FIXME: Move all this code to a toolbar.c file.
-   */
-   //if (dda->toolbarvis)
-   //   ShowWindow(hToolBar, SW_SHOWNORMAL);
-
-}  /* close initMainToolbar() */
 
 
 
@@ -2199,11 +1912,6 @@ WndProc (HWND hwMain, UINT message,
  
    dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
 
-/*
-   if (message == 0x100) {
-         MessageBox(hwMain,"keydown","keydown",MB_OK);
-   }
-*/
 
    switch (message)
    {

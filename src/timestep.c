@@ -10,7 +10,7 @@
 #include "ddamemory.h"
 
 extern FILEPOINTERS fp;
-extern DATALOG * DLog;
+extern Datalog * DLog;
 
 
 /* Time integration temp arrays.  The velocity array

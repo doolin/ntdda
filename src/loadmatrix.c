@@ -12,7 +12,7 @@
 
 extern InterFace * iface;
 
-extern DATALOG * DLog;
+extern Datalog * DLog;
 
 extern FILEPOINTERS fp;
 

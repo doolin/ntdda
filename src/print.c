@@ -17,9 +17,9 @@
  * printer.  This can be done by passing in the device context.
  * 
  * $Author: doolin $
- * $Date: 2001/08/26 03:16:26 $
+ * $Date: 2002/05/26 15:56:06 $
  * $Source: /cvsroot/dda/ntdda/src/print.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  */
 
 
@@ -39,7 +39,6 @@ void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scal
 
    extern HPEN printPen;
    extern HBRUSH hBr;
-   extern OPTIONS options;
    extern int showOrig;
 
 

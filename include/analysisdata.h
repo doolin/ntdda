@@ -13,34 +13,14 @@
 #include "graphics.h"
 #include "gravity.h"
 #include "timehistory.h"
-#include "dda_error.h"
-
+#include "options.h"
 
 
 typedef struct _analysisdata_tag Analysisdata;
 typedef struct _thresholds_tag Thresholds;
 
 
-/* FIXME: Get rid of this contraption, move everything
- * to bit fields for handling boolean values.
- */
-typedef struct _options_tag OPTIONS;
-struct _options_tag {
-  /* Booleans for controlling output.  These probably need to 
-   * into a different struct.  These need to go into a project
-   * output struct.
-   */
-   int spyplots;
-   int flagstates;
-   int maxdisp;
-   int maxtstep;
-   int timing;
-   int parameters;
-   int fixedpoints;
-   int measuredpoints;
-   int blockareas;
 
-};
 
 
 
@@ -89,12 +69,8 @@ struct _thresholds_tag {
  * struct, make sure and add the appropropriate 
  * code to the init, clone and free functions.
  */
-struct _analysisdata_tag
-{
-  /* We might need to refer to ourself when calling 
-   * private functions.
-   */
-   Analysisdata * this;
+struct _analysisdata_tag {
+
 
   /* Save a lot of memory on these flags, most
    * of which are boolean anyway. 
@@ -470,9 +446,7 @@ struct _analysisdata_tag
 };
 
 
-/* FIXME: These all need to be a private method */
 
-Analysisdata * XMLparseDDA_Analysis_File(char *filename);
 
 
 
@@ -519,6 +493,7 @@ double         adata_get_grav_accel      (Analysisdata *);
 void           adata_read_input_file      (Analysisdata *, 
                                            char * filename);
 
+Analysisdata * XMLparseDDA_Analysis_File(char *filename);
 
 
 

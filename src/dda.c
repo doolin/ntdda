@@ -6,7 +6,6 @@
 
 #include "dda.h"
 
-
 /* This doesn't work yet, because the get/sets aren't 
  * written.
  */
@@ -115,7 +114,7 @@ dda_get_geometrydata(DDA * dda){
 }
 
 void 
-dda_set_geometrydata(DDA * dda, Geometrydata *gd) {
+dda_set_geometrydata(DDA * dda, Geometrydata * gd) {
    dda->geometry = gd;
 }
 

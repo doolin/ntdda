@@ -7,6 +7,11 @@
  * written by GHS.
  * 
  * $Log: analysisdriver.c,v $
+ * Revision 1.17  2002/05/26 15:56:05  doolin
+ * Status bar handling is vastly improved, ready and
+ * geometry states now unified.  Next, unify with analysis status,
+ * then define a callback framework to shorten the code by half.
+ *
  * Revision 1.16  2002/05/26 01:16:07  doolin
  * Moved geometry allocation code, cleaned up
  * time history code.
@@ -97,9 +102,10 @@
 #include "gravity.h"
 #include "contacts.h"
 #include "postprocess.h"
+#include "datalog.h"
 
 
-DATALOG * DLog;
+Datalog * DLog;
 
 
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
@@ -471,7 +477,7 @@ ddanalysis(DDA * dda, FILEPATHS * filepath, GRAPHICS * gg)
   /* This should probably be freed in the calling function. */
    //AData = freeAnalysisData(AData);  //adata_destroy(AData);
    //AData = adata_delete(AData);
-   freeDatalog(DLog); //datalog_destroy(DLog);
+   datalog_delete(DLog); 
 
   /* New contacts structure */
    CTacts = freeContacts(CTacts);
