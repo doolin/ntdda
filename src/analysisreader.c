@@ -3,9 +3,9 @@
  * .ana files in original ghs format
  *
  * $Author: doolin $
- * $Date: 2002/10/08 20:37:35 $
+ * $Date: 2002/10/08 21:01:46 $
  * $Source: /cvsroot/dda/ntdda/src/analysisreader.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -15,7 +15,6 @@
 
 //#include "analysisdata.h"
 #include "analysis.h"
-#include "constants.h"
 #include "ddamemory.h"
 
 
@@ -30,8 +29,6 @@ analysisReader(Analysisdata * adn, char * af, int nfp, int pc, int nlp) {
    double ** phiCohesion;
    double ** timeDeps;
    int i1;
-
-   Constants * constants;
 
    int nFPoints = nfp;  
    int pointCount = pc;  
@@ -237,9 +234,8 @@ analysisReader(Analysisdata * adn, char * af, int nfp, int pc, int nlp) {
 
    adn->gravaccel = adn->materialProps[1][1]/adn->materialProps[1][0];
 
-   constants = constants_new();
-   constants_init(constants,adn->maxdisplacement);
-   adn->constants = constants;
+   /* New file format does this automatically. */
+   initConstants(adn);
 
 }  /*  Close analysisReader1()  */
 
