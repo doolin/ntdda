@@ -4,9 +4,9 @@
  * Contact and matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2002/10/11 22:04:43 $
+ * $Date: 2002/10/13 20:36:04 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.34 $
+ * $Revision: 1.35 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.35  2002/10/13 20:36:04  doolin
+ * .
+ *
  * Revision 1.34  2002/10/11 22:04:43  doolin
  * Mostly small stuff.
  *
@@ -187,6 +190,7 @@
 
 #include "analysis.h"
 #include "bolt.h"
+
 #include "stress.h"
 #include "constants.h"
 #include "ddamemory.h"
@@ -2746,30 +2750,30 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
 	       vtxcopy[j][1]  = 0;
 	       vtxcopy[j][2]  = 0;
 
-         for (l=1; l<= 6; l++)
-         {
+         for (l=1; l<= 6; l++) {
+
            /* Skip the 3 entry, add the rotation correction 
             * after the loop.
             */
-            if (ad->rotationflag == 1)
-            {
-               if(l==3) 
+            if (ad->rotationflag == 1) {
+               if(l==3) {
                   l++;
+               }
             }
 		      vtxcopy[j][1] += T[1][l]*F[i3][l];
             vtxcopy[j][2] += T[2][l]*F[i3][l];
          }  /*  l  */
 
-         if (ad->rotationflag == 1)
-         {
+         if (ad->rotationflag == 1) {
+
             //u[j][1] += (-T[2][3]*F[i3][3]*F[i3][3]/2.0) + (T[1][3]*F[i3][3]);
             //u[j][2] += (T[2][3]*F[i3][3]) + (T[1][3]*F[i3][3]*F[i3][3]/2.0);
             vtxcopy[j][1] += T[2][3]* (cos(F[i3][3]) - 1) + T[1][3]*sin(F[i3][3]);
             vtxcopy[j][2] += T[2][3]*sin(F[i3][3]) - T[1][3]*(cos(F[i3][3])-1);
          }
 
-      }  /*  j  */
-		 }  /*  i  */
+      }  
+	}  
 
 
   /* (GHS: relative maximum displacement ratio) */
@@ -2778,18 +2782,20 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
    * with max centroid displacement and max angle is better.  This
    * will require TCK rotation results.
    */
-		 a1=0;
-		 for (i= 1; i<=  nBlocks; i++)
-   {
+	a1=0;
+   for (i= 1; i<=  nBlocks; i++) {
+
       i1 = vindex[i][1];
       i2 = vindex[i][2];
-      for (j=i1; j<=i2+1; j++)
-      {
+
+      for (j=i1; j<=i2+1; j++) {
+
          a2 = sqrt(vtxcopy[j][1]*vtxcopy[j][1] + vtxcopy[j][2]*vtxcopy[j][2]);
-         if (a1<=a2)  
+         if (a1<=a2) {
             a1 = a2;
-      }  /*  j  */
-   }  /*  i  */
+         }
+      } 
+   } 
 
    globalTime[ad->cts][1] = (a1/domainscale)/maxdisplacement;
    
@@ -2814,106 +2820,6 @@ void df24(Geometrydata *gd, Analysisdata *ad, int *k1)
    
 }  /*  Close df24()  */
 
-
-//static void 
-//updateStresses(Geometrydata * gd, Analysisdata * ad,
-//               double ** e0, int * k1)
-//{
-static void
-updateStresses(double ** e0, double ** D, int * k1, int numblocks, int planestrainflag) {
-
-   
-   //int nBlocks = gd->nBlocks;
-   //double ** D = ad->F;
-   //double ** moments = gd->moments;
-   //int cts = ad->cts;
-
-   int i, i1;
-   double a1;
-   double gamma_0; 
-   double c,s;
-   double sigmaxx, sigmayy, tauxy;
-
-  /* This will get wrapped in a user controlled option 
-   * at some point.
-   */
-  /* (GHS: compute updating stresses)  */
-   //for (i=1; i<= nBlocks; i++)
-   for (i=1; i<=numblocks; i++)
-   {
-      double E = e0[i][2];
-      double nu = e0[i][3];
-
-      i1 = k1[i];
-      gamma_0 = D[i1][3];
-      c = cos(gamma_0);
-      s = sin(gamma_0);
-
-      //if(ad->planestrainflag == 1)
-      if(planestrainflag == 1)
-      {
-         a1 = E/(1 + nu);
-         e0[i][4] += a1*( ((D[i1][4]*(1-nu))/(1-2*nu)) + ((D[i1][5]*nu)/(1-2*nu)) );
-         e0[i][5] += a1*((D[i1][4]*nu)/(1-2*nu) + (D[i1][5]*(1-nu)/(1-2*nu)));
-         e0[i][6] += a1*D[i1][6]/2.0;
-      }
-      else  /* Plane stress */
-      {     
-         a1        = E/(1-(nu*nu));
-         e0[i][4] += a1*(D[i1][4]+D[i1][5]*nu);
-         e0[i][5] += a1*(D[i1][4]*nu+D[i1][5]);
-         e0[i][6] += a1*D[i1][6]*(1-nu)/2;
-      }  /* end if planestrain else planestress */
-
-     /* TCK stress rotation correction, Eq. 17, p. 324,
-      * ICADD 1 proceedings.  See also Eqs. 18 and 19 for
-      * formulas for updating the deformation rates.
-      */
-     /* TODO: verify that doing the updating here is 
-      * mathematically correct.  It might need to be done 
-      * before adding to the existing block stresses which
-      * are (presumably) already in referential coordinates.
-      */
-      if (1)
-      {
-         sigmaxx = e0[i][4];
-         sigmayy = e0[i][5];
-         tauxy = e0[i][6];
-         e0[i][4] = c*c*sigmaxx - 2*c*s*tauxy + s*s*sigmayy;
-         e0[i][5] = s*s*sigmaxx - 2*c*s*tauxy + c*c*sigmayy;
-         e0[i][6] = c*s*(sigmaxx-sigmayy) + (c*c - s*s)*tauxy;
-      }
-      
-     /* Now compute e_zz, which should be 0 if we are in plane
-      * strain, and will be used for computing mass if in 
-      * plane stress.  This is for density correction.  See
-      * TCK, p. 213, Fung, p. 267.
-      * Note: we have to accumulate e_z to use for calculating
-      * current thickness of block when calculating mass.
-      */
-      e0[i][7] += -(nu/(1-nu))*(D[i1][4] + D[i1][5]);
-      //if (ad->planestrainflag == 1)
-      //{
-         //assert (fabs(e0[i][7]) <= 10.0e-3);
-      //}
-
-
-     /* Virtual work performed by stresses given at the start of 
-      * the time step through the time step.
-      */
-     /* It would also be reall cool to track this on a per block per
-      * time step basis, but that would be lots of dereferencing
-      * and ram usage.  To see how that would work, change timestep
-      * to `i' to see the stress for each block.
-      */
-      /* This needs to be done elsewhere. */
-      /*
-      DLog->energy[cts].istress += moments[i][1]*(D[i1][4]*e0[i][4] 
-                                 + D[i1][5]*e0[i][5] + D[i1][6]*e0[i][6]);
-       */
-   }  
-
-}  
 
 
 /**************************************************/
@@ -3096,7 +3002,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
             }
             x1 += T[1][j]*F[i1][j];
             y1 += T[2][j]*F[i1][j];
-         }  /*  j  */
+         }  
       
          if (ad->rotationflag == 1)
          {  /* 2d order */
@@ -3148,11 +3054,13 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
   /** @todo instead of switching on the flag, have it dereferenced
    * from ad, which turns this into a single call.
    */
+
    if (ad->planestrainflag == 1) { 
       stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestrain);
    } else {
       stress_update(e0, ad->F, k1, gd->nBlocks, stress_planestress);
    }
+
 
 
    
@@ -3173,76 +3081,7 @@ df25(Geometrydata *gd, Analysisdata *ad, int *k1,
    
    bolt_update_arrays(gd->rockbolts,gd->nBolts,ad->F,gd->moments, computeDisplacement);
 
-#if 0
-  /* Compute rock bolt end displacements.  Note that no
-   * rotation correction is supplied here.
-   */
-  /* Move this whole loop into the bolts.c file, 
-   * supplying a callback or something for the 
-   * transplacement map function.
-   */
-   for (i=0; i<gd->nBolts; i++) {
 
-      double u1,v1,u2,v2;
-
-     /* Deal with one endpoint at a time,
-      * starting with the arbitrarily chosen
-      * `endpoint 1'.  Since hb is a double **,
-      * we have to cast the block numbers of the 
-      * endpoints.
-      */
-      ep1 = (int)hb[i][5];
-      x = hb[i][1];
-      y = hb[i][2];
-      u1=0;  // need to reset to zero each time due to += inside loops
-	   v1=0;
-	   computeDisplacement(moments,T,x,y,ep1);
-
-      for (j=1; j<= 6; j++) {
-         u1 += T[1][j]*F[ep1][j];
-         v1 += T[2][j]*F[ep1][j];
-      }  
-      hb[i][10] = u1;
-      hb[i][11] = v1;
-      //replace
-      hb[i][1] +=  u1;
-      hb[i][2] +=  v1;
-
-     /* Now for endpoint 2, the other end of the same bolt.
-      */
-      ep2 = (int)hb[i][6];
-      //if (ep1 == ep2) exit(0);
-      x = hb[i][3];
-      y = hb[i][4];
-	   u2=0;
-	   v2=0;
-      /* Should be compute directors */
-      computeDisplacement(moments,T,x,y,ep2);
-      for (j=1; j<= 6; j++)
-      {
-         u2 += T[1][j]*F[ep2][j];
-         v2 += T[2][j]*F[ep2][j];
-      }
-      hb[i][12] = u2;
-      hb[i][13] = v2;
-      //replace
-      hb[i][3] +=  u2;
-      hb[i][4] +=  v2;
-
-      /* If we do this instead of accessing the array entries
-       * directly, we get something that is testable, and can 
-       * be used for testing pretension, etc.
-       */
-      //bolt_update_endpoints(hb[i],u1,v1,u2,v2);
-
-      /* This should be fired as a result of the previous 
-       * call to update the endpoints, so remove it from here.
-       */
-      bolt_set_length_a(hb[i]);
-      
-      bolt_set_pretension_a(hb[i]);
-   }  
-#endif
 
 
   /* FIXME: This looks stupid.  There has to be a better way...
