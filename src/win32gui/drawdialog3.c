@@ -922,9 +922,10 @@ handleSave(HWND hDlg)
       transferBoltlistToGeomStruct(geomstruct, boltlist);  
 
 
-      fp = fopen(filepath.gpath, "w+");
-      geomstruct->dumptofile(geomstruct, fprintf, fp);
-      fclose(fp);
+      //fp = fopen(filepath.gpath, "w+"); //Disabled by Roozbeh
+	  //geomstruct->dumptofile(geomstruct, fprintf, fp); //Disabled by Roozbeh
+      geomstruct->dumptofile(geomstruct, fprintf, filepath.gpath);
+      //fclose(fp); //Disabled by Roozbeh
       gdata_delete(geomstruct); 
 
      /* FIXME: These functions are segfaulting. */
@@ -933,8 +934,8 @@ handleSave(HWND hDlg)
       //freeBoltList();  
 
      _lclose(hFile);
-	  	SetClassLong(hDlg, GCL_HCURSOR, (long)LoadCursor(NULL, IDC_ARROW));
-	  	ReleaseDC(hDlg, hdc);
+	   SetClassLong(hDlg, GCL_HCURSOR, (long)LoadCursor(NULL, IDC_ARROW));
+	   ReleaseDC(hDlg, hdc);
 	   EndDialog (hDlg, 1);   // return 1: save data
 	   return TRUE ;
 
@@ -1166,7 +1167,8 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    gd->maxFixedPointsPerFixedLine = 100; // hardwired
    numpoints = dlist_length(pointlist);
    gd->nPoints = numpoints;
-   gd->pointsize1 = (gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;
+//   gd->pointsize1 = ((gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1)+1; //Diabled by Roozbeh
+   gd->pointsize1 = numpoints+1; //Added By Roozbeh
    gd->pointsize2 = 9;
    gd->points = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
 
@@ -1593,5 +1595,7 @@ DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
   	ReleaseDC(GetDlgItem(hDlg,IDC_DRAWSPACE), hdc);
 
 } /* close DrawDlgProc() */
+
+
 
 
