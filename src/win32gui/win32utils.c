@@ -8,7 +8,7 @@
 
 
 
-
+// Comment for illustrating cvs email.
 int
 findMenuItemPosition(HMENU hsubmenu, UINT ID)
 {
