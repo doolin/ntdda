@@ -1134,10 +1134,10 @@ transferJointlistToGeomStruct(Geometrydata * gd,
    {
       jtmp = ptr->val;
 
-      gd->joints[i+1][1] = jtmp->epx1;
-      gd->joints[i+1][2] = jtmp->epy1; 
-      gd->joints[i+1][3] = jtmp->epx2;
-      gd->joints[i+1][4] = jtmp->epy2;
+      gd->joints[i+1][1] = jtmp->epx1*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+      gd->joints[i+1][2] = jtmp->epy1*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+      gd->joints[i+1][3] = jtmp->epx2*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+      gd->joints[i+1][4] = jtmp->epy2*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
       gd->joints[i+1][5] = jtmp->type;
       i++;
    } 
@@ -1185,10 +1185,10 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       if (ptmp->type == 0)
       {
          gd->points[i+1][0] = ptmp->type;
-         gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
-         gd->points[i+1][3] = ptmp->x;
-         gd->points[i+1][4] = ptmp->y;
+         gd->points[i+1][1] = ptmp->x*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+         gd->points[i+1][2] = ptmp->y*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+         gd->points[i+1][3] = ptmp->x*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+         gd->points[i+1][4] = ptmp->y*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
          gd->nFPoints++;
          i++;
       }
@@ -1201,8 +1201,8 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       if (ptmp->type == 2)
       {
          gd->points[i+1][0] = ptmp->type;
-         gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
+         gd->points[i+1][1] = ptmp->x*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+         gd->points[i+1][2] = ptmp->y*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
          gd->nLPoints++;
          i++;
       }
@@ -1215,8 +1215,8 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       if (ptmp->type == 1)
       {
          gd->points[i+1][0] = ptmp->type;
-         gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
+         gd->points[i+1][1] = ptmp->x*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+         gd->points[i+1][2] = ptmp->y*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
          gd->nMPoints++;
          i++;
       }
@@ -1229,8 +1229,8 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       if (ptmp->type == 3)
       {
          gd->points[i+1][0] = ptmp->type;
-         gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
+         gd->points[i+1][1] = ptmp->x*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
+         gd->points[i+1][2] = ptmp->y*(ScaleX/maxSize); //Added (ScaleX/maxSize) term by Roozbeh
          gd->nHPoints++;
          i++;
       }
@@ -1595,7 +1595,5 @@ DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
   	ReleaseDC(GetDlgItem(hDlg,IDC_DRAWSPACE), hdc);
 
 } /* close DrawDlgProc() */
-
-
 
 
