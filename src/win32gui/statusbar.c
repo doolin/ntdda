@@ -1,4 +1,6 @@
 
+// cvs diff example
+
 
 #ifdef WIN32
 #pragma warning( disable : 4201 4115 )        
