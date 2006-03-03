@@ -72,6 +72,10 @@ BEGIN
         BEGIN
             MENUITEM "&EMF",                        EXPORT_EMF
         END
+        POPUP "&Import"
+        BEGIN
+            MENUITEM "&DXF",                        IMPORT_DXF
+        END
         MENUITEM "E&xit",                       MAIN_EXIT
     END
     POPUP "&View"
