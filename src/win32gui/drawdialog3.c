@@ -18,6 +18,7 @@
 #endif
 
 
+
 /* These will probably mutate into general purpose functions.
  * They should probably be moved into a different header file,
  * and have a return value.
@@ -880,7 +881,7 @@ handleSave(HWND hDlg)
    int numflushed;
    OPENFILENAME ofn;
    OFSTRUCT of;
-   FILE *fp;
+   //FILE *fp;
    HFILE hFile;
    Geometrydata * geomstruct;
 

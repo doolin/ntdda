@@ -358,13 +358,21 @@ constants_init(Constants * constants, double maxdisplacement) {
 void 
 constants_print_xml(Constants * constants, PrintFunc printer, void * stream) {
 
-   printer(stream,I1"<AConstants>\n");
-   printer(stream,I2"<Openclose value=\"%f\"/>\n",constants->openclose );
-   printer(stream,I2"<Opencriteria value=\"%.10f\"/>\n",constants->opencriteria);
-   printer(stream,I2"<NormSpringPen value=\"%f\"/>\n",constants->norm_spring_pen);
-   printer(stream,I2"<AngleOverlap value=\"%f\"/>\n",constants->angle_olap);
-   printer(stream,I2"<ShearNormRatio value=\"%f\"/>\n",constants->shear_norm_ratio);
-   printer(stream,I1"</AConstants>\n\n");
+
+   printer(stream,I1"<AConstants>\n"); //Added By Roozbeh
+   printer(stream,I2"<Openclose value=\"%f\"/>\n",.0002); //Added By Roozbeh
+   printer(stream,I2"<Opencriteria value=\"%.10f\"/>\n",.0000002); //Added By Roozbeh
+   printer(stream,I2"<NormSpringPen value=\"%f\"/>\n",.0004); //Added By Roozbeh
+   printer(stream,I2"<AngleOverlap value=\"%f\"/>\n",3.00); //Added By Roozbeh
+   printer(stream,I2"<ShearNormRatio value=\"%f\"/>\n",2.5); //Added By Roozbeh
+   printer(stream,I1"</AConstants>\n\n"); 
+   /*
+   openclose =  .0002;  /* s0 = .0002  
+   opencriteria = .0000002;  /* f0 = .0000002;  
+   norm_spring_pen = .0004;//g3 = .0004;   /* g3 = .0004;  
+   angle_olap = 3;   /* h1 = 3; 
+   shear_norm_ratio = 2.5;  /* h2 = 2.5; 
+   */   
 }
 
   
