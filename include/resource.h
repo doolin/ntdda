@@ -271,6 +271,12 @@
 #define POPUP_GEOMETRY                  2000
 #define POPUP_ANALYSIS                  2001
 #define POPUP_REPLAY                    2002
+
+// DXF Handling 
+#define IMPORT_DXF                      3000
+#define EXPORT_DXF                      3001
+
+
 #define ID_OPTION_DRAW                  32771
 #define ID_OPTION_SELECT                32772
 #define ID_OPTION_GRIDLINES             32773
@@ -332,7 +338,6 @@
 #define EXPORT_EMF                      40049
 #define EXPORT_EPS                      40050
 #define EXPORT_FIG                      40051
-#define EXPORT_DXF                      40052
 #define ID_POPUP_ITEM1                  40053
 #define ID_POPUP_ITEM2                  40054
 #define ID_POPUP_ITEM3                  40055
@@ -344,6 +349,7 @@
 #define ID_INDICATOR_MODE               59142
 #define ID_INDICATOR_GRID               59143
 #define IDC_STATIC                      -1
+
 
 // Next default values for new objects
 // 
