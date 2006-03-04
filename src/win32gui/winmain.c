@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/03/04 17:30:45 $
+ * $Date: 2006/03/04 17:53:39 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.33 $
+ * $Revision: 1.34 $
  */
 
 
@@ -62,7 +62,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.33 2006/03/04 17:30:45 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.34 2006/03/04 17:53:39 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -1654,6 +1654,12 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 }  /* close handleMetafile() */
 
 
+void 
+readDXF() {
+
+}
+
+
 // This subroutine is wrote by Roozbeh to read the .dxf 
 // format and to create the .geo format
 static int 
@@ -1676,13 +1682,15 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 
    LPCTSTR szFilter[] = {"Autocad Dxf files (*.dxf)\0*.dxf\0All files (*.*)\0*.*\0\0"};
    fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "dxf");
-   if( !GetOpenFileName(&ofn) ) 
-   {
+
+   if( !GetOpenFileName(&ofn) ) {
+
       strcpy(filepath.gpath, filepath.oldpath);
       return 0;  /* user pressed cancel */
-   } 
-   else 
-   {
+
+   } else {
+
+
       sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
 
       SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
@@ -1699,64 +1707,68 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 	  // The dxf file will be read from this line and lines, polylines
 	  // and arcs will be recognized from dxf file
       fp1 = fopen(filepath.gfile,"r");
+
+      // Pass everything in to readDXF.
+      readDXF();
  
-   while(!feof(fp1)) {
-		count1 +=1;
-		fscanf(fp1,"%s",str[count1]);
+      while(!feof(fp1)) {
+		   count1 +=1;
+		   fscanf(fp1,"%s",str[count1]);
 
-		if(strcmp(str[count1],"LINE")==0) 
-         nline+=1; 
+		   if(strcmp(str[count1],"LINE")==0) 
+            nline+=1; 
 	    
-      if(strcmp(str[count1],"LWPOLYLINE")==0) 
-         npoly+=1;
+         if(strcmp(str[count1],"LWPOLYLINE")==0) 
+            npoly+=1;
 		
-      if(strcmp(str[count1],"ARC")==0) 
-         narc+=1;
+         if(strcmp(str[count1],"ARC")==0) 
+            narc+=1;
 	    
-      if(strcmp(str[count1],"CIRCLE")==0) 
-         ncir+=1;
-	}
-    // Array Allocation
-	n1=nline+40*npoly+40*narc+40*ncir+1;
-    jx1 =(double *)calloc(n1,sizeof(double));
-	jy1 =(double *)calloc(n1,sizeof(double));
-	jx2 =(double *)calloc(n1,sizeof(double));
-	jy2 =(double *)calloc(n1,sizeof(double));
-	type =(long *)calloc(n1,sizeof(long));
+         if(strcmp(str[count1],"CIRCLE")==0) 
+            ncir+=1;
+      }
 
-    for(i=1;i<=count1;i++)
-	{
- 	  // The dxf file will be read from this line and lines, polylines
-	  // and arcs will be recognized from dxf file
-		if(strcmp(str[i],"LINE")==0)
-		{
-            count2 +=1;
-		    if(strcmp(str[i+9],"62")==0)
-			{
+      // Array Allocation
+	   n1=nline+40*npoly+40*narc+40*ncir+1;
+      jx1 =(double *)calloc(n1,sizeof(double));
+	   jy1 =(double *)calloc(n1,sizeof(double));
+	   jx2 =(double *)calloc(n1,sizeof(double));
+	   jy2 =(double *)calloc(n1,sizeof(double));
+	   type =(long *)calloc(n1,sizeof(long));
+
+      for(i=1;i<=count1;i++) {
+
+ 	   // The dxf file will be read from this line and lines, polylines
+	   // and arcs will be recognized from dxf file
+
+		if(strcmp(str[i],"LINE")==0) {
+
+          count2 +=1;
+		    if(strcmp(str[i+9],"62")==0) {
+
 			   type[count2]=atoi(str[i+10])+1;
 			   dec=2;
-			}
-		    else
-			{
-               type[count2]=1;
+          } else {
+            type[count2]=1;
 			   dec=0;
-			}
-            jx1[count2]=atof(str[i+12+dec]);
-			jy1[count2]=atof(str[i+14+dec]);
-			jx2[count2]=atof(str[i+18+dec]);
-			jy2[count2]=atof(str[i+20+dec]);
+          }
 
-		}
-		if(strcmp(str[i],"LWPOLYLINE")==0)
-		{
-           if(strcmp(str[i+9],"62")==0)
-			{
+          jx1[count2]=atof(str[i+12+dec]);
+			 jy1[count2]=atof(str[i+14+dec]);
+			 jx2[count2]=atof(str[i+18+dec]);
+			 jy2[count2]=atof(str[i+20+dec]);
+      
+      }
+		
+      if(strcmp(str[i],"LWPOLYLINE")==0) {
+
+         if(strcmp(str[i+9],"62")==0) {
+
 			   pltype=atoi(str[i+10])+1;
 			   dec=2;
-			}
-		    else
-			{
-               pltype=1;
+         } else {
+               
+            pltype=1;
 			   dec=0;
 			}
 		   pn=atoi(str[i+12+dec]);
@@ -1973,6 +1985,7 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    fprintf(fp2,"</Berkeley:DDA>\n");
 
    fclose(fp2);
+
    }  // end if
 
 
