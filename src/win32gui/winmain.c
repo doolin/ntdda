@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/03/04 17:09:03 $
+ * $Date: 2006/03/04 17:30:45 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.32 $
+ * $Revision: 1.33 $
  */
 
 
@@ -62,7 +62,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.32 2006/03/04 17:09:03 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.33 2006/03/04 17:30:45 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -1699,14 +1699,22 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 	  // The dxf file will be read from this line and lines, polylines
 	  // and arcs will be recognized from dxf file
       fp1 = fopen(filepath.gfile,"r");
-    while(!feof(fp1))
-	{
+ 
+   while(!feof(fp1)) {
 		count1 +=1;
 		fscanf(fp1,"%s",str[count1]);
-		if(strcmp(str[count1],"LINE")==0) nline+=1; 
-	    if(strcmp(str[count1],"LWPOLYLINE")==0) npoly+=1;
-		if(strcmp(str[count1],"ARC")==0) narc+=1;
-	    if(strcmp(str[count1],"CIRCLE")==0) ncir+=1;
+
+		if(strcmp(str[count1],"LINE")==0) 
+         nline+=1; 
+	    
+      if(strcmp(str[count1],"LWPOLYLINE")==0) 
+         npoly+=1;
+		
+      if(strcmp(str[count1],"ARC")==0) 
+         narc+=1;
+	    
+      if(strcmp(str[count1],"CIRCLE")==0) 
+         ncir+=1;
 	}
     // Array Allocation
 	n1=nline+40*npoly+40*narc+40*ncir+1;
@@ -1966,6 +1974,14 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 
    fclose(fp2);
    }  // end if
+
+
+   free(jx1);
+   free(jy1);
+   free(jx2);
+   free(jy2);
+   free(type);
+
    return 1;
 } // End of handleDxfBrowse()
 
