@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/03/04 17:53:39 $
+ * $Date: 2006/03/04 18:04:46 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.34 $
+ * $Revision: 1.35 $
  */
 
 
@@ -62,7 +62,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.34 2006/03/04 17:53:39 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.35 2006/03/04 18:04:46 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -1654,21 +1654,15 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 }  /* close handleMetafile() */
 
 
+
+
 void 
-readDXF() {
-
-}
-
-
-// This subroutine is wrote by Roozbeh to read the .dxf 
-// format and to create the .geo format
-static int 
-handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
-{
-   FILE *fp1,*fp2;
-   int count1=0,count2=0,i,j;
-   char str[5000][50];
+readDXF(FILE * fp1) {
+   
    double *jx1,*jy1,*jx2,*jy2;
+   char str[5000][50];
+   FILE *fp2;
+   int count1=0,count2=0,i,j;
    long *type,pn;
    int cabcou=0,dec,ii,pltype,ctype,n1;
    int fixn=0,measn=0,holen=0,loadn=0;
@@ -1676,41 +1670,10 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    double fx[25],fy[25],lx[25],ly[25];
    double mx[25],my[25],hx[25],hy[25];
    int nline=0,npoly=0,narc=0,ncir=0,ntext=0;
-   OPENFILENAME ofn;
-   char temp[200];
-   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-
-   LPCTSTR szFilter[] = {"Autocad Dxf files (*.dxf)\0*.dxf\0All files (*.*)\0*.*\0\0"};
-   fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "dxf");
-
-   if( !GetOpenFileName(&ofn) ) {
-
-      strcpy(filepath.gpath, filepath.oldpath);
-      return 0;  /* user pressed cancel */
-
-   } else {
+   //OPENFILENAME ofn;
+   //char temp[200];
 
 
-      sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
-
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
-
-      dda_set_menu_state(dda,GEOM_STATE);
-
-     /* Initialize the path. Note that the .dxf file is already loaded into 
-      * the struct, so it doesn't have to be reloaded.
-      */
-      strcpy(temp, filepath.gfile);
-      strcpy (filepath.rootname, strtok(temp, "."));
-
-      dda_set_output_directory("output");
-	  // The dxf file will be read from this line and lines, polylines
-	  // and arcs will be recognized from dxf file
-      fp1 = fopen(filepath.gfile,"r");
-
-      // Pass everything in to readDXF.
-      readDXF();
- 
       while(!feof(fp1)) {
 		   count1 +=1;
 		   fscanf(fp1,"%s",str[count1]);
@@ -1986,7 +1949,6 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 
    fclose(fp2);
 
-   }  // end if
 
 
    free(jx1);
@@ -1995,7 +1957,65 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    free(jy2);
    free(type);
 
+   return;
+
+}
+
+
+// This subroutine is wrote by Roozbeh to read the .dxf 
+// format and to create the .geo format
+static int 
+handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
+{
+   FILE *fp1;//,*fp2;
+   //int count1=0,count2=0,i,j;
+   //char str[5000][50];
+   //long *type,pn;
+   //int cabcou=0,dec,ii,pltype,ctype,n1;
+   int fixn=0,measn=0,holen=0,loadn=0;
+   //double r0,se,u,v,x1,x2,x3,y1,y2,y3,x0,y0,deg;
+   //double fx[25],fy[25],lx[25],ly[25];
+   //double mx[25],my[25],hx[25],hy[25];
+   int nline=0,npoly=0,narc=0,ncir=0,ntext=0;
+   OPENFILENAME ofn;
+   char temp[200];
+   DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
+
+   LPCTSTR szFilter[] = {"Autocad Dxf files (*.dxf)\0*.dxf\0All files (*.*)\0*.*\0\0"};
+   fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "dxf");
+
+   if( !GetOpenFileName(&ofn) ) {
+
+      strcpy(filepath.gpath, filepath.oldpath);
+      return 0;  /* user pressed cancel */
+
+   } else {
+
+
+      sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
+
+      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
+      dda_set_menu_state(dda,GEOM_STATE);
+
+     /* Initialize the path. Note that the .dxf file is already loaded into 
+      * the struct, so it doesn't have to be reloaded.
+      */
+      strcpy(temp, filepath.gfile);
+      strcpy (filepath.rootname, strtok(temp, "."));
+
+      dda_set_output_directory("output");
+	  // The dxf file will be read from this line and lines, polylines
+	  // and arcs will be recognized from dxf file
+      fp1 = fopen(filepath.gfile,"r");
+
+      // Pass everything in to readDXF.
+      readDXF(fp1);
+      
+   }
+
    return 1;
+
 } // End of handleDxfBrowse()
 
 
