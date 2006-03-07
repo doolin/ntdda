@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <direct.h>
 
 #include "dda.h"
 #include "ddafile.h"
@@ -131,8 +132,28 @@ openAnalysisFiles(Filepaths * filepath) {
 
    char temp[256];
    extern FILEPOINTERS fp;
+   // This part is added by Roozbeh to copy all 
+   //output files into "Output" folder
+   #define BUFSIZE 1024
+   const char * dirname;
+   size_t dirnamesize;
+   char wdbuf[BUFSIZE];
+   char * outdir;
 
-	strcpy(temp, filepath->gfile);
+   outdir = malloc(BUFSIZE);
+   getcwd(wdbuf,BUFSIZE);
+   dirname="output";
+   dirnamesize = sizeof(dirname);
+   strncpy(outdir,wdbuf,sizeof(wdbuf));
+   strncat(outdir,"\\",sizeof("\\"));
+   strncat(outdir,dirname,dirnamesize);
+   strncat(outdir,"\\",sizeof("\\"));
+   strcat(outdir, filepath->rootname);
+   strcpy(filepath->rootname, outdir);
+   free(outdir);
+   // This part is added by Roozbeh to copy all 
+   //output files into "Output" folder
+
 
   /* Note that the rootname contains the entire path.  This 
    * is probably not real good, but is messy to handle 
@@ -144,7 +165,6 @@ openAnalysisFiles(Filepaths * filepath) {
    fp.replayfile = fopen(filepath->replayfile, "w");
 
 //ddafile_open_file(&fp.replayfile, filepath->rootname,".replay");
-
 
    strcpy(temp, filepath->rootname);
    strcat(temp, ".html");
@@ -218,7 +238,7 @@ openAnalysisFiles(Filepaths * filepath) {
    strcat(temp, "_vertices.m");
    strcpy(filepath->vertexfile, temp);
 
-  strcpy(temp, filepath->rootname);
+   strcpy(temp, filepath->rootname);
    strcat(temp, "_vertices.log");
    strcpy(filepath->vertexlogfile, temp);
 
@@ -227,7 +247,7 @@ openAnalysisFiles(Filepaths * filepath) {
    strcat(temp, ".blk");
    strcpy(filepath->blockfile, temp);
 
-  strcpy(temp, filepath->rootname);
+   strcpy(temp, filepath->rootname);
    strcat(temp, ".err");
    strcpy(filepath->errorfile, temp);
 
