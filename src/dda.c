@@ -163,7 +163,7 @@ dda_run(DDA * dda) {
 
 
 void
-dda_set_output_directory(const char * dirname) {
+dda_set_output_directory(const char * dirname, size_t dirnamesize) {
 
 #define BUFSIZE 1024
 
@@ -180,7 +180,7 @@ dda_set_output_directory(const char * dirname) {
 
    strncpy(outdir,wdbuf,sizeof(wdbuf));
    strncat(outdir,"\\",sizeof("\\"));
-   strncat(outdir,dirname,sizeof(dirname));
+   strncat(outdir,dirname,sizeof(dirnamesize));
 
 /** This is really crappy. Should use stat or here. 
  * MS doesn't list errno for stat, so checking to 
