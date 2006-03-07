@@ -180,7 +180,7 @@ dda_set_output_directory(const char * dirname, size_t dirnamesize) {
 
    strncpy(outdir,wdbuf,sizeof(wdbuf));
    strncat(outdir,"\\",sizeof("\\"));
-   strncat(outdir,dirname,sizeof(dirnamesize));
+   strncat(outdir,dirname,dirnamesize);
 
 /** This is really crappy. Should use stat or here. 
  * MS doesn't list errno for stat, so checking to 
