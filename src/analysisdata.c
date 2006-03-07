@@ -490,7 +490,7 @@ adata_new() {
    ado->tsSaveInterval = 5;
 
   /* Constants are now malloced in their own function */
-   ado->constants = NULL; //(CONSTANTS *)calloc(1,sizeof(CONSTANTS));
+   ado->constants = constants_new_defaults(); //NULL; //(CONSTANTS *)calloc(1,sizeof(CONSTANTS));
    ado->initialconstants = NULL; // (CONSTANTS *)calloc(1,sizeof(CONSTANTS));
 
   /* NULL flag is useful. */
