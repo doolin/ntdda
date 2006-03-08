@@ -133,24 +133,20 @@ openAnalysisFiles(Filepaths * filepath) {
    char temp[256];
    extern FILEPOINTERS fp;
    // This part is added by Roozbeh to copy all 
-   //output files into "Output" folder
+   // output files into "Output" folder
+   // output folder is created when programe is ran.
    #define BUFSIZE 1024
-   const char * dirname;
-   size_t dirnamesize;
    char wdbuf[BUFSIZE];
    char * outdir;
 
    outdir = malloc(BUFSIZE);
    getcwd(wdbuf,BUFSIZE);
-   dirname="output";
-   dirnamesize = sizeof(dirname);
+   dda_set_output_directory("output",sizeof("output"));
    strncpy(outdir,wdbuf,sizeof(wdbuf));
    strncat(outdir,"\\",sizeof("\\"));
-   strncat(outdir,dirname,dirnamesize);
+   strncat(outdir,"output",sizeof("output"));
    strncat(outdir,"\\",sizeof("\\"));
    strcat(outdir, filepath->rootname);
-   strcpy(filepath->rootname, outdir);
-   free(outdir);
    // This part is added by Roozbeh to copy all 
    //output files into "Output" folder
 
@@ -159,112 +155,112 @@ openAnalysisFiles(Filepaths * filepath) {
    * is probably not real good, but is messy to handle 
    * otherwise on win32.
    */
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".replay");
    strcpy(filepath->replayfile, temp);
    fp.replayfile = fopen(filepath->replayfile, "w");
 
 //ddafile_open_file(&fp.replayfile, filepath->rootname,".replay");
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".html");
    strcpy(filepath->htmlfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_data.m");
    strcpy(filepath->datafile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".gnu");
    strcpy(filepath->gnuplotfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".log");
    strcpy(filepath->logfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_meas.m");
    strcpy(filepath->measfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".por");
    strcpy(filepath->porefile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_time.m");
    strcpy(filepath->timefile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".par");
    strcpy(filepath->parfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_moments.m");
    strcpy(filepath->momentfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_mass.m");
    strcpy(filepath->massfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_defs.m");
    strcpy(filepath->dfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".grav");
    strcpy(filepath->gravfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_fpoint.m");
    strcpy(filepath->fpointfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_cforce.m");
    strcpy(filepath->cforce, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_fforce.m");
    strcpy(filepath->fforce, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_bolt.m");
    strcpy(filepath->boltfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_bolt.log");
    strcpy(filepath->boltlogfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_vertices.m");
    strcpy(filepath->vertexfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_vertices.log");
    strcpy(filepath->vertexlogfile, temp);
 
   /* Copied in from geometry driver. */
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".blk");
    strcpy(filepath->blockfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".err");
    strcpy(filepath->errorfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".spy1");
    strcpy(filepath->spyfile1, temp);
 
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".spy2");
    strcpy(filepath->spyfile2, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, ".m");
    strcpy(filepath->mfile, temp);
 
-   strcpy(temp, filepath->rootname);
+   strcpy(temp, outdir);
    strcat(temp, "_stress.m");
    strcpy(filepath->stressfile, temp);
 
@@ -326,7 +322,7 @@ openAnalysisFiles(Filepaths * filepath) {
    * data should handle all the io for the time history.
    */
   /*fp.eqfile = fopen(filepath->eqfile,"r");*/
-
+free(outdir); //Added By Roozbeh
 }
 
 

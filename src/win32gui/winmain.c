@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/03/07 05:39:54 $
+ * $Date: 2006/03/08 16:39:21 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.37 $
+ * $Revision: 1.38 $
  */
 
 
@@ -62,7 +62,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.37 2006/03/07 05:39:54 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.38 2006/03/08 16:39:21 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -662,7 +662,7 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
       strcpy(temp, filepath.gfile);
       strcpy (filepath.rootname, strtok(temp, "."));
 
-      dda_set_output_directory("output", sizeof("output"));
+//      dda_set_output_directory("output", sizeof("output")); //Disabled By Roozbeh
 
       switch (MessageBox( hwMain,"Edit geometry data before applying?","Geometry", MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2 ) )
       {   
@@ -2004,7 +2004,7 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
       strcpy(temp, filepath.gfile);
       strcpy (filepath.rootname, strtok(temp, "."));
 
-      dda_set_output_directory("output",sizeof("output"));
+//      dda_set_output_directory("output",sizeof("output")); //Disabled By Roozbeh
 	  // The dxf file will be read from this line and lines, polylines
 	  // and arcs will be recognized from dxf file
       fp1 = fopen(filepath.gfile,"r");
