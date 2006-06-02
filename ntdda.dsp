@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /I "include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "DDAFORWINDOWS" /FAs /Fr /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "C:\ddaincludes\libxml2-2.6.24.win32\include" /I "C:\ddaincludes\iconv-1.9.2.win32\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "DDAFORWINDOWS" /FAs /Fr /YX /FD /c
 # SUBTRACT CPP /WX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib libxml.lib wsock32.lib htmlhelp.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:"bin/ntdda.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib libxml2_a.lib iconv_a.lib wsock32.lib htmlhelp.lib zlib.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:"bin/ntdda.exe" /libpath:"C:\ddaincludes\iconv-1.9.2.win32\lib" /libpath:"C:\ddaincludes\libxml2-2.6.24.win32\lib" /libpath:"C:\ddaincludes\zlib-1.2.3.win32\lib"
 
 !ELSEIF  "$(CFG)" == "ntdda - Win32 Debug"
 
