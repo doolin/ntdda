@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 
-
+#define LIBXML_STATIC
 
 void ddaml_read_geometry_file  (void * userdata, 
                                 char * filename);

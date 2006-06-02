@@ -8,9 +8,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2003/12/17 23:36:36 $
+ * $Date: 2006/06/02 17:53:22 $
  * $Source: /cvsroot/dda/ntdda/src/geomddaml.c,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  */
 
 /**
@@ -129,14 +129,14 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Joint list\n");
 
   /* Don't care about parent. */
-   cur = cur->childs;
+   cur = cur->children;
 
 
 /* Added Jointset tag */
 //while (cur != NULL)
 //{
    
-   //jscur = cur->childs;
+   //jscur = cur->children;
 
   /* Now there should be a linked list of <Joint> 
    * elements to traverse over.  The validator (DTD
@@ -164,7 +164,7 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          * to a double.  It WILL NOT scan the format strings to 
          * pick this up.  Piece of crap.
          */
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);  
          if (checkval == 4) {
             joint->epx1 = temp[0];
@@ -213,7 +213,7 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Fixed point list\n");
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -228,7 +228,7 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          */
          line = getNewLine();
          line->type = fixed; //  This will be an enum for fixed.
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          fprintf(stdout,"%s\n", tempstring);
          sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);  
          fprintf(stdout,"%f %f %f %f\n",temp[0],temp[1],temp[2],temp[3]);  
@@ -249,7 +249,7 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
          line = getNewLine();
          line->type = fixed; //  enum for fixed 
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          fprintf(stdout,"%s\n", tempstring);
          sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);  
          fprintf(stdout,"%f %f\n",temp[0],temp[1]);  
@@ -287,7 +287,7 @@ parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Measured point list\n");
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -296,7 +296,7 @@ parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
          point = getNewPoint();
          point->type = measured; //  enum for measured 
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
          {  
             fprintf(stdout,"Warning: Empty measured point value\n");
@@ -344,7 +344,7 @@ parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Seismic point list\n");
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -353,7 +353,7 @@ parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
          point = getNewPoint();
          point->type = seismic; //  enum for measured 
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
          {  
             fprintf(stdout,"Warning: Empty seismic point value\n");
@@ -403,7 +403,7 @@ parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Load point list\n");
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -412,7 +412,7 @@ parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
          point = getNewPoint();
          point->type = load; //  enum for load 
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
          {  
             fprintf(stdout,"Warning: Empty load point value\n");
@@ -464,7 +464,7 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Hole point list\n");
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -473,7 +473,7 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
          point = getNewPoint();
          point->type = hole; //  enum for hole
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
          {  
             fprintf(stdout,"Warning: Empty hole point value\n");
@@ -531,7 +531,7 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
   /** @todo postpone setting gdata field until transfer. */
    gdata->nBolts = 0;
 
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL) {
 
@@ -560,7 +560,7 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          }
 
 
-		   tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+		   tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL) {
            
             ddaml_display_error("Empty Bolt element.");
@@ -608,7 +608,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
 
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -625,7 +625,7 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
 
          line->type = atoi(type_att);
 
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
          {  
             fprintf(stdout,"Warning: Empty material line tag\n");
@@ -683,7 +683,7 @@ parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    fprintf(stdout, "Parsing Bounding list\n");
 
   /* Don't care about parent */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL)
    {
@@ -691,7 +691,7 @@ parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
 
          line = getNewLine();
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
          {  
             fprintf(stdout,"Warning: Empty boundary line tag\n");
@@ -1138,12 +1138,16 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    xmlDocPtr doc;
    xmlNsPtr ns;
    xmlNodePtr cur;
+
+   xmlNode *root_element = NULL;
+
+
    Geometrydata * gd = (Geometrydata *)userdata;
 
    ddaml_display_warning = gd->display_warning;
    ddaml_display_error   = gd->display_error;
 
-   xmlDoValidityCheckingDefaultValue = 1;
+   //xmlDoValidityCheckingDefaultValue = 1;
 
   /*
    * build an XML tree from a the file;
@@ -1160,7 +1164,11 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
   /* FIXME: Handle a null document, which means that there
    * is a messed up tag or something.
    */
-   cur = doc->root;
+   //cur = doc->root;
+
+   root_element = xmlDocGetRootElement(doc);
+   cur = root_element;
+
    ns = nspace;
 
   /* Here, we not only do not want the parent, we want to 
@@ -1168,11 +1176,11 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    * completely to start with the first element in the 
    * geometry part of the document.
    */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL) {
       if ( !strcmp( cur->name, "Geometry") ) {
-         cur = cur->childs;
+         cur = cur->children;
          parseGeometry(gd,doc, ns, cur); 
          break;
       }

@@ -6,7 +6,7 @@
 #ifndef __DDAML_PRIVATE_H__
 #define __DDAML_PRIVATE_H__
 
-#include <gnome-xml/parser.h>
+#include <libxml/parser.h>
 
 #ifdef __cplusplus
 extern "C" {

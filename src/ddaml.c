@@ -8,10 +8,21 @@
 #include "ddaml_private.h"
 #include "ddaml.h"
 
+// only for MSDEV 6.0
+// If using cpp, prefix with extern "C"
+// See google for details of _ftol2
+#if (_MSC_VER == 1200) && (WINVER < 0x0500)
+long _ftol( double ); //defined by VC6 C libs
+long _ftol2( double dblSource ) { 
+   return _ftol( dblSource ); 
+} 
+#endif
+
 
 void
 ddaml_check_document(void * userdata, const char * name_space, const char * rootname) {
 
+#if 0
    xmlDocPtr doc = (xmlDocPtr)userdata;
    xmlNsPtr nspace;
 
@@ -44,5 +55,7 @@ ddaml_check_document(void * userdata, const char * name_space, const char * root
 	     xmlFreeDoc(doc);
         exit (0);
    }
+
+#endif
 
 }  

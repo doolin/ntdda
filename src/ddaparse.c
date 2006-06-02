@@ -156,9 +156,9 @@ DEBUG("parseJob\n");
 	    }
 	}
         if ((!strcmp(cur->name, "Application")) && (cur->ns == ns))
-	    ret->application = xmlNodeListGetString(doc, cur->childs, 1);
+	    ret->application = xmlNodeListGetString(doc, cur->children, 1);
         if ((!strcmp(cur->name, "Category")) && (cur->ns == ns))
-	    ret->category = xmlNodeListGetString(doc, cur->childs, 1);
+	    ret->category = xmlNodeListGetString(doc, cur->children, 1);
         if ((!strcmp(cur->name, "Contact")) && (cur->ns == ns))
 	    ret->contact = parsePerson(doc, ns, cur);
 	cur = cur->next;
@@ -241,7 +241,7 @@ gJobPtr parseGjobFile(char *filename)
      * Now, walk the tree.
      */
     /* First level we expect just Jobs */
-    cur = cur->childs;
+    cur = cur->children;
     if ((strcmp(cur->name, "Jobs")) || (cur->ns != ns)) {
         fprintf(stderr,"document of the wrong type, Jobs expected");
 	xmlFreeDoc(doc);

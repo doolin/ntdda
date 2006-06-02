@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2002/12/20 05:20:02 $
+ * $Date: 2006/06/02 17:53:22 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.24 $
+ * $Revision: 1.25 $
  */
 
 #include <stdio.h>
@@ -291,7 +291,7 @@ parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
      
       fprintf(stderr,"Inside gravity\n");
 
-      cur = cur->childs;
+      cur = cur->children;
 
       while (cur != NULL) 
       {
@@ -446,7 +446,7 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    fprintf(stderr,"Inside constants\n");
 
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL) 
    {
@@ -613,7 +613,7 @@ parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    Jointmat * jmat;
    double temp;
-   cur = cur->childs;
+   cur = cur->children;
    jmat = jointmat_new();
 
   /** @todo Reimplement namespace checking.
@@ -621,17 +621,17 @@ parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    while (cur != NULL) {
 
       if ((!strcmp(cur->name, "Friction")) ) {
-         temp = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         temp = atof(xmlNodeListGetString(doc, cur->children, 1));
          jointmat_set_friction(jmat,temp);
       }
 
       if ((!strcmp(cur->name, "Cohesion")) ) {
-         temp = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         temp = atof(xmlNodeListGetString(doc, cur->children, 1));
          jointmat_set_cohesion(jmat,temp);
       }
 
       if ((!strcmp(cur->name, "Tensile")) ) {
-         temp = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         temp = atof(xmlNodeListGetString(doc, cur->children, 1));
          jointmat_set_tension(jmat,temp);
       }
 
@@ -654,7 +654,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    static int gotdamping = 0;
 
-   cur = cur->childs;
+   cur = cur->children;
   /* Grab a struct for block materials */
    bmat = getNewBlockMat(); 
 
@@ -662,28 +662,28 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    while (cur != NULL) {
 
       if ((!strcmp(cur->name, "Unitmass")) ) //&& (cur->ns == ns))
-         bmat->dens = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         bmat->dens = atof(xmlNodeListGetString(doc, cur->children, 1));
          
      /** @todo Find a way to get rid of unit weight, it's redundant. */
       if ((!strcmp(cur->name, "Unitweight")) ) //&& (cur->ns == ns))
-         bmat->wt = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         bmat->wt = atof(xmlNodeListGetString(doc, cur->children, 1));
 
       if ((!strcmp(cur->name, "Youngsmod")) ) //&& (cur->ns == ns))
-         bmat->ymod = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         bmat->ymod = atof(xmlNodeListGetString(doc, cur->children, 1));
 
       if ((!strcmp(cur->name, "Poissonratio")) ) //&& (cur->ns == ns))
-         bmat->pois = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         bmat->pois = atof(xmlNodeListGetString(doc, cur->children, 1));
 
       if ((!strcmp(cur->name, "Damping")) ) //&& (cur->ns == ns)) 
       {
-         bmat->damping = atof(xmlNodeListGetString(doc, cur->childs, 1));
+         bmat->damping = atof(xmlNodeListGetString(doc, cur->children, 1));
          gotdamping = 1;  //kludge
       }
 
      /* These will have three values each */
       if ((!strcmp(cur->name, "Istress")) ) //&& (cur->ns == ns))
       {
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
          if (checkval == 3) {
             bmat->iss[0] = temp[0];
@@ -696,7 +696,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
       if ((!strcmp(cur->name, "Istrain")) ) //&& (cur->ns == ns))
       {
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
          if (checkval == 3) {
             bmat->ist[0] = temp[0];
@@ -709,7 +709,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
       if ((!strcmp(cur->name, "Ivelocity")) ) //&& (cur->ns == ns))
       {
-         tempstring = xmlNodeListGetString(doc, cur->childs, 1);
+         tempstring = xmlNodeListGetString(doc, cur->children, 1);
          checkval = sscanf(tempstring,"%lf%lf%lf",&temp[0],&temp[1],&temp[2]);
          if (checkval == 3) {
             bmat->ivel[0] = temp[0];
@@ -755,7 +755,7 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    char * timehiststring;
    char * recordstring;
 
-   cur = cur->childs;
+   cur = cur->children;
 
    fprintf(stderr,"Parsing load points\n");
 
@@ -782,7 +782,7 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          loadpoint->vals = DoubMat2DGetMem(loadpoint->loadpointsize1,
                                            loadpoint->loadpointsize2);
         /* Slurp up the entire time history... */
-         timehiststring = xmlNodeListGetString(doc, cur->childs, 1);
+         timehiststring = xmlNodeListGetString(doc, cur->children, 1);
         /* Now, lots of heinous parsing... */
          recordstring = strtok(timehiststring, ";");
 
@@ -837,7 +837,7 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    int checkval;  
    double stiffness, strength, pretension;
 
-   cur = cur->childs;
+   cur = cur->children;
             
    tempstring = xmlNodeListGetString(doc, cur, 1);
 
@@ -1037,7 +1037,10 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    xmlNsPtr ns;
    xmlNodePtr cur;
 
-   xmlDoValidityCheckingDefaultValue = 1;
+   xmlNode *root_element = NULL;
+
+
+   //xmlDoValidityCheckingDefaultValue = 1;
 
    adata = ad;
 
@@ -1046,9 +1049,12 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    */
    doc = xmlParseFile(filename);
 
-   ddaml_check_document((void*)doc,"http://www.tsoft.com/~bdoolin/dda","DDA");
 
-   cur = doc->root;
+   //ddaml_check_document((void*)doc,"http://www.tsoft.com/~bdoolin/dda","DDA");
+   //cur = doc->root;
+
+   root_element = xmlDocGetRootElement(doc);
+   cur = root_element;
    ns = nspace;
 
   /** Now, walk the tree.  All the following code will
@@ -1060,11 +1066,11 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
   /* FIXME:  This needs to be handled as an exception to
    * protect against dereferencing a null pointer.
    */
-   cur = cur->childs;
+   cur = cur->children;
 
    while (cur != NULL) {
          if ( !strcmp( cur->name, "Analysis") )  {
-            cur = cur->childs;
+            cur = cur->children;
             parseAnalysis(ad,doc, ns, cur); 
             break;
          }
