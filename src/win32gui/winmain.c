@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/03/08 16:39:21 $
+ * $Date: 2006/06/02 18:25:24 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.38 $
+ * $Revision: 1.39 $
  */
 
 
@@ -62,7 +62,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.38 2006/03/08 16:39:21 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.39 2006/06/02 18:25:24 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -280,7 +280,7 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 			   UpdateWindow(hwMain);
 
             break;
-
+       
         /* WM_RBUTTONUP handles in WMCOMMAND.  
          * But RBUTTON pressed with a mouse 
          * move will work here.
@@ -392,11 +392,93 @@ handleSysChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
 static int
 handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
+// Added By Roozbeh
+   int wparamlo, wparamhi;
+   int deltax, deltay;
+   if (whatToDraw == LINES || whatToDraw == BLOCKS)
+   {
+     /* Get the value of LOWORD and HIWORD.
+      */
+      wparamlo = LOWORD(wParam);
+      wparamhi = HIWORD(wParam);
+      switch (wparamlo) 
+      {
 
+         case (VK_LEFT): 
+      
+            deltax = -100;
+            deltay = 0;
+
+            xoff = xoff + deltax;
+            yoff = yoff + deltay;
+
+			   InvalidateRect(hwMain, NULL, TRUE);
+			   UpdateWindow(hwMain);
+
+            break;
+
+            /* Moving the model using the Left, Right
+			 * Up and Dwon button.
+             */       
+         case (VK_RIGHT):
+           
+            deltax = 100;
+            deltay = 0;
+
+            xoff = xoff + deltax;
+            yoff = yoff + deltay;
+
+			   InvalidateRect(hwMain, NULL, TRUE);
+			   UpdateWindow(hwMain);
+            break;
+
+         case (VK_UP):
+			deltax = 0;
+            deltay = 100;
+
+            xoff = xoff + deltax;
+            yoff = yoff + deltay;
+
+			   InvalidateRect(hwMain, NULL, TRUE);
+			   UpdateWindow(hwMain);
+            break;
+
+         case (VK_DOWN):
+			deltax = 0;
+            deltay = -100;
+
+            xoff = xoff + deltax;
+            yoff = yoff + deltay;
+
+			   InvalidateRect(hwMain, NULL, TRUE);
+			   UpdateWindow(hwMain);
+            break;
+			/* Zoom in By pressing the Add button.
+             * zoom out By pressing the Subtract button.  
+             */ 
+         case (VK_ADD):
+               
+			   zoom *=1.2;
+			   InvalidateRect(hwMain, NULL, TRUE);
+			   UpdateWindow(hwMain);
+            break;
+		case (VK_SUBTRACT):
+
+               zoom /=1.2;
+			   InvalidateRect(hwMain, NULL, TRUE);
+			   UpdateWindow(hwMain);
+            break;
+         default:
+            break;
+	  }
+   }
+// Added By Roozbeh
 #if 0
+   {
    char mess[128];
    sprintf(mess, "nVirtKey: %d",wParam);
    MessageBox(NULL,mess,"keydown",MB_OK);
+   }
 #endif
 
    return 0;
