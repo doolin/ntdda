@@ -354,12 +354,13 @@ drawJointHandle(Joint * jp, int num)
 static void //trg
 redrawJoint(Joint * jp)
 {
-  int endp1x,endp1y,endp2x,endp2y; 
+  int endp1x,endp1y,endp2x,endp2y,color; //"color" Added By Roozbeh
    endp1x = (int)jp->epx1;
    endp1y = (int)jp->epy1;
    endp2x = (int)jp->epx2;
    endp2y = (int)jp->epy2; 
-   
+   color = (int)jp->type;
+   SelectObject(hdc, drawPen[color]); //Added By Roozbeh to paint the line type after redrawing
    MoveToEx(hdc, endp1x, endp1y, NULL);
 
    LineTo(hdc, endp2x, endp2y);
@@ -367,7 +368,20 @@ redrawJoint(Joint * jp)
       drawJointHandles(jp);
 }  /* close drawJoint() */
 
+//Added By Roozbeh
+void redrawPoints(DPoint * ptmp)
+{  
+      SelectObject(hdc, drawPen[1]);
+      if ( (ptmp->type == 0) ||
+           (ptmp->type == 1)  )
+         hCurrentBr = GetStockObject(WHITE_BRUSH);
+      else /* load or hole */
+         hCurrentBr = GetStockObject(BLACK_BRUSH);
 
+      SelectObject(hdc, hCurrentBr);
+      drawSinglePoint(hdc, ptmp);
+
+} /* close redrawPoints */ //Added By Roozbeh
 
 /* This produces an infinite loop and does not allow the 
  * drawing dialog box to be initialized correctly.
@@ -403,18 +417,25 @@ handlePaint(HWND hDlg)
 { 
    HDC hdc;
    PAINTSTRUCT ps;
-   JOINTLIST * ptr;
+   JOINTLIST * ptr1; //Changed By Roozbeh
+   POINTLIST * ptr2; //Added By Roozbeh
    Joint * jtmp;
+   DPoint * ptmp; //Added By Roozbeh
    //InvalidateRect(hDlg, NULL, TRUE); //test2 no work
    hdc = BeginPaint(hDlg, &ps );
-   dlist_traverse(ptr, jointlist) {
+   dlist_traverse(ptr1, jointlist) {
 
-        jtmp = ptr->val;
+        jtmp = ptr1->val;
         redrawJoint(jtmp);          
    }
+   //Added By Roozbeh
+   dlist_traverse(ptr2, pointlist)
+   {
+	    ptmp = ptr2->val;
+        redrawPoints(ptmp);
+   }
    EndPaint(hDlg, &ps );
-   //InvalidateRect(hDlg, NULL, TRUE); //test CRASHED!!!
-}  /* close handlePaint() */
+}  /* close handlePaint() */ //Added By Roozbeh
 
 
 static void
