@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/06/02 18:25:24 $
+ * $Date: 2006/06/07 15:50:30 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.39 $
+ * $Revision: 1.40 $
  */
 
 
@@ -62,7 +62,7 @@ char mainWinTitle[120];
 
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.39 2006/06/02 18:25:24 doolin Exp $\n", \
+              "$Id: winmain.c,v 1.40 2006/06/07 15:50:30 doolin Exp $\n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -392,86 +392,58 @@ handleSysChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
 static int
 handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
-// Added By Roozbeh
+
+   // Added By Roozbeh
    int wparamlo, wparamhi;
-   int deltax, deltay;
-   if (whatToDraw == LINES || whatToDraw == BLOCKS)
-   {
+   short delta = 100;
+
+   if (whatToDraw == LINES || whatToDraw == BLOCKS) {
+
      /* Get the value of LOWORD and HIWORD.
       */
       wparamlo = LOWORD(wParam);
       wparamhi = HIWORD(wParam);
-      switch (wparamlo) 
-      {
 
+      switch (wparamlo) {
+
+        /* Moving the model using the Left, Right
+			* Up and Dwon button.
+         */   
          case (VK_LEFT): 
-      
-            deltax = -100;
-            deltay = 0;
-
-            xoff = xoff + deltax;
-            yoff = yoff + deltay;
-
-			   InvalidateRect(hwMain, NULL, TRUE);
-			   UpdateWindow(hwMain);
-
+            xoff = xoff - delta;
             break;
 
-            /* Moving the model using the Left, Right
-			 * Up and Dwon button.
-             */       
          case (VK_RIGHT):
-           
-            deltax = 100;
-            deltay = 0;
-
-            xoff = xoff + deltax;
-            yoff = yoff + deltay;
-
-			   InvalidateRect(hwMain, NULL, TRUE);
-			   UpdateWindow(hwMain);
+            xoff = xoff + delta;
             break;
 
          case (VK_UP):
-			deltax = 0;
-            deltay = 100;
-
-            xoff = xoff + deltax;
-            yoff = yoff + deltay;
-
-			   InvalidateRect(hwMain, NULL, TRUE);
-			   UpdateWindow(hwMain);
+            yoff = yoff + delta;
             break;
 
          case (VK_DOWN):
-			deltax = 0;
-            deltay = -100;
-
-            xoff = xoff + deltax;
-            yoff = yoff + deltay;
-
-			   InvalidateRect(hwMain, NULL, TRUE);
-			   UpdateWindow(hwMain);
+            yoff = yoff - delta;
             break;
-			/* Zoom in By pressing the Add button.
-             * zoom out By pressing the Subtract button.  
-             */ 
+
+        /* Zoom in By pressing the Add button.
+         * zoom out By pressing the Subtract button.  
+         */ 
          case (VK_ADD):
-               
-			   zoom *=1.2;
-			   InvalidateRect(hwMain, NULL, TRUE);
-			   UpdateWindow(hwMain);
+			   zoom = (long)floor(zoom*1.2);
             break;
-		case (VK_SUBTRACT):
 
-               zoom /=1.2;
-			   InvalidateRect(hwMain, NULL, TRUE);
-			   UpdateWindow(hwMain);
+         case (VK_SUBTRACT):
+            zoom = (long)floor(zoom/1.2);
             break;
+
          default:
             break;
 	  }
+			   
+     InvalidateRect(hwMain, NULL, TRUE);
+     UpdateWindow(hwMain);
    }
+
 // Added By Roozbeh
 #if 0
    {
@@ -482,7 +454,6 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 #endif
 
    return 0;
-
 }  
 
 
