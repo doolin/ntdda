@@ -9,9 +9,9 @@
  * David M. Doolin  doolin@ce.berkeley.edu
  *
  * $Author: doolin $
- * $Date: 2006/06/02 17:53:22 $
+ * $Date: 2006/06/29 20:44:32 $
  * $Source: /cvsroot/dda/ntdda/src/analysisddaml.c,v $
- * $Revision: 1.25 $
+ * $Revision: 1.26 $
  */
 
 #include <stdio.h>
@@ -755,15 +755,19 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    char * timehiststring;
    char * recordstring;
 
+   //ddaml_display_warning(cur->name);
    cur = cur->children;
 
-   fprintf(stderr,"Parsing load points\n");
+   //fprintf(stderr,"Parsing load points\n");
+   //ddaml_display_warning("Parsing load points.");
+   //ddaml_display_warning(cur->name);
 
    while (cur != NULL) {
 
       if ((!strcmp(cur->name, "Loadpoint")) ) {
 
-
+         // TODO: Consider moving this to a function to make the inner 
+         // easier to read.
         /* Get the size of this thing from the attribute value: */
         /* FIXME: Segfaults if no attribute specified.  Either output
          * from the xml parser must be examined, or the call needs to 
@@ -812,12 +816,18 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
          dl_insert_b(loadpointlist, loadpoint);
          parsepoints = 0;
          numloadpoints = 0;
+      } else if ((!strcmp(cur->name, "text")) ) {
+         // Uncomment the following to see how libxml handles text elements
+         // such as tabs and spaces.
+         //ddaml_display_warning("Text node.");
       } else {
 
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
          */         
-         ddaml_display_error("Validation failure in load point parsing."  
+         // TODO: Extract the file name and line number of ddaml file
+         // so that the analyst can fix it.
+         ddaml_display_warning("Unknown element in load point parsing."  
                              " Contact author.\n");
       }
       cur = cur->next;
@@ -1043,6 +1053,8 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    //xmlDoValidityCheckingDefaultValue = 1;
 
    adata = ad;
+
+   ddaml_display_error   = ad->display_error;
 
   /**
    * build an XML tree from the file;
