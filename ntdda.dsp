@@ -451,6 +451,10 @@ SOURCE=.\src\display.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\dxf.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\geomddaml.c
 # End Source File
 # Begin Source File

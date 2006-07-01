@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/06/07 15:50:30 $
+ * $Date: 2006/07/01 05:25:26 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.40 $
+ * $Revision: 1.41 $
  */
 
 
@@ -28,7 +28,7 @@
 #include <memory.h>
 #include <htmlhelp.h>
 #include <tchar.h>
-#include "math.h"
+#include <math.h>
 
 
 #include "win32utils.h"
@@ -39,6 +39,7 @@
 #include "toolbar.h"
 #include "statusbar.h"
 #include "runstates.h"
+#include "dxf.h"
 
 
 /* Win32 calling conventions. */
@@ -61,8 +62,8 @@ char mess[80];  /* mess appears to be a temporary variable.  Might be able to ge
 char mainWinTitle[120];
 
 
-#define ABOUT "UC Berkeley DDA for Windows 95/NT(unstable),\n", \
-              "$Id: winmain.c,v 1.40 2006/06/07 15:50:30 doolin Exp $\n", \
+#define ABOUT "UC Berkeley DDA for Windows 95/NT,\n", \
+              "Limerick RC-1 (Version 1.5 rc1) \n", \
 				  "by Mary M. MacLaughlin (Montana Tech), and Nicholas Sitar & David Doolin\n", \
               "Department of Civil Engineering, Geotechnical Group\n", \
               "University of California, Berkeley, CA 94720\n", \
@@ -1708,7 +1709,7 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-
+#if 0
 void 
 readDXF(FILE * fp1) {
    
@@ -2013,6 +2014,7 @@ readDXF(FILE * fp1) {
    return;
 
 }
+#endif
 
 
 // This subroutine is wrote by Roozbeh to read the .dxf 
@@ -2061,9 +2063,10 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 	  // The dxf file will be read from this line and lines, polylines
 	  // and arcs will be recognized from dxf file
       fp1 = fopen(filepath.gfile,"r");
+      strcpy (filepath.gfile, strcat (filepath.rootname, ".geo"));
 
       // Pass everything in to readDXF.
-      readDXF(fp1);
+      dxf_read_file(fp1,filepath.gfile);
       
    }
 
