@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/07/01 14:51:25 $
+ * $Date: 2006/07/01 14:58:07 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.42 $
+ * $Revision: 1.43 $
  */
 
 
@@ -1715,7 +1715,7 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 // This subroutine is wrote by Roozbeh to read the .dxf 
 // format and to create the .geo format
-static int 
+int 
 handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 {
    FILE *fp1;
@@ -1726,40 +1726,32 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    LPCTSTR szFilter[] = {"Autocad Dxf files (*.dxf)\0*.dxf\0All files (*.*)\0*.*\0\0"};
    fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "dxf");
 
-   if( !GetOpenFileName(&ofn) ) {
-
+   if(!GetOpenFileName(&ofn)) {
       strcpy(filepath.gpath, filepath.oldpath);
       return 0;  /* user pressed cancel */
-
    } 
    
-   //else {
+   sprintf(mainWinTitle, "%s for Windows  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
+   SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
 
+   dda_set_menu_state(dda,GEOM_STATE);
 
-      sprintf(mainWinTitle, "%s for Windows  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
+  /* Initialize the path. Note that the .dxf file is already loaded into 
+   * the struct, so it doesn't have to be reloaded.
+   */
+   strcpy(temp, filepath.gfile);
+   strcpy (filepath.rootname, strtok(temp, "."));
 
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
-
-      dda_set_menu_state(dda,GEOM_STATE);
-
-     /* Initialize the path. Note that the .dxf file is already loaded into 
-      * the struct, so it doesn't have to be reloaded.
-      */
-      strcpy(temp, filepath.gfile);
-      strcpy (filepath.rootname, strtok(temp, "."));
-
-//      dda_set_output_directory("output",sizeof("output")); //Disabled By Roozbeh
-	  // The dxf file will be read from this line and lines, polylines
-	  // and arcs will be recognized from dxf file
-      fp1 = fopen(filepath.gfile,"r");
-      strcpy (filepath.gfile, strcat (filepath.rootname, ".geo"));
-
-      // Pass everything in to readDXF.
-      dxf_read_file(fp1,filepath.gfile);
+   //dda_set_output_directory("output",sizeof("output")); //Disabled By Roozbeh
+   // The dxf file will be read from this line and lines, polylines
+   // and arcs will be recognized from dxf file
+   fp1 = fopen(filepath.gfile,"r");
+   // WARNING: This overwrites the name of the currently open file fp1!
+   strcpy (filepath.gfile, strcat (filepath.rootname, ".geo"));
+   dxf_read_file(fp1,filepath.gfile);
      
-      // Send message to GeomApply to have geometry automatically loaded.
-
-   //}
+   // Send message to GeomApply to have geometry automatically loaded.         
+   SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
 
    return 1;
 
