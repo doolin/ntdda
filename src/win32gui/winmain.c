@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: doolin $
- * $Date: 2006/07/01 14:58:07 $
+ * $Date: 2006/07/01 15:20:58 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.43 $
+ * $Revision: 1.44 $
  */
 
 
@@ -56,13 +56,11 @@
 
 
 /*  Whole bunch of global variables that need to disappear fast. */
-char szAppName[] = "Berkeley DDA for Windows";
+char szAppName[] = "DDA for Windows";
 char mess[80];  /* mess appears to be a temporary variable.  Might be able to get rid of it. */
 
 
 // Get rid of this as well.
-char mainWinTitle[120];
-
 
 #define ABOUT "UC Berkeley DDA for Windows 95/NT,\n", \
               "Limerick RC-1 (Version 1.5 rc1) \n", \
@@ -142,6 +140,15 @@ int CreateTestPropSheet(HWND hwMain, Analysisdata *);
 HWND mainwindow;
 //InterFace * iface;
 
+
+void
+set_mainwindow_titlebar(HWND hwMain, char * filetype, char * filename) {
+
+   char mainWinTitle[120];
+
+   sprintf(mainWinTitle, "%s  ---  %s: %s",szAppName,filetype,filepath.gfile);
+   SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+}
 
 
 void
@@ -624,8 +631,10 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
       */      
       whatToDraw = NOTHING;
 		filepath.gfile[0] = '\0';
-		sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
-		SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+		//sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
+		//SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      set_mainwindow_titlebar(hwMain,NULL,NULL);
+
       dda_set_menu_state(dda,GEOM_STATE | ABORTED);
    }
 
@@ -644,8 +653,9 @@ handleGeomDraw(HWND hwMain)
 
 	strcpy(filepath.oldfile, filepath.gfile);
 	filepath.gfile[0] = '\0';
- 	sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
- 	SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+ 	//sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
+ 	//SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+   set_mainwindow_titlebar(hwMain,NULL,NULL);
 
 	hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
@@ -654,8 +664,10 @@ handleGeomDraw(HWND hwMain)
    */
 	if(DialogBoxParam(hInst, "DRAWDLG", hwMain, (DLGPROC)DrawDlgProc, (LPARAM)12 ) )
    {
-     	sprintf(mainWinTitle, "%s for Windows 95/NT ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+     	//sprintf(mainWinTitle, "%s for Windows 95/NT ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
+      //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
+
    }
 	
 }  /* close handleGeometryDraw() */
@@ -679,8 +691,10 @@ handleGeometryDialog(HWND hwMain, LPARAM lParam)
 
    if(filepath.gfile[0] != '\0') 
    {
-      sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
+      //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
+
       if (strcmp(filepath.gfile, filepath.oldfile) != 0 && MessageBox(hwMain, "Apply geometry?", "GEOMETRY", MB_YESNO) == IDYES) 
       {
          SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
@@ -706,9 +720,9 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
    } 
    else 
    {
-      sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
-
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
+      //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
 
       dda_set_menu_state(dda,GEOM_STATE);
 
@@ -804,11 +818,14 @@ handleAnalBrowse(HWND hwMain, LPARAM lParam)
    } 
    else 
    {
-      sprintf(mainWinTitle, 
-	         "%s for Windows 95/NT --- Geometry = %s, Analysis File = %s", 
-	         (LPSTR) szAppName, (LPSTR) filepath.gfile, (LPSTR) filepath.afile);
-	
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
+      // TODO: Find a way to handle both Geometry and Analysis files 
+      // with a titlebar call.
+      //sprintf(mainWinTitle, "%s for Windows 95/NT --- Geometry = %s, Analysis File = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile, (LPSTR) filepath.afile);
+      //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
+      set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile);
+
       //updateMainMenu(hwMain, anastate*readystate);
       //dda->menustate = ANA_STATE | READY_STATE;
       dda_set_menu_state(dda,ANA_STATE | READY_STATE);
@@ -926,25 +943,22 @@ handleAnalNew(HWND hwMain, LPARAM lParam)
    Geometrydata * geomdata = dda_get_geometrydata(dda);
    strcpy(filepath.oldfile, filepath.afile);
 	filepath.afile[0] = '\0';
-	sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", 
-						(LPSTR) szAppName, filepath.gfile);
-
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
-   SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+	//sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", LPSTR) szAppName, filepath.gfile);
+   //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+   set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
 
    if (!DialogBoxParam(hInst, "ANALDLG2", hwMain, (DLGPROC)AnalDlgProc,(LPARAM)geomdata )) 
    {
 	   strcpy(filepath.afile, filepath.oldfile);
    }
 
-	if(filepath.afile[0] != '\0') 
-	{
-      sprintf(mainWinTitle, 
-              "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", 
-				(LPSTR) szAppName, filepath.gfile, filepath.afile);
+   if(filepath.afile[0] != '\0') {
 
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", (LPSTR) szAppName, filepath.gfile, filepath.afile);
+      //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile);
 
       if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES) 
       {
@@ -973,11 +987,12 @@ handleAnalEditDialog(HWND hwMain, LPARAM lParam)
 
    //iface->setdisplay((unsigned int)hwMain);
 
-   if(filepath.afile[0] != '\0') 
-   {
-      sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", 
-							(LPSTR) szAppName, filepath.gfile, filepath.afile);
-      SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+   if(filepath.afile[0] != '\0') {
+
+      //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", LPSTR) szAppName, filepath.gfile, filepath.afile);
+      //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+      set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile); 
+
       if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES) 
       {
          SendMessage(hwMain, WM_COMMAND, ANAL_RUN, lParam);
@@ -1712,7 +1727,6 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-
 // This subroutine is wrote by Roozbeh to read the .dxf 
 // format and to create the .geo format
 int 
@@ -1724,6 +1738,8 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
    LPCTSTR szFilter[] = {"Autocad Dxf files (*.dxf)\0*.dxf\0All files (*.*)\0*.*\0\0"};
+   // TODO: Add a dxf file type for this, instead of shoving into the geometry file.
+   // That way, the dxf file can be modified independently at a future date.
    fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "dxf");
 
    if(!GetOpenFileName(&ofn)) {
@@ -1731,8 +1747,7 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
       return 0;  /* user pressed cancel */
    } 
    
-   sprintf(mainWinTitle, "%s for Windows  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
-   SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+   set_mainwindow_titlebar(hwMain,"DXF",filepath.gfile);
 
    dda_set_menu_state(dda,GEOM_STATE);
 
@@ -2112,7 +2127,7 @@ createDDAMainWindow(HINSTANCE hInstance)
 
    hddawin = CreateWindowEx(WS_EX_ACCEPTFILES, 
                            szAppName, 
-                           "Berkeley DDA for Windows NT", 
+                           szAppName,
                            WS_OVERLAPPEDWINDOW    | 
                            WS_CLIPCHILDREN,
 	 	                     (desktoprect.right  / 2) - (800  / 2), 
