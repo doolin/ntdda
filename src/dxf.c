@@ -336,6 +336,9 @@ dxf_read_file (FILE * fp1, char *geofilename)
  * 
  * Run it like this:
  * ./dxf < infile.dxf 
+ *
+ * Code formatted using indent:
+ * indent -br -ce -nut dxf.c
  */
 int
 main (int argc, char **argv)
