@@ -24,9 +24,9 @@ extern "C" {
 #endif
 
 
-double sigm, dsbar, theta, cs[5], pl[5][5];
+static double sigm, dsbar, theta, cs[5], pl[5][5];
 
-int i, j;
+static int i, j;
 
 /*
  *  first invariant "sigm", second invariant "dsbar" 
