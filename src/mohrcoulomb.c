@@ -45,10 +45,12 @@ invar ()
     dz = (2 * sz - sx - sy) / 3;
     xj3 = dx * dy * dz - dz * pow (txy, 2);
     sine = -13.5 * xj3 / pow (dsbar, 3);
-    if (sine > 1)
+    if (sine > 1) {
       sine = 1;
-    if (sine < -1)
+    }
+    if (sine < -1) {
       sine = -1;
+    }
     theta = asin (sine) / 3;
   }
 
@@ -102,16 +104,19 @@ mocopl (double phi, double psi, double nu, double ymod)
   d2 = sqrt (-dx * dy - dy * dz - dz * dx + txy * txy);
   d3 = dx * dy * dz - dz * txy * txy;
   th = -3 * sq3 * d3 / (2 * pow (d2, 3));
-  if (th > 1)
+  if (th > 1) {
     th = 1;
-  if (th < -1)
+  }
+  if (th < -1) {
     th = -1;
+  }
   th = asin (th) / 3;
   snth = sin (th);
   if (fabs (snth) > 0.49) {
     sig = -1;
-    if (snth < 0)
+    if (snth < 0) {
       sig = 1;
+    }
     rph = snph * (1 + nu) / 3;
     rps = snps * (1. + nu) / 3;
     cps = 0.25 * sq3 / d2 * (1 + sig * snps / 3);
@@ -170,10 +175,13 @@ mohrcoulomb (double c, double phi, double psi, double nu, double ymod,
   double elso[5];
   double fnew;
 
-  for (i = 1; i <= 4; i++)
+  for (i = 1; i <= 4; i++) {
     elso[i] = 0;
-  for (i = 1; i <= 4; i++)
+  }
+
+  for (i = 1; i <= 4; i++) {
     cs[i] = stress[i + 3] + sigma[i];
+  }
 
   invar ();
   fnew = mocouf (c, phi);
@@ -187,6 +195,8 @@ mohrcoulomb (double c, double phi, double psi, double nu, double ymod,
     elso[4] = pl[4][1] * eps[1] + pl[4][2] * eps[2] + pl[4][3] * eps[3];
   }
 
-  for (i = 1; i <= 4; i++)
+  for (i = 1; i <= 4; i++) {
     stress[i + 3] = stress[i + 3] + sigma[i] - elso[i];
+  }
+
 }
