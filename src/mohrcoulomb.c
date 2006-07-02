@@ -5,26 +5,25 @@
 
 #include "mohrcoulomb.h"
 
-/*   sigm:      mean stress invariant
-/*   dsbar:     deviatoric stress invariant
-/*	 fnew or f: value of failure function
-/*	 phi:       friction angle
-/*	 c:         cohesion
-/*	 psi:       dilation angle
-/*	 tnph:      tan(phi)
-/*	 snph:      sin(phi) 
-/*   theta:     lode angle
-*/
+/* sigm:      mean stress invariant
+ * dsbar:     deviatoric stress invariant
+ * fnew or f: value of failure function
+ * phi:       friction angle
+ * c:         cohesion
+ * psi:       dilation angle
+ * tnph:      tan(phi)
+ * snph:      sin(phi) 
+ * theta:     lode angle
+ */
   
 double sigm,dsbar,theta,cs[5],pl[5][5];
 
 int i,j;
 
 /*
-/*  first invariant "sigm", second invariant "dsbar" 
-/*  and lode angle "theta" for a stress tensor "stress"
-*/ 
-
+ *  first invariant "sigm", second invariant "dsbar" 
+ *  and lode angle "theta" for a stress tensor "stress"
+ */ 
 void invar()
 {
   double sx,sy,sz,txy,dx,dy,dz,xj3,sine;
@@ -54,11 +53,10 @@ void invar()
 }
 
 /*
-/* Mohr-Coulomb yield function F from invariants "sigm"
-/* and "dsbar" lode angle "theta (radian) of friction "phi" 
-/* and cohesion "c"
-*/
-
+ * Mohr-Coulomb yield function F from invariants "sigm"
+ * and "dsbar" lode angle "theta (radian) of friction "phi" 
+ * and cohesion "c"
+ */
 double mocouf(double c,double phi)
 {  
   double phir,snph,csph,csth,snth,f;
@@ -72,11 +70,10 @@ double mocouf(double c,double phi)
 }
 
 /*
-/* plastic stress-strain matrix "pl" from stresses "stress" 
-/* angle of friction "phi", dilation "psi" and elastic stiffness "E"
-/* ,"nu" for a Mohr-Coulomb material
-*/
-
+ * plastic stress-strain matrix "pl" from stresses "stress" 
+ * angle of friction "phi", dilation "psi" and elastic stiffness "E"
+ * ,"nu" for a Mohr-Coulomb material
+ */
 void mocopl(double phi,double psi,double nu, double ymod)
 {
 
@@ -158,9 +155,9 @@ void mocopl(double phi,double psi,double nu, double ymod)
 }
 
 /*
-/* main function in order to obtain the 
-/* correct stress using Mohr-Coulomb criteria
-*/
+ * main function in order to obtain the 
+ * correct stress using Mohr-Coulomb criteria
+ */
 void mohrcoulomb(double c,double phi,double psi,double nu,double ymod,
 				 double eps[4],double * stress,double sigma[4])
 {
