@@ -169,6 +169,10 @@ SOURCE=.\src\geometrydata.c
 SOURCE=.\src\lns.c
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\src\mohrcoulomb.c
+# End Source File
 # End Group
 # Begin Group "gui"
 

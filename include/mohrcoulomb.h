@@ -49,5 +49,8 @@ void   mohrcoulomb (double c,
 		    double * stress,
 		    double sigma[]);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MOHRCOULOMB_H__ */

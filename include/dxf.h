@@ -19,5 +19,8 @@ void dxf_read_file (FILE * fp1,
 		    char * geofilename);
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DXF_H__ */
