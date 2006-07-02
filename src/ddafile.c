@@ -136,13 +136,13 @@ openAnalysisFiles(Filepaths * filepath) {
    // output files into "Output" folder
    // output folder is created when programe is ran.
    #define BUFSIZE 1024
-   char wdbuf[BUFSIZE];
+   char cwdbuf[BUFSIZE];
    char * outdir;
 
    outdir = malloc(BUFSIZE);
-   getcwd(wdbuf,BUFSIZE);
+   getcwd(cwdbuf,BUFSIZE);
    dda_set_output_directory("output",sizeof("output"));
-   strncpy(outdir,wdbuf,sizeof(wdbuf));
+   strncpy(outdir,cwdbuf,sizeof(cwdbuf));
    strncat(outdir,"\\",sizeof("\\"));
    strncat(outdir,"output",sizeof("output"));
    strncat(outdir,"\\",sizeof("\\"));
