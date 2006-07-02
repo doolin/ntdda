@@ -16,6 +16,14 @@
  * theta:     lode angle
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if 0
+}
+#endif
+
+
 double sigm, dsbar, theta, cs[5], pl[5][5];
 
 int i, j;
@@ -200,3 +208,23 @@ mohrcoulomb (double c, double phi, double psi, double nu, double ymod,
   }
 
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef STANDALONE
+/** 
+ * Free standing program for testing Mohr-Coulomb
+ * computations.
+ *
+ * Compile with:
+ * gcc -Wall -o mc mohrcoulomb.c -I../include -DSTANDALONE
+ *
+ */
+int 
+main(int argc, char ** argv) {
+
+   return 0;
+}
+#endif /* STANDALONE */
