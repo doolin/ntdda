@@ -15,11 +15,39 @@ extern "C" {
 #endif
 
 
-void invar();
-double mocouf(double c,double phi);
-void mocopl(double phi,double psi,double nu, double ymod);
-void mohrcoulomb(double c, double phi, double psi,double nu,double ymod,
-				 double eps[],double * stress,double sigma[]);
+/**
+ * Add explanatory comment here.
+ */
+void   invar       (void);
+
+
+/**
+ * Add explanatory comment here.
+ */
+double mocouf      (double c,
+		    double phi);
+
+
+/**
+ * Add explanatory comment here.
+ */
+void   mocopl      (double phi,
+		    double psi,
+		    double nu,
+		    double ymod);
+
+
+/**
+ * Add explanatory comment here.
+ */
+void   mohrcoulomb (double c,
+		    double phi,
+		    double psi,
+		    double nu,
+		    double ymod,
+		    double eps[],
+		    double * stress,
+		    double sigma[]);
 
 
 #endif /* __MOHRCOULOMB_H__ */
