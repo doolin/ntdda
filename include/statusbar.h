@@ -50,3 +50,4 @@ void statusbar_set_progbar_range (unsigned short value);
 #endif
 
 #endif /* __STATUSBAR_H__ */
+

@@ -367,11 +367,11 @@ constants_print_xml(Constants * constants, PrintFunc printer, void * stream) {
    printer(stream,I2"<ShearNormRatio value=\"%f\"/>\n",constants->shear_norm_ratio);
    printer(stream,I1"</AConstants>\n\n"); 
    /*
-   openclose =  .0002;  /* s0 = .0002  
-   opencriteria = .0000002;  /* f0 = .0000002;  
-   norm_spring_pen = .0004;//g3 = .0004;   /* g3 = .0004;  
-   angle_olap = 3;   /* h1 = 3; 
-   shear_norm_ratio = 2.5;  /* h2 = 2.5; 
+   openclose =  .0002;  // s0 = .0002  
+   opencriteria = .0000002;  // f0 = .0000002;  
+   norm_spring_pen = .0004;//g3 = .0004;   // g3 = .0004;  
+   angle_olap = 3;   // h1 = 3; 
+   shear_norm_ratio = 2.5;  // h2 = 2.5; 
    */   
 }
 

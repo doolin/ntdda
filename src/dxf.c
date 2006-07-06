@@ -220,6 +220,8 @@ dxf_read_file (FILE * fp1, char *geofilename)
       jy2[count2] = y2;
       type[count2] = ctype;
     }
+
+
     if (strcmp (str[i], "MTEXT") == 0) {
       if (strcmp (str[i + 9], "62") == 0) {
         dec = 2;

@@ -71,3 +71,4 @@ int    ** get_previous_contacts(Contacts *);
 
 
 #endif  /* __CONTACTS_H__ */
+

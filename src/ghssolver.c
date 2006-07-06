@@ -4,9 +4,9 @@
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
- * $Date: 2003/12/17 23:36:36 $
+ * $Date: 2006/07/06 02:28:27 $
  * $Source: /cvsroot/dda/ntdda/src/ghssolver.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  *
  */
 #include <assert.h>
@@ -991,3 +991,4 @@ writeSolutionVector(double ** D, int * kk, int * k1, int ** n, int numblocks)
    fprintf(fp.dfile,"\n");
 
 }  /* close writeSolutionVector() */
+

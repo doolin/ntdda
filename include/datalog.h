@@ -154,3 +154,4 @@ void       datalog_delete  (Datalog *);
 #endif
 
 #endif /* __DATALOG_H__ */
+

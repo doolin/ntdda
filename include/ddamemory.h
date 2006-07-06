@@ -2,8 +2,12 @@
  *  ddamemory.h
  * 
  *  $Author: doolin $
- *  $Date: 2002/10/14 16:02:46 $
+ *  $Date: 2006/07/06 02:28:37 $
  *  $Log: ddamemory.h,v $
+ *  Revision 1.4  2006/07/06 02:28:37  doolin
+ *  Cleaned up code in unittests to ensure compile
+ *  under cygwin.
+ *
  *  Revision 1.3  2002/10/14 16:02:46  doolin
  *  Lots of small clean up done.  No major changes in this commit.
  *
@@ -57,3 +61,4 @@ void setMatrixToZero(double **, int, int);
 #endif
 
 #endif  /* __DDAMEMORY_H__ */
+

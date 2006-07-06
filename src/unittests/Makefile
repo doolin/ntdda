@@ -24,6 +24,7 @@ ADATA_SOURCE =  ../constants.c      \
                 ../analysisdata.c   \
                 ../ddamemory.c      \
                 ../loadpoint.c      \
+                ../dda.c            \
                 ../analysisreader.c \
                 ../ddafile.c
 
@@ -41,8 +42,6 @@ OBJECTS =                    \
            stress_test       \
 	   material_test     \
            bolttest          \
-           analysisdata_test \
-           geometrydata_test \
            inpoly_test       \
            ddadlist_test     \
            constants_test    \

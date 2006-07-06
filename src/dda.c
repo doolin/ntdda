@@ -10,6 +10,10 @@
 #ifdef WIN32
 #include <direct.h>
 #define getcwd _getcwd
+#define mkdir _mkdir
+#define putenv _putenv
+#else 
+#include <unistd.h>
 #endif
 
 
@@ -187,7 +191,7 @@ dda_set_output_directory(const char * dirname, size_t dirnamesize) {
  * see whether the directory already exists will be 
  * done with mkdir.  Smells like a kludge.
  */
-   checkval = _mkdir(outdir);
+   checkval = mkdir(outdir);
  
 
  /* @todo rewrite all of this because EEXIST
@@ -226,6 +230,7 @@ dda_test() {
 }
 
 
+#if 0
 #ifdef STANDALONE
 int 
 main() {
@@ -238,7 +243,7 @@ main() {
 return 0;
 }
 #endif /* STANDALONE */
-
+#endif
 
 
 

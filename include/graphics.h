@@ -47,3 +47,4 @@ GRAPHICS * initGraphicStruct();
 int freeGraphicStruct(GRAPHICS *);
 
 #endif /* __GRAPHICS_H__ */
+

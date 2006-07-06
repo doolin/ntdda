@@ -139,3 +139,5 @@ double energy_kinetic             (const double * v,
 #endif
 
 #endif  /* __FUNCTIONS_H__ */
+
+

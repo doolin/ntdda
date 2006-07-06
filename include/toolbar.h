@@ -35,3 +35,4 @@ void toolbar_set_state      (unsigned int state);
 #endif
 
 #endif  /* __TOOLBAR_H__ */
+
