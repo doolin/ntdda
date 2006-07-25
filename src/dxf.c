@@ -16,8 +16,18 @@ static double *jx1, *jy1, *jx2, *jy2;
 
 
 
+/** 
+ * The process of modularizing code is also 
+ * called "refactoring." Do a google search to 
+ * find out more about it.  In this case, 
+ * the code for parsing out the LINE element 
+ * is moved to its own function.  After other 
+ * elements are moved to their own functions, 
+ * code that is common to all the functions 
+ * can be furthered factored out.
+ */
 void
-process_line (int i)
+process_line (const int i)
 {
 
   count2 += 1;
@@ -30,6 +40,13 @@ process_line (int i)
     dec = 0;
   }
 
+  /** A better way to do this would be to do all the pointer
+   * arithmetic up front:
+   * int j = i + 12 + dec;
+   * atof(str[j]);
+   * atof(str[j+2]);
+   * etc.
+   */
   jx1[count2] = atof (str[i + 12 + dec]);
   jy1[count2] = atof (str[i + 14 + dec]);
   jx2[count2] = atof (str[i + 18 + dec]);
@@ -109,6 +126,14 @@ dxf_read_file (FILE * fp1, char *geofilename)
 
     if (strcmp (str[i], "LWPOLYLINE") == 0) {
 
+       /** Using constants such as 9
+        * is generally a really bad idea
+        * because it makes the code much more
+        * difficult to read and understand.
+        * A better way to do this is to use 
+        * static const veriables, or preprocessor
+        * #defines.
+        */
       if (strcmp (str[i + 9], "62") == 0) {
 
         pltype = atoi (str[i + 10]) + 1;
@@ -280,6 +305,10 @@ dxf_read_file (FILE * fp1, char *geofilename)
   // From this line the data that extracted from dxf file will be sorted 
   // and will be wrote into geo file.
 
+  /** This whole block of output code should go into it's 
+   * function.  This will make it much easier to extend
+   * or replace the code when necessary.
+   */
   fp2 = fopen (geofilename, "w");
 
   fprintf (fp2, "<?xml version=\"1.0\" standalone=\"no\"?>\n");
