@@ -17,7 +17,8 @@
 #pragma warning( disable : 4115 )        
 #endif
 
-
+BOOL CALLBACK JointDlgProc(HWND, UINT, WPARAM, LPARAM);
+static HINSTANCE  hInstance;
 
 /* These will probably mutate into general purpose functions.
  * They should probably be moved into a different header file,
@@ -36,6 +37,7 @@ static int gridSp=10;
 #define WMU_SETSELECTSTATE WM_USER+1
 #define WMU_GETSELECTSTATE WM_USER+2
 
+#define ID_EDIT     1
 
 /* Bounding box.  Was set in winmain.  Needs to be set 
  * here.  See note on DD_GRON.  These are hard-wired
@@ -83,7 +85,7 @@ extern Filepaths filepath;
 
 
 static int changeGridSpacing(HWND,LPARAM,WPARAM);
-static int handleWMCommand(HWND, LPARAM, WPARAM);
+static int handleWMCommand(HWND, UINT, LPARAM, WPARAM);
 static void handleLButtonDown(HWND hDlg, LPARAM lParam);
 static void handleLButtonUp(HWND hDlg, LPARAM lParam);
 static void handleMouseMove(HWND, LPARAM, WPARAM);
@@ -641,8 +643,6 @@ addBolt(HWND hDlg)
  	LineTo(hdc, ptNew.x, ptNew.y);
 
 }
-
-
 
 
 /* Also sets radius variable used to draw points.
@@ -1470,11 +1470,53 @@ handleLButtonUp(HWND hDlg, LPARAM lParam)
    ReleaseCapture();
 }  /* close handleMouseUp() */
 
+BOOL CALLBACK
+JointDlgProc(HWND hDlg, UINT message,
+             WPARAM wParam, LPARAM lParam)
+{
+     switch (message)
+     {
+     case WM_INITDIALOG :
 
+		  SetDlgItemInt (hDlg,IDC_X1,0,FALSE);
+		  SetDlgItemInt (hDlg,IDC_Y1,0,FALSE);
+		  SetDlgItemInt (hDlg,IDC_X2,10,FALSE);
+		  SetDlgItemInt (hDlg,IDC_Y2,10,FALSE);
+		  SetDlgItemInt (hDlg,IDC_TYPE,1,FALSE);
+
+          return TRUE ;
+          
+     case WM_COMMAND :
+          switch (LOWORD (wParam))
+          {
+          case IDOK :
+
+			  ptBegin.x = GetDlgItemInt (hDlg, IDC_X1,  NULL, TRUE) ;
+			  ptBegin.y = GetDlgItemInt (hDlg, IDC_Y1,  NULL, TRUE) ;
+			  ptNew.x = GetDlgItemInt (hDlg, IDC_X2,  NULL, TRUE) ;
+			  ptNew.y = GetDlgItemInt (hDlg, IDC_Y2,  NULL, TRUE) ;
+			  type = GetDlgItemInt (hDlg, IDC_TYPE,  NULL, TRUE) ;
+              ptBegin.x = (long)floor(ptBegin.x/(ScaleX/maxSize));
+              ptBegin.y = (long)floor(ptBegin.y/(ScaleY/maxSize));
+			  ptNew.x = (long)floor(ptNew.x/(ScaleX/maxSize));
+			  ptNew.y = (long)floor(ptNew.y/(ScaleY/maxSize));
+
+			  addJoint(hDlg);
+
+				 return FALSE ;
+          case IDCANCEL :
+               EndDialog (hDlg, 0) ;
+               return TRUE ;
+          }
+          break ;
+     }
+     return FALSE ;
+}
 
 static int
-handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
+handleWMCommand(HWND hDlg, UINT iMessage, LPARAM lParam, WPARAM wParam)
 {
+
    switch (LOWORD(wParam))
 	{
 	   case DD_J1: type = 1; tool=joint; hCurrentPen = drawPen[1]; break;
@@ -1489,7 +1531,15 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
      	case DD_MP: type = 1; tool=measpoint; hCurrentPen = drawPen[1]; break;
 	   case DD_LP: type = 2; tool=loadpoint; hCurrentPen = drawPen[1]; break;
   		case DD_HP: type = 3; tool=holepoint; hCurrentPen = drawPen[1]; break;
-				
+	   
+		case IDC_JOINT:
+		   DialogBox(hInstance, MAKEINTRESOURCE(IDD_JOINT), NULL, JointDlgProc);
+		 break;
+
+		 case IDC_ARC:
+           
+		 break;
+
 	   case DD_BOLT1:
         /*type = 4; tool = bolt;*/
          handleRockBolts(hDlg);
@@ -1544,6 +1594,8 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
 
       case IDOK:
         	return(handleSave(hDlg));
+	  
+	  
 
      /* TODO: Add a default case with appropriate action.
       */
@@ -1562,6 +1614,11 @@ DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
   	switch (iMessage)
   	{
+	  case WM_CREATE:
+          //hInstance = ((LPCREATESTRUCT) lParam)->hInstance ;
+		  hInstance = (HINSTANCE) GetWindowWord(hDlg, GWL_HINSTANCE);
+      break ;
+
       case WM_INITDIALOG:
 	      handleInit(hDlg, wParam, lParam);
          break;
@@ -1576,7 +1633,7 @@ DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
       break;
       
 	  case WM_COMMAND:
-        return(handleWMCommand(hDlg, lParam, wParam));
+        return(handleWMCommand(hDlg, iMessage, lParam, wParam));
       break;
 
       case WM_LBUTTONDOWN:

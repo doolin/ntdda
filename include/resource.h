@@ -96,6 +96,7 @@
 #define ICON_FLAGS                      167
 #define ICON_GRAVITY                    168
 #define IDD_CONTACT                     170
+#define IDD_JOINT                       171
 #define IDD_DIALOG1                     200
 #define IDD_BLOCKPROPS                  200
 #define IDD_DIALOG2                     201
@@ -115,8 +116,12 @@
 #define IDC_MINX                        1013
 #define APWEDGE_A1                      1013
 #define IDC_DRAWSPACE                   1014
+#define IDC_X2                          1014
 #define IDC_TMINX                       1015
+#define IDC_Y1                          1015
+#define IDC_Y2                          1016
 #define IDC_MINY                        1017
+#define IDC_TYPE                        1017
 #define IDC_MAXX                        1018
 #define IDC_MAXY                        1019
 #define IDC_TMINY                       1020
@@ -157,6 +162,12 @@
 #define IDC_NORMALFORCETOL              1069
 #define AD_DYNAMIC                      1070
 #define AD_STATIC                       1071
+#define IDC_JOINT                       1073
+#define IDC_ARC                         1074
+#define IDC_X1                          1074
+#define IDC_BLOCK                       1075
+#define IDC_TUNNEL                      1076
+#define IDC_JSET                        1077
 #define IDC_LISTBOX3                    1102
 #define GD_SAVE                         1102
 #define GD_NJOI                         1103
@@ -271,12 +282,8 @@
 #define POPUP_GEOMETRY                  2000
 #define POPUP_ANALYSIS                  2001
 #define POPUP_REPLAY                    2002
-
-// DXF Handling 
 #define IMPORT_DXF                      3000
 #define EXPORT_DXF                      3001
-
-
 #define ID_OPTION_DRAW                  32771
 #define ID_OPTION_SELECT                32772
 #define ID_OPTION_GRIDLINES             32773
@@ -350,15 +357,14 @@
 #define ID_INDICATOR_GRID               59143
 #define IDC_STATIC                      -1
 
-
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        171
+#define _APS_NEXT_RESOURCE_VALUE        172
 #define _APS_NEXT_COMMAND_VALUE         40062
-#define _APS_NEXT_CONTROL_VALUE         1072
+#define _APS_NEXT_CONTROL_VALUE         1075
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

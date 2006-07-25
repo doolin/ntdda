@@ -92,6 +92,9 @@ int      stress_equals         (double * d1,
 void     stress_planestrain    (double * e0,
                                 double strains[4]);
 
+void     stress_planestrain_mohrcoulomb    (double * e0,
+                                            double strains[4]);
+											
 
 void     stress_planestress    (double * e0,
                                 double strains[4]);
