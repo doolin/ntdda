@@ -6,7 +6,7 @@
 #include <math.h>
 
 #include "stress.h"
-
+#include "mohrcoulomb.h"
 
 
 #ifdef __cplusplus
@@ -59,6 +59,10 @@ static const int _v3_    = 12;
 
 static const int _size_  = 13;
 
+// The following arrays should be obtained from analysis dialog
+static const int _c_     = 14;
+static const int _phi_   = 15;
+static const int _psi_   = 16;
 
 int
 stress_equals(double * d1, double * d2, double tol) {
@@ -169,8 +173,41 @@ stress_planestrain(double * stress, double strain[4]) {
    * current thickness of block when calculating mass.
    */
    stress[7] += -(nu/(1-nu))*(strain[1] + strain[2]);
+
 }
 
+void
+stress_planestrain_mohrcoulomb(double * stress, double strain[4]) {
+
+   double a1;
+   double E  = stress[_E_];
+   double nu = stress[_nu_];
+   // probably below array should be added 
+   // that can be obtained from analysisreader
+   double c = stress[_c_];
+   double phi = stress[_phi_];
+   double psi = stress[_psi_];
+
+   double sigma[5];
+
+   a1       = E/(1 + nu);
+   sigma[1] = a1*( ((strain[1]*(1-nu))/(1-2*nu)) + ((strain[2]*nu)/(1-2*nu)) );
+   sigma[2] = a1*((strain[1]*nu)/(1-2*nu) + (strain[2]*(1-nu)/(1-2*nu)));
+   sigma[3] = a1*strain[3]/2.0;
+   sigma[4] = -(nu/(1-nu))*(strain[1] + strain[2]);
+
+  /* in the following subroutine:
+   * "c" is cohesion
+   * "phi" is friction angle
+   * "psi" is dilition angle
+   * "nu" is poission ratio
+   * "E" is young modolus
+   * "strain" is the strain of current step
+   * "stress" is the stress of block after correction using Mohr-Coulomb criteria
+   * "sigma" is the stress of block in the currect step
+   */
+   mohrcoulomb(c,phi,psi,nu,E,strain,sigma,stress);
+}
 
 void
 stress_planestress(double * stress, double strain[4]) {

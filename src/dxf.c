@@ -8,12 +8,40 @@
 #include "dxf.h"
 
 
+static int count2;
+static char str[5000][50];
+static long *type;
+static int dec;
+static double *jx1, *jy1, *jx2, *jy2;
+
+
+
+void
+process_line (int i)
+{
+
+  count2 += 1;
+  if (strcmp (str[i + 9], "62") == 0) {
+
+    type[count2] = atoi (str[i + 10]) + 1;
+    dec = 2;
+  } else {
+    type[count2] = 1;
+    dec = 0;
+  }
+
+  jx1[count2] = atof (str[i + 12 + dec]);
+  jy1[count2] = atof (str[i + 14 + dec]);
+  jx2[count2] = atof (str[i + 18 + dec]);
+  jy2[count2] = atof (str[i + 20 + dec]);
+
+}
+
+
 void
 dxf_read_file (FILE * fp1, char *geofilename)
 {
 
-  double *jx1, *jy1, *jx2, *jy2;
-  char str[5000][50];
 
   // Change to using ofp
   FILE *fp2;
@@ -21,9 +49,14 @@ dxf_read_file (FILE * fp1, char *geofilename)
   // output file pointer
   //FILE * ofp;
 
-  int count1 = 0, count2 = 0, i, j;
-  long *type, pn;
-  int cabcou = 0, dec, ii, pltype, ctype, n1;
+  int count1 = 0;
+  //int count2 = 0;
+  int i, j;
+  //long *type;
+  long pn;
+  int cabcou = 0;
+  //int dec;
+  int ii, pltype, ctype, n1;
   int fixn = 0, measn = 0, holen = 0, loadn = 0;
   double r0, se, u, v, x1, x2, x3, y1, y2, y3, x0, y0, deg;
   double fx[25], fy[25], lx[25], ly[25];
@@ -32,6 +65,8 @@ dxf_read_file (FILE * fp1, char *geofilename)
   //OPENFILENAME ofn;
   //char temp[200];
 
+
+  count2 = 0;
 
   while (!feof (fp1)) {
 
@@ -66,22 +101,11 @@ dxf_read_file (FILE * fp1, char *geofilename)
 
     if (strcmp (str[i], "LINE") == 0) {
 
-      count2 += 1;
-      if (strcmp (str[i + 9], "62") == 0) {
-
-        type[count2] = atoi (str[i + 10]) + 1;
-        dec = 2;
-      } else {
-        type[count2] = 1;
-        dec = 0;
-      }
-
-      jx1[count2] = atof (str[i + 12 + dec]);
-      jy1[count2] = atof (str[i + 14 + dec]);
-      jx2[count2] = atof (str[i + 18 + dec]);
-      jy2[count2] = atof (str[i + 20 + dec]);
+      process_line (i);
 
     }
+
+
 
     if (strcmp (str[i], "LWPOLYLINE") == 0) {
 
