@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "C:\ddaincludes\libxml2-2.6.24.win32\include" /I "C:\ddaincludes\iconv-1.9.2.win32\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "DDAFORWINDOWS" /FAs /Fr /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "C:\ddaincludes\libxml2-2.6.24.win32\include" /I "C:\ddaincludes\iconv-1.9.2.win32\include" /I "C:\Program Files\HTML Help Workshop\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "DDAFORWINDOWS" /FAs /Fr /YX /FD /c
 # SUBTRACT CPP /WX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "include/" /I "C:\ddaincludes\libxml2-2.6.24.win32\include" /I "C:\ddaincludes\iconv-1.9.2.win32\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "DDAFORWINDOWS" /FR /FD /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "include/" /I "C:\ddaincludes\libxml2-2.6.24.win32\include" /I "C:\ddaincludes\iconv-1.9.2.win32\include" /I "C:\Program Files\HTML Help Workshop\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "DDAFORWINDOWS" /FR /FD /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -81,7 +81,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib comctl32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib opengl32.lib glu32.lib glut32.lib libxml2_a.lib wsock32.lib htmlhelp.lib zlib.lib iconv_a.lib /nologo /subsystem:windows /debug /machine:I386 /out:"bin/ntddad.exe" /pdbtype:sept /libpath:"C:\ddaincludes\libxml2-2.6.24.win32\lib" /libpath:"C:\ddaincludes\zlib-1.2.3.win32\lib" /libpath:"C:\ddaincludes\iconv-1.9.2.win32\lib"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib comctl32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib opengl32.lib glu32.lib libxml2_a.lib wsock32.lib htmlhelp.lib zlib.lib iconv_a.lib /nologo /subsystem:windows /debug /machine:I386 /out:"bin/ntddad.exe" /pdbtype:sept /libpath:"C:\ddaincludes\libxml2-2.6.24.win32\lib" /libpath:"C:\ddaincludes\zlib-1.2.3.win32\lib" /libpath:"C:\ddaincludes\iconv-1.9.2.win32\lib" /libpath:"C:\Program Files\HTML Help Workshop\lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
