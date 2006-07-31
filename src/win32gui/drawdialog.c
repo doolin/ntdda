@@ -625,7 +625,13 @@ handleInit (HWND hDlg, WPARAM wParam, LPARAM lParam)
   RECT drawSize;
   int orig_x, orig_y, ext_x, ext_y;
 
+  HANDLE h;
+  HBITMAP hbm;
+
   context = selection;
+
+
+
 
 
 
@@ -658,6 +664,9 @@ handleInit (HWND hDlg, WPARAM wParam, LPARAM lParam)
   GetWindowRect (hDlg, &winSize);
   GetWindowRect (GetDlgItem (hDlg, IDC_DRAWSPACE), &drawSize);
   hdc = GetDC (GetDlgItem (hDlg, IDC_DRAWSPACE));       // i think this is DEADLY wrong  TRG  getDC does not "validate"
+
+
+
 
   SetClassLong (GetDlgItem (hDlg, IDC_DRAWSPACE), GCL_HCURSOR,
                 (long) LoadCursor (NULL, "IDC_CROSS "));
@@ -986,6 +995,7 @@ freePointList ()
 
 
 
+// TODO: Combine this code with the code in graphics.c
 static void
 drawSinglePoint (HDC hdc, DPoint * ptmp)
 {
@@ -1415,6 +1425,7 @@ handleLButtonUp (HWND hDlg, LPARAM lParam)
   }
   ReleaseCapture ();
 }                               /* close handleMouseUp() */
+
 
 BOOL CALLBACK
 JointDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)

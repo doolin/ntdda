@@ -190,7 +190,7 @@ SOURCE=.\src\apwedge.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\win32gui\drawdialog3.c
+SOURCE=.\src\win32gui\drawdialog.c
 # End Source File
 # Begin Source File
 
@@ -304,6 +304,10 @@ SOURCE=.\src\loadpoint.c
 # Begin Source File
 
 SOURCE=.\src\material.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rb.c
 # End Source File
 # Begin Source File
 
