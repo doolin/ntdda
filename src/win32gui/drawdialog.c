@@ -918,7 +918,7 @@ handleSave (HWND hDlg)
   int numflushed;
   OPENFILENAME ofn;
   OFSTRUCT of;
-  //FILE *fp;
+  FILE *fp;
   HFILE hFile;
   Geometrydata *geomstruct;
 
@@ -938,9 +938,17 @@ handleSave (HWND hDlg)
      * pass back as false.
      */
     return FALSE;
-  } else {                      /* Open file and save data.
-                                 * If it exists already, delete it.
-                                 */
+  } else {
+    
+    // The following is some ugly shit that shot
+    // through the DDA code.  Leave it alone for
+    // now, handle it later.
+   /* Open file and save data.
+    * If it exists already, delete it.
+    */
+    //  FIXME: OpenFile is 16 bit win32.  This code needs to 
+    // be changed to use either CreateFile, or better yet,
+    // find a way to use fopen.
     if (-1 != OpenFile (filepath.gpath, &of, OF_WRITE))
       hFile = OpenFile (filepath.gpath, &of, OF_DELETE);
 
@@ -949,30 +957,38 @@ handleSave (HWND hDlg)
                   MB_OK | MB_ICONINFORMATION);
       return 0;
     }
+    // We are going to close this here because we want to 
+    // fopen instead, because it is posix compliant and 
+    // CreateFile and OpenFile are MS Windows specific.
+    _lclose (hFile);
 
     ////////////////////////////////////////////////
     ///  Because we grabbing a new struct here, then deleting 
     /// it afterwards, we can do cooler stuff here.
     geomstruct = gdata_new ();
 
+
+    //  These are all going to go away soon.
     transferJointlistToGeomStruct (geomstruct, jointlist);
     transferPointlistToGeomStruct (geomstruct, pointlist);
-
     transferBoltlistToGeomStruct (geomstruct, boltlist);
 
 
-    //fp = fopen(filepath.gpath, "w+"); //Disabled by Roozbeh
-    //geomstruct->dumptofile(geomstruct, fprintf, fp); //Disabled by Roozbeh
-    geomstruct->dumptofile (geomstruct, fprintf, filepath.gpath);
-    //fclose(fp); //Disabled by Roozbeh
+    // We use fopen for posix compliance and the file pointer
+    // for convenience.
+    fp = fopen(filepath.gpath, "w+"); 
+    // This call will be replaced shortly.
+    geomstruct->dumptofile(geomstruct, fprintf, fp);
+    fclose(fp); 
+
     gdata_delete (geomstruct);
 
-    /* FIXME: These functions are segfaulting. */
+    /* FIXME: These functions are segfaulting. Fix them. */
     //freeJointList(); 
     //freePointList(); 
     //freeBoltList();  
 
-    _lclose (hFile);
+    //_lclose (hFile);
     SetClassLong (hDlg, GCL_HCURSOR, (long) LoadCursor (NULL, IDC_ARROW));
     ReleaseDC (hDlg, hdc);
     EndDialog (hDlg, 1);        // return 1: save data

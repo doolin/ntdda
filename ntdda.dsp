@@ -190,6 +190,10 @@ SOURCE=.\src\apwedge.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\win32gui\arcdialog.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\win32gui\drawdialog.c
 # End Source File
 # Begin Source File
@@ -199,6 +203,14 @@ SOURCE=.\src\filebrowse.c
 # Begin Source File
 
 SOURCE=.\src\geomdlg.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\win32gui\jointdialog.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\win32gui\tunneldialog.c
 # End Source File
 # Begin Source File
 

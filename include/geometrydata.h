@@ -299,6 +299,18 @@ void           gdata_read_input_file       (Geometrydata *,
 
 Geometrydata * gdata_read_block_file       (Filepaths * filepaths);
 
+
+// Temporary while some xml handling code is being rewritten.
+void           gdata_emit_points           (Geometrydata * gd, 
+                                            PrintFunc printer, 
+                                            void * stream);
+
+// Temporary while some xml handling code is being rewritten.
+void           gdata_emit_bolts            (Geometrydata * gd, 
+                                            PrintFunc printer, 
+                                            void * stream);
+
+
 #ifdef __cplusplus
 }
 #endif

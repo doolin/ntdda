@@ -54,9 +54,11 @@ emitJoints(Geometrydata * gd, PrintFunc printer, void * stream) {
 
 /* FIXME: Completely rewrite point handling code,
  * for the entire project.
+ * 
+ * NOTE: This has been done in the modec code.
  */
-static void
-emitPoints(Geometrydata * gd, PrintFunc printer, void * stream) {
+void
+gdata_emit_points(Geometrydata * gd, PrintFunc printer, void * stream) {
 
 
    int i;
@@ -124,8 +126,8 @@ if (gd->nHPoints > 0)
 } 
 
 
-static void
-emitBolts(Geometrydata * gd, PrintFunc printer, void * stream) {
+void
+gdata_emit_bolts(Geometrydata * gd, PrintFunc printer, void * stream) {
 
 
    int i;
@@ -167,48 +169,83 @@ emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
 }
 
 
+void 
+gdata_write_ddaml_header(double edgenode, PrintFunc printer, void * outfile) {
 
-void
-gdata_write_ddaml(Geometrydata * gd, PrintFunc printer, char * outfilename) {
-
-
-   FILE * outfile;
-
-  /* FIXME: Return an error if this fails. */
-   outfile = fopen(outfilename,"w");
-
-  
 
   /* xml header */
    printer(outfile,"<?xml version=\"1.0\" standalone=\"no\"?>\n");
    printer(outfile,"<!DOCTYPE DDA SYSTEM \"geometry.dtd\">\n");
-   printer(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~bdoolin/dda\">\n");
+   printer(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~doolin/dda\">\n");
 
   /* FIXME:  This is a bogosity.  The parser code is broken
    * because it requires a comment before the <Geometry>
    * or <Analysis> tags.
    */
+   /** Check on the status of this problem. */
+   printer(outfile,"<!-- Bogus comment to keep ddaml tree-stripping\n");
+   printer(outfile,"from seg faulting on bad child node. -->\n\n");
+   printer(outfile,"<Geometry>\n");
+   printer(outfile,I1"<Edgenodedist distance=\"%f\"/>\n",edgenode);
+}
+
+void
+gdata_write_ddaml_trailer(PrintFunc printer, void * outfile) {
+
+   printer(outfile,"</Geometry>\n");
+   printer(outfile,"</Berkeley:DDA>\n");
+}
+
+// FIXME: This should take a FILE * instead of a file name.
+// Makes it much more flexible.  Also, the function pointer 
+// in the geometry struct calls for a file pointer instead
+// of a char *.  The Windows compiler just isn't smart enough 
+// to catch that, because it should result in a compile error.
+void
+gdata_write_ddaml(Geometrydata * gd, PrintFunc printer, void * outfile) {
+
+
+  gdata_write_ddaml_header(gd->e00, printer, outfile);
+
+#if 0
+  /* xml header */
+   printer(outfile,"<?xml version=\"1.0\" standalone=\"no\"?>\n");
+   printer(outfile,"<!DOCTYPE DDA SYSTEM \"geometry.dtd\">\n");
+   printer(outfile,"<Berkeley:DDA xmlns:Berkeley=\"http://www.tsoft.com/~doolin/dda\">\n");
+
+  /* FIXME:  This is a bogosity.  The parser code is broken
+   * because it requires a comment before the <Geometry>
+   * or <Analysis> tags.
+   */
+   /** Check on the status of this problem. */
    printer(outfile,"<!-- Bogus comment to keep ddaml tree-stripping\n");
    printer(outfile,"from seg faulting on bad child node. -->\n\n");
    printer(outfile,"<Geometry>\n");
    printer(outfile,I1"<Edgenodedist distance=\"%f\"/>\n",gd->e00);
+#endif
+
 
    emitJoints(gd, printer, outfile);
-   emitPoints(gd, printer, outfile);
+   gdata_emit_points(gd, printer, outfile);
 
 
-   if (gd->nBolts > 0) 
-      emitBolts(gd, printer, outfile);
-   if (gd->nMatLines > 0)
+   if (gd->nBolts > 0) {
+      gdata_emit_bolts(gd, printer, outfile);
+   }
+
+   if (gd->nMatLines > 0) {
       emitMatlines(gd, printer, outfile);
+   }
 
-
+   gdata_write_ddaml_trailer(printer, outfile);
+#if 0
    printer(outfile,"</Geometry>\n");
    printer(outfile,"</Berkeley:DDA>\n");
+#endif
 
    fclose(outfile);
 
-}  /* close dumpDDAMLGeometryFile() */
+}
 
 
 static void
