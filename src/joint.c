@@ -12,6 +12,11 @@ extern "C" {
 #endif
 
 
+// Some indentation.
+#ifndef I2
+#define I2 "  "
+#endif 
+
 
 /** @todo Add code for supporting Joints as
  * incomplete types.
@@ -98,22 +103,33 @@ jointmat_get_tension   (Jointmat * jm) {
 
 
 void       
-jointmat_set_tension   (Jointmat * jm, double tension) {
+jointmat_set_tension (Jointmat * jm, double tension) {
 
    jm->tension = tension;
 }
 
 
 int        
-jointmat_get_type      (Jointmat * jm) {
+jointmat_get_type (Jointmat * jm) {
 
    return jm->type;
 }
 
 void       
-jointmat_set_type      (Jointmat * jm, int type) {
+jointmat_set_type (Jointmat * jm, int type) {
 
    jm->type = type;
+}
+
+
+void       
+joint_print_xml (Joint * j, PrintFunc printer, void * stream) {
+
+
+      printer(stream,I2"<Joint type=\"%d\">",j->type);
+      printer(stream," %14.10f %14.10f %14.10f %14.10f ",
+              j->epx1, j->epy1, j->epx2, j->epy2);
+      printer(stream,"</Joint>\n");
 }
 
 #ifdef __cplusplus

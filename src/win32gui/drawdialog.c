@@ -1,5 +1,21 @@
 /* File contains functions to handle the creation and editing
  * of geometry files for DDA.  
+ *
+ * Overall behavior:
+ *
+ * 1. At the moment, the dialog will save and write to a file
+ * any created geometry.  This geometry is not passed by either 
+ * pointer to geometry struct or by file name to the calling 
+ * program.
+ */
+
+/** 
+ * TODO list: 
+ *
+ * 1. Object scaling needs to be handled on object creation, and 
+ * the current object scale needs to be stored to allow rescaling.
+ *
+ *
  */
 
 #include <math.h>
@@ -17,7 +33,17 @@
 #pragma warning( disable : 4115 )
 #endif
 
-BOOL CALLBACK JointDlgProc (HWND, UINT, WPARAM, LPARAM);
+// Unnecessary.  Prototypes are used by the compiler
+// for type checking.  In this case, each of these
+// callbacks is defined before being invoked, rendering
+// the prototype unnecessary.
+//Added by Roozbeh
+//BOOL CALLBACK JointDlgProc (HWND, UINT, WPARAM, LPARAM);
+//BOOL CALLBACK TunnelDlgProc (HWND, UINT, WPARAM, LPARAM);
+//BOOL CALLBACK ArcDlgProc (HWND, UINT, WPARAM, LPARAM);
+//BOOL CALLBACK BlockDlgProc (HWND, UINT, WPARAM, LPARAM);
+//Added by Roozbeh
+
 static HINSTANCE hInstance;
 
 /* These will probably mutate into general purpose functions.
@@ -186,8 +212,8 @@ handleDrawContext (HWND hDlg, LPARAM lParam, WPARAM wParam)
 
 
 
-
-static ddaboolean               //entirely trg error here
+// Changed some variable names to make this less verbose.
+static ddaboolean
 inBoundingBox (Joint * jp, POINT p, double eps)
 {
   //int flag = 1;
@@ -206,6 +232,7 @@ inBoundingBox (Joint * jp, POINT p, double eps)
     if ((currentx > endpx2 + eps) || (currentx < endpx1 - eps))
       return FALSE;
   }
+
   if (endpy1 > endpy2) {
     if ((currenty < endpy2 - eps) || (currenty > endpy1 + eps))
       return FALSE;
@@ -241,7 +268,8 @@ inBoundingBoxEP (Joint * jp, POINT p)
   return 0;
 }                               /* close inBoundingBoxEP */
 
-static int                      //trg edit-->added BBox
+
+static int
 closetoJoint (Joint * jp, POINT p)
 {
   char message[180];
@@ -277,7 +305,7 @@ closetoJoint (Joint * jp, POINT p)
 }                               /* close closetoJoint() */
 
 
-static double                   //trg
+static double
 distBtwPoints (POINT p1, POINT p2)
 {
 
@@ -286,6 +314,10 @@ distBtwPoints (POINT p1, POINT p2)
 }
 
 
+
+// This routine needs to have an associated ROP 
+// to redraw the background color when the object
+// is deselected.
 static void                     //travis
 //drawBlackSquare(DPoint * ptmp, int radius)
 drawBlackSquare (double x, double y, int radius)
@@ -321,6 +353,7 @@ drawBlackSquare (double x, double y, int radius)
 }                               /* drawBlockBox() */
 
 
+// Need an associated "deselection" function.
 static void
 drawJointHandles (Joint * jp)
 {
@@ -330,6 +363,7 @@ drawJointHandles (Joint * jp)
   drawBlackSquare (jp->epx2, jp->epy2, radius);
 
 }
+
 
 
 /** @todo Fix the api to not take the point struct. */
@@ -345,7 +379,7 @@ drawJointHandle (Joint * jp, int num)
     drawBlackSquare (jp->epx2, jp->epy2, radius);
 
 
-}                               /* close drawJointHandles() */
+}
 
 
 static void                     //trg
@@ -361,9 +395,14 @@ redrawJoint (Joint * jp)
   MoveToEx (hdc, endp1x, endp1y, NULL);
 
   LineTo (hdc, endp2x, endp2y);
-  if (jp->is_selected)
+
+  // Always use bracing, even around single statement blocks.
+  // They tend to grow, reduces blunders.
+  if (jp->is_selected) {
     drawJointHandles (jp);
-}                               /* close drawJoint() */
+  }
+} 
+
 
 //Added By Roozbeh
 void
@@ -379,6 +418,7 @@ redrawPoints (DPoint * ptmp)
   drawSinglePoint (hdc, ptmp);
 
 }                               /* close redrawPoints *///Added By Roozbeh
+
 
 /* This produces an infinite loop and does not allow the 
  * drawing dialog box to be initialized correctly.
@@ -432,6 +472,7 @@ handlePaint (HWND hDlg)
   }
   EndPaint (hDlg, &ps);
 }                               /* close handlePaint() *///Added By Roozbeh
+
 
 
 static void
@@ -494,6 +535,7 @@ handleLButtonDown (HWND hDlg, LPARAM lParam)
     }
   }
 }                               /* close handleMouseDown() */
+
 
 
 static void
@@ -583,6 +625,7 @@ addJoint (HWND hDlg)
   }
 
   /* Now draw to screen */
+  SelectObject (hdc, drawPen[type]);    //Added By Roozbeh to draw type of line with various color
   MoveToEx (hdc, ptBegin.x, ptBegin.y, NULL);
   LineTo (hdc, ptNew.x, ptNew.y);
 
@@ -625,15 +668,10 @@ handleInit (HWND hDlg, WPARAM wParam, LPARAM lParam)
   RECT drawSize;
   int orig_x, orig_y, ext_x, ext_y;
 
-  HANDLE h;
-  HBITMAP hbm;
+  //HANDLE h;
+  //HBITMAP hbm;
 
   context = selection;
-
-
-
-
-
 
 /* Start test code for dialog param passing */
 /*
@@ -658,14 +696,11 @@ handleInit (HWND hDlg, WPARAM wParam, LPARAM lParam)
 
   jointlist = dlist_new ();
   pointlist = dlist_new ();
-  //boltlist = make_dl();
   boltlist = boltlist_new ();
 
   GetWindowRect (hDlg, &winSize);
   GetWindowRect (GetDlgItem (hDlg, IDC_DRAWSPACE), &drawSize);
   hdc = GetDC (GetDlgItem (hDlg, IDC_DRAWSPACE));       // i think this is DEADLY wrong  TRG  getDC does not "validate"
-
-
 
 
   SetClassLong (GetDlgItem (hDlg, IDC_DRAWSPACE), GCL_HCURSOR,
@@ -915,11 +950,14 @@ handleSave (HWND hDlg)
       return 0;
     }
 
+    ////////////////////////////////////////////////
+    ///  Because we grabbing a new struct here, then deleting 
+    /// it afterwards, we can do cooler stuff here.
     geomstruct = gdata_new ();
-
 
     transferJointlistToGeomStruct (geomstruct, jointlist);
     transferPointlistToGeomStruct (geomstruct, pointlist);
+
     transferBoltlistToGeomStruct (geomstruct, boltlist);
 
 
@@ -1039,12 +1077,13 @@ handleRemovePoints (HWND hDlg, HDC hdc)
   free (ptmp);
   dl_delete_node (pointlist->blink);
 
-  if (grid)
+  if (grid) {
     SendMessage (hDlg, WM_COMMAND, DD_GRON, 0L);
-  else
+  } else {
     SendMessage (hDlg, WM_COMMAND, DD_GROFF, 0L);
+  }
 
-}                               /* close handleRemovePoint() */
+}
 
 
 
@@ -1071,7 +1110,7 @@ drawPoints (HDC hdc)
     drawSinglePoint (hdc, ptmp);
   }
 
-}                               /* close drawPoints */
+}
 
 
 
@@ -1105,6 +1144,8 @@ addPoint (HWND hDlg)
 
 
 
+
+/// Function is scheduled for deletion.
 void
 transferJointlistToGeomStruct (Geometrydata * gd, JOINTLIST * jointlist)
 {
@@ -1112,6 +1153,8 @@ transferJointlistToGeomStruct (Geometrydata * gd, JOINTLIST * jointlist)
   int numjoints;
   JOINTLIST *ptr;
   Joint *jtmp;
+  double jscale = ScaleX/maxSize;
+
   /* just in case... */
   numjoints = dlist_length (jointlist);
   gd->nJoints = numjoints;
@@ -1124,16 +1167,20 @@ transferJointlistToGeomStruct (Geometrydata * gd, JOINTLIST * jointlist)
   dlist_traverse (ptr, jointlist) {
     jtmp = ptr->val;
 
-    gd->joints[i + 1][1] = jtmp->epx1 * (ScaleX / maxSize);     //Added (ScaleX/maxSize) term by Roozbeh
-    gd->joints[i + 1][2] = jtmp->epy1 * (ScaleX / maxSize);     //Added (ScaleX/maxSize) term by Roozbeh
-    gd->joints[i + 1][3] = jtmp->epx2 * (ScaleX / maxSize);     //Added (ScaleX/maxSize) term by Roozbeh
-    gd->joints[i + 1][4] = jtmp->epy2 * (ScaleX / maxSize);     //Added (ScaleX/maxSize) term by Roozbeh
+    // Scaling needs to be performed at initialization of each joint.
+    // If the geometry is rescaled, that should be handled by traversing
+    // the joint list and rescaling as a ratio between old and new scales
+    // for existing joints.  New joints go in with the new scale of course.
+    gd->joints[i + 1][1] = jtmp->epx1 * jscale;
+    gd->joints[i + 1][2] = jtmp->epy1 * jscale;
+    gd->joints[i + 1][3] = jtmp->epx2 * jscale;
+    gd->joints[i + 1][4] = jtmp->epy2 * jscale;
     gd->joints[i + 1][5] = jtmp->type;
     i++;
   }
 
 
-}                               /* close  transferJointlistToGeomStruct() */
+}
 
 
 void
@@ -1427,6 +1474,7 @@ handleLButtonUp (HWND hDlg, LPARAM lParam)
 }                               /* close handleMouseUp() */
 
 
+// Added by Roozbeh to Draw a Joint using dialog box
 BOOL CALLBACK
 JointDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1443,8 +1491,10 @@ JointDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
   case WM_COMMAND:
     switch (LOWORD (wParam)) {
+
     case IDOK:
 
+      // Make this a function call with a descriptive name.
       ptBegin.x = GetDlgItemInt (hDlg, IDC_X1, NULL, TRUE);
       ptBegin.y = GetDlgItemInt (hDlg, IDC_Y1, NULL, TRUE);
       ptNew.x = GetDlgItemInt (hDlg, IDC_X2, NULL, TRUE);
@@ -1455,6 +1505,220 @@ JointDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
       ptNew.x = (long) floor (ptNew.x / (ScaleX / maxSize));
       ptNew.y = (long) floor (ptNew.y / (ScaleY / maxSize));
 
+      addJoint (hDlg);
+
+      return FALSE;
+    case IDCANCEL:
+      EndDialog (hDlg, 0);
+      return TRUE;
+    }
+    break;
+  }
+  return FALSE;
+}
+
+// Added by Roozbeh to Draw a Tuunel using dialog box
+BOOL CALLBACK
+TunnelDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  double r0, u, v, x1, x2, x3, y1, y2, y3, x0, y0, deg;
+  double xc, yc, rad;
+  int i, se = 20;
+
+  switch (message) {
+  case WM_INITDIALOG:
+
+    SetDlgItemInt (hDlg, IDC_XC, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_YC, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_SEG, 20, FALSE);
+    SetDlgItemInt (hDlg, IDC_RAD, 10, FALSE);
+    SetDlgItemInt (hDlg, IDC_TYPE, 1, FALSE);
+
+    return TRUE;
+
+  case WM_COMMAND:
+    switch (LOWORD (wParam)) {
+    case IDOK:
+
+      deg = 360;
+      r0 = ((3.1415926535) * deg) / (se * 180);
+      xc = GetDlgItemInt (hDlg, IDC_XC, NULL, TRUE);
+      yc = GetDlgItemInt (hDlg, IDC_YC, NULL, TRUE);
+      se = GetDlgItemInt (hDlg, IDC_SEG, NULL, TRUE);
+      rad = GetDlgItemInt (hDlg, IDC_RAD, NULL, TRUE);
+      type = GetDlgItemInt (hDlg, IDC_TYPE, NULL, TRUE);
+      x1 = xc + rad;
+      y1 = yc;
+      x2 = xc;
+      y2 = yc;
+      x0 = x2;
+      y0 = y2;
+      x3 = x1;
+      y3 = y1;
+      for (i = 1; i < se; i++) {
+        u = ((x1 - x0) * (cos (r0) - 1)) - ((y1 - y0) * sin (r0));
+        v = ((x1 - x0) * sin (r0)) + ((y1 - y0) * (cos (r0) - 1));
+
+        x2 = x1 + u;
+        y2 = y1 + v;
+        ptBegin.x = (long) floor (x1 / (ScaleX / maxSize));
+        ptBegin.y = (long) floor (y1 / (ScaleY / maxSize));
+        ptNew.x = (long) floor (x2 / (ScaleX / maxSize));
+        ptNew.y = (long) floor (y2 / (ScaleY / maxSize));
+        addJoint (hDlg);
+        x1 = x2;
+        y1 = y2;
+      }
+      x2 = x3;
+      y2 = y3;
+      ptBegin.x = (long) floor (x1 / (ScaleX / maxSize));
+      ptBegin.y = (long) floor (y1 / (ScaleY / maxSize));
+      ptNew.x = (long) floor (x2 / (ScaleX / maxSize));
+      ptNew.y = (long) floor (y2 / (ScaleY / maxSize));
+      addJoint (hDlg);
+
+      return FALSE;
+    case IDCANCEL:
+      EndDialog (hDlg, 0);
+      return TRUE;
+    }
+    break;
+  }
+  return FALSE;
+}
+
+
+
+// Added by Roozbeh to Draw a Arc using dialog box
+
+// Refactor all these messages to call functions.
+// Feel free to put them into new files.  It will 
+// make it easier to maintain in the future.
+BOOL CALLBACK
+ArcDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  double r0, u, v, x1, x2, x3, y1, y2, y3, x0, y0, deg;
+  double xc, yc, xs, ys, xe, ye;
+  int i, se = 20;
+
+  switch (message) {
+  case WM_INITDIALOG:
+
+    SetDlgItemInt (hDlg, IDC_XC, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_YC, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_XS, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_YS, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_XE, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_YE, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_SEG, 20, FALSE);
+    SetDlgItemInt (hDlg, IDC_DEG, 180, FALSE);
+    SetDlgItemInt (hDlg, IDC_TYPE, 1, FALSE);
+
+    return TRUE;
+
+  case WM_COMMAND:
+    switch (LOWORD (wParam)) {
+    case IDOK:
+
+      xc = GetDlgItemInt (hDlg, IDC_XC, NULL, TRUE);
+      yc = GetDlgItemInt (hDlg, IDC_YC, NULL, TRUE);
+      xs = GetDlgItemInt (hDlg, IDC_XS, NULL, TRUE);
+      ys = GetDlgItemInt (hDlg, IDC_YS, NULL, TRUE);
+      xe = GetDlgItemInt (hDlg, IDC_XE, NULL, TRUE);
+      ye = GetDlgItemInt (hDlg, IDC_YE, NULL, TRUE);
+      se = GetDlgItemInt (hDlg, IDC_SEG, NULL, TRUE);
+      deg = GetDlgItemInt (hDlg, IDC_DEG, NULL, TRUE);
+      type = GetDlgItemInt (hDlg, IDC_TYPE, NULL, TRUE);
+      r0 = ((3.1415926535) * deg) / (se * 180);
+      x1 = xs;
+      y1 = ys;
+      x2 = xc;
+      y2 = yc;
+      x0 = x2;
+      y0 = y2;
+      x3 = xe;
+      y3 = ye;
+      for (i = 1; i < se; i++) {
+        u = ((x1 - x0) * (cos (r0) - 1)) - ((y1 - y0) * sin (r0));
+        v = ((x1 - x0) * sin (r0)) + ((y1 - y0) * (cos (r0) - 1));
+
+        x2 = x1 + u;
+        y2 = y1 + v;
+        ptBegin.x = (long) floor (x1 / (ScaleX / maxSize));
+        ptBegin.y = (long) floor (y1 / (ScaleY / maxSize));
+        ptNew.x = (long) floor (x2 / (ScaleX / maxSize));
+        ptNew.y = (long) floor (y2 / (ScaleY / maxSize));
+        addJoint (hDlg);
+        x1 = x2;
+        y1 = y2;
+      }
+      x2 = x3;
+      y2 = y3;
+      ptBegin.x = (long) floor (x1 / (ScaleX / maxSize));
+      ptBegin.y = (long) floor (y1 / (ScaleY / maxSize));
+      ptNew.x = (long) floor (x2 / (ScaleX / maxSize));
+      ptNew.y = (long) floor (y2 / (ScaleY / maxSize));
+      addJoint (hDlg);
+
+      return FALSE;
+    case IDCANCEL:
+      EndDialog (hDlg, 0);
+      return TRUE;
+    }
+    break;
+  }
+  return FALSE;
+}
+
+// Added by Roozbeh to Draw a Block using dialog box
+BOOL CALLBACK
+BlockDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  double xl, yl, xu, yu;
+
+  switch (message) {
+  case WM_INITDIALOG:
+
+    SetDlgItemInt (hDlg, IDC_XL, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_YL, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_XU, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_YU, 0, FALSE);
+    SetDlgItemInt (hDlg, IDC_TYPE, 1, FALSE);
+
+    return TRUE;
+
+  case WM_COMMAND:
+    switch (LOWORD (wParam)) {
+    case IDOK:
+
+      xl = GetDlgItemInt (hDlg, IDC_XL, NULL, TRUE);
+      yl = GetDlgItemInt (hDlg, IDC_YL, NULL, TRUE);
+      xu = GetDlgItemInt (hDlg, IDC_XU, NULL, TRUE);
+      yu = GetDlgItemInt (hDlg, IDC_YU, NULL, TRUE);
+      type = GetDlgItemInt (hDlg, IDC_TYPE, NULL, TRUE);
+
+      ptBegin.x = (long) floor (xl / (ScaleX / maxSize));
+      ptBegin.y = (long) floor (yl / (ScaleY / maxSize));
+      ptNew.x = (long) floor (xu / (ScaleX / maxSize));
+      ptNew.y = (long) floor (yl / (ScaleY / maxSize));
+      addJoint (hDlg);
+
+      ptBegin.x = (long) floor (xu / (ScaleX / maxSize));
+      ptBegin.y = (long) floor (yl / (ScaleY / maxSize));
+      ptNew.x = (long) floor (xu / (ScaleX / maxSize));
+      ptNew.y = (long) floor (yu / (ScaleY / maxSize));
+      addJoint (hDlg);
+
+      ptBegin.x = (long) floor (xu / (ScaleX / maxSize));
+      ptBegin.y = (long) floor (yu / (ScaleY / maxSize));
+      ptNew.x = (long) floor (xl / (ScaleX / maxSize));
+      ptNew.y = (long) floor (yu / (ScaleY / maxSize));
+      addJoint (hDlg);
+
+      ptBegin.x = (long) floor (xl / (ScaleX / maxSize));
+      ptBegin.y = (long) floor (yu / (ScaleY / maxSize));
+      ptNew.x = (long) floor (xl / (ScaleX / maxSize));
+      ptNew.y = (long) floor (yl / (ScaleY / maxSize));
       addJoint (hDlg);
 
       return FALSE;
@@ -1533,13 +1797,23 @@ handleWMCommand (HWND hDlg, UINT iMessage, LPARAM lParam, WPARAM wParam)
     hCurrentPen = drawPen[1];
     break;
 
+//Added by Roozbeh
   case IDC_JOINT:
     DialogBox (hInstance, MAKEINTRESOURCE (IDD_JOINT), NULL, JointDlgProc);
     break;
 
-  case IDC_ARC:
-
+  case IDC_TUNNEL:
+    DialogBox (hInstance, MAKEINTRESOURCE (IDD_TUNNEL), NULL, TunnelDlgProc);
     break;
+
+  case IDC_ARC:
+    DialogBox (hInstance, MAKEINTRESOURCE (IDD_ARC), NULL, ArcDlgProc);
+    break;
+
+  case IDC_BLOCK:
+    DialogBox (hInstance, MAKEINTRESOURCE (IDD_BLOCK), NULL, BlockDlgProc);
+    break;
+//Added by Roozbeh
 
   case DD_BOLT1:
     /*type = 4; tool = bolt; */

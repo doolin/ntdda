@@ -2,6 +2,8 @@
 #ifndef __JOINT_H__
 #define __JOINT_H__
 
+#include <ddatypes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,6 +63,10 @@ int        jointmat_get_type      (Jointmat *);
 void       jointmat_set_type      (Jointmat *,
                                    int type);
 
+
+void       joint_print_xml        (Joint * j,
+                                   PrintFunc printer,
+                                   void * stream);
 
 #ifdef __cplusplus
 }

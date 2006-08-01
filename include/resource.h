@@ -97,6 +97,9 @@
 #define ICON_GRAVITY                    168
 #define IDD_CONTACT                     170
 #define IDD_JOINT                       171
+#define IDD_TUNNEL                      172
+#define IDD_ARC                         173
+#define IDD_BLOCK                       174
 #define IDD_DIALOG1                     200
 #define IDD_BLOCKPROPS                  200
 #define IDD_DIALOG2                     201
@@ -166,8 +169,21 @@
 #define IDC_ARC                         1074
 #define IDC_X1                          1074
 #define IDC_BLOCK                       1075
+#define IDC_XC                          1075
 #define IDC_TUNNEL                      1076
+#define IDC_YC                          1076
 #define IDC_JSET                        1077
+#define IDC_SEG                         1077
+#define IDC_RAD                         1078
+#define IDC_XS                          1079
+#define IDC_YS                          1080
+#define IDC_XE                          1081
+#define IDC_YE                          1082
+#define IDC_DEG                         1083
+#define IDC_XL                          1084
+#define IDC_YL                          1085
+#define IDC_XU                          1086
+#define IDC_YU                          1087
 #define IDC_LISTBOX3                    1102
 #define GD_SAVE                         1102
 #define GD_NJOI                         1103
@@ -362,9 +378,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        172
+#define _APS_NEXT_RESOURCE_VALUE        175
 #define _APS_NEXT_COMMAND_VALUE         40062
-#define _APS_NEXT_CONTROL_VALUE         1075
+#define _APS_NEXT_CONTROL_VALUE         1088
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
