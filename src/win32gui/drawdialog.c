@@ -37,12 +37,6 @@
 // for type checking.  In this case, each of these
 // callbacks is defined before being invoked, rendering
 // the prototype unnecessary.
-//Added by Roozbeh
-//BOOL CALLBACK JointDlgProc (HWND, UINT, WPARAM, LPARAM);
-//BOOL CALLBACK TunnelDlgProc (HWND, UINT, WPARAM, LPARAM);
-//BOOL CALLBACK ArcDlgProc (HWND, UINT, WPARAM, LPARAM);
-//BOOL CALLBACK BlockDlgProc (HWND, UINT, WPARAM, LPARAM);
-//Added by Roozbeh
 
 static HINSTANCE hInstance;
 
@@ -80,21 +74,23 @@ char mess[180];
 static int grid = FALSE;
 /* FIXME: Describe function of these two scale variables.
  */
-static double ScaleX, ScaleY;
+double ScaleX, ScaleY;
 static int ScaledX, ScaledY;
 /* These are typed doubly-linked lists.  See drawdialog.h,
  * ddadlist.c and ddadlist.c
  */
-static JOINTLIST *jointlist;
+JOINTLIST *jointlist;
 static POINTLIST *pointlist;
 static Boltlist *boltlist;
 
-static POINT ptBegin, ptNew, ptOld;
+POINT ptBegin, ptNew, ptOld;
 
 
 static enum TOOLTYPE tool;
-static int type = 1, inside = 0;
-static int radius, maxSize;
+int type = 1;
+static int inside = 0;
+static int radius;
+int maxSize;
 static HPEN hCurrentPen;
 static HBRUSH hCurrentBr;
 static char temp[80];
@@ -124,7 +120,7 @@ static void drawSinglePoint (HDC, DPoint *);
 static int saveData (HWND hDlg);
 
 /* Mouse handling functions */
-static void addJoint (HWND);
+void addJoint (HWND);
 static void addPoint (HWND);
 static void addBolt (HWND);
 
@@ -205,11 +201,6 @@ handleDrawContext (HWND hDlg, LPARAM lParam, WPARAM wParam)
 
 
 }                               /* close handleDrawContext() */
-
-
-
-
-
 
 
 // Changed some variable names to make this less verbose.
@@ -591,9 +582,7 @@ handleMouseMove (HWND hDlg, LPARAM lParam, WPARAM wParam)
 }                               /* close handleMouseMove() */
 
 
-
-
-static void
+void
 addJoint (HWND hDlg)
 {
   Joint *newjoint;
@@ -1488,50 +1477,6 @@ handleLButtonUp (HWND hDlg, LPARAM lParam)
   }
   ReleaseCapture ();
 }                               /* close handleMouseUp() */
-
-
-// Added by Roozbeh to Draw a Joint using dialog box
-BOOL CALLBACK
-JointDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-  switch (message) {
-  case WM_INITDIALOG:
-
-    SetDlgItemInt (hDlg, IDC_X1, 0, FALSE);
-    SetDlgItemInt (hDlg, IDC_Y1, 0, FALSE);
-    SetDlgItemInt (hDlg, IDC_X2, 10, FALSE);
-    SetDlgItemInt (hDlg, IDC_Y2, 10, FALSE);
-    SetDlgItemInt (hDlg, IDC_TYPE, 1, FALSE);
-
-    return TRUE;
-
-  case WM_COMMAND:
-    switch (LOWORD (wParam)) {
-
-    case IDOK:
-
-      // Make this a function call with a descriptive name.
-      ptBegin.x = GetDlgItemInt (hDlg, IDC_X1, NULL, TRUE);
-      ptBegin.y = GetDlgItemInt (hDlg, IDC_Y1, NULL, TRUE);
-      ptNew.x = GetDlgItemInt (hDlg, IDC_X2, NULL, TRUE);
-      ptNew.y = GetDlgItemInt (hDlg, IDC_Y2, NULL, TRUE);
-      type = GetDlgItemInt (hDlg, IDC_TYPE, NULL, TRUE);
-      ptBegin.x = (long) floor (ptBegin.x / (ScaleX / maxSize));
-      ptBegin.y = (long) floor (ptBegin.y / (ScaleY / maxSize));
-      ptNew.x = (long) floor (ptNew.x / (ScaleX / maxSize));
-      ptNew.y = (long) floor (ptNew.y / (ScaleY / maxSize));
-
-      addJoint (hDlg);
-
-      return FALSE;
-    case IDCANCEL:
-      EndDialog (hDlg, 0);
-      return TRUE;
-    }
-    break;
-  }
-  return FALSE;
-}
 
 // Added by Roozbeh to Draw a Tuunel using dialog box
 BOOL CALLBACK

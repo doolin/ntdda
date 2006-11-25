@@ -34,4 +34,6 @@ double Scale (int, int);
 void handleCancel(HWND);
 int handleSave(HWND);
 
+BOOL CALLBACK JointDlgProc (HWND , UINT , WPARAM , LPARAM);
+
 
