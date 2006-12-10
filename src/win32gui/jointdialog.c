@@ -1,11 +1,10 @@
+// Added by Roozbeh
 #define STRICT
 #include<windows.h>
 #include"resource.h"
 #include "drawdialog.h"
-//#include "joint.h"
 #include"math.h"
 
-//#include "winmain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,7 +16,6 @@ extern "C" {
 
 extern addJoint (hDlg);
 
-// Added by Roozbeh to Draw a Joint using dialog box
 BOOL CALLBACK
 JointDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
