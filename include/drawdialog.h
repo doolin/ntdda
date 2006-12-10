@@ -35,5 +35,7 @@ void handleCancel(HWND);
 int handleSave(HWND);
 
 BOOL CALLBACK JointDlgProc (HWND , UINT , WPARAM , LPARAM);
-
+BOOL CALLBACK TunnelDlgProc (HWND , UINT , WPARAM , LPARAM);
+BOOL CALLBACK ArcDlgProc (HWND , UINT , WPARAM , LPARAM);
+BOOL CALLBACK BlockDlgProc (HWND , UINT , WPARAM , LPARAM);
 
