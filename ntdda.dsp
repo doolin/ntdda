@@ -194,6 +194,10 @@ SOURCE=.\src\win32gui\arcdialog.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\win32gui\blockdialog.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\win32gui\drawdialog.c
 # End Source File
 # Begin Source File
