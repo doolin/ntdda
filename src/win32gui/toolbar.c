@@ -89,6 +89,7 @@ toolbar_set_state(unsigned int state) {
          toolbar_send_message(hToolBar,ANAL_NEW,   TBSTATE_ENABLED);
 		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMOUT,   TBSTATE_ENABLED); //Added by Roozbeh
 		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMIN,   TBSTATE_ENABLED); //Added by Roozbeh
+		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMBACK,   TBSTATE_ENABLED); //Added by Roozbeh
       break;
 
       case (ANA_STATE | RUNNING):
@@ -100,7 +101,7 @@ toolbar_set_state(unsigned int state) {
          toolbar_send_message(hToolBar,ANAL_NEW,   0);
 		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMOUT,   0); //Added by Roozbeh
 		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMIN,   0); //Added by Roozbeh
-
+		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMBACK,   0); //Added by Roozbeh
       break;
 
       case (ANA_STATE | FINISHED):
@@ -112,6 +113,7 @@ toolbar_set_state(unsigned int state) {
          toolbar_send_message(hToolBar,ANAL_ABORT, 0);
 		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMOUT,   TBSTATE_ENABLED); //Added by Roozbeh
 		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMIN,   TBSTATE_ENABLED); //Added by Roozbeh
+		 toolbar_send_message(hToolBar,TOOLBAR_ZOOMBACK,   TBSTATE_ENABLED); //Added by Roozbeh
 
       break;
 
@@ -144,6 +146,7 @@ toolbar_init(HWND hwMain) {
        {0, 0,               TBSTATE_ENABLED, TBSTYLE_SEP,    0L, -1},
 	   {7, TOOLBAR_ZOOMOUT, 0, TBSTYLE_BUTTON,  0,   0}, //Enabled by Roozbeh
 	   {8, TOOLBAR_ZOOMIN,  0, TBSTYLE_BUTTON,  0,   0}, //Enabled by Roozbeh
+	   {9, TOOLBAR_ZOOMBACK,  0, TBSTYLE_BUTTON,  0,   0}, //Enabled by Roozbeh
        //{6, TOOLBAR_PRINT,   0,               TBSTYLE_BUTTON, 0,   0}
     //{0, 0,               TBSTATE_ENABLED, TBSTYLE_SEP,    0L, -1},
     //{9, TOOLBAR_PRINT,   0,               TBSTYLE_BUTTON, 0,   0}

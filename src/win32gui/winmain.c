@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: rgrayeli $
- * $Date: 2007/11/27 02:44:10 $
+ * $Date: 2007/11/27 04:02:54 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.45 $
+ * $Revision: 1.46 $
  */
 
 
@@ -499,7 +499,7 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
 // Added By Roozbeh
 static int
-handleZoominoutdown(HWND hwMain, int z) {
+handleZoom(HWND hwMain, int z) {
 
 
    // Added By Roozbeh
@@ -519,6 +519,10 @@ handleZoominoutdown(HWND hwMain, int z) {
 
 		 case (1): 
             zoom = (long)floor(zoom/1.2);
+            break;
+
+         case (2): 
+            zoom = 25000;
             break;
 	  }
 
@@ -1628,6 +1632,7 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
                          "Reapply original geometry",
                          "Zoom in",
                          "Zoom out",
+						 "Zoom back", //Added by Roozbeh
                          "Print" };
 
    //static char szBuffer[80];
@@ -1677,9 +1682,13 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
          case TOOLBAR_ZOOMOUT:
             lpToolTipText->lpszText = ttt[7];
             break;
+         
+		case TOOLBAR_ZOOMBACK:
+            lpToolTipText->lpszText = ttt[8];  //Added by Roozbeh
+            break;
 
          case TOOLBAR_PRINT:
-            lpToolTipText->lpszText = ttt[8];
+            lpToolTipText->lpszText = ttt[9];
             break;
 
          default:
@@ -2034,10 +2043,13 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
          break;
       // Added By Roozbeh
       case TOOLBAR_ZOOMOUT:
-		 handleZoominoutdown(hwMain,0);
+		 handleZoom(hwMain,0);
 		 break;
 	  case TOOLBAR_ZOOMIN:
-		 handleZoominoutdown(hwMain,1);
+		 handleZoom(hwMain,1);
+		 break;
+	  case TOOLBAR_ZOOMBACK:
+		 handleZoom(hwMain,2);
 		 break;
       // Added By Roozbeh
 

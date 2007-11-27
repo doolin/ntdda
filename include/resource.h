@@ -369,6 +369,7 @@
 #define OPTIONS_FIXEDPOINTS             40059
 #define OPTIONS_BLOCKAREAS              40060
 #define OPTIONS_MEASUREDPOINTS          40061
+#define TOOLBAR_ZOOMBACK                40062
 #define ID_INDICATOR_MODE               59142
 #define ID_INDICATOR_GRID               59143
 #define IDC_STATIC                      -1
@@ -379,7 +380,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        175
-#define _APS_NEXT_COMMAND_VALUE         40062
+#define _APS_NEXT_COMMAND_VALUE         40063
 #define _APS_NEXT_CONTROL_VALUE         1088
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
