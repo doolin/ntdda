@@ -6,10 +6,10 @@
  * This is the main gui message handling code to run the 
  * dda gui interface.
  * 
- * $Author: doolin $
- * $Date: 2006/07/01 15:20:58 $
+ * $Author: rgrayeli $
+ * $Date: 2007/11/27 02:44:10 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.44 $
+ * $Revision: 1.45 $
  */
 
 
@@ -39,6 +39,7 @@
 #include "toolbar.h"
 #include "statusbar.h"
 #include "runstates.h"
+
 #include "dxf.h"
 
 
@@ -58,6 +59,8 @@
 /*  Whole bunch of global variables that need to disappear fast. */
 char szAppName[] = "DDA for Windows";
 char mess[80];  /* mess appears to be a temporary variable.  Might be able to get rid of it. */
+
+
 
 
 // Get rid of this as well.
@@ -142,13 +145,22 @@ HWND mainwindow;
 
 
 void
+
 set_mainwindow_titlebar(HWND hwMain, char * filetype, char * filename) {
+
+
 
    char mainWinTitle[120];
 
+
+
    sprintf(mainWinTitle, "%s  ---  %s: %s",szAppName,filetype,filepath.gfile);
+
    SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
 }
+
+
 
 
 void
@@ -403,21 +415,29 @@ handleSysChar(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 static int
 handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
+
    // Added By Roozbeh
    int wparamlo, wparamhi;
    short delta = 100;
 
+
+
    if (whatToDraw == LINES || whatToDraw == BLOCKS) {
+
 
      /* Get the value of LOWORD and HIWORD.
       */
       wparamlo = LOWORD(wParam);
       wparamhi = HIWORD(wParam);
 
+
       switch (wparamlo) {
 
+
         /* Moving the model using the Left, Right
+
 			* Up and Dwon button.
+
          */   
          case (VK_LEFT): 
             xoff = xoff - delta;
@@ -428,6 +448,7 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
             break;
 
          case (VK_UP):
+
             yoff = yoff + delta;
             break;
 
@@ -435,38 +456,81 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
             yoff = yoff - delta;
             break;
 
+
         /* Zoom in By pressing the Add button.
          * zoom out By pressing the Subtract button.  
          */ 
          case (VK_ADD):
 			   zoom = (long)floor(zoom*1.2);
+
             break;
+
 
          case (VK_SUBTRACT):
             zoom = (long)floor(zoom/1.2);
             break;
 
+
          default:
             break;
 	  }
+
 			   
+
      InvalidateRect(hwMain, NULL, TRUE);
+
      UpdateWindow(hwMain);
    }
 
+
 // Added By Roozbeh
 #if 0
+
    {
    char mess[128];
    sprintf(mess, "nVirtKey: %d",wParam);
    MessageBox(NULL,mess,"keydown",MB_OK);
+
    }
 #endif
 
    return 0;
 }  
 
+// Added By Roozbeh
+static int
+handleZoominoutdown(HWND hwMain, int z) {
 
+
+   // Added By Roozbeh
+   short delta = 100;
+
+   if (whatToDraw == LINES || whatToDraw == BLOCKS) {
+
+        /* Zoom in By pressing the Add button.
+         * zoom out By pressing the Subtract button.  
+         */ 
+      switch (z) 
+	  {
+ 
+         case (0): 
+            zoom = (long)floor(zoom*1.2);
+            break;
+
+		 case (1): 
+            zoom = (long)floor(zoom/1.2);
+            break;
+	  }
+
+		   
+	  }
+
+     InvalidateRect(hwMain, NULL, TRUE);
+     UpdateWindow(hwMain);
+
+   return 0;
+}  
+//Added By Roozbeh
 
 
 
@@ -633,7 +697,9 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
 		filepath.gfile[0] = '\0';
 		//sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
 		//SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
       set_mainwindow_titlebar(hwMain,NULL,NULL);
+
 
       dda_set_menu_state(dda,GEOM_STATE | ABORTED);
    }
@@ -657,6 +723,7 @@ handleGeomDraw(HWND hwMain)
  	//SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
    set_mainwindow_titlebar(hwMain,NULL,NULL);
 
+
 	hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
   /* See the man page on the DrawBox function.  The "DRAWDLG" parameter is 
@@ -666,7 +733,9 @@ handleGeomDraw(HWND hwMain)
    {
      	//sprintf(mainWinTitle, "%s for Windows 95/NT ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
       set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
+
 
    }
 	
@@ -693,7 +762,9 @@ handleGeometryDialog(HWND hwMain, LPARAM lParam)
    {
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
       set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
+
 
       if (strcmp(filepath.gfile, filepath.oldfile) != 0 && MessageBox(hwMain, "Apply geometry?", "GEOMETRY", MB_YESNO) == IDYES) 
       {
@@ -723,6 +794,7 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
       set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
+
 
       dda_set_menu_state(dda,GEOM_STATE);
 
@@ -819,12 +891,18 @@ handleAnalBrowse(HWND hwMain, LPARAM lParam)
    else 
    {
 
+
       // TODO: Find a way to handle both Geometry and Analysis files 
+
       // with a titlebar call.
+
       //sprintf(mainWinTitle, "%s for Windows 95/NT --- Geometry = %s, Analysis File = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile, (LPSTR) filepath.afile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
 
+
+
       set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile);
+
 
       //updateMainMenu(hwMain, anastate*readystate);
       //dda->menustate = ANA_STATE | READY_STATE;
@@ -943,11 +1021,15 @@ handleAnalNew(HWND hwMain, LPARAM lParam)
    Geometrydata * geomdata = dda_get_geometrydata(dda);
    strcpy(filepath.oldfile, filepath.afile);
 	filepath.afile[0] = '\0';
+
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
+
 
 	//sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", LPSTR) szAppName, filepath.gfile);
    //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
    set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
+
 
    if (!DialogBoxParam(hInst, "ANALDLG2", hwMain, (DLGPROC)AnalDlgProc,(LPARAM)geomdata )) 
    {
@@ -956,8 +1038,10 @@ handleAnalNew(HWND hwMain, LPARAM lParam)
 
    if(filepath.afile[0] != '\0') {
 
+
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", (LPSTR) szAppName, filepath.gfile, filepath.afile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
       set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile);
 
       if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES) 
@@ -989,9 +1073,12 @@ handleAnalEditDialog(HWND hwMain, LPARAM lParam)
 
    if(filepath.afile[0] != '\0') {
 
+
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", LPSTR) szAppName, filepath.gfile, filepath.afile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
+
       set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile); 
+
 
       if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES) 
       {
@@ -1738,7 +1825,9 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
    LPCTSTR szFilter[] = {"Autocad Dxf files (*.dxf)\0*.dxf\0All files (*.*)\0*.*\0\0"};
+
    // TODO: Add a dxf file type for this, instead of shoving into the geometry file.
+
    // That way, the dxf file can be modified independently at a future date.
    fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "dxf");
 
@@ -1746,7 +1835,9 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
       strcpy(filepath.gpath, filepath.oldpath);
       return 0;  /* user pressed cancel */
    } 
+
    
+
    set_mainwindow_titlebar(hwMain,"DXF",filepath.gfile);
 
    dda_set_menu_state(dda,GEOM_STATE);
@@ -1761,12 +1852,16 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    // The dxf file will be read from this line and lines, polylines
    // and arcs will be recognized from dxf file
    fp1 = fopen(filepath.gfile,"r");
+
    // WARNING: This overwrites the name of the currently open file fp1!
    strcpy (filepath.gfile, strcat (filepath.rootname, ".geo"));
    dxf_read_file(fp1,filepath.gfile);
      
+
    // Send message to GeomApply to have geometry automatically loaded.         
+
    SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
+
 
    return 1;
 
@@ -1937,8 +2032,16 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
       case APWEDGE:
          handleAPWEDGE(hwMain);
          break;
+      // Added By Roozbeh
+      case TOOLBAR_ZOOMOUT:
+		 handleZoominoutdown(hwMain,0);
+		 break;
+	  case TOOLBAR_ZOOMIN:
+		 handleZoominoutdown(hwMain,1);
+		 break;
+      // Added By Roozbeh
 
-	  	case DDAHELP_OVERVIEW:
+	  case DDAHELP_OVERVIEW:
       case DDAHELP_INDEX:
       case DDAHELP_GEOMETRY:
       case DDAHELP_ANALYSIS:
@@ -2127,6 +2230,7 @@ createDDAMainWindow(HINSTANCE hInstance)
 
    hddawin = CreateWindowEx(WS_EX_ACCEPTFILES, 
                            szAppName, 
+
                            szAppName,
                            WS_OVERLAPPEDWINDOW    | 
                            WS_CLIPCHILDREN,
