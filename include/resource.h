@@ -100,6 +100,7 @@
 #define IDD_TUNNEL                      172
 #define IDD_ARC                         173
 #define IDD_BLOCK                       174
+#define IDI_ICON3                       175
 #define IDD_DIALOG1                     200
 #define IDD_BLOCKPROPS                  200
 #define IDD_DIALOG2                     201
@@ -370,6 +371,11 @@
 #define OPTIONS_BLOCKAREAS              40060
 #define OPTIONS_MEASUREDPOINTS          40061
 #define TOOLBAR_ZOOMBACK                40062
+#define ID_BUTTON40063                  40063
+#define TOOLBAR_GOLEFT                  40064
+#define TOOLBAR_GORIGHT                 40065
+#define TOOLBAR_GOUP                    40066
+#define TOOLBAR_GODOWN                  40067
 #define ID_INDICATOR_MODE               59142
 #define ID_INDICATOR_GRID               59143
 #define IDC_STATIC                      -1
@@ -379,8 +385,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        175
-#define _APS_NEXT_COMMAND_VALUE         40063
+#define _APS_NEXT_RESOURCE_VALUE        176
+#define _APS_NEXT_COMMAND_VALUE         40068
 #define _APS_NEXT_CONTROL_VALUE         1088
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
