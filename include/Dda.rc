@@ -48,6 +48,11 @@ BEGIN
     BUTTON      TOOLBAR_ZOOMIN
     BUTTON      TOOLBAR_ZOOMOUT
     BUTTON      TOOLBAR_ZOOMBACK
+    BUTTON      TOOLBAR_GOLEFT
+    BUTTON      TOOLBAR_GORIGHT
+    BUTTON      TOOLBAR_GOUP
+    BUTTON      TOOLBAR_GODOWN
+    BUTTON      ID_BUTTON40063
     SEPARATOR
     BUTTON      ID_FILE_SAVE
     SEPARATOR
@@ -202,6 +207,7 @@ ICON_BLOCKMATERIALS     ICON    DISCARDABLE     "..\\resources\\blockmaterials.i
 ICON_STOPWATCH          ICON    DISCARDABLE     "..\\resources\\stopwatch.ico"
 ICON_FLAGS              ICON    DISCARDABLE     "..\\resources\\flag.ico"
 ICON_GRAVITY            ICON    DISCARDABLE     "..\\resources\\gravity.ico"
+IDI_ICON3               ICON    DISCARDABLE     "..\\resources\\destroy.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
