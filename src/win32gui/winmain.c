@@ -7,9 +7,9 @@
  * dda gui interface.
  * 
  * $Author: rgrayeli $
- * $Date: 2007/11/27 04:02:54 $
+ * $Date: 2008/04/04 23:45:16 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
- * $Revision: 1.46 $
+ * $Revision: 1.47 $
  */
 
 
@@ -59,8 +59,6 @@
 /*  Whole bunch of global variables that need to disappear fast. */
 char szAppName[] = "DDA for Windows";
 char mess[80];  /* mess appears to be a temporary variable.  Might be able to get rid of it. */
-
-
 
 
 // Get rid of this as well.
@@ -499,7 +497,7 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
 // Added By Roozbeh
 static int
-handleZoom(HWND hwMain, int z) {
+handleZoomMove(HWND hwMain, int z) {
 
 
    // Added By Roozbeh
@@ -523,6 +521,19 @@ handleZoom(HWND hwMain, int z) {
 
          case (2): 
             zoom = 25000;
+            break;
+        // handle moving part
+         case (3): 
+            xoff = xoff - delta;  // Added By Roozbeh
+            break;
+         case (4): 
+            xoff = xoff + delta;  // Added By Roozbeh
+            break;
+         case (5): 
+            yoff = yoff - delta;  // Added By Roozbeh
+            break;
+         case (6): 
+            yoff = yoff + delta;  // Added By Roozbeh
             break;
 	  }
 
@@ -1633,6 +1644,10 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
                          "Zoom in",
                          "Zoom out",
 						 "Zoom back", //Added by Roozbeh
+						 "Go Left", //Added by Roozbeh
+						 "Go Right", //Added by Roozbeh
+						 "Go Up", //Added by Roozbeh
+						 "Go Down", //Added by Roozbeh
                          "Print" };
 
    //static char szBuffer[80];
@@ -1686,9 +1701,20 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
 		case TOOLBAR_ZOOMBACK:
             lpToolTipText->lpszText = ttt[8];  //Added by Roozbeh
             break;
-
+		case TOOLBAR_GOLEFT:
+            lpToolTipText->lpszText = ttt[9];  //Added by Roozbeh
+            break;
+		case TOOLBAR_GORIGHT:
+            lpToolTipText->lpszText = ttt[10];  //Added by Roozbeh
+            break;
+		case TOOLBAR_GOUP:
+            lpToolTipText->lpszText = ttt[11];  //Added by Roozbeh
+            break;
+		case TOOLBAR_GODOWN:
+            lpToolTipText->lpszText = ttt[12];  //Added by Roozbeh
+            break;
          case TOOLBAR_PRINT:
-            lpToolTipText->lpszText = ttt[9];
+            lpToolTipText->lpszText = ttt[13];
             break;
 
          default:
@@ -2043,13 +2069,25 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
          break;
       // Added By Roozbeh
       case TOOLBAR_ZOOMOUT:
-		 handleZoom(hwMain,0);
+		 handleZoomMove(hwMain,0);
 		 break;
 	  case TOOLBAR_ZOOMIN:
-		 handleZoom(hwMain,1);
+		 handleZoomMove(hwMain,1);
 		 break;
 	  case TOOLBAR_ZOOMBACK:
-		 handleZoom(hwMain,2);
+		 handleZoomMove(hwMain,2);
+		 break;
+	  case TOOLBAR_GOLEFT:
+		 handleZoomMove(hwMain,3);
+		 break;
+	  case TOOLBAR_GORIGHT:
+		 handleZoomMove(hwMain,4);
+		 break;
+	  case TOOLBAR_GOUP:
+		 handleZoomMove(hwMain,5);
+		 break;
+	  case TOOLBAR_GODOWN:
+		 handleZoomMove(hwMain,6);
 		 break;
       // Added By Roozbeh
 
