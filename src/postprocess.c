@@ -4,10 +4,10 @@
  *
  * Handle a number of postprocessing chores.
  * 
- * $Author: doolin $
- * $Date: 2003/12/17 23:36:36 $
+ * $Author: rgrayeli $
+ * $Date: 2008/04/10 01:34:13 $
  * $Source: /cvsroot/dda/ntdda/src/postprocess.c,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  */
 
 #include <malloc.h>
@@ -45,8 +45,8 @@ postProcess(Geometrydata * GData, Analysisdata * AData) {
    double analysis_runtime;
    double assemble_runtime;
    double integration_runtime;
-   //double solve_runtime;
-   //double openclose_runtime;
+   double solve_runtime;
+   double openclose_runtime;
    //double contact_runtime;
    //double update_runtime;
    int totaloc_count; 
@@ -59,9 +59,9 @@ postProcess(Geometrydata * GData, Analysisdata * AData) {
    //contact_runtime = DLog->contact_runtime/(double)CLOCKS_PER_SEC;
    //update_runtime = DLog->update_runtime/(double)CLOCKS_PER_SEC;
    assemble_runtime = DLog->assemble_runtime/(double)CLOCKS_PER_SEC;
-   //solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
+   solve_runtime = DLog->solve_runtime/(double)CLOCKS_PER_SEC;
    integration_runtime = DLog->integration_runtime/(double)CLOCKS_PER_SEC;
-   //openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
+   openclose_runtime = DLog->openclose_runtime/(double)CLOCKS_PER_SEC;
 
    totaloc_count = AData->n9;
 
@@ -71,9 +71,9 @@ postProcess(Geometrydata * GData, Analysisdata * AData) {
    strcat(mess, temp);
    sprintf(temp, "Assembly run time: %2.3f seconds\n", assemble_runtime);
    strcat(mess, temp);
-   //sprintf(temp, "Solve run time: %2.3f seconds\n", solve_runtime);
+   sprintf(temp, "Solve run time: %2.3f seconds\n", solve_runtime);
    strcat(mess, temp);
-   //sprintf(temp, "Penalty run time: %2.3f seconds\n", openclose_runtime-solve_runtime);
+   sprintf(temp, "Penalty run time: %2.3f seconds\n", openclose_runtime-solve_runtime);
    strcat(mess, temp);
 
    dda_display_info(mess);

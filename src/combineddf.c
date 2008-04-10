@@ -3,10 +3,10 @@
  * 
  * Contact and matrix solver for DDA.
  *
- * $Author: doolin $
- * $Date: 2003/12/17 23:36:36 $
+ * $Author: rgrayeli $
+ * $Date: 2008/04/10 01:33:51 $
  * $Source: /cvsroot/dda/ntdda/src/combineddf.c,v $
- * $Revision: 1.49 $
+ * $Revision: 1.50 $
  *
  */
 /*################################################*/
@@ -17,6 +17,9 @@
 
 /*
  * $Log: combineddf.c,v $
+ * Revision 1.50  2008/04/10 01:33:51  rgrayeli
+ * the time info dialog which is running at the end of each solution has been enabled
+ *
  * Revision 1.49  2003/12/17 23:36:36  doolin
  * Merged in my changes from final mil-4 checkout.
  *
@@ -755,8 +758,8 @@ void initNewAnalysis(Geometrydata * gd, Analysisdata *ad, double **e0,
 
    DLog = datalog_new( ad->nTimeSteps, ad->nJointMats, gd->nBlocks);
   /* Clock stopped in postProces() */
-   //DLog->analysis_start = clock();
-   //DLog->assemble_runtime = 0;
+   DLog->analysis_start = clock();
+   DLog->assemble_runtime = 0;
 
    initStorageTempArrays(gd->nBlocks);
    initContactTempArrays(gd->nBlocks, gd->vertexCount);
