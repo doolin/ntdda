@@ -557,7 +557,12 @@ computeTimeStep(Geometrydata *bd, Analysisdata *ad)
       if (a1 < a3) 
          a1=a3;
       
-      a2 = globalTime[ad->cts-1][1]*maxdisplacement*domainscale/(ad->delta_t);
+	  //globalTime[i][0]: cumulative time from 0 seconds;
+      //globalTime[i][1]: displacement ratios???
+      //the globalTime[ad->cts-1][1] term which is displacement ratio  
+	  //has been changed to cumulative time (globalTime[ad->cts-1][0])
+	  //by Roozbeh
+      a2 = globalTime[ad->cts-1][0]*maxdisplacement*domainscale/(ad->delta_t); // Changed by Roozbeh
 
       if (analysisType == STATIC) /* analysisType == 0  is static type analysis, */
          a2=0;
