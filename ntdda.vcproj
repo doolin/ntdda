@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="ntdda"
 	ProjectGUID="{38F5E6BE-3306-4DB9-A177-5F89B64F099C}"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -46,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include/,C:\ddaincludes\libxml2-2.6.24.win32\include,C:\ddaincludes\iconv-1.9.2.win32\include,C:\Program Files\HTML Help Workshop\include"
+				AdditionalIncludeDirectories="include/;&quot;C:\ddaincludes\libxml2-2.7.7.win32\include&quot;;&quot;C:\ddaincludes\iconv-1.9.2.win32\include&quot;;&quot;C:\Program Files\HTML Help Workshop\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DDAFORWINDOWS"
 				MinimalRebuild="true"
 				RuntimeLibrary="2"
@@ -78,7 +79,7 @@
 				OutputFile="bin/ntddad.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="C:\ddaincludes\libxml2-2.6.24.win32\lib,C:\ddaincludes\zlib-1.2.3.win32\lib,C:\ddaincludes\iconv-1.9.2.win32\lib,C:\Program Files\HTML Help Workshop\lib"
+				AdditionalLibraryDirectories="&quot;C:\ddaincludes\libxml2-2.7.7.win32\lib&quot;;&quot;C:\ddaincludes\zlib-1.2.5\lib&quot;;&quot;C:\ddaincludes\iconv-1.9.2.win32\lib&quot;;&quot;C:\Program Files\HTML Help Workshop\lib&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/ntddad.pdb"
 				SubSystem="2"
@@ -103,9 +104,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -201,9 +199,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
