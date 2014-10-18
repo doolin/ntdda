@@ -1,11 +1,12 @@
-/* 
+/*
  * $Source: /cvsroot/dda/ntdda/src/ddadlist.c,v $
  * $Revision: 1.5 $
  * $Date: 2002/08/03 14:42:29 $
  * $Author: doolin $
  */
 
-#include <stdio.h> 
+#include <stdio.h>
+#include <stdlib.h>
 //#include <malloc.h>
 
 #include "ddadlist.h"
@@ -22,7 +23,7 @@
  * empty, then l->flink = l->blink = l.            
  *---------------------------------------------------------------------*/
 
-DList * 
+DList *
 dlist_new(void) {
 
   DList * d;

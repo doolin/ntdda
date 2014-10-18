@@ -15,29 +15,30 @@
 
 
 
-/** Static arrays for testing array-based bolt 
+/**
+ * Static arrays for testing array-based bolt
  *  functions.
  */
 
-static double bolt1[17] = { 
-                            0.0,
-                            1.0,
-                            1.0,
-                            2.0,
-                            2.0,
-                            1.0,
-                            2.0,
-                            100000.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0
-                          };
+static double bolt1[17] = {
+            0.0,
+            1.0,
+            1.0,
+            2.0,
+            2.0,
+            1.0,
+            2.0,
+            100000.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          };
 
 static double bolt2[17] = {
                             0.0,
@@ -62,7 +63,7 @@ static double bolt2[17] = {
 static double * bolts[2] = {0, 0};
 
 
-void 
+void
 print_header_string(FILE * fp, const char * tag) {
 
    char header[] = {"\n\n================  %s =================\n"};
@@ -115,7 +116,7 @@ test_bolt_get_ref_length_a(void) {
 
 
 
-int 
+int
 test_bolt_dir_cos_a(void) {
 
    int passed = 1;
@@ -158,7 +159,7 @@ test_bolt_dir_cos_a(void) {
 
 
 
-int 
+int
 test_bolt_get_length_a(void) {
 
    int passed = 1;
@@ -175,7 +176,7 @@ test_bolt_get_length_a(void) {
 
    bolt_set_length_a(bolts[0]);
    testlength = bolt_get_length_a(bolts[0]);
-//   printf("bolt 1 test length: %f\n",testlength); 
+//   printf("bolt 1 test length: %f\n",testlength);
    length = sqrt(2.0);
 
    if (testlength != length) {
@@ -187,7 +188,7 @@ test_bolt_get_length_a(void) {
 
    bolt_set_length_a(bolts[1]);
    testlength = bolt_get_length_a(bolts[1]);
-//   printf("bolt 2 test length: %f\n",testlength); 
+//   printf("bolt 2 test length: %f\n",testlength);
    length = 5;
 
    if (testlength != length) {
@@ -204,11 +205,8 @@ test_bolt_get_length_a(void) {
 
 
 
-int 
+int
 test_bolt_get_dl_a(void) {
-
-
-
 
    int passed = 1;
 
@@ -252,14 +250,15 @@ test_bolt_get_dl_a(void) {
 
 
 
-/** This is actually a pretty good test, given the API
+/**
+ * This is actually a pretty good test, given the API
  * (API might be crappy, but thats a different issue).
- * What happens here is a "round trip", where the 
+ * What happens here is a "round trip", where the
  * reference length is computed from the given pretension,
- * then the pretension returned is computed from the 
+ * then the pretension returned is computed from the
  * reference length.
  */
-int 
+int
 test_bolt_get_pretension_a(void) {
 
 
@@ -313,7 +312,7 @@ bolt_test_arrays() {
 
    test_bolt_dir_cos_a();
    test_bolt_get_length_a();
-   test_bolt_get_ref_length_a(); 
+   test_bolt_get_ref_length_a();
    test_bolt_get_dl_a();
    test_bolt_get_pretension_a();
 
@@ -321,10 +320,11 @@ bolt_test_arrays() {
 }
 
 
-/** The purpose of this function is to test that allocation and deallocation 
- * of the bare struct does not leak any memory.  This function should 
- * always pass unless we are out of memory, which is an error that isn't yet 
- * handled.  
+/**
+ * The purpose of this function is to test that allocation and deallocation
+ * of the bare struct does not leak any memory.  This function should
+ * always pass unless we are out of memory, which is an error that isn't yet
+ * handled.
  *
  * @return int TRUE passes, FALSE fails.
  */
@@ -333,7 +333,7 @@ test_allocation(void) {
 
   Bolt * b;
   Boltlist * bl;
-  
+
   b = bolt_new();
   bolt_delete(b);
 
@@ -370,15 +370,15 @@ test_bolt_endpoints(void) {
        a2 != x2  ||
        b2 != y2) {
     passed = FALSE;
-  } 
-  
+  }
+
   bolt_delete(b);
 
   return passed;
 }
 
 
-int 
+int
 test_equals_true(void) {
 
   int passed = TRUE;
@@ -397,7 +397,7 @@ test_equals_true(void) {
 }
 
 
-int 
+int
 test_equals_false(void) {
 
   int passed = TRUE;
@@ -418,7 +418,7 @@ test_equals_false(void) {
 
 
 
-int 
+int
 test_clone(void) {
 
   return FALSE;
@@ -461,10 +461,10 @@ test_boltlist_append(void) {
 
 
 
-/** @todo Set up a table to call these sequentially, it 
+/** @todo Set up a table to call these sequentially, it
  * will save a lot of typing.
  */
-int 
+int
 bolt_test(void) {
 
    int passed = TRUE;
@@ -520,7 +520,7 @@ main(int argc, char ** argv) {
 
 /*
    if (bolt_test()) {
-      return 0; 
+      return 0;
    } else {
       return -1;
    }
