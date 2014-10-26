@@ -278,7 +278,7 @@ test_stress_update(void) {
    set_strains(d3,0.001,0.001,0.0001);
 
 
-  /* These need to match the permutation vector. */ 
+  /* These need to match the permutation vector. */
    D[1] = d2;
    D[2] = d3;
    D[3] = d1;
@@ -297,17 +297,15 @@ test_stress_update(void) {
 }
 
 
+/*
 int
 test_strain_green_lagrange() {
-
-   int passed = 1;
-
-   double strain[4] = {0.0};
-   double F[7]      = {0.0, 0.0, 0.0, 0.5, 0.3, 0.2, 0.3};
-//   double E[4]      = {
-
+  //int passed = 1;
+  //double strain[4] = {0.0};
+  //double F[7]      = {0.0, 0.0, 0.0, 0.5, 0.3, 0.2, 0.3};
+  //double E[4]      = {
 }
-
+*/
 
 int
 stress_test_arrays(void) {
@@ -320,15 +318,10 @@ stress_test_arrays(void) {
    return 0;
 }
 
-
-
 #ifdef STANDALONE
 int
 main(int argc, char ** argv) {
-
-
    stress_test_arrays();
-
    return 0;
 }
 #endif
