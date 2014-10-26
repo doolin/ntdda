@@ -1,6 +1,6 @@
-/* 
+/**
  * ghssolver.c
- * 
+ *
  * LD^{-1}L^T matrix solver for DDA.
  *
  * $Author: doolin $
@@ -22,7 +22,7 @@ void sp_mult(double * Arow, double * x, double * y, int blocksize, int index);
 
 
 
-/* FIXME: eliminate as many of the extra work arrays as 
+/* FIXME: eliminate as many of the extra work arrays as
  * possible.
  */
 double * worka;
@@ -45,22 +45,17 @@ void df21(double ** K, double ** F,int *, int **, int numblocks);
 
 
 void
-solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, int nBlocks)
-{
-
-
-
-
+solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, int nBlocks) {
 
    if (ad->solvetype == lu) {// (ghsolver)
-   
-     /* Block $L D^{-1} L^T$ decomposition solver from Shi 1988, 
+
+     /* Block $L D^{-1} L^T$ decomposition solver from Shi 1988,
       * Chapter 5, Section 5.2, pp. 193-199.  Shi proves in each
-      * relevant section that K is SPD.  The decomposition is 
-      * assumed (p. 194) to exist (!), then an ad hoc algorithm 
+      * relevant section that K is SPD.  The decomposition is
+      * assumed (p. 194) to exist (!), then an ad hoc algorithm
       * is presented.  After the decomposition, the system LY = F
-      * is solved by forward substitution (p. 198), then the 
-      * unknowns are determined by back substitution (p. 199) ?????.  
+      * is solved by forward substitution (p. 198), then the
+      * unknowns are determined by back substitution (p. 199) ?????
       * (verify all of this externally to the dissertation).
       */
       df20(K,F,kk,n,nBlocks);
@@ -77,11 +72,7 @@ solve(Analysisdata* ad,double ** K, double ** F, int * kk, int * k1, int ** n, i
       ; // do something else
    }
 
-}  
-
-
-
-
+}
 
 
 static double T[7][7];
@@ -93,7 +84,7 @@ static double ** Dinv = NULL;
 static int doublesize;
 
 
-void 
+void
 initSolverTempArrays(Geometrydata * gd)
 {
 
@@ -849,7 +840,7 @@ writeMFile(double ** K, double ** F, double ** D,
    //int kii;
    //int currIcol, endIcol;
    //int currJcol, endJcol;
-   const blocksize = 6;
+   const int blocksize = 6;
 
   /* Set up initial stiffness matrix K */
    fprintf(fp.mfile,"bs = %d; %% blocksize\n",blocksize);
@@ -866,7 +857,7 @@ writeMFile(double ** K, double ** F, double ** D,
 
       startindex = n[row][1];
       stopindex = n[row][1] + n[row][2] - 1;
-      
+
       startrow = (blocksize*(row-1)) + 1;
       stoprow = blocksize*row;
 
@@ -885,7 +876,7 @@ writeMFile(double ** K, double ** F, double ** D,
             for (J=1;J<=blocksize;J++) {
 
                fprintf(fp.mfile," %30.16e ",K[colindex][blocksize*(I-1)+J]);
-            }         
+            }
             fprintf(fp.mfile,"\n");
          }
          fprintf(fp.mfile,"];\n");
@@ -899,7 +890,7 @@ writeMFile(double ** K, double ** F, double ** D,
             for (J=1;J<=blocksize;J++)
             {
                fprintf(fp.mfile," %30.16e ",K[colindex][blocksize*(I-1)+J]);
-            }         
+            }
             fprintf(fp.mfile,"\n");
          }
          fprintf(fp.mfile,"]';\n");
@@ -931,20 +922,18 @@ writeMFile(double ** K, double ** F, double ** D,
 
   /* Write the solution vector. */
    fprintf(fp.mfile,"%% Solution vector.\n");
-   for (i=1;i<=numblocks;i++)
-   {  
+   for (i=1;i<=numblocks;i++) {
       row = k1[i];
       startrow = (blocksize*(row-1)) + 1;  // + index;
       stoprow = blocksize*row;
 
       fprintf(fp.mfile,"D(%d:%d,1) = [\n",startrow,stoprow);
 
-            for (J=1;J<=blocksize;J++)
-            {
-               fprintf(fp.mfile," %30.16e\n ",D[row][J]);
-            }         
-         fprintf(fp.mfile,"];\n");
+      for (J=1;J<=blocksize;J++) {
+         fprintf(fp.mfile," %30.16e\n ",D[row][J]);
+      }
 
+      fprintf(fp.mfile,"];\n");
    }
 
 
@@ -956,9 +945,8 @@ writeMFile(double ** K, double ** F, double ** D,
 
 
 /* Writes a matlab file of stiffness and load vectors. */
-void 
-writeSolutionVector(double ** D, int * kk, int * k1, int ** n, int numblocks)
-{
+void
+writeSolutionVector(double ** D, int * kk, int * k1, int ** n, int numblocks) {
    int i;
    int J;  // Loop over sub-block
    int row;  // was i
@@ -970,24 +958,22 @@ writeSolutionVector(double ** D, int * kk, int * k1, int ** n, int numblocks)
    //int kii;
    //int currIcol, endIcol;
    //int currJcol, endJcol;
-   const blocksize = 6;
+   const int blocksize = 6;
    /* Write the solution vector. */
    //fprintf(fp.mfile,"%% Solution vector.\n");
-   for (i=1;i<=numblocks;i++)
-   {  
+
+   for (i=1;i<=numblocks;i++) {
       row = k1[i];
       startrow = (blocksize*(row-1)) + 1;  // + index;
       stoprow = blocksize*row;
 
       //fprintf(fp.mfile,"D(%d:%d,1) = [\n",startrow,stoprow);
 
-            for (J=1;J<=blocksize;J++)
-            {
-               fprintf(fp.dfile," %30.16f ",D[row][J]);
-            }         
-
+      for (J=1;J<=blocksize;J++) {
+         fprintf(fp.dfile," %30.16f ",D[row][J]);
+      }
    }
-         
+
    fprintf(fp.dfile,"\n");
 
 }  /* close writeSolutionVector() */
