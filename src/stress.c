@@ -44,18 +44,20 @@ the memory into one block.}\\\hline
 
 
 static const int _rho_   = 0;
-static const int _gamma_ = 1; 
+static const int _gamma_ = 1;
 static const int _E_     = 2;
-static const int _nu_    = 3; 
+static const int _nu_    = 3;
 static const int _s11_   = 4;
 static const int _s22_   = 5;
 static const int _s12_   = 6;
+/*
 static const int _t1_    = 7;
 static const int _t2_    = 8;
 static const int _t3_    = 9;
 static const int _v1_    = 10;
 static const int _v2_    = 11;
 static const int _v3_    = 12;
+*/
 
 static const int _size_  = 13;
 
@@ -144,10 +146,6 @@ strain_green_lagrange(double * D, double strain[4]) {
 
 }
 
-
-
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 /**
  * Plain strain from MacLaughlin 1997, p. 20
  */
@@ -166,7 +164,7 @@ stress_planestrain(double * stress, double strain[4]) {
   //stress_rotate(e0[i],D[i1][3]);
 
   /* Now compute e_zz, which should be 0 if we are in plane
-   * strain, and will be used for computing mass if in 
+   * strain, and will be used for computing mass if in
    * plane stress.  This is for density correction.  See
    * TCK, p. 213, Fung, p. 267.
    * Note: we have to accumulate e_z to use for calculating
@@ -264,12 +262,10 @@ stiffness_accumulate_firstorder_2d(double * K, double e[7][7]) {
    int j,j1,l;
 
    for (j=1; j<= 6; j++) {
-
       for (l=1; l<= 6; l++) {
-
          j1 = 6*(j-1)+l;  /* set index to global matrix */
          K[j1] += e[j][l];  /* add elastic coefficients */
-      }  
+      }
    }
 }
 
@@ -321,7 +317,6 @@ stiffness_finite_2d_planestrain(double e[7][7], const double S0,
 
    e[3][6] = E12;
    e[6][3] = E21;
-
 }
 
 void
@@ -527,13 +522,8 @@ void stress_initial(int nBlocks, const int *k1, double **F, const double **e0,
       F[i1][4] += -S0*e0[i][_s11_];
       F[i1][5] += -S0*e0[i][_s22_];
       F[i1][6] += -S0*e0[i][_s12_];
-   }  
-}  
-
-
-
-
-
+   }
+}
 
 void
 stress_print(double * s, PrintFunc printer, void * stream) {
@@ -543,17 +533,12 @@ stress_print(double * s, PrintFunc printer, void * stream) {
    stress_print_stresses(s,printer,stream);
 }
 
-
-
-
-void 
+void
 stress_print_stresses(double * s, PrintFunc printer, void * stream) {
 
    printer(stream,"sigma = [ %f %f  \n          %f %f ];\n", 
                    s[_s11_],s[_s12_],s[_s12_],s[_s22_]);
 }
-
-
 
 #ifdef __cplusplus
 }
