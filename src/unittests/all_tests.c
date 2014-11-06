@@ -1,14 +1,9 @@
-
-
 #include <stdio.h>
 
-
-int 
+int
 main() {
 
    constants_test();
    bolt_test();
-
    return 0;
-
 }

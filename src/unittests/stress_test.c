@@ -1,12 +1,10 @@
-
 #include <stdio.h>
 #include <math.h>
 
-
 #include "stress.h"
 
-
-/** Stick this in matlab or octave to get 
+/**
+ * Stick this in matlab or octave to get
  * something to compare to:
  */
 /*
@@ -14,8 +12,8 @@
 
 a1 = E/(1-(nu*nu));
 k = a1*[
-        1 nu 0 
-        nu 1 0 
+        1 nu 0
+        nu 1 0
         0 0 (1-nu)/2
 ];
 
@@ -31,7 +29,7 @@ s =
         0.0335570469798658
 */
 
-void 
+void
 print_header_string(FILE * fp, const char * tag) {
 
    char header[] = {"\n\n================  %s =================\n"};
@@ -50,7 +48,7 @@ array_equals_double(double * d1, double * d2, int index, size_t size) {
     if (fabs(d1[i]-d2[i]) > 0.0000001) {
       return 0;
     }
-  } 
+  }
   return 1;
 }
 
@@ -83,8 +81,7 @@ static void stress_init_all(double * s,
    s[9] = t12;
    s[10] = v1;
    s[11] = v2;
-   s[12] = v12;   
-
+   s[12] = v12;
 }
 
 
@@ -122,11 +119,11 @@ static void set_strains(double * D, double e1, double e2, double e12) {
 }
 
 
-int 
+int
 test_stress_planes(void) {
 
    int passed = 1;
-   int testval; 
+   int testval;
 
    double D[7]   = {0.0};
    double s1[13] = {0.0};
@@ -134,7 +131,6 @@ test_stress_planes(void) {
    double s3[13] = {0.0};
 
    print_header_string(stdout,"stress_planestress test");
- 
 
    stress_init_props(s1,2.71, 25.4,1000.0,0.49);
    set_strains(D,0.001,0.001,0.0001);
@@ -145,43 +141,36 @@ test_stress_planes(void) {
                      0.0335570469798658);
 
    stress_planestress(s1,D);
- 
    testval = array_equals_double(s1,s3,4,3);
 
-   if (testval == 0) { 
+   if (testval == 0) {
       fprintf(stdout,"stress_planestress failed.\n");
       passed = 0;
    } else {
       fprintf(stdout,"stress_planestress passed.\n");
    }
 
-    
    stress_init_props(s2,2.71, 25.4,1000.0,0.25);
    stress_init_sigma(s3, 1.6, 1.6, 0.04);
 
    stress_planestrain(s2,D);
- 
    testval = array_equals_double(s2,s3,4,3);
 
-   if (testval == 0) { 
+   if (testval == 0) {
       fprintf(stdout,"stress_planestrain failed.\n");
       passed = 0;
    } else {
       fprintf(stdout,"stress_planestrain passed.\n");
    }
-
-    
-
    //stress_print(s2,(PrintFunc)fprintf,stdout);
-
    return 0;
 }
 
 
-
-/** Zero strain had better return zero stress. 
+/**
+ * Zero strain had better return zero stress.
  */
-int 
+int
 test_zero_strain() {
 
    int passed = 1;
@@ -314,7 +303,6 @@ stress_test_arrays(void) {
    test_stress_planes();
    test_zero_strain();
    test_stress_update();
-
    return 0;
 }
 
