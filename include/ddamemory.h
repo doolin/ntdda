@@ -1,6 +1,6 @@
-/* 
+/*
  *  ddamemory.h
- * 
+ *
  *  $Author: doolin $
  *  $Date: 2006/07/06 02:28:37 $
  *  $Log: ddamemory.h,v $
@@ -50,8 +50,8 @@ void freeStorageTempArrays(void);
 
 void copy2DArray(void ** in, void ** out, int n, int m);
 
-int copy2DDoubMat(double **, double **, int, int); 
-int copy2DIntMat(int **, int **, int, int); 
+int copy2DDoubMat(double **, double **, int, int);
+int copy2DIntMat(int **, int **, int, int);
 /* This function needs to be turned into a macro. */
 void setMatrixToZero(double **, int, int);
 
