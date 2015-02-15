@@ -67,8 +67,7 @@ bolt_new() {
 Bolt * 
 bolt_new_1(double x1, double y1, double x2, double y2) {
 
-   Bolt * b = (Bolt*)malloc(sizeof(Bolt));
-   memset((void*)b,0xda,sizeof(Bolt));
+   Bolt * b = bolt_new();
 
    b->x1 = x1;
    b->y1 = y1;

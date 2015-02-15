@@ -213,7 +213,7 @@ mohrcoulomb (double c, double phi, double psi, double nu, double ymod,
 }
 #endif
 
-#ifdef STANDALONE
+#ifdef mohrcoulomb_STANDALONE
 /** 
  * Free standing program for testing Mohr-Coulomb
  * computations.

@@ -73,7 +73,7 @@ bolttest: bolttest.c
 	gcc $(CFLAGS)  -o  $(BIN)/bolttest bolttest.c ../bolt.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
 
 stress_test: stress_test.c ../stress.c
-	gcc $(CFLAGS)  -o  $(BIN)/stress_test stress_test.c ../stress.c  -I ../../include -lm
+	gcc $(CFLAGS)  -o  $(BIN)/stress_test stress_test.c ../stress.c  ../mohrcoulomb.c -I ../../include -lm
 
 inpoly_test: inpoly_test.c ../inpoly.c
 	gcc $(CFLAGS)  -o  $(BIN)/inpoly_test inpoly_test.c ../inpoly.c  -I ../../include -lm
