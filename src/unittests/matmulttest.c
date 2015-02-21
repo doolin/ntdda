@@ -4,6 +4,7 @@
 #include "datalog.h"
 #include "ddafile.h"
 #include "ddamemory.h"
+#include "analysis.h"
 
 
 

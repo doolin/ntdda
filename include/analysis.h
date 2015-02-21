@@ -210,6 +210,7 @@ void proj(double ** vertices, double w0, double **, int *,
 void invr(double [][7], double [][7]);
 void mult(double [][7], double [][7], double [][7]);
 void multnew(double [][7], double [][7]);
+void multnewnew(double [][7], double [][7]);
 
 
 

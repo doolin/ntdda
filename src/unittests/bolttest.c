@@ -518,13 +518,13 @@ main(int argc, char ** argv) {
    bolt_test_arrays();
 
 
-/*
+//*
    if (bolt_test()) {
       return 0;
    } else {
       return -1;
    }
-*/
+//*/
 
    return 0;
 

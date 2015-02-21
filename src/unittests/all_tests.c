@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+void constants_test();
+void bolt_test();
+
 int
 main() {
 
