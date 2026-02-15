@@ -1,0 +1,34 @@
+# Build artifacts
+*.plg
+*.res
+*.opt
+*.mak
+*.dep
+*.ncb
+*.aps
+bin/
+Release/
+Debug/
+
+# Editor and temp files
+*~
+
+# Documentation
+dox_warnings
+Dox/
+
+# Patches
+*.diff
+
+# Unit test binaries
+bolttest
+contacttest
+loadpointtest
+material_test
+stress_test
+matmulttest
+constants_test
+all_tests
+ddadlist_test
+geometrydata_test
+analysisdata_test
