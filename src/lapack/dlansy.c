@@ -3,91 +3,91 @@
 #define ABS(a)        ( ((a)<0.0) ? -(a) : (a))
 #include <math.h>
 
-double dlansy_(char *norm, char *uplo, int *n, double *a, int 
+double dlansy_(char *norm, char *uplo, int *n, double *a, int
 	*lda, double *work)
 {
-/*  -- LAPACK auxiliary routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       October 31, 1992   
+/*  -- LAPACK auxiliary routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       October 31, 1992
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DLANSY  returns the value of the one norm,  or the Frobenius norm, or 
-  
-    the  infinity norm,  or the  element of  largest absolute value  of a 
-  
-    real symmetric matrix A.   
+    DLANSY  returns the value of the one norm,  or the Frobenius norm, or
 
-    Description   
-    ===========   
+    the  infinity norm,  or the  element of  largest absolute value  of a
 
-    DLANSY returns the value   
+    real symmetric matrix A.
 
-       DLANSY = ( MAX(ABS(A(i,j))), NORM = 'M' or 'm'   
-                (   
-                ( norm1(A),         NORM = '1', 'O' or 'o'   
-                (   
-                ( normI(A),         NORM = 'I' or 'i'   
-                (   
-                ( normF(A),         NORM = 'F', 'f', 'E' or 'e'   
+    Description
+    ===========
 
-    where  norm1  denotes the  one norm of a matrix (maximum column sum), 
-  
-    normI  denotes the  infinity norm  of a matrix  (maximum row sum) and 
-  
-    normF  denotes the  Frobenius norm of a matrix (square root of sum of 
-  
-    squares).  Note that  MAX(ABS(A(i,j)))  is not a  matrix norm.   
+    DLANSY returns the value
 
-    Arguments   
-    =========   
+       DLANSY = ( MAX(ABS(A(i,j))), NORM = 'M' or 'm'
+                (
+                ( norm1(A),         NORM = '1', 'O' or 'o'
+                (
+                ( normI(A),         NORM = 'I' or 'i'
+                (
+                ( normF(A),         NORM = 'F', 'f', 'E' or 'e'
 
-    NORM    (input) CHARACTER*1   
-            Specifies the value to be returned in DLANSY as described   
-            above.   
+    where  norm1  denotes the  one norm of a matrix (maximum column sum),
 
-    UPLO    (input) CHARACTER*1   
-            Specifies whether the upper or lower triangular part of the   
-            symmetric matrix A is to be referenced.   
-            = 'U':  Upper triangular part of A is referenced   
-            = 'L':  Lower triangular part of A is referenced   
+    normI  denotes the  infinity norm  of a matrix  (maximum row sum) and
 
-    N       (input) INTEGER   
-            The order of the matrix A.  N >= 0.  When N = 0, DLANSY is   
-            set to zero.   
+    normF  denotes the  Frobenius norm of a matrix (square root of sum of
 
-    A       (input) DOUBLE PRECISION array, dimension (LDA,N)   
-            The symmetric matrix A.  If UPLO = 'U', the leading n by n   
-            upper triangular part of A contains the upper triangular part 
-  
-            of the matrix A, and the strictly lower triangular part of A 
-  
-            is not referenced.  If UPLO = 'L', the leading n by n lower   
-            triangular part of A contains the lower triangular part of   
-            the matrix A, and the strictly upper triangular part of A is 
-  
-            not referenced.   
+    squares).  Note that  MAX(ABS(A(i,j)))  is not a  matrix norm.
 
-    LDA     (input) INTEGER   
-            The leading dimension of the array A.  LDA >= MAX(N,1).   
+    Arguments
+    =========
 
-    WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK),   
-            where LWORK >= N when NORM = 'I' or '1' or 'O'; otherwise,   
-            WORK is not referenced.   
+    NORM    (input) CHARACTER*1
+            Specifies the value to be returned in DLANSY as described
+            above.
 
-   ===================================================================== 
-  
+    UPLO    (input) CHARACTER*1
+            Specifies whether the upper or lower triangular part of the
+            symmetric matrix A is to be referenced.
+            = 'U':  Upper triangular part of A is referenced
+            = 'L':  Lower triangular part of A is referenced
+
+    N       (input) INTEGER
+            The order of the matrix A.  N >= 0.  When N = 0, DLANSY is
+            set to zero.
+
+    A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+            The symmetric matrix A.  If UPLO = 'U', the leading n by n
+            upper triangular part of A contains the upper triangular part
+
+            of the matrix A, and the strictly lower triangular part of A
+
+            is not referenced.  If UPLO = 'L', the leading n by n lower
+            triangular part of A contains the lower triangular part of
+            the matrix A, and the strictly upper triangular part of A is
+
+            not referenced.
+
+    LDA     (input) INTEGER
+            The leading dimension of the array A.  LDA >= MAX(N,1).
+
+    WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK),
+            where LWORK >= N when NORM = 'I' or '1' or 'O'; otherwise,
+            WORK is not referenced.
+
+   =====================================================================
 
 
-    
-   Parameter adjustments   
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static int c__1 = 1;
-    
+
     /* System generated locals */
     int  i__1, i__2;
     double ret_val, d__1, d__2, d__3;
@@ -98,7 +98,7 @@ double dlansy_(char *norm, char *uplo, int *n, double *a, int
     static double scale;
     extern long int lsame_(char *, char *);
     static double value;
-    extern /* Subroutine */ int dlassq_(int *, double *, int *, 
+    extern /* Subroutine */ int dlassq_(int *, double *, int *,
 	    double *, double *);
     static double sum;
 

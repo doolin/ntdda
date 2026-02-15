@@ -8,7 +8,7 @@
 static double checkBlockNorm(double * a);
 
 
-/* Check for block diagonal dominance.  Details of this 
+/* Check for block diagonal dominance.  Details of this
  * are covered in Demmel and Higham or the relevant lawn.
  */
 int // boolean
@@ -31,7 +31,7 @@ checkDiagDominance(double ** K, int ** colindex, int numblocks)
 
       if (colindex[i][2] == 1)
          continue;  //  Only one block in column, which is on diagonal
-  
+
       startindex = colindex[i][1];  // location of starting column
       stopindex = colindex[i][1] + colindex[i][2] - 1;  // location of diagonal
 
@@ -53,7 +53,7 @@ checkDiagDominance(double ** K, int ** colindex, int numblocks)
 
 
 
-double 
+double
 checkBlockNorm(double * a)
 {
 
@@ -63,7 +63,7 @@ checkBlockNorm(double * a)
    int nnn = 6;
    //double * a = AData->K[1];
    char norm = 'F';
-  /* GHS indexes everything from 1, so we need to 
+  /* GHS indexes everything from 1, so we need to
    * advance the pointer to the array.
    */
    int index = 1;
@@ -72,14 +72,14 @@ checkBlockNorm(double * a)
 
    work = (double *)calloc(6,sizeof(double));
 
-  /* WARNING!!!  MS will grab from end of array bounds, when it 
-   * should segfault or something...!!!  In other words, we should 
+  /* WARNING!!!  MS will grab from end of array bounds, when it
+   * should segfault or something...!!!  In other words, we should
    * verify that nnn*lda + index = Ksize1.
    */
    val = dlansy_(&norm, &uplo, &nnn, a, &lda, work);
 
    //printKForIthBlock(AData, 1, k1, n, "checkBlockNorm");
-   
+
    return val;
 
 }  /* close checkBlockNorm() */

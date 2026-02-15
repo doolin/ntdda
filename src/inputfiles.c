@@ -15,14 +15,14 @@
 
 #if 0
 
-/** Figure out the file type by seeing if there is 
- *  a magic number on the first line.  This function fails 
+/** Figure out the file type by seeing if there is
+ *  a magic number on the first line.  This function fails
  *  if there is nothing on the first line to parse.
  *
  *  @param char * filename of input, with enough path
  *         information to find the file.
- * 
- *  @return int enum of magic number indicating which 
+ *
+ *  @return int enum of magic number indicating which
  *          file type we need to parse.
  */
 int
@@ -46,14 +46,14 @@ getFileType(char *infilename) {
    magicnum = strtok(buf," \n\r");
 
   /* glibc manual states that strtok returns a null
-   * pointer when the character buffer contains only 
+   * pointer when the character buffer contains only
    * delimiters.
    */
    if (magicnum == NULL) {
       dda_display_error("First line of input file is empty.");
    }
 
-   if (!strncmp(magicnum,"<?",2)) {  
+   if (!strncmp(magicnum,"<?",2)) {
       return ddaml;
    }
 
@@ -62,6 +62,6 @@ getFileType(char *infilename) {
    }
 
    return original;
-}  
+}
 
 #endif

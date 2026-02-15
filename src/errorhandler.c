@@ -17,7 +17,7 @@ void error(char * errorstring)
 */
 
 #ifdef HJHGHHHHHH
-/*  print out a matrix. 
+/*  print out a matrix.
  */
 
 void matrixprint(double ** matrix, int n, int m)
@@ -26,7 +26,7 @@ void matrixprint(double ** matrix, int n, int m)
    int i, j;
 
    ofp = fopen("matrix.log", "w");
-   
+
    for (i = 1; i <= n; i++)
    {
       for (j = 1; j <= m; j++);

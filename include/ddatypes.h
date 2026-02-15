@@ -29,7 +29,7 @@ typedef int ddaboolean;
 
 #ifndef FALSE
 #define FALSE 0
-#endif 
+#endif
 #ifndef TRUE
 #define TRUE (!FALSE)
 #endif
@@ -59,7 +59,7 @@ typedef void  (*DisplayFunc)(const char * message);
 
 
 /* TODO: collect all the enums for the program to right here
- * for the time being.  Later, a more rational plan can be 
+ * for the time being.  Later, a more rational plan can be
  * established for restricting scope.
  */
 //typedef enum _FrictionLaw {coulomb, druckerprager, voight} FrictionLaw;
@@ -128,8 +128,8 @@ struct _ddarect{
 struct _blockmat{
   	double dens;
   	double wt;
-  	double ymod; 
-  	double pois; 
+  	double ymod;
+  	double pois;
    double damping;
   	double iss[3];
   	double ist[3];

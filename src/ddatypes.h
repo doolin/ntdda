@@ -1,8 +1,8 @@
 #ifndef __DDATYPES_H__
 #define __DDATYPES_H__
 
-/* The following will need to be relocated into 
- * a "ddatypes.h" file for convenience.  The reason 
+/* The following will need to be relocated into
+ * a "ddatypes.h" file for convenience.  The reason
  * for explicitly declaring a type boolean is to
  * provide for platform independence.  That is,
  * `boolean' is not a defined type in the c language
@@ -12,7 +12,7 @@
 typedef int ddaboolean;
 
 /* TODO: collect all the enums for the program to right here
- * for the time being.  Later, a more rational plan can be 
+ * for the time being.  Later, a more rational plan can be
  * established for restricting scope.
  */
 //typedef enum _FrictionLaw {coulomb, druckerprager, voight} FrictionLaw;
@@ -37,13 +37,13 @@ typedef struct _joint Joint;
 
 
 /* Joint: pointer to 2 endpoints, material type, number of intersections,
- * and pointer to list of node addresses 
+ * and pointer to list of node addresses
  */
 struct _joint {
   	DPoint d1;
   	DPoint d2;
   	int	type;
-  	DPoint *endpt1; 
+  	DPoint *endpt1;
   	DPoint *endpt2;
    double epx1, epy1, epx2, epy2;
   	//EqnCoeff *coeff;
@@ -55,7 +55,7 @@ struct _joint {
 
 struct _jointmat {
 
-  /* Need a union of structs and an 
+  /* Need a union of structs and an
    * enum in here to handle the various types
    * of friction laws.
    */
@@ -92,8 +92,8 @@ struct _ddaline{
 struct _blockmat{
   	double dens;
   	double wt;
-  	double ymod; 
-  	double pois; 
+  	double ymod;
+  	double pois;
   	double iss[3];
   	double ist[3];
   	double ivel[3];

@@ -29,20 +29,20 @@ void testGeomdata(Geometrydata *gd, int **k0, double **d)
 
    n0 = gd->nBlocks;
 
-   /* This entire piece of code needs to be 
-    * moved to somewhere else.  For now, 
-    * the best place would be to move it to 
-    * the top of the geometry file, or 
+   /* This entire piece of code needs to be
+    * moved to somewhere else.  For now,
+    * the best place would be to move it to
+    * the top of the geometry file, or
     * have it called from the geometry dialog
-    * box.  
+    * box.
     */
 
-      
+
   /*  For now, print them both out.
    */
    //blockOutFile = fopen("block.in", "w");
    geomdatatest = fopen("geomdata.test", "w");
-		
+
 
   /* n0   number of blocks   nBolt number of bolts   */
   /* nFixed fixed points       nLoad loading points    */
@@ -54,7 +54,7 @@ void testGeomdata(Geometrydata *gd, int **k0, double **d)
 
 
   /* material number  block start  block end  index */
-  /* The first (0th) array element should be the block 
+  /* The first (0th) array element should be the block
    * material number.  I don't believe this is currently
    * implemented.  Also, wherever this is determined, there
    * needs to be some argument checking.
@@ -63,8 +63,8 @@ void testGeomdata(Geometrydata *gd, int **k0, double **d)
    {
       fprintf(geomdatatest,"%d %d %d \n", k0[i][0], k0[i][1], k0[i][2]);
    } /* i */
-      
-      
+
+
   /* x  y of each block  0  s0  sx  sy  0  0        */
    for (i=1; i<= k0[n0][2]+4; i++)
    {
@@ -84,11 +84,11 @@ void testGeomdata(Geometrydata *gd, int **k0, double **d)
       fprintf( geomdatatest, "%f %f %f\n", gg1[i][7],gg1[i][8],gg1[i][9]);
    }   /* i */
 
-      
+
   /* x  y  of fixed loading measured points         */
    for (i=1; i<= gd->nFPoints+gd->nLPoints+gd->nMPoints; i++)
    {
-    		fprintf(geomdatatest,"%f %f %f %f \n", 
+    		fprintf(geomdatatest,"%f %f %f %f \n",
               g[i][0],g[i][1],g[i][2],g[i][3]);
    } /* i */
 
@@ -102,12 +102,12 @@ printVertices(Geometrydata * gd, double ** vertices, int ** vindex, char * locat
    int i, j;
    int i1, i2;
   /* (GHS: change to new deformed block shape  u[][] df24) */
-  /* u appears to be the displacement parameter set as a 
+  /* u appears to be the displacement parameter set as a
    * solution to the linear system.  Since the constraints
    * force an iterative procedure, u (appears) is the end result of
-   * the iteration to convergence in the time steps.  For 
-   * disp dep variables, this array will need to be copied into 
-   * an array that holds the previous vertices, then the 
+   * the iteration to convergence in the time steps.  For
+   * disp dep variables, this array will need to be copied into
+   * an array that holds the previous vertices, then the
    * vertex-vertex displacement can be computed to update
    * material properties.
    */
@@ -118,7 +118,7 @@ printVertices(Geometrydata * gd, double ** vertices, int ** vindex, char * locat
    {
       i1=vindex[i][1];
       i2=vindex[i][2];
-      
+
       fprintf(fp.logfile,"block: %d, start %d, stop %d \n", i, i1, i2);
       for (j=i1-1; j<=i2+1; j++)
       {
@@ -143,23 +143,23 @@ printForces(int numblocks, double ** F, int * k1, char * location) {
       //i1 = k1[i];
       i1 = i;
       //fprintf(fp.logfile,"Begin block %d\n", i);
-      fprintf(fp.logfile,"F(%d,:) = [ %e, %e, %e, %e, %e, %e];\n", 
+      fprintf(fp.logfile,"F(%d,:) = [ %e, %e, %e, %e, %e, %e];\n",
                i1, F[i1][1], F[i1][2], F[i1][3], F[i1][4], F[i1][5], F[i1][6]);
       //fprintf(fp.logfile,"End block\n");
    }  /*  i  */
    fprintf(fp.logfile, "%%  End block forces\n");
 
 
-}  
+}
 
 
-/* FIXME: modify to compute file offsets so that the 
+/* FIXME: modify to compute file offsets so that the
  * block areas can be stored in the same file as
- * variables.  Blocks with very large area will need 
+ * variables.  Blocks with very large area will need
  * compile time modification of the output formatting.
  */
-void 
-printBlockAreas(Geometrydata * gd, Analysisdata * ad, double ** moments, 
+void
+printBlockAreas(Geometrydata * gd, Analysisdata * ad, double ** moments,
                  char * location)
 {
   /* loop counter */
@@ -176,7 +176,7 @@ printBlockAreas(Geometrydata * gd, Analysisdata * ad, double ** moments,
    const short separatorwidth = 1;
 
   /* None of the following code is actually used for anything
-   * at the moment, but it will be used in the future when 
+   * at the moment, but it will be used in the future when
    * the output file handling gets a little more sophisticated.
    */
    if (ad->cts == 1)
@@ -205,7 +205,7 @@ printBlockAreas(Geometrydata * gd, Analysisdata * ad, double ** moments,
 
 
 /* This has to be handled in the blocks.c file */
-void 
+void
 printPoints(Geometrydata * gd, char * location, FILE * outfile)
 {
    int i;
@@ -226,7 +226,7 @@ printPoints(Geometrydata * gd, char * location, FILE * outfile)
 
 
 
-void 
+void
 printBlockWeights(Geometrydata * gd, double ** moments, double ** e0,
                    char * location)
 {
@@ -243,13 +243,13 @@ printBlockWeights(Geometrydata * gd, double ** moments, double ** e0,
 
 
 
-void 
+void
 printContactLengths(Geometrydata * gd, double ** o, char * location)
 {
    int i;
   /* o : 0 normal penetration  1 shear  movement    */
 	 /* o : 2 contact edge ratio  3 cohesion length    */
-   
+
    fprintf(fp.logfile, "\nBegin contact length verification:\n");
    fprintf(fp.logfile, "Contact   Norm Pen.  Shear movement  Edge ratio   Cohesion length\n");
    for (i=1; i<=gd->nContacts; i++)
@@ -262,16 +262,16 @@ printContactLengths(Geometrydata * gd, double ** o, char * location)
 } /* close printBlockArea() */
 
 
-void 
+void
 printAngles(Geometrydata * gd, double ** angles, char * location)
 {
    int i,j,i1,i2;
    //double ** vertices = gd->vertices;
    int ** vindex = gd->vindex;
-   
+
    fprintf(fp.logfile, "\nBegin angle verification (from %s:\n",
                          location);
-   fprintf(fp.logfile, "Leading dim: %d\n", __Usize1); 
+   fprintf(fp.logfile, "Leading dim: %d\n", __Usize1);
    //fprintf(fp.logfile, "Contact   Norm Pen.  Shear movement  Edge ratio   Cohesion length\n");
   /* WARNING!!!! __anglesize1 is global from analysis.h
    * This will eventually be handled using object methods.
@@ -303,11 +303,11 @@ printAngles(Geometrydata * gd, double ** angles, char * location)
 } /* close printAngles() */
 
 
-void 
+void
 printContacts(int ** contacts, char * location)
 {
    int i;
-   
+
    fprintf(fp.logfile, "\nBegin contact verification:\n");
    //fprintf(fp.logfile, "Contact   \n");
   /* WARNING!!!! __contactsize1 is global from analysis.h
@@ -324,11 +324,11 @@ printContacts(int ** contacts, char * location)
 
 } /* close printContacts() */
 
-void 
+void
 printContactIndex(int ** m1, char * location)
 {
    int i;
-   
+
    fprintf(fp.logfile, "\nBegin contact index verification:\n");
    //fprintf(fp.logfile, "Contact   \n");
   /* WARNING!!!! __m1size1 is global from analysis.h
@@ -344,11 +344,11 @@ printContactIndex(int ** m1, char * location)
 } /* close printContacts() */
 
 
-void 
+void
 printTimeDeps(double ** timedeps, int m, char * location)
 {
    int i;
-   
+
    fprintf(fp.logfile, "\nBegin time dep verification:\n");
    //fprintf(fp.logfile, "Contact   \n");
   /* WARNING!!!! __m1size1 is global from analysis.h
@@ -412,7 +412,7 @@ printKForIthBlock(Analysisdata * ad, int blocki, int blockj, int * kk, int ** n,
   /* k1 stores "permutation index" */
    //i1=k1[blocki];
    //i2=n[i1][1]+n[i1][2]-1;
-  
+
    fprintf(fp.logfile,"K%d = [\n",blocki);
 
    for (j=1; j<= 6; j++)
@@ -431,7 +431,7 @@ printKForIthBlock(Analysisdata * ad, int blocki, int blockj, int * kk, int ** n,
 }  /* close printKForIthBlock() */
 
 
-void 
+void
 printK(double ** K, int ksize1, char * location)
 {
    int i,j;
@@ -452,7 +452,7 @@ printK(double ** K, int ksize1, char * location)
 
 
 
-void 
+void
 printKK(int * kk, int ** n, int numblocks, char * location)
 {
    int i,j;
@@ -479,7 +479,7 @@ printKK(int * kk, int ** n, int numblocks, char * location)
  * memory is used for scratch space, then, the front part of
  * it gets used for storing column numbers of blocks in contact
  * with each other.  It has to use the n[][] array for this.
- * n[i][] stores the locations in kk of the j columns in 
+ * n[i][] stores the locations in kk of the j columns in
  * contact with row i.
  */
 #if KK_FULL_OUTPUT
@@ -490,7 +490,7 @@ printKK(int * kk, int ** n, int numblocks, char * location)
       if (!(i%20))
          fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End KK output\n\n");
 #endif
@@ -502,7 +502,7 @@ printKK(int * kk, int ** n, int numblocks, char * location)
 
 #if K3
 /* Moved k3 to local */
-void 
+void
 printK3(int * k3, char * location)
 {
 
@@ -516,14 +516,14 @@ int i;
       if (!(i%20))
          fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End K3 output\n\n");
 
 }  /* close printK3() */
 #endif
 
-void 
+void
 printK1(int * k1, char * location)
 {
 
@@ -537,13 +537,13 @@ int i;
       if (!(i%20))
          fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End K1 output\n\n");
 
 }  /* close printK3() */
 
-void 
+void
 printK5(Analysisdata * ad, char * location)
 {
 
@@ -571,7 +571,7 @@ printK5(Analysisdata * ad, char * location)
 
 /* n[][] is some kind of index array.
  */
-void 
+void
 printN(int ** n, char * location)
 {
    int i,j;
@@ -586,7 +586,7 @@ printN(int ** n, char * location)
       }
       fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End n[][] output\n\n");
 }  /* close printN() */
@@ -594,7 +594,7 @@ printN(int ** n, char * location)
 
 /* m1[][] is some kind of contact lock index array.
  */
-void 
+void
 printM1(int ** m1, char * location)
 {
    int i,j;
@@ -609,7 +609,7 @@ printM1(int ** m1, char * location)
       }
       fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End m1[][] output\n\n");
 }  /* close printM1() */
@@ -626,7 +626,7 @@ printLockStates(int ls[3][5], char * location) {
 }
 
 
-void 
+void
 printLocks(int ** locks, char * location)
 {
    int i,j;
@@ -641,7 +641,7 @@ printLocks(int ** locks, char * location)
       }
       fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End locks[][] output\n\n");
 }  /* close printLocks() */
@@ -650,7 +650,7 @@ printLocks(int ** locks, char * location)
 
 /* m2[][] is either previous contacts or joint materials.
  */
-void 
+void
 printPreviousContacts(int ** prevcontacts, char * location)
 {
    int i,j;
@@ -668,14 +668,14 @@ printPreviousContacts(int ** prevcontacts, char * location)
       }
       fprintf(fp.logfile, "\n");
    }
-         
+
    fprintf(fp.logfile, "\n");
    fprintf(fp.logfile, "End prevcontacts[][] output\n\n");
 }  /* close printM1() */
 
 
 
-void 
+void
 printVindex(Geometrydata * gd, int ** vindex, char * location)
 {
    FILE * matlog;
@@ -690,11 +690,11 @@ printVindex(Geometrydata * gd, int ** vindex, char * location)
 
    fclose(matlog);
 
-}  //  close printVindex() 
+}  //  close printVindex()
 
 
 /* Assume that the file pointer is open */
-void 
+void
 printDinv(double ** dinv, int block, char * location)
 {
    int i, j;

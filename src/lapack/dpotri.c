@@ -6,62 +6,62 @@
 /* Subroutine */ int dpotri_(char *uplo, int *n, double *a, int *
 	lda, int *info)
 {
-/*  -- LAPACK routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       March 31, 1993   
+/*  -- LAPACK routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       March 31, 1993
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DPOTRI computes the inverse of a real symmetric positive definite   
-    matrix A using the Cholesky factorization A = U**T*U or A = L*L**T   
-    computed by DPOTRF.   
+    DPOTRI computes the inverse of a real symmetric positive definite
+    matrix A using the Cholesky factorization A = U**T*U or A = L*L**T
+    computed by DPOTRF.
 
-    Arguments   
-    =========   
+    Arguments
+    =========
 
-    UPLO    (input) CHARACTER*1   
-            = 'U':  Upper triangle of A is stored;   
-            = 'L':  Lower triangle of A is stored.   
+    UPLO    (input) CHARACTER*1
+            = 'U':  Upper triangle of A is stored;
+            = 'L':  Lower triangle of A is stored.
 
-    N       (input) INTEGER   
-            The order of the matrix A.  N >= 0.   
+    N       (input) INTEGER
+            The order of the matrix A.  N >= 0.
 
-    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)   
-            On entry, the triangular factor U or L from the Cholesky   
-            factorization A = U**T*U or A = L*L**T, as computed by   
-            DPOTRF.   
-            On exit, the upper or lower triangle of the (symmetric)   
-            inverse of A, overwriting the input factor U or L.   
+    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
+            On entry, the triangular factor U or L from the Cholesky
+            factorization A = U**T*U or A = L*L**T, as computed by
+            DPOTRF.
+            On exit, the upper or lower triangle of the (symmetric)
+            inverse of A, overwriting the input factor U or L.
 
-    LDA     (input) INTEGER   
-            The leading dimension of the array A.  LDA >= MAX(1,N).   
+    LDA     (input) INTEGER
+            The leading dimension of the array A.  LDA >= MAX(1,N).
 
-    INFO    (output) INTEGER   
-            = 0:  successful exit   
-            < 0:  if INFO = -i, the i-th argument had an illegal value   
-            > 0:  if INFO = i, the (i,i) element of the factor U or L is 
-  
-                  zero, and the inverse could not be computed.   
+    INFO    (output) INTEGER
+            = 0:  successful exit
+            < 0:  if INFO = -i, the i-th argument had an illegal value
+            > 0:  if INFO = i, the (i,i) element of the factor U or L is
 
-    ===================================================================== 
-  
+                  zero, and the inverse could not be computed.
+
+    =====================================================================
 
 
-       Test the input parameters.   
 
-    
-   Parameter adjustments   
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
     /* System generated locals */
     int  i__1;
     /* Local variables */
     extern long int lsame_(char *, char *);
     extern /* Subroutine */ int xerbla_(char *, int *), dlauum_(
-	    char *, int *, double *, int *, int *), 
-	    dtrtri_(char *, char *, int *, double *, int *, 
+	    char *, int *, double *, int *, int *),
+	    dtrtri_(char *, char *, int *, double *, int *,
 	    int *);
 
 

@@ -1,7 +1,7 @@
 /*
  * sparsestorage.c
- * 
- * Handle the gruesome details of sparse block 
+ *
+ * Handle the gruesome details of sparse block
  * storage.
  */
 
@@ -19,10 +19,10 @@
 
 extern FILEPOINTERS fp;
 
-static void regUpperTriangle(int ** n, int * k, int * nn0, int ** m, 
+static void regUpperTriangle(int ** n, int * k, int * nn0, int ** m,
             int ** m1, int nBlocks, int numbolts, double ** bolts);
 static void regLowerTriangle(int ** n, int * kk, int nBlocks);
-static void findMinimumConnections(int ** n, int * kk, int * k1, int * k2, 
+static void findMinimumConnections(int ** n, int * kk, int * k1, int * k2,
             int * k4, int nBlocks);
 static void changetoNewBlockNumber(int ** n, int * kk, int * k1, int nBlocks);
 static void changetoLowerTriangle(int **n, int * kk, int * k33, int * k4, int nBlocks);
@@ -30,7 +30,7 @@ static void reorderK(int ** n, int * kk, int nBlocks);
 
 /* These used to be globals, then they were passed around as
  * as parameters, now they are static local to this file,
- * next they will moved to the sparse storage file when 
+ * next they will moved to the sparse storage file when
  * df08 gets stripped out of here.
  */
 /*------------------------------------------------*/
@@ -75,13 +75,13 @@ freeStorageTempArrays(void)
 
 	  if (k2)
    {
-      free(k2);  
+      free(k2);
       k2 = NULL;
    }
-   
+
    if (k4)
    {
-      free(k4);  
+      free(k4);
       k4 = NULL;
    }
 
@@ -98,22 +98,22 @@ freeStorageTempArrays(void)
 
 
 /****  New df08 under here  ************/
-/* Positions of nonzero storage. 
+/* Positions of nonzero storage.
  * FIXME:  copy GHS comments from original function.
  */
-/* It appears that producing k1 is the reason for this 
+/* It appears that producing k1 is the reason for this
  * function.  It ought to be returned instead of passed.
  * After this code is fully commented, the subroutines
  * can be collapsed in a a larger function to speed things
- * up, as it was previously.  
+ * up, as it was previously.
  */
 /* Builds $Q_0$ using $kk$, then transforms
- * $Q_0$ into $Q_n$(?), which is a matrix that records which 
- * entries of a lower triangular matrix are non-zero.  
+ * $Q_0$ into $Q_n$(?), which is a matrix that records which
+ * entries of a lower triangular matrix are non-zero.
  * $Q_n$ is output in the variable $kk$.
  * (was df08()).
  */
-void 
+void
 sparsestorage(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts,
               int *kk, int *k1, int *nn0, int **n)
 {
@@ -128,7 +128,7 @@ sparsestorage(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts,
    initdf08(n,kk,nBlocks);
    //printN(n, " in df08, after initdf08");
 
-  /* regUpper and LowerTriangle appear to construct the 
+  /* regUpper and LowerTriangle appear to construct the
    * Q0 matrix, p. 203, Shi 1988.
    */
 
@@ -185,7 +185,7 @@ sparsestorage(Geometrydata *gd, Analysisdata *ad, Contacts * ctacts,
    //DLog->memallocsize[ad->cts] = ad->n3;
 
 }  /* close df08()  */
-   
+
 
 void
 initdf08(int ** n, int * kk, int nBlocks)
@@ -197,23 +197,23 @@ initdf08(int ** n, int * kk, int nBlocks)
   /* n[i][2]  number       of k for i-th row        */
   /* n[i][3]  limit number of k for i-th row        */
   /* form diagnal term of kk[]                      */
-  /* This next loop is purely initialization.  n[][] may 
-   * be completely modified in the code following.  
+  /* This next loop is purely initialization.  n[][] may
+   * be completely modified in the code following.
    * FIXME: explain why these variables are initialized
    * to the values here.
    */
-   for (i=1; i<= nBlocks; i++) 
+   for (i=1; i<= nBlocks; i++)
    {
       /* Pointer to first element for block i:
        * block 1: 1, block 2: 21, block 3: 41, etc.
        */
        n[i][1] = 20*(i-1)+1;
       /* Each block is initially in contact with
-       * itself. n[i][2] accumulates the number of  
+       * itself. n[i][2] accumulates the number of
        * blocks in contacts with block i.
        */
        n[i][2] = 1;
-      /* Number of elements for ith block 
+      /* Number of elements for ith block
        * FIXME: is 20 an arbitrary number?
        */
        n[i][3] = 20;
@@ -227,10 +227,10 @@ initdf08(int ** n, int * kk, int nBlocks)
 
 /* Appears to construct the Q0 matrix.
  */
-void 
-regUpperTriangle(int ** n, int * kk, int * nn0, int ** m, 
+void
+regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
                  int ** m1, int nBlocks, int numbolts, double ** rockbolts)
-{ 
+{
    int i, j;
    int i0, i1, i2, i3;
    int j0, j1, j2;
@@ -238,40 +238,40 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
    int l;
 
   /* (GHS: registration upper triangle)  */
-   for (i=1; i<= nBlocks; i++) 
+   for (i=1; i<= nBlocks; i++)
    {
      /* For each contact associated with block i...
-      * m1 is initialized in df06?() 
+      * m1 is initialized in df06?()
       */
-      for (j=m1[i][1]; j<= m1[i][2]; j++) 
+      for (j=m1[i][1]; j<= m1[i][2]; j++)
       {
         /* i1, j1 are vertex numbers */
         /* contacting vertex index, points to vIndex? */
          i1 = m[j][1];
         /* ref line vertex index, points to vIndex? */
          j1 = m[j][2];
-        /* i2, j2 are block numbers; associate the vertices 
+        /* i2, j2 are block numbers; associate the vertices
          * i1, j1 with the blocks that they occur on.
          */
          i2 = nn0[i1];
          j2 = nn0[j1];
         /* j0 is block that block i is in contact with.
-         * i2 = i means that the vertex i1 is on the same block 
-         * as currently considered in the outer loop.   
+         * i2 = i means that the vertex i1 is on the same block
+         * as currently considered in the outer loop.
          */
-         if (i2 != i)      
+         if (i2 != i)
             j0=i2;
-         else 
+         else
             j0 = j2;
         /* last block that block i is in contact with so far */
          i0 = n[i][1]+n[i][2]-1;
         /* block i is already in contact with block j0 */
-         if (kk[i0] == j0)      
+         if (kk[i0] == j0)
             continue;   //goto a801;
         /* else, increment the # of blocks in contact with block i */
          n[i][2] += 1;
         /* if there is enough room on the list add it, */
-         if (n[i][2] <= n[i][3]) 
+         if (n[i][2] <= n[i][3])
          {
             i3=n[i][1]+n[i][2]-1;
             kk[i3]=j0;
@@ -281,49 +281,49 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
          n[i][3] += 20;
 
         /* last block, don't need to ??? the ??? */
-         if (i == nBlocks)  
+         if (i == nBlocks)
          {
             i3=n[i][1]+n[i][2]-1;
             kk[i3]=j0;
                continue;   //goto a802;
          }
 
-        /* All of this is index shifting induced by 
+        /* All of this is index shifting induced by
          * adding 20 more elements to the list above.
          */
         /* move k 20 elements forward  */
-         for (l=n[nBlocks][1]+n[nBlocks][2]-1; l>= n[i+1][1]; l--) 
+         for (l=n[nBlocks][1]+n[nBlocks][2]-1; l>= n[i+1][1]; l--)
          {
             kk[l+20]=kk[l];
          }  /*  l  */
-            
+
         /* move k 20 element forward change index         */
-         for (l=i+1; l<= nBlocks; l++) 
+         for (l=i+1; l<= nBlocks; l++)
          {
             n[l][1]+=20;
          }  /*  l  */
-            
+
 //a802:
          i3=n[i][1]+n[i][2]-1;
          kk[i3]=j0;
-            
+
 //a801:
 //            ;
       }  /*  j  */
    }  /*  i, End upper triangle registration */
 
-  
+
   /* Register bolts */
 		/* gg1: x1  y1  x2  y2  n1  n2  e00  t0  f0    bolt */
 		/* n1 n2 carry block number        f0 pre-tension */
   /* gg1: x1  y1  x2  y2  n1  n2  e00  t0  f0 u1 v1 u2 v2
-   * (for each bolt).  n1 and n2 are the "carry" block 
+   * (for each bolt).  n1 and n2 are the "carry" block
    * number, that is, the block number of the blocks containing
    * the respective endpoints.  f0 is the pre-tension.
-   * u1 v1 u2 v2 are computed displacements of the bolt 
+   * u1 v1 u2 v2 are computed displacements of the bolt
    * endpoints.  These are set to zero initially, and should
    * be computed pretty much the same as the way u1,...,v2
-   * for the fixed, load etc. points are computed.  Assume 
+   * for the fixed, load etc. points are computed.  Assume
    * t0 is stiffness for now.  e00 is unknown.
    */
 #if 0 //ROCKBOLTSTORAGE
@@ -353,7 +353,7 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
 
       kk[i3] = j0;
 
-   }  
+   }
 #endif
 
 }  /* close regUpperTriangle() */
@@ -362,54 +362,54 @@ regUpperTriangle(int ** n, int * kk, int * nn0, int ** m,
 
 /* Appears to construct Q0 matrix, p. 203 Shi 1988
  */
-void 
+void
 regLowerTriangle(int ** n, int * kk, int nBlocks)
 {
    int i;
    int j, j1, j2;
    int l;
-  /* FIXME: Change variable name from `l' to 
+  /* FIXME: Change variable name from `l' to
    * something that does not look like `1'.
    */
   /* (GHS: registration of lower triangle)  */
-   for (i=1; i<= nBlocks; i++) 
+   for (i=1; i<= nBlocks; i++)
    {
-      for (j=n[i][1]; j<= n[i][1]+n[i][2]-1; j++) 
+      for (j=n[i][1]; j<= n[i][1]+n[i][2]-1; j++)
       {
          j1=kk[j];
-         if (j1 <= i) 
+         if (j1 <= i)
             continue;  //goto a803;
          n[j1][2] += 1;
-         if (n[j1][2]<=n[j1][3]) 
+         if (n[j1][2]<=n[j1][3])
          {
             j2    = n[j1][1]+n[j1][2]-1;
             kk[j2] = i;
                continue;  //goto a804;
          }
          n[j1][3] += 20;
-         if (j1 == nBlocks) 
+         if (j1 == nBlocks)
          {
             j2    = n[j1][1]+n[j1][2]-1;
             kk[j2] = i;
                continue;  //goto a804;
          }
-           
+
         /* move k 20 elements forward                     */
-         for (l=n[nBlocks][1]+n[nBlocks][2]-1; l>= n[j1+1][1]; l--) 
+         for (l=n[nBlocks][1]+n[nBlocks][2]-1; l>= n[j1+1][1]; l--)
          {
             kk[l+20]=kk[l];
          }  /*  l  */
-            
+
         /* move k 20 element forward change index         */
-         for (l=j1+1; l<= nBlocks; l++) 
+         for (l=j1+1; l<= nBlocks; l++)
          {
             n[l][1]+=20;
          }  /*  l  */
-            
+
 //a804:
          j2    = n[j1][1]+n[j1][2]-1;
          kk[j2] = i;
-            
+
 //a803:
 //            ;
       }  /*  j  */
@@ -420,13 +420,13 @@ regLowerTriangle(int ** n, int * kk, int nBlocks)
 
 
 /* resets n[][] */
-void 
-findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2, 
+void
+findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
                        int * k4, int nBlocks)
 {
    int i, i0, i1, i2, i3, i4;
    int j, j1, j2, j3;
-  /* FIXME: Change to non-`l' name.  Change to k after 
+  /* FIXME: Change to non-`l' name.  Change to k after
    * k names get changed.
    */
    int l, l1; // l4;
@@ -434,22 +434,22 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
   /* What is this?
    */
   /* k1:old-new     k2:new-old  */
-   for (i=1; i<= nBlocks; i++) 
+   for (i=1; i<= nBlocks; i++)
    {
       k1[i]=i;
       k2[i]=i;
    }  /*  i  */
 
   /* find element with minimum connection   */
-   for (i=1; i<= nBlocks; i++) 
+   for (i=1; i<= nBlocks; i++)
    {
       i0 = n[i][2];
       i1 = i;
-     /* The following loop produces the block number i1 with 
+     /* The following loop produces the block number i1 with
       * the least number of blocks contacted with it,
       * for the ith block.
       */
-      for (j=i; j<= nBlocks; j++) 
+      for (j=i; j<= nBlocks; j++)
       {
          //if (i0<=n[j][2]) goto a805;
          if (i0 > n[j][2])
@@ -460,7 +460,7 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
 // a805:;
       }  /*  j  */
 
-     /* Now we have i1, the block number with the least number 
+     /* Now we have i1, the block number with the least number
       * of contacting blocks.
       */
      /* exchange i i1 two rows           k1 inverse k2 */
@@ -468,7 +468,7 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
      /* If the current block i is not the same as the block
       * with the least number of contacts, swap a bunch of stuff...
       */
-      if(i1 != i) 
+      if(i1 != i)
       {
          i2     = k2[i];
          k2[i]  = k2[i1];
@@ -478,14 +478,14 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
          k1[i3] = i;
         /*------------------------------------------------*/
         /*  save row i in k4                              */
-         for (j=n[i][1];   j<= n[i][1]+n[i][2]-1;   j++) 
+         for (j=n[i][1];   j<= n[i][1]+n[i][2]-1;   j++)
          {
             j1     = j-n[i][1]+1;
             k4[j1] = column_numbers[j];
          }  /*  j  */
         /*------------------------------------------------*/
         /* move row i1 to row i                           */
-         for (j=n[i1][1];  j<= n[i1][1]+n[i1][2]-1; j++) 
+         for (j=n[i1][1];  j<= n[i1][1]+n[i1][2]-1; j++)
          {
             j1    = n[i][1]+j-n[i1][1];
             column_numbers[j1] = column_numbers[j];
@@ -494,9 +494,9 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
         /* move up between row i and i1           if j2>0 */
          j2=n[i][3]-n[i1][3];
          // if (j2<=0) goto a819;
-         if(j2 > 0) 
+         if(j2 > 0)
          {
-            for (j=n[i+1][1]; j<= n[i1][1]+n[i1][2]-1; j++) 
+            for (j=n[i+1][1]; j<= n[i1][1]+n[i1][2]-1; j++)
             {
                column_numbers[j-j2] = column_numbers[j];
             }  /*  j  */
@@ -506,7 +506,7 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
          if (j2>0)  j3=j2;
         /*------------------------------------------------*/
         /* put row i; in row i1 position            i<=i1 */
-         for (j=n[i1][1]-j3; j<= n[i1][1]-j3+n[i][2]-1; j++) 
+         for (j=n[i1][1]-j3; j<= n[i1][1]-j3+n[i][2]-1; j++)
          {
             j1   = j-n[i1][1]+j3+1;
             column_numbers[j] = k4[j1];
@@ -515,7 +515,7 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
         /* exchange n for row i i1    can't move downward */
 
 /* The following is test code to investigate how this stuff
- * compiles and works.  So the index swapping works fine, 
+ * compiles and works.  So the index swapping works fine,
  * but the code doesn't work! (which is to be expected)
  */
 //#if 1
@@ -530,14 +530,14 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
          n[i][2]  = n[i1][2];
          n[i1][2] = j1;
          // if (j2<=0) goto a806;
-         if(j2 > 0) 
+         if(j2 > 0)
          {
             j1       = n[i][3];
             n[i][3]  = n[i1][3];
             n[i1][3] = j1;
            /*------------------------------------------------*/
            /* move up index of row i+1 to i1                 */
-            for (j=i+1; j<= i1; j++) 
+            for (j=i+1; j<= i1; j++)
             {
                n[j][1]  = n[j][1]-j2;
             }  /*  j  */
@@ -554,34 +554,34 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
      /* delete elements of lower triangle for ith row  */
 
      /* FIXME:  Explain why we are doing this. */
-//a806:; 
-      if (n[i][2]==1) 
+//a806:;
+      if (n[i][2]==1)
          continue;  //goto a807;  // continue;
 
 
-      for (j=n[i][1]+1; j<= n[i][1]+n[i][2]-1;   j++) 
+      for (j=n[i][1]+1; j<= n[i][1]+n[i][2]-1;   j++)
       {
          j1 =  column_numbers[j ];
          i2 = k1[j1];
-        /* This loop is trying to find out when when 
+        /* This loop is trying to find out when when
          * kk[l] == k2[i].  Why is i3 set?  What is i3?
          */
-         for (l=n[i2][1];  l<= n[i2][1]+n[i2][2]-1; l++) 
+         for (l=n[i2][1];  l<= n[i2][1]+n[i2][2]-1; l++)
          {
-            if (column_numbers[l] != k2[i]) 
+            if (column_numbers[l] != k2[i])
                continue; //goto a808;  /* continue  */
             i3 = l;
                break;  //goto a809;  /* break */
 //a808:;
          }  /*  l  */
-            
+
         /*------------------------------------------------*/
         /* delete elements of lower triangle in  i2  row  */
 //a809:;
         // if (i3==n[i2][1]+n[i2][2]-1) goto a810;
-        if (i3 != n[i2][1]+n[i2][2]-1) 
+        if (i3 != n[i2][1]+n[i2][2]-1)
         {
-           for (l=i3+1; l<= n[i2][1]+n[i2][2]-1; l++) 
+           for (l=i3+1; l<= n[i2][1]+n[i2][2]-1; l++)
            {
               column_numbers[l-1]=column_numbers[l];
            }  /*  l  */
@@ -593,9 +593,9 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
 
 
 
-     /*================================================*/  
+     /*================================================*/
      /* add 2 produced connections        i1-i2  i2-i1 */
-      if (n[i][2]<=2) 
+      if (n[i][2]<=2)
          continue;  //goto a807;  // continue;
 
       for (j=n[i][1]+1;  j<= n[i][1]+n[i][2]-2;    j++)
@@ -606,10 +606,10 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
             i1 = column_numbers[j];
             i2 = column_numbers[l];
             j1 = k1[i1];
-            
+
             for (l1=n[j1][1]; l1<= n[j1][1]+n[j1][2]-1; l1++)
             {
-               if (column_numbers[l1] == i2) 
+               if (column_numbers[l1] == i2)
                   goto a811;
             }  /*  l1 */
 
@@ -617,10 +617,10 @@ findMinimumConnections(int ** n, int * column_numbers, int * k1, int * k2,
            /*------------------------------------------------*/
            /* move k 20 elements forward                     */
             n[j1][2] += 1;
-            if (n[j1][2] <= n[j1][3]) 
+            if (n[j1][2] <= n[j1][3])
                goto a812;
             n[j1][3] += 20;
-            if (j1       ==       nBlocks) 
+            if (j1       ==       nBlocks)
                goto a812;
             for (l1=n[nBlocks][1]+n[nBlocks][2]-1; l1>= n[j1+1][1]; l1--)
             {
@@ -643,21 +643,21 @@ a811:;
             j2=k1[i2];
             for (l1=n[j2][1]; l1<= n[j2][1]+n[j2][2]-1; l1++)
             {
-               if (column_numbers[l1] == i1)  
-                  goto a813; 
+               if (column_numbers[l1] == i1)
+                  goto a813;
             }  /*  l1 */
 
 
            /*------------------------------------------------*/
             n[j2][2] += 1;
-            if (n[j2][2] <= n[j2][3]) 
+            if (n[j2][2] <= n[j2][3])
                goto a814;
             n[j2][3] += 20;
 
 
-            //if (j2   ==   nBlocks) 
+            //if (j2   ==   nBlocks)
             //   goto a814;
-            if (j2   !=   nBlocks) 
+            if (j2   !=   nBlocks)
             {
               /*------------------------------------------------*/
               /* move k 20 elements forward                     */
@@ -692,12 +692,12 @@ a813:;
 
 
 } /* close findMinimumConnections() */
-      
 
- 
+
+
 void
 changetoNewBlockNumber(int ** n, int * kk, int * k1, int nBlocks)
-{     
+{
    int i, j, i1;
 
   /**************************************************/
@@ -706,7 +706,7 @@ changetoNewBlockNumber(int ** n, int * kk, int * k1, int nBlocks)
    {
       for (j=n[i][1]; j<= n[i][1]+n[i][2]-1; j++)
       {
-        /* Is kk held over from registering upper and lower triangles? 
+        /* Is kk held over from registering upper and lower triangles?
          * In other words, has it changed since then?
          */
          i1   = kk[j];
@@ -721,10 +721,10 @@ changetoNewBlockNumber(int ** n, int * kk, int * k1, int nBlocks)
 /* k3 is used only as a temp swap variable.
  * FIXME: Eliminate k3 from parameter list.
  */
-void 
+void
 changetoLowerTriangle(int **n, int * kk, int * k3, int * k4, int nBlocks)
 {
-   int i, i1; 
+   int i, i1;
    int j, j1;
 
   /*------------------------------------------------*/
@@ -774,7 +774,7 @@ changetoLowerTriangle(int **n, int * kk, int * k3, int * k4, int nBlocks)
   /* Copy k3 into kk for all indices stored in n[][] */
    for (i=1; i<= n[nBlocks][1]+n[nBlocks][2]-1; i++)
    {
-      kk[i]    = k3[i];  
+      kk[i]    = k3[i];
    }  /*  i  */
 
 } /* close changetoLowerTriangle() */
@@ -789,7 +789,7 @@ changetoLowerTriangle(int **n, int * kk, int * k3, int * k4, int nBlocks)
 /* This looks like it reorders the column number in kk (column_number)
  * to go from smallest to largest.
  */
-void 
+void
 reorderK(int ** colindex, int * column_number, int nBlocks)
 {
    int row, j, k;
@@ -803,12 +803,12 @@ reorderK(int ** colindex, int * column_number, int nBlocks)
    {
       start = colindex[row][1];
       stop = colindex[row][1] + colindex[row][2] - 1;
-     
+
      /* Block only contacts "itself", that is, block i
       * is not in contact with any other block, continue
       * to check the next block.
       */
-      if (colindex[row][2]==1) 
+      if (colindex[row][2]==1)
          continue;
 
      /* n indexes kk */
@@ -818,8 +818,8 @@ reorderK(int ** colindex, int * column_number, int nBlocks)
       {
          for (k=j+1; k<=stop; k++)
          {
-            if (column_number[j] < column_number[k]) 
-               continue; 
+            if (column_number[j] < column_number[k])
+               continue;
 
            /* FIXME: replace this with a SWAP macro */
             //i1   = column_number[j];

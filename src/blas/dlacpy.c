@@ -6,54 +6,54 @@
 /* Subroutine */ int dlacpy_(char *uplo, int *m, int *n, double *
 	a, int *lda, double *b, int *ldb)
 {
-/*  -- LAPACK auxiliary routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       February 29, 1992   
+/*  -- LAPACK auxiliary routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       February 29, 1992
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DLACPY copies all or part of a two-dimensional matrix A to another   
-    matrix B.   
+    DLACPY copies all or part of a two-dimensional matrix A to another
+    matrix B.
 
-    Arguments   
-    =========   
+    Arguments
+    =========
 
-    UPLO    (input) CHARACTER*1   
-            Specifies the part of the matrix A to be copied to B.   
-            = 'U':      Upper triangular part   
-            = 'L':      Lower triangular part   
-            Otherwise:  All of the matrix A   
+    UPLO    (input) CHARACTER*1
+            Specifies the part of the matrix A to be copied to B.
+            = 'U':      Upper triangular part
+            = 'L':      Lower triangular part
+            Otherwise:  All of the matrix A
 
-    M       (input) INT   
-            The number of rows of the matrix A.  M >= 0.   
+    M       (input) INT
+            The number of rows of the matrix A.  M >= 0.
 
-    N       (input) INT   
-            The number of columns of the matrix A.  N >= 0.   
+    N       (input) INT
+            The number of columns of the matrix A.  N >= 0.
 
-    A       (input) DOUBLE PRECISION array, dimension (LDA,N)   
-            The m by n matrix A.  If UPLO = 'U', only the upper triangle 
-  
-            or trapezoid is accessed; if UPLO = 'L', only the lower   
-            triangle or trapezoid is accessed.   
+    A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+            The m by n matrix A.  If UPLO = 'U', only the upper triangle
 
-    LDA     (input) INT   
-            The leading dimension of the array A.  LDA >= MAX(1,M).   
+            or trapezoid is accessed; if UPLO = 'L', only the lower
+            triangle or trapezoid is accessed.
 
-    B       (output) DOUBLE PRECISION array, dimension (LDB,N)   
-            On exit, B = A in the locations specified by UPLO.   
+    LDA     (input) INT
+            The leading dimension of the array A.  LDA >= MAX(1,M).
 
-    LDB     (input) INT   
-            The leading dimension of the array B.  LDB >= MAX(1,M).   
+    B       (output) DOUBLE PRECISION array, dimension (LDB,N)
+            On exit, B = A in the locations specified by UPLO.
 
-    ===================================================================== 
-  
+    LDB     (input) INT
+            The leading dimension of the array B.  LDB >= MAX(1,M).
+
+    =====================================================================
 
 
-    
-   Parameter adjustments   
+
+
+   Parameter adjustments
        Function Body */
     /* System generated locals */
     int  i__1, i__2;

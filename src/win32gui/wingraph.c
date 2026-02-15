@@ -1,5 +1,5 @@
 /*
- * wingraph.c: code for graphics modules of Windows 
+ * wingraph.c: code for graphics modules of Windows
  * version of DDA.
  */
 
@@ -26,8 +26,8 @@ char scaletext[10];
 
 
 
-int 
-setScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4]) 
+int
+setScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 {
    RECT winSize;
    long xscale, yscale, scale;
@@ -36,7 +36,7 @@ setScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 
    extern long zoom;
 
-  /* These are set in winmain, first as default, then 
+  /* These are set in winmain, first as default, then
    * handled by mouse movement.
    */
    extern int xoff, yoff;
@@ -75,14 +75,14 @@ setScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 	  //g->offset.x = (double)(xoff - minX);
 	  //g->offset.y = (double)(yoff - minY);
 
- 
+
 
   	SetMapMode(hdc, MM_ISOTROPIC);
   	GetClientRect(hw, &winSize);
 
   /* FIXME: Make the radius scale with the problem scale. */
 	  //g->radius = 125;  // circle radius = 5% of screen width
-  /* FIXME: This is *not* .5% of screen width. It is an ugly kludge 
+  /* FIXME: This is *not* .5% of screen width. It is an ugly kludge
    * that is not quite as ugly as selecting the arbitrary value
    * of 0.05*2500 of the original technique.
    */
@@ -96,18 +96,18 @@ setScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
    */
   	SetWindowExtEx(hdc, 30000, 30000, NULL);
 
-  /* Translate the window origin to 0,0.  This 
-   * could be fixed to have logical units pointing 
-   * positive y up from bottom instead of positive 
-   * y down from top. 
+  /* Translate the window origin to 0,0.  This
+   * could be fixed to have logical units pointing
+   * positive y up from bottom instead of positive
+   * y down from top.
    */
   	SetWindowOrgEx(hdc, 0, 0, NULL);
 
   /* Draw right side which is upside down. */
-  	SetViewportExtEx(hdc, winSize.right, -winSize.bottom, NULL); 
+  	SetViewportExtEx(hdc, winSize.right, -winSize.bottom, NULL);
   	SetViewportOrgEx(hdc, 0, winSize.bottom, NULL);
   /* Draw upside down which is right side up. */
-  	//SetViewportExtEx(hdc, winSize.right, winSize.top, NULL); 
+  	//SetViewportExtEx(hdc, winSize.right, winSize.top, NULL);
   	//SetViewportOrgEx(hdc, 0, winSize.top, NULL);
 
   	//SetViewportOrgEx(hdc, (int)w1, winSize.bottom, NULL);
@@ -118,24 +118,24 @@ setScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 
 
 
-int 
-drawLines(HDC hdc, HPEN hpen[10], double scale, POINT offset, 
-          Joint *j, int numlines, int color) 
+int
+drawLines(HDC hdc, HPEN hpen[10], double scale, POINT offset,
+          Joint *j, int numlines, int color)
 {
    int i, ii;
    POINT p1, p2;
-	
+
    SelectObject(hdc, hpen[0]);
-   for (i = 0; i< numlines; i++) 
+   for (i = 0; i< numlines; i++)
    {
 
-      if(color && (i==0 || j[i].type != j[i-1].type)) 
+      if(color && (i==0 || j[i].type != j[i-1].type))
       {
 		  ii = j[i].type;
-		  if(ii < 0 || ii > 8) 
+		  if(ii < 0 || ii > 8)
            ii = 9;
         SelectObject(hdc, hpen[ii]);
-      }  
+      }
 
 	    p1.x = (int)(j[i].epx1*scale + .5 + offset.x);
 	    p1.y = (int)(j[i].epy1*scale + .5 + offset.y);
@@ -145,18 +145,18 @@ drawLines(HDC hdc, HPEN hpen[10], double scale, POINT offset,
 	    MoveToEx(hdc, p1.x, p1.y, NULL);
 	    LineTo(hdc, p2.x, p2.y);
    }  // end for() each joint
-	
+
    FillPath(hdc);
-	
+
    return (0);
 
 }  // Close drawLines()
 
 
 
-int 
-drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd, 
-           double ** d, int orig) 
+int
+drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd,
+           double ** d, int orig)
 {
    int i, ii;
    POINT p1, p2;
@@ -168,27 +168,27 @@ drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd,
    POINT offset = g->offset;
    //HGDIOBJ horigpen;
 
-   //horigpen = 
+   //horigpen =
    SelectObject(hdc, hpen[0]);
 
-   for (i = 0; i< numblocks; i++) 
-   {  
+   for (i = 0; i< numblocks; i++)
+   {
       firstvertex = k0[i+1][1];
       numSides = k0[i+1][2] - firstvertex + 1;
-      for (j = 0; j< numSides; j++) 
-      { 
+      for (j = 0; j< numSides; j++)
+      {
          if(!orig)
          {
             if( !j || d[firstvertex+j+1][0] != d[firstvertex+j][0] )
             {
 			      ii = (int)(d[firstvertex+j+1][0]+0.1);
-			      if(ii < 0 || ii > 8) 
+			      if(ii < 0 || ii > 8)
                   ii = 9;
-			      //horigpen = 
+			      //horigpen =
                   SelectObject(hdc, hpen[ii]);
             }
-         }  
-      
+         }
+
          p1.x = (long)(d[firstvertex+j][1]*scale + .5 + offset.x);
          p1.y = (long)(d[firstvertex+j][2]*scale + .5 + offset.y);
          p2.x = (long)(d[firstvertex+j+1][1]*scale + .5 + offset.x);
@@ -203,14 +203,14 @@ drawJoints(HDC hdc, HPEN hpen[10], GRAPHICS *g, Geometrydata * gd,
    } /* end for each block*/
 
    FillPath(hdc);
-	
+
    return (0);
 
 }  // Close drawJoints()
 
 
-int 
-drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points) 
+int
+drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points)
 {
    int i;
    HPEN hpen;
@@ -227,30 +227,30 @@ drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points)
 
    hpen = GetStockObject(BLACK_PEN);
    SelectObject(hdc, hpen);
-   
-  /* FIXME:  numpoints includes hole points, which we 
-   * probably don't want to draw.  We (hopefully) got 
+
+  /* FIXME:  numpoints includes hole points, which we
+   * probably don't want to draw.  We (hopefully) got
    * really lucky here when GHS decided to load hole
    * points into the end of the points array.  Otherwise,
    * this would require a check, or rewriting the input
    * file format.
    */
-   //for(i=0; i< numpoints-gd->nHPoints; i++) 
-   for(i=0; i< numpoints; i++) 
+   //for(i=0; i< numpoints-gd->nHPoints; i++)
+   for(i=0; i< numpoints; i++)
    {
      /* This is a bit kludgy ad non-obvious.
       * FIXME: with self-documenting code.
       */
-      if(!i || points[i+1][0] != points[i][0]) 
+      if(!i || points[i+1][0] != points[i][0])
       {
 		   hbr = GetStockObject(WHITE_BRUSH);  // fixed and meas
-			if(points[i+1][0] > 1) 
+			if(points[i+1][0] > 1)
             hbr = GetStockObject(BLACK_BRUSH); // load and hole
-      //horigbrush = 
+      //horigbrush =
          SelectObject(hdc, hbr);
-			      
+
       }
-             
+
 
 	   // hbr = GetStockObject(WHITE_BRUSH);  // fixed and meas
 	   // SelectObject(hdc, hbr);
@@ -281,7 +281,7 @@ drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points)
    } // end for each point
 
    if (gd->seispoints != NULL)
-   { 
+   {
       DList * ptr;
       DDAPoint * ptmp;
 
@@ -310,7 +310,7 @@ drawPoints(HDC hdc, GRAPHICS * g, Geometrydata * gd, double ** points)
 }  // Close drawpoints()
 
 
-int 
+int
 drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) {
 
    int i, j, k;
@@ -338,7 +338,7 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) {
 
    assert (hdc != NULL);
 
-   for (i = 0; i< numblocks; i++) 
+   for (i = 0; i< numblocks; i++)
    {
   		//hBr[0] = light blue
       //hBr[1] = light green
@@ -346,24 +346,24 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) {
       //hBr[3] = light brown
       //hBr[4] = light purple
       //hBr[5] = light gray
-      //fprintf(blockmat,"Block %d mat number: %d\n", i, k0[i+1][0]); 
+      //fprintf(blockmat,"Block %d mat number: %d\n", i, k0[i+1][0]);
 
-      if( (i == 0) || k0[i+1][0] != k0[i][0]) 
+      if( (i == 0) || k0[i+1][0] != k0[i][0])
       {
          j = k0[i+1][0];
-         if(j < 0 || j > 4) 
+         if(j < 0 || j > 4)
             j = 5;
-         	//horigbrush2 = 
+         	//horigbrush2 =
          SelectObject(hdc, hbr[j]);
 	   }
-      
+
       firstvertex = k0[i+1][1];
       numSides = k0[i+1][2] - firstvertex + 1;
       //p = (POINT *) malloc(sizeof(POINT) * (numSides+1));
 
-      for (k = 0; k<numSides; k++) 
+      for (k = 0; k<numSides; k++)
       {
-        /* FIXME: Get rid of the .5 or explain why it is 
+        /* FIXME: Get rid of the .5 or explain why it is
          * necessary.
          */
          //p[k].x = (long)(d[firstvertex+k][1] * scale + .5 + offset.x);
@@ -408,8 +408,8 @@ drawBlocks(HDC hdc, HBRUSH hbr[6], GRAPHICS * g, Geometrydata * gd) {
 }  /* Close  drawBlocks() */
 
 
-int 
-drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata, 
+int
+drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata,
           GRAPHICS * g, double ** b, int orig) {
 
    int i;
@@ -426,11 +426,11 @@ drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata,
 
    //default: draws original bolt geometry in solid black line
    SelectObject(hdc, hpen[1]);
-   
+
    for (i = 0; i< numbolts; i++) {
 
-     /* Code for changing colors given different 
-      * bolt types can be implemented following 
+     /* Code for changing colors given different
+      * bolt types can be implemented following
       * similar code in the drawBlocks function.
       */
 		if (!orig) SelectObject(hdc, hpen[2]);  // red
@@ -448,9 +448,9 @@ drawBolts(HDC hdc, HPEN hpen[6], Geometrydata * geomdata,
 
 
 
-int 
+int
 drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, Datalog * dl)
-{   
+{
    int i, j;
    POINT p1, p2;
 	  double scale = g->scale;
@@ -458,9 +458,9 @@ drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, Data
    DPoint ** c = g->centroids;
    //int ts = g->timestep;
   //extern Geometrydata * geomdata;
- 
+
    SelectObject(hdc, hpen[5]);
-   for (i = 1; i< g->numtimesteps-1; i++) 
+   for (i = 1; i< g->numtimesteps-1; i++)
    {
  		  	for (j=1;j<=geomdata->nBlocks;j++)
       {
@@ -477,16 +477,16 @@ drawCentroids(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g, Data
 }  /* Close drawCentroid() */
 
 
-int 
+int
 drawStresses(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g)
-{   
+{
    int j;
    POINT p1, p2;
 	  double scale = g->scale;
    POINT offset = g->offset;
    PStress ** s = g->stresses;
    int ts = g->timestep;
- 
+
    if(ts == 0)
      return 1;
 
@@ -500,7 +500,7 @@ drawStresses(HDC hdc, HPEN hpen[9], Geometrydata * geomdata, GRAPHICS * g)
 		       p2.y = (int)((s[0][j].majory2)*scale + .5 + offset.y);
 		       MoveToEx(hdc, p1.x, p1.y, NULL);
 		       LineTo(hdc, p2.x, p2.y);
-      		
+
         /* "Minor" stresses... */
          p1.x = (int)((s[0][j].minorx1)*scale + .5 + offset.x);
 		       p1.y = (int)((s[0][j].minory1)*scale + .5 + offset.y);
@@ -521,8 +521,8 @@ HBRUSH hBr[6];
 
 #define PENWIDTH 100
 
-void 
-initializePens (void) 
+void
+initializePens (void)
 {
 
 			screenPen[0] = CreatePen(PS_DOT, 0, RGB(0,0,0));		// black
@@ -577,7 +577,7 @@ void InitializeBrush ( )
 }
 
 
-void 
+void
 initializeBrushes()
 {
 			     hBr[0] = CreateSolidBrush(RGB(192, 225, 255));	// light blue
@@ -589,20 +589,20 @@ initializeBrushes()
 }
 
 
-double 
-setPrScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4]) 
+double
+setPrScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 {
    double xscale, yscale;
 	  double scale = 1.;
 	  double minX, minY, xcenter, ycenter;
-	  double unit;   
+	  double unit;
 	  int xPage, yPage;
 	  int xPixels, yPixels;
 	  int devxOffset,devyOffset;
-   //extern 
+   //extern
    char scaletext [10];
 	  double w1, w2, w3, w4;
-   
+
    POINT  offset;
    double radius;
 
@@ -626,10 +626,10 @@ setPrScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 
 	xscale =  (xPage-2*xPixels)/(w2-w1) ;
 	yscale =  (yPage-2*yPixels)/(w4-w3) ;
-	
+
 	scale = (xscale <= yscale)? xscale : yscale;
 
-	
+
 	//*pRadius = xPixels/40;                    // circle radius = .025"
 	radius = xPixels/40;  // circle radius = 5% of screen width
 
@@ -649,7 +649,7 @@ setPrScale(HWND hw, HDC hdc, GRAPHICS * g, double scale_params[4])
 }
 #endif
 
-	
+
 #if GEOMSCALE
 	{
 char inchValue[256];
@@ -669,10 +669,10 @@ if (!strcmp(scaletext,"ft")){
 		if (unit > 50)
 			if (unit < 75 ) unit = 75;
 		if (unit > 75)
-			if (unit < 100) unit = 100; 
+			if (unit < 100) unit = 100;
 		if (unit > 100)
 			if (unit < 200) unit = 200;
-		if (unit > 200) 
+		if (unit > 200)
 			if (unit < 250) unit = 250;
 			else
 			unit = 100* (int) ((unit/100)+.5);
@@ -682,7 +682,7 @@ if (!strcmp(scaletext,"ft")){
 	else {
 		unit = xPixels/(2.54*scale);
 		if (unit < 5) unit = 5;
-		if (unit > 5)  
+		if (unit > 5)
 			if (unit < 10 ) unit = 10;
 		if (unit > 10)
 			if (unit < 20 ) unit = 20;
@@ -695,10 +695,10 @@ if (!strcmp(scaletext,"ft")){
 		if (unit > 50)
 			if (unit < 75 ) unit = 75;
 		if (unit > 75)
-			if (unit < 100) unit = 100; 
+			if (unit < 100) unit = 100;
 		if (unit > 100)
 			if (unit < 200) unit = 200;
-		if (unit > 200) 
+		if (unit > 200)
 			if (unit < 250) unit = 250;
 			else
 			unit = 100* (int) ((unit/100)+.5);
@@ -717,19 +717,19 @@ if (!strcmp(scaletext,"ft")){
 	minX =  w1*scale;
 	minY =  w3*scale;
 
-/*  Compute the plotting offset in device coordinates by combining the two 
+/*  Compute the plotting offset in device coordinates by combining the two
 	offsets above*/
 
 	offset.x = (int)( xcenter- minX);
 	offset.y = (int)( ycenter- minY);
-	
-		
+
+
 //  This was the scale bar
 //	MoveToEx(hdc, xPage - 2*xPixels, yPage - 2*yPixels, NULL);
 //	LineTo(hdc, xPage - 3*xPixels, yPage - 2*yPixels);
 
-	TextOut(hdc, (int) (xPage - 4*xPixels), 
-		(int) (yPage - 2*yPixels - radius), 
+	TextOut(hdc, (int) (xPage - 4*xPixels),
+		(int) (yPage - 2*yPixels - radius),
 		inchValue, strlen(inchValue));
 	}
 #endif

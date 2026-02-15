@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> /* memset */ 
+#include <string.h> /* memset */
 #include <math.h>
 #include <assert.h>
 
@@ -55,7 +55,7 @@ struct _boltmat{
 };
 
 
-Bolt * 
+Bolt *
 bolt_new() {
 
    Bolt * b = (Bolt*)malloc(sizeof(Bolt));
@@ -64,7 +64,7 @@ bolt_new() {
 }
 
 
-Bolt * 
+Bolt *
 bolt_new_1(double x1, double y1, double x2, double y2) {
 
    Bolt * b = bolt_new();
@@ -82,8 +82,8 @@ bolt_delete(Bolt * b) {
    free(b);
 }
 
-void   
-bolt_set_endpoints(Bolt * b,double x1,double y1, 
+void
+bolt_set_endpoints(Bolt * b,double x1,double y1,
                    double x2, double y2) {
 
    b->x1 = x1;
@@ -116,18 +116,18 @@ bolt_print(Bolt * b, PrintFunc printer, void * stream) {
 
 int
 bolt_get_type(Bolt * b) {
-   
+
    return b->type;
 }
 
 
-void 
+void
 bolt_set_type(Bolt * b, int type) {
 
    b->type = type;
 }
 
-void 
+void
 bolt_get_endpoints(Bolt * b,double * x1, double * y1,
                    double *x2,double * y2) {
 
@@ -138,7 +138,7 @@ bolt_get_endpoints(Bolt * b,double * x1, double * y1,
 }
 
 
-double 
+double
 bolt_length(Bolt * b) {
 
    return sqrt( (b->x2-b->x1)*(b->x2-b->x1) + (b->y2-b->y1)*(b->y2-b->y1) );
@@ -147,7 +147,7 @@ bolt_length(Bolt * b) {
 
 
 
-void 
+void
 bolt_set_length_a(double * bolt) {
 
    double x1 = bolt[1];
@@ -158,10 +158,10 @@ bolt_set_length_a(double * bolt) {
 }
 
 
-/** 
- * Take no chances, can't tell when double are 
+/**
+ * Take no chances, can't tell when double are
  * initialized in the general case.  Maybe later
- * work out detailed for `magic' initialization 
+ * work out detailed for `magic' initialization
  * numbers.
  */
 double
@@ -180,19 +180,19 @@ bolt_get_length_a(double * bolt) {
  * Since we can't rewrite, use the array
  * in lieu of bolt struct.
  *
- * @todo This method needs to be idempotent 
+ * @todo This method needs to be idempotent
  *  per each bolt.
  *
- * @todo Add code to ensure that the pretension is 
+ * @todo Add code to ensure that the pretension is
  *  less than the stiffness.
  *
- * @param double * an array to various values 
+ * @param double * an array to various values
  *  needed for a bolt.
  *
  * @return double dl the length differential
- *  computed by dl = f/k;       
+ *  computed by dl = f/k;
  */
-double 
+double
 bolt_set_ref_length_a(double * bolt) {
 
   double dl;
@@ -263,12 +263,12 @@ bolt_get_pretension_a(double * bolt) {
  * each bolt has 2 pairs of x,y coordinates
  * semicolons separate data for each bolt.
  */
-void 
-bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime, 
+void
+bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime,
            PrintFunc printer, void * stream) {
 
 	int i;
-   
+
    if(cts == 0) {
       printer(stream, "This analysis contains %d bolt(s)\n", numbolts);
    }
@@ -277,7 +277,7 @@ bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime,
 
 	// mmm: added bolt force ("tension") to printout
    for (i=0; i < numbolts; i++) {
-		printer(stream, " %.12f,%.12f %.12f,%.12f %.12f;", 
+		printer(stream, " %.12f,%.12f %.12f,%.12f %.12f;",
                                hb[i][1], hb[i][2], hb[i][3], hb[i][4], hb[i][9]);
 	}
 
@@ -285,7 +285,7 @@ bolt_log_a(double ** hb, int numbolts, int cts, double elapsedTime,
 }
 
 
-void 
+void
 bolt_init_materials(double ** rockbolts, int numbolts, double ** boltmats) {
 
    int i;
@@ -295,7 +295,7 @@ bolt_init_materials(double ** rockbolts, int numbolts, double ** boltmats) {
       rockbolts[i][7] = boltmats[0][0];
       rockbolts[i][8] = boltmats[0][1];
       rockbolts[i][9] = boltmats[0][2];
-      bolt_set_length_a(rockbolts[i]);         
+      bolt_set_length_a(rockbolts[i]);
       bolt_set_ref_length_a(rockbolts[i]);
    }
 }
@@ -310,19 +310,19 @@ bolt_stiffness_accumulate(double * K, double s, double * Hj, double * Hl) {
       for (l=1; l<= 6; l++) {
          j1=6*(j-1)+l;
          K[j1] += s*(Hj[j]*Hl[l]);
-      }  
+      }
    }
 }
 
 
 /**
- * @param int * n stores pointers for sparse block 
+ * @param int * n stores pointers for sparse block
  *  representation of K.
- * 
- * @param int blockloc Memory location for permuted 
+ *
+ * @param int blockloc Memory location for permuted
  *  block number.
  *
- * @param int * kk 
+ * @param int * kk
  *
  * @return int i3 is location in K array for off-diagonal
  *  block.
@@ -337,19 +337,19 @@ extract_block_storage(int * n, int blockloc, int * kk) {
       if (kk[j] == blockloc) {
          break;
       }
-   } 
-   
+   }
+
    return i3;
 }
 
 
 void
-bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K, 
-                 int * k1, int * kk, int ** n, double ** blockArea,  
-                      double ** F, TransMap transmap) {  
+bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
+                 int * k1, int * kk, int ** n, double ** blockArea,
+                      double ** F, TransMap transmap) {
 
-  /* loop counters */   
-   int i, j, bolt; 
+  /* loop counters */
+   int i, j, bolt;
 
   /* block indices */
    int i2, i3;
@@ -377,11 +377,11 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
 
   /* Main loop for constructing matrices. */
    for (bolt=0; bolt<numbolts; bolt++) {
-    
+
      /* Deal with endpoint 1 */
       x = rockbolt[bolt][1];
       y = rockbolt[bolt][2];
-     /* [5] stores the block number of the `first' endpoint 
+     /* [5] stores the block number of the `first' endpoint
       * of a particular rockbolt.
       */
       ep1 = (int)rockbolt[bolt][5];
@@ -404,7 +404,7 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
       transmap(blockArea[ep2], T, x,  y);
 
      /* Do the inner product to construct Gj:
-      * $G_j = [T_j]^T\cdot \ell$. 
+      * $G_j = [T_j]^T\cdot \ell$.
       */
       for (j=1; j<=6; j++) {
          G[j] = T[1][j]*lx + T[2][j]*ly;
@@ -412,7 +412,7 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
 
       s = rockbolt[bolt][7];
 
-     /* Try copying the rock bolt stuff into the 
+     /* Try copying the rock bolt stuff into the
       * global stiffness matrix. Try endpoint 1
       * for Kii first.
       */
@@ -427,7 +427,7 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
 
      /* For the cross terms of Kij and Kji, we will need
       * access memory allocated from the contact algorithm.
-      * The we should be able to get i2 for the ith block 
+      * The we should be able to get i2 for the ith block
       * i3 for the jth block, or vice versa, to initialize
       * Kij.
       */
@@ -446,7 +446,7 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
 
          i3 = extract_block_storage(n[j2],ji,kk);
          bolt_stiffness_accumulate(K[i3],-s,G,E);
-      }  
+      }
 
       t = bolt_get_pretension_a(rockbolt[bolt]);
       for (i=1; i<=6; i++) {
@@ -454,15 +454,15 @@ bolt_stiffness_a(double ** rockbolt, int numbolts, double ** K,
          F[ep2][i] +=  t*G[i];
       }
 
-   }  
+   }
 
-}  
+}
 
 
 void
 bolt_update_endpoints_a(double * b,double u1, double v1, double u2, double v2) {
 
-   
+
    b[10] = u1;
    b[11] = v1;
    b[1] +=  u1;
@@ -472,7 +472,7 @@ bolt_update_endpoints_a(double * b,double u1, double v1, double u2, double v2) {
    b[13] = v2;
    b[3] +=  u2;
    b[4] +=  v2;
-      
+
    bolt_set_length_a(b);
    bolt_set_pretension_a(b);
 }
@@ -482,11 +482,11 @@ bolt_update_endpoints_a(double * b,double u1, double v1, double u2, double v2) {
 /** Compute rock bolt end displacements.  Note that no
  * rotation correction is supplied here.
  */
-/** @todo Supply a callback or something for the 
+/** @todo Supply a callback or something for the
  * transplacement updating function.
  */
 void
-bolt_update_a(double ** bolts, int numbolts, double ** F, 
+bolt_update_a(double ** bolts, int numbolts, double ** F,
               double ** moments, TransMap transmap,
               TransApply transapply) {
 
@@ -501,7 +501,7 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
      /* Deal with one endpoint at a time,
       * starting with the arbitrarily chosen
       * `endpoint 1'.  Since bolts is a double **,
-      * we have to cast the block numbers of the 
+      * we have to cast the block numbers of the
       * endpoints.
       */
       ep1 = (int)bolts[i][5];
@@ -517,9 +517,9 @@ bolt_update_a(double ** bolts, int numbolts, double ** F,
       transapply(T,F[ep2],&u2,&v2);
 
       bolt_update_endpoints_a(bolts[i],u1,v1,u2,v2);
-   }  
+   }
 
-} 
+}
 
 
 Boltmat *
@@ -532,7 +532,7 @@ boltmat_new(void) {
 }
 
 void
-boltmat_set_props(Boltmat * bm, double stiffness, double strength, 
+boltmat_set_props(Boltmat * bm, double stiffness, double strength,
                   double pretension) {
 
    bm->e00 = stiffness;
@@ -542,7 +542,7 @@ boltmat_set_props(Boltmat * bm, double stiffness, double strength,
 
 
 void
-boltmat_get_props(Boltmat * bm, double * stiffness, double * strength, 
+boltmat_get_props(Boltmat * bm, double * stiffness, double * strength,
                   double * pretension) {
 
   *stiffness  = bm->e00;
@@ -553,7 +553,7 @@ boltmat_get_props(Boltmat * bm, double * stiffness, double * strength,
 
 
 
-Boltlist * 
+Boltlist *
 boltlist_new() {
 
    Boltlist * bl = (Boltlist*)malloc(sizeof(Boltlist));
@@ -579,10 +579,10 @@ boltlist_append(Boltlist * boltlist, Bolt * bolt) {
 
 
 #if 0
-Bolt * 
+Bolt *
 boltlist_next_bolt(Boltlist * bl) {
 
-  //return 
+  //return
 
 }
 #endif
@@ -602,11 +602,11 @@ boltlist_get_array(Boltlist * boltlist, double ** array) {
 
       bolt_get_endpoints(btmp,&x1,&y1,&x2,&y2);
       // mmm: added index 0 for bolt type
-      // Take a look at stress.[c,h] for a slightly 
+      // Take a look at stress.[c,h] for a slightly
       // more maintainable way to do this.
 	  array[i][0] = bolt_get_type(btmp);
       array[i][1] = x1;
-      array[i][2] = y1; 
+      array[i][2] = y1;
       array[i][3] = x2;
       array[i][4] = y2;
       array[i][15] = bolt_length(btmp);
@@ -621,9 +621,9 @@ boltlist_length(Boltlist * bl) {
 }
 
 
-void 
+void
 boltlist_print(Boltlist * bl, PrintFunc printer, void * stream) {
- 
+
    DList * ptr;
    Bolt * b;
 

@@ -4,7 +4,7 @@
 	-lf2c -lm   (in that order)
 */
 
-double ddot_(int *n, double *dx, int *incx, double *dy, 
+double ddot_(int *n, double *dx, int *incx, double *dy,
 	int *incy)
 {
 
@@ -19,14 +19,14 @@ double ddot_(int *n, double *dx, int *incx, double *dy,
     static int ix, iy, mp1;
 
 
-/*     forms the dot product of two vectors.   
-       uses unrolled loops for increments equal to one.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     forms the dot product of two vectors.
+       uses unrolled loops for increments equal to one.
+       jack dongarra, linpack, 3/11/78.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DY(I) dy[(I)-1]
 #define DX(I) dx[(I)-1]
@@ -41,7 +41,7 @@ double ddot_(int *n, double *dx, int *incx, double *dy,
 	goto L20;
     }
 
-/*        code for unequal increments or equal increments   
+/*        code for unequal increments or equal increments
             not equal to 1 */
 
     ix = 1;
@@ -62,7 +62,7 @@ double ddot_(int *n, double *dx, int *incx, double *dy,
     ret_val = dtemp;
     return ret_val;
 
-/*        code for both increments equal to 1   
+/*        code for both increments equal to 1
 
 
           clean-up loop */
@@ -84,7 +84,7 @@ L40:
     mp1 = m + 1;
     i__1 = *n;
     for (i = mp1; i <= *n; i += 5) {
-	dtemp = dtemp + DX(i) * DY(i) + DX(i + 1) * DY(i + 1) + DX(i + 2) * 
+	dtemp = dtemp + DX(i) * DY(i) + DX(i + 1) * DY(i + 1) + DX(i + 2) *
 		DY(i + 2) + DX(i + 3) * DY(i + 3) + DX(i + 4) * DY(i + 4);
 /* L50: */
     }

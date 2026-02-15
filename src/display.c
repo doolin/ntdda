@@ -10,8 +10,8 @@
 
 
 #ifdef WIN32
-#pragma warning( disable : 4201 )        
-#ifndef STRICT 
+#pragma warning( disable : 4201 )
+#ifndef STRICT
 #define STRICT
 #endif
 #include <windows.h>
@@ -38,7 +38,7 @@ display(Geometrydata * gd, Analysisdata * ad) {
 
 
    if (!(ad->cts%ad->tsSaveInterval)) {
-      writeReplayFile(gd,ad);  
+      writeReplayFile(gd,ad);
    }
 
 
@@ -48,7 +48,7 @@ display(Geometrydata * gd, Analysisdata * ad) {
       //SendMessage(hprogbar,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,ad->nTimeSteps));
       statusbar_set_progbar_range((unsigned short)ad->nTimeSteps);
    }
-   
+
    if (ad->cts > 1 && ad->gravityflag == 0) {
       //SendMessage(hprogbar,PBM_SETPOS,(WPARAM)ad->currTimeStep,(LPARAM)0);
       statusbar_update_progbar((unsigned int)ad->cts);
@@ -72,7 +72,7 @@ display(Geometrydata * gd, Analysisdata * ad) {
       * or cleanly abort a running analysis.  Currently,
       * the only menu item working is File->Exit
       */
-      while (PeekMessage(&winMess, NULL, 0, 0, PM_REMOVE)) 
+      while (PeekMessage(&winMess, NULL, 0, 0, PM_REMOVE))
       {
          if (winMess.message == WM_QUIT)
             exit (0);

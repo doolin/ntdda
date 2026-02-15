@@ -13,9 +13,9 @@
 // See google for details of _ftol2
 #if (_MSC_VER == 1200) && (WINVER < 0x0500)
 long _ftol( double ); //defined by VC6 C libs
-long _ftol2( double dblSource ) { 
-   return _ftol( dblSource ); 
-} 
+long _ftol2( double dblSource ) {
+   return _ftol( dblSource );
+}
 #endif
 
 
@@ -40,13 +40,13 @@ ddaml_check_document(void * userdata, const char * name_space, const char * root
    //nspace = xmlSearchNsByHref(doc, cur, "http://www.tsoft.com/~bdoolin/dda");
    //nspace = xmlSearchNsByHref(doc, doc->root, "http://www.tsoft.com/~bdoolin/dda");
    nspace = xmlSearchNsByHref(doc, doc->root, name_space);
- 
+
    if (nspace == NULL) {
         ddaml_display_error("Namespace error, check URL");
 	     xmlFreeDoc(doc);
         exit (0);
    }
-    
+
    //if (strcmp(doc->root->name, "DDA")) {
    if (strcmp(doc->root->name, rootname)) {
         char message[128];
@@ -58,4 +58,4 @@ ddaml_check_document(void * userdata, const char * name_space, const char * root
 
 #endif
 
-}  
+}

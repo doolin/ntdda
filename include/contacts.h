@@ -1,7 +1,7 @@
 /*
  * contacts.h
  *
- * First pass at getting contacts separated from 
+ * First pass at getting contacts separated from
  * the DDA code.
  */
 
@@ -31,26 +31,26 @@ Contacts * contacts_new            (int nblocks);
 void       contacts_delete         (Contacts *);
 
 
-double     compute_length          (const double x1, 
-                                    const double y1, 
-                                    const double x2, 
+double     compute_length          (const double x1,
+                                    const double y1,
+                                    const double x2,
                                     const double y2);
 
-double     compute_length_squared  (const double x1, 
-                                    const double y1, 
-                                    const double x2, 
+double     compute_length_squared  (const double x1,
+                                    const double y1,
+                                    const double x2,
                                     const double y2);
 
 
 void       contacts_compute_bboxen (double ** bbox_c0,
-                                    double ** vertices, 
-                                    int numblocks, 
+                                    double ** vertices,
+                                    int numblocks,
                                     int ** vindex);
 
 
-int        contacts_bbox_overlap   (double ** bbox_c0, 
-                                    int ii, 
-                                    int jj, 
+int        contacts_bbox_overlap   (double ** bbox_c0,
+                                    int ii,
+                                    int jj,
                                     double d0);
 
 

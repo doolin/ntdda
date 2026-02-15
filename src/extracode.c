@@ -21,9 +21,9 @@ extern FILEPOINTERS fp;
 char mess[80];
 
 #if OPENGL
-int 
+int
 drawCentroidsGL(GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
-{   
+{
    int i, j;
    double scale = g->scale;
    POINT offset = g->offset;
@@ -33,7 +33,7 @@ drawCentroidsGL(GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
    double offsety = g->offsety;
    float red,green,blue;
 
-    for (i = 1; i< g->numtimesteps-1; i++) 
+    for (i = 1; i< g->numtimesteps-1; i++)
 
    {		glPushMatrix();
 			glBegin(GL_LINES);
@@ -49,21 +49,21 @@ drawCentroidsGL(GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
 		       p2y = ((c[i+1][j].y)*scale - offsety);
 			glVertex2d( p1x, p1y);
 			glVertex2d( p2x, p2y);
-        
+
 		glEnd();
 
 	glPopMatrix();
-		       
+
       }
    }  // end for() each centroid
- 
+
    return 1;
 }  /* Close drawCentroid() */
 
 
-int 
+int
 drawStressesGL( GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
-{   
+{
 
    int j;
    POINT p1, p2;
@@ -74,8 +74,8 @@ drawStressesGL( GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
   	float red,green,blue;
 
   	red=g->R[5];green=g->G[5];blue=g->B[5];
-  	glColor3f( red, green, blue ); 
-   
+  	glColor3f( red, green, blue );
+
    //for (i = 1; i< g->numtimesteps-1; i++)
    //{
 			glPushMatrix();
@@ -97,7 +97,7 @@ drawStressesGL( GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
 		    p1.y = (int)((s[0][j].minory1)*scale + offset.y);
 		    p2.x = (int)((s[0][j].minorx2)*scale + offset.x);
 		    p2.y = (int)((s[0][j].minory2)*scale + offset.y);
-		      
+
 			glVertex2d( p1x, p1y);
 			glVertex2d( p2x, p2y);
 
@@ -106,7 +106,7 @@ drawStressesGL( GRAPHICS * g, DATALOG * dl, GEOMETRYDATA * gd)
 	glEnd();
 	glPopMatrix();
    //}  // end for() each time step
- 
+
    return 1;
 }  /* Close drawStresses() */
 

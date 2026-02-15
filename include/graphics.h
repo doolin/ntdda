@@ -23,7 +23,7 @@ struct _graphics_tag {
    double offsetx;
    double offsety;
    double scale;
- 
+
 #ifdef WIN32
    POINT offset;
 #endif

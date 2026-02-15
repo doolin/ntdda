@@ -28,11 +28,11 @@ extern "C" {
 
 
 /* The dreaded RPC_ASYNC_STATE warning. */
-/* Once the headers are fixed, this can go to 
+/* Once the headers are fixed, this can go to
  * a warn once instead of a disable.
  */
 #ifdef WIN32
-#pragma warning( disable : 4115 )        
+#pragma warning( disable : 4115 )
 #endif
 
 
@@ -44,7 +44,7 @@ extern "C" {
 
 
 
-/* TODO: header file for functions that are common to 
+/* TODO: header file for functions that are common to
  * both the Win32 code and the back end code.
  */
 //void error(char *);
@@ -86,43 +86,43 @@ void           dda_delete             (DDA *);
 int            dda_run(DDA *);
 
 Geometrydata * dda_get_geometrydata   (DDA *);
-void           dda_set_geometrydata   (DDA *, 
+void           dda_set_geometrydata   (DDA *,
                                        Geometrydata * geometrydata);
 
 Analysisdata * dda_get_analysisdata   (DDA *);
-void           dda_set_analysisdata   (DDA *, 
+void           dda_set_analysisdata   (DDA *,
                                        Analysisdata * analysisdata);
 
 ddaboolean     dda_get_toolbarvis     (DDA *);
-void           dda_set_toolbarvis     (DDA *, 
+void           dda_set_toolbarvis     (DDA *,
                                        ddaboolean);
 
 ddaboolean     dda_get_statusbarvis   (DDA *);
-void           dda_set_statusbarvis   (DDA *, 
+void           dda_set_statusbarvis   (DDA *,
                                        ddaboolean);
 
 ddaboolean     dda_get_popupvis       (DDA *);
-void           dda_set_popupvis       (DDA *, 
+void           dda_set_popupvis       (DDA *,
                                        ddaboolean);
 
 ddaboolean     dda_get_tooltipvis     (DDA *);
-void           dda_set_tooltipvis     (DDA *, 
+void           dda_set_tooltipvis     (DDA *,
                                        ddaboolean);
 
 int            dda_get_menu_state     (DDA *);
 void           dda_set_menu_state     (DDA *, int);
 
 int            dda_get_menu_state     (DDA * dda);
-void           dda_set_menu_state     (DDA * dda, 
+void           dda_set_menu_state     (DDA * dda,
                                        int state);
 
 
 int            dda_get_xcur           (DDA * dda);
-void           dda_set_xcur           (DDA * dda, 
+void           dda_set_xcur           (DDA * dda,
                                        int xcur);
 
 int            dda_get_ycur           (DDA * dda);
-void           dda_set_ycur           (DDA * dda,  
+void           dda_set_ycur           (DDA * dda,
                                        int ycur);
 
 

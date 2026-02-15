@@ -1,6 +1,6 @@
 /*
  * win32utils.c
- * 
+ *
  */
 
 #include "win32utils.h"
@@ -37,14 +37,14 @@ findMenuItemPosition(HMENU hsubmenu, UINT ID)
  * that handles the current ID.  From Rector
  * and Newcomer, page 879.
  */
-int 
+int
 findSubMenuPosition(HMENU hmenu, UINT ID)
 {
    int i;
    HMENU hsubmenu;
 
    for (i=0; i<GetMenuItemCount(hmenu); i++)
-   {  
+   {
       hsubmenu = GetSubMenu(hmenu, i);
       if (hsubmenu == NULL)
          continue;  // No popup
@@ -69,7 +69,7 @@ displayWindowRect(HWND hwMain, WPARAM wParam, LPARAM lParam)
    sprintf(mess,"top: %d, right %d, bottom: %d, left: %d",
                 r.top, r.right, r.bottom, r.left);
    MessageBox(hwMain, mess, "Window Rect",MB_OK);
-   
+
 
 }  /* close displayWindowRect() */
 
@@ -84,7 +84,7 @@ displayRect(HWND hwnd, RECT r)
    sprintf(mess,"top: %d, right %d, bottom: %d, left: %d",
                 r.top, r.right, r.bottom, r.left);
    MessageBox(hwnd, mess, "Window Rect",MB_OK);
-   
+
 
 }  /* close displayRect() */
 
@@ -94,8 +94,8 @@ void
 showlasterror(DWORD lasterror)
 {
    LPVOID lpMsgBuf;
-   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-                 FORMAT_MESSAGE_FROM_SYSTEM | 
+   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                 FORMAT_MESSAGE_FROM_SYSTEM |
                  FORMAT_MESSAGE_IGNORE_INSERTS,
                  NULL,
                  lasterror,
@@ -111,7 +111,7 @@ showlasterror(DWORD lasterror)
    MessageBox( NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION );
    // Free the buffer.
    LocalFree( lpMsgBuf );
- 
+
 }  /* close showlasterror() */
 
 
@@ -124,8 +124,8 @@ showWin32Error(char * calledfrom)
 
    lasterror = WSAGetLastError();
 
-   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-                 FORMAT_MESSAGE_FROM_SYSTEM | 
+   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                 FORMAT_MESSAGE_FROM_SYSTEM |
                  FORMAT_MESSAGE_IGNORE_INSERTS,
                  NULL,
                  //GetLastError(),
@@ -133,7 +133,7 @@ showWin32Error(char * calledfrom)
                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
                  (LPTSTR) &lpMsgBuf,
                  0,
-                 NULL);  
+                 NULL);
    MessageBox(NULL,lpMsgBuf,NULL,MB_OK);
 
 }  /* showWin32Error() */

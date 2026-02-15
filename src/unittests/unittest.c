@@ -12,7 +12,7 @@ extern "C" {
 
 
 
-void 
+void
 unittest_print_header(FILE * ofp, const char * tag) {
 
   char header[] = {"\n\n=================  %s  =================\n"};
@@ -22,7 +22,7 @@ unittest_print_header(FILE * ofp, const char * tag) {
 }
 
 
-int 
+int
 unittest(TestFunc * testfunc) {
 
     int i = 0;
@@ -47,11 +47,11 @@ unittest(TestFunc * testfunc) {
 
 
 /** @todo Figure out how to tweak the Makefile.am to handle
- * including with various preprocessor #defines.  The following 
+ * including with various preprocessor #defines.  The following
  * doesn't work.
  */
 #ifdef UNITTEST
-int 
+int
 main(int argc, char ** argv) {
 
   fixedpoint_test();

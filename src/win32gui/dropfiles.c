@@ -11,10 +11,10 @@
 void
 handleCommandLine(HWND hwMain, int argc, char ** argv, Filepaths * fpath)
 {
-   char * fnamesuffix; 
+   char * fnamesuffix;
 
    if (argc > 2)
-      MessageBox(hwMain, "Only 1 file may be dropped","File drop message", 
+      MessageBox(hwMain, "Only 1 file may be dropped","File drop message",
                  MB_OK | MB_ICONSTOP);
 
   /* str just points, do not free str */
@@ -47,7 +47,7 @@ handleDropFiles(HWND hwMain, WPARAM wParam, LPARAM lParam,Filepaths * fpath)
    numfiles = DragQueryFile(hDrop, 0xFFFFFFFF, (LPTSTR)dropfilebuf, 200);
 
    if (numfiles > 1)
-      MessageBox(hwMain, "Only 1 file may be dropped","File drop message", 
+      MessageBox(hwMain, "Only 1 file may be dropped","File drop message",
                  MB_OK | MB_ICONSTOP);
 
    DragQueryFile(hDrop, 0, (LPTSTR)dropfilebuf, 200);

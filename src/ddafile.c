@@ -1,7 +1,7 @@
 
 /**
- * Functions pulled from utils.c into ddafile.c to 
- * match ddafile.h header.  Then this stuff can be 
+ * Functions pulled from utils.c into ddafile.c to
+ * match ddafile.h header.  Then this stuff can be
  * abstracted into something a lot more useful.
  */
 #include <stdio.h>
@@ -55,7 +55,7 @@ ddafile_new_open(const char * filename) {
 
 
 void
-ddafile_open_file(FILE ** fp, const char * rootname, 
+ddafile_open_file(FILE ** fp, const char * rootname,
                   const char * filename) {
 
    char temp[1024] = {'0'};
@@ -67,17 +67,17 @@ ddafile_open_file(FILE ** fp, const char * rootname,
 
 
 
-/** Figure out the file type by seeing if there is 
- *  a magic number on the first line.  This function fails 
+/** Figure out the file type by seeing if there is
+ *  a magic number on the first line.  This function fails
  *  if there is nothing on the first line to parse.
  *
  *  @param char * filename of input, with enough path
  *         information to find the file.
- * 
- *  @return int enum of magic number indicating which 
+ *
+ *  @return int enum of magic number indicating which
  *          file type we need to parse.
  */
-int 
+int
 ddafile_get_type (char * infilename) {
 
    char buf[128];
@@ -98,14 +98,14 @@ ddafile_get_type (char * infilename) {
    magicnum = strtok(buf," \n\r");
 
   /* glibc manual states that strtok returns a null
-   * pointer when the character buffer contains only 
+   * pointer when the character buffer contains only
    * delimiters.
    */
    if (magicnum == NULL) {
       dda_display_error("First line of input file is empty.");
    }
 
-   if (!strncmp(magicnum,"<?",2)) {  
+   if (!strncmp(magicnum,"<?",2)) {
       return ddaml;
    }
 
@@ -114,30 +114,30 @@ ddafile_get_type (char * infilename) {
    }
 
    return original;
-}  
+}
 
 
 
 /** Attempt to handle extern file pointer
- * declarations as a group.  That is, open them 
- * all at the same time, then later close all of the 
+ * declarations as a group.  That is, open them
+ * all at the same time, then later close all of the
  * at the same time.
  * FIXME: replace all strcpy with strncpy for buffer
  * protection when the back end goes networked.
  * FIXME: The code for initializing file names should be split
  * from the code that actually opens the output streams.
- * This will make it easier to control which files should 
+ * This will make it easier to control which files should
  * actually be open at any one time.
  *
  * @todo This is ugly as homemade sin and needs to be completely
- *       redesigned. 
+ *       redesigned.
  */
 void
 openAnalysisFiles(Filepaths * filepath) {
 
    char temp[256];
    extern FILEPOINTERS fp;
-   // This part is added by Roozbeh to copy all 
+   // This part is added by Roozbeh to copy all
    // output files into "Output" folder
    // output folder is created when programe is ran.
    #define BUFSIZE 1024
@@ -152,12 +152,12 @@ openAnalysisFiles(Filepaths * filepath) {
    strncat(outdir,"output",sizeof("output"));
    strncat(outdir,"\\",sizeof("\\"));
    strcat(outdir, filepath->rootname);
-   // This part is added by Roozbeh to copy all 
+   // This part is added by Roozbeh to copy all
    //output files into "Output" folder
 
 
-  /* Note that the rootname contains the entire path.  This 
-   * is probably not real good, but is messy to handle 
+  /* Note that the rootname contains the entire path.  This
+   * is probably not real good, but is messy to handle
    * otherwise on win32.
    */
    strcpy(temp, outdir);
@@ -381,7 +381,7 @@ closeAnalysisFiles() {
    * Noted for completeness and uniformity.
    */
    //fclose(fp.eqfile);
-}  
+}
 
 
 

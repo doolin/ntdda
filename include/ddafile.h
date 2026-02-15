@@ -21,7 +21,7 @@ int  ddafile_get_type               (char * filename);
 
 /* Maybe move this back into adata file later... */
 void ddafile_read_original_analysis (void * userdata,
-                                     char *, 
+                                     char *,
                                      int numfixedpoints,
                                      int pointcount,
                                      int numloadpoints);
@@ -31,8 +31,8 @@ void ddafile_read_original_analysis (void * userdata,
 
 
 /** Yes yes, this is all very ugly,
- * but it turns out that carrying all 
- * this cruft ariound makes things 
+ * but it turns out that carrying all
+ * this cruft ariound makes things
  * easier to deal with for Win32.
  * So it has to stay in for now.
  */
@@ -75,8 +75,8 @@ char boltfile[FNAME_BUFSIZE];
 char boltlogfile[FNAME_BUFSIZE];
 char vertexfile[FNAME_BUFSIZE];
 char vertexlogfile[FNAME_BUFSIZE];
-/* Note that the rootname contains the entire path.  This 
- * is probably not real good, but is messy to handle 
+/* Note that the rootname contains the entire path.  This
+ * is probably not real good, but is messy to handle
  * otherwise on win32.
  */
 char rootname[FNAME_BUFSIZE];

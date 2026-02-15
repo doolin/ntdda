@@ -41,14 +41,14 @@ typedef struct _energy_struct {
 } Energy;
 
 /* This struct records a large amount of data
- * collected during run time for an analysis.  
+ * collected during run time for an analysis.
  * FIXME: Think about adding an options struct in here
  * that controls what data to record.  This will help
  * with post-processing.
  */
 struct _datalog {
 
-  /* Clocking variables.  These will eventually go into 
+  /* Clocking variables.  These will eventually go into
    * their own struct.
    */
    clock_t analysis_start, analysis_stop;
@@ -78,13 +78,13 @@ struct _datalog {
    int openclosesize1;
    int * openclosecount;
 
-  /* Records the number of times the time step was cut to reach 
+  /* Records the number of times the time step was cut to reach
    * a convergent time step.
    */
    int timestepcutsize1;
    int * timestepcut;
 
-  /* Records the number of distance admissable contacts each 
+  /* Records the number of distance admissable contacts each
    * time step.
    */
    int numdistcontactsize1;
@@ -97,7 +97,7 @@ struct _datalog {
    int numanglecontactsize1;
    int * numanglecontact;
 
-  /* Records number of sides per block.  This will eventually help with 
+  /* Records number of sides per block.  This will eventually help with
    * determining contact allocation.
    */
    int numsidessize1;
@@ -119,7 +119,7 @@ struct _datalog {
    int num_cvex_ccave_contactsize1;
    int * num_cvex_ccave_contacts;
 
-  /* Record the memory allocation size.  This is different from the 
+  /* Record the memory allocation size.  This is different from the
    * contact sizes, because it has to handle the diagonals, off-diagonals,
    * and any produced zeros that will be used in LDLT decomposition.
    */
@@ -133,17 +133,17 @@ struct _datalog {
 
 
   /* Record contact forces on a per-time step basis.  This is a bit
-   * tricky.  The memory will have to be allocated and freed along 
-   * with the memory for the K matrix.  This probably needs to be 
+   * tricky.  The memory will have to be allocated and freed along
+   * with the memory for the K matrix.  This probably needs to be
    * handled with a struct *.
    */
-   
+
 };
 
 
 
-Datalog *  datalog_new     (int numtimesteps, 
-                            int numjointmats, 
+Datalog *  datalog_new     (int numtimesteps,
+                            int numjointmats,
                             int numblocks);
 
 void       datalog_delete  (Datalog *);

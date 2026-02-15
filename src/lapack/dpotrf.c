@@ -6,93 +6,93 @@
 /* Subroutine */ int dpotrf_(char *uplo, int *n, double *a, int *
 	lda, int *info)
 {
-/*  -- LAPACK routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       March 31, 1993   
+/*  -- LAPACK routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       March 31, 1993
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DPOTRF computes the Cholesky factorization of a real symmetric   
-    positive definite matrix A.   
+    DPOTRF computes the Cholesky factorization of a real symmetric
+    positive definite matrix A.
 
-    The factorization has the form   
-       A = U**T * U,  if UPLO = 'U', or   
-       A = L  * L**T,  if UPLO = 'L',   
-    where U is an upper triangular matrix and L is lower triangular.   
+    The factorization has the form
+       A = U**T * U,  if UPLO = 'U', or
+       A = L  * L**T,  if UPLO = 'L',
+    where U is an upper triangular matrix and L is lower triangular.
 
-    This is the block version of the algorithm, calling Level 3 BLAS.   
+    This is the block version of the algorithm, calling Level 3 BLAS.
 
-    Arguments   
-    =========   
+    Arguments
+    =========
 
-    UPLO    (input) CHARACTER*1   
-            = 'U':  Upper triangle of A is stored;   
-            = 'L':  Lower triangle of A is stored.   
+    UPLO    (input) CHARACTER*1
+            = 'U':  Upper triangle of A is stored;
+            = 'L':  Lower triangle of A is stored.
 
-    N       (input) INT   
-            The order of the matrix A.  N >= 0.   
+    N       (input) INT
+            The order of the matrix A.  N >= 0.
 
-    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)   
-            On entry, the symmetric matrix A.  If UPLO = 'U', the leading 
-  
-            N-by-N upper triangular part of A contains the upper   
-            triangular part of the matrix A, and the strictly lower   
-            triangular part of A is not referenced.  If UPLO = 'L', the   
-            leading N-by-N lower triangular part of A contains the lower 
-  
-            triangular part of the matrix A, and the strictly upper   
-            triangular part of A is not referenced.   
+    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
+            On entry, the symmetric matrix A.  If UPLO = 'U', the leading
 
-            On exit, if INFO = 0, the factor U or L from the Cholesky   
-            factorization A = U**T*U or A = L*L**T.   
+            N-by-N upper triangular part of A contains the upper
+            triangular part of the matrix A, and the strictly lower
+            triangular part of A is not referenced.  If UPLO = 'L', the
+            leading N-by-N lower triangular part of A contains the lower
 
-    LDA     (input) INT   
-            The leading dimension of the array A.  LDA >= MAX(1,N).   
+            triangular part of the matrix A, and the strictly upper
+            triangular part of A is not referenced.
 
-    INFO    (output) INT   
-            = 0:  successful exit   
-            < 0:  if INFO = -i, the i-th argument had an illegal value   
-            > 0:  if INFO = i, the leading minor of order i is not   
-                  positive definite, and the factorization could not be   
-                  completed.   
+            On exit, if INFO = 0, the factor U or L from the Cholesky
+            factorization A = U**T*U or A = L*L**T.
 
-    ===================================================================== 
-  
+    LDA     (input) INT
+            The leading dimension of the array A.  LDA >= MAX(1,N).
+
+    INFO    (output) INT
+            = 0:  successful exit
+            < 0:  if INFO = -i, the i-th argument had an illegal value
+            > 0:  if INFO = i, the leading minor of order i is not
+                  positive definite, and the factorization could not be
+                  completed.
+
+    =====================================================================
 
 
-       Test the input parameters.   
 
-    
-   Parameter adjustments   
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static int c__1 = 1;
     static int c_n1 = -1;
     static double c_b13 = -1.;
     static double c_b14 = 1.;
-    
+
     /* System generated locals */
     int  i__1, i__2, i__3, i__4;
     /* Local variables */
     static int j;
-    extern /* Subroutine */ int dgemm_(char *, char *, int *, int *, 
-	    int *, double *, double *, int *, double *, 
+    extern /* Subroutine */ int dgemm_(char *, char *, int *, int *,
+	    int *, double *, double *, int *, double *,
 	    int *, double *, double *, int *);
     extern long int lsame_(char *, char *);
-    extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *, 
-	    int *, int *, double *, double *, int *, 
+    extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
+	    int *, int *, double *, double *, int *,
 	    double *, int *);
     static long int upper;
-    extern /* Subroutine */ int dsyrk_(char *, char *, int *, int *, 
+    extern /* Subroutine */ int dsyrk_(char *, char *, int *, int *,
 	    double *, double *, int *, double *, double *,
-	     int *), dpotf2_(char *, int *, 
+	     int *), dpotf2_(char *, int *,
 	    double *, int *, int *);
     static int jb, nb;
     extern /* Subroutine */ int xerbla_(char *, int *);
-    extern int ilaenv_(int *, char *, char *, int *, int *, 
+    extern int ilaenv_(int *, char *, char *, int *, int *,
 	    int *, int *, long int, long int);
 
 
@@ -142,8 +142,8 @@
 	    for (j = 1; nb < 0 ? j >= *n : j <= *n; j += nb) {
 
 /*              Update and factorize the current diagonal bloc
-k and test   
-                for non-positive-definiteness.   
+k and test
+                for non-positive-definiteness.
 
    Computing MIN */
 		i__3 = nb, i__4 = *n - j + 1;
@@ -178,8 +178,8 @@ k and test
 	    for (j = 1; nb < 0 ? j >= *n : j <= *n; j += nb) {
 
 /*              Update and factorize the current diagonal bloc
-k and test   
-                for non-positive-definiteness.   
+k and test
+                for non-positive-definiteness.
 
    Computing MIN */
 		i__3 = nb, i__4 = *n - j + 1;
@@ -197,7 +197,7 @@ k and test
 		    i__3 = *n - j - jb + 1;
 		    i__4 = j - 1;
 		    dgemm_("No transpose", "Transpose", &i__3, &jb, &i__4, &
-			    c_b13, &A(j+jb,1), lda, &A(j,1), 
+			    c_b13, &A(j+jb,1), lda, &A(j,1),
 			    lda, &c_b14, &A(j+jb,j), lda);
 		    i__3 = *n - j - jb + 1;
 		    dtrsm_("Right", "Lower", "Transpose", "Non-unit", &i__3, &

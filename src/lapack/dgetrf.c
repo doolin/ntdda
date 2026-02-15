@@ -5,90 +5,90 @@
 /* Subroutine */ int dgetrf_(int *m, int *n, double *a, int *
 	lda, int *ipiv, int *info)
 {
-/*  -- LAPACK routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       March 31, 1993   
+/*  -- LAPACK routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       March 31, 1993
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DGETRF computes an LU factorization of a general M-by-N matrix A   
-    using partial pivoting with row interchanges.   
+    DGETRF computes an LU factorization of a general M-by-N matrix A
+    using partial pivoting with row interchanges.
 
-    The factorization has the form   
-       A = P * L * U   
-    where P is a permutation matrix, L is lower triangular with unit   
-    diagonal elements (lower trapezoidal if m > n), and U is upper   
-    triangular (upper trapezoidal if m < n).   
+    The factorization has the form
+       A = P * L * U
+    where P is a permutation matrix, L is lower triangular with unit
+    diagonal elements (lower trapezoidal if m > n), and U is upper
+    triangular (upper trapezoidal if m < n).
 
-    This is the right-looking Level 3 BLAS version of the algorithm.   
+    This is the right-looking Level 3 BLAS version of the algorithm.
 
-    Arguments   
-    =========   
+    Arguments
+    =========
 
-    M       (input) INT   
-            The number of rows of the matrix A.  M >= 0.   
+    M       (input) INT
+            The number of rows of the matrix A.  M >= 0.
 
-    N       (input) INT   
-            The number of columns of the matrix A.  N >= 0.   
+    N       (input) INT
+            The number of columns of the matrix A.  N >= 0.
 
-    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)   
-            On entry, the M-by-N matrix to be factored.   
-            On exit, the factors L and U from the factorization   
-            A = P*L*U; the unit diagonal elements of L are not stored.   
+    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
+            On entry, the M-by-N matrix to be factored.
+            On exit, the factors L and U from the factorization
+            A = P*L*U; the unit diagonal elements of L are not stored.
 
-    LDA     (input) INT   
-            The leading dimension of the array A.  LDA >= MAX(1,M).   
+    LDA     (input) INT
+            The leading dimension of the array A.  LDA >= MAX(1,M).
 
-    IPIV    (output) INT array, dimension (MIN(M,N))   
-            The pivot indices; for 1 <= i <= MIN(M,N), row i of the   
-            matrix was interchanged with row IPIV(i).   
+    IPIV    (output) INT array, dimension (MIN(M,N))
+            The pivot indices; for 1 <= i <= MIN(M,N), row i of the
+            matrix was interchanged with row IPIV(i).
 
-    INFO    (output) INT   
-            = 0:  successful exit   
-            < 0:  if INFO = -i, the i-th argument had an illegal value   
-            > 0:  if INFO = i, U(i,i) is exactly zero. The factorization 
-  
-                  has been completed, but the factor U is exactly   
-                  singular, and division by zero will occur if it is used 
-  
-                  to solve a system of equations.   
+    INFO    (output) INT
+            = 0:  successful exit
+            < 0:  if INFO = -i, the i-th argument had an illegal value
+            > 0:  if INFO = i, U(i,i) is exactly zero. The factorization
 
-    ===================================================================== 
-  
+                  has been completed, but the factor U is exactly
+                  singular, and division by zero will occur if it is used
+
+                  to solve a system of equations.
+
+    =====================================================================
 
 
-       Test the input parameters.   
 
-    
-   Parameter adjustments   
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static int c__1 = 1;
     static int c_n1 = -1;
     static double c_b16 = 1.;
     static double c_b19 = -1.;
-    
+
     /* System generated locals */
     int  i__1, i__2, i__3, i__4, i__5;
     /* Local variables */
     static int i, j;
-    extern /* Subroutine */ int dgemm_(char *, char *, int *, int *, 
-	    int *, double *, double *, int *, double *, 
+    extern /* Subroutine */ int dgemm_(char *, char *, int *, int *,
+	    int *, double *, double *, int *, double *,
 	    int *, double *, double *, int *);
     static int iinfo;
-    extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *, 
-	    int *, int *, double *, double *, int *, 
+    extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
+	    int *, int *, double *, double *, int *,
 	    double *, int *), dgetf2_(
-	    int *, int *, double *, int *, int *, int 
+	    int *, int *, double *, int *, int *, int
 	    *);
     static int jb, nb;
     extern /* Subroutine */ int xerbla_(char *, int *);
-    extern int ilaenv_(int *, char *, char *, int *, int *, 
+    extern int ilaenv_(int *, char *, char *, int *, int *,
 	    int *, int *, long int, long int);
-    extern /* Subroutine */ int dlaswp_(int *, double *, int *, 
+    extern /* Subroutine */ int dlaswp_(int *, double *, int *,
 	    int *, int *, int *, int *);
 
 
@@ -137,7 +137,7 @@
 	    jb = MIN(i__3,nb);
 
 /*           Factor diagonal and subdiagonal blocks and test for e
-xact   
+xact
              singularity. */
 
 	    i__3 = *m - j + 1;
@@ -182,7 +182,7 @@ xact
 
 		    i__3 = *m - j - jb + 1;
 		    i__4 = *n - j - jb + 1;
-		    dgemm_("No transpose", "No transpose", &i__3, &i__4, &jb, 
+		    dgemm_("No transpose", "No transpose", &i__3, &i__4, &jb,
 			    &c_b19, &A(j+jb,j), lda, &A(j,j+jb), lda, &c_b16, &A(j+jb,j+jb), lda);
 		}
 	    }

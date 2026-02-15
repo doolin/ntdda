@@ -16,15 +16,15 @@ extern "C" {
 #ifndef FALSE
 #define FALSE 0
 #endif
-#ifndef TRUE 
+#ifndef TRUE
 #define TRUE (!FALSE)
 #endif
 
 
 
 
-/** Each unit test builds a table that can be 
- * traversed to exercise each function in the 
+/** Each unit test builds a table that can be
+ * traversed to exercise each function in the
  * component.
  */
 typedef struct _testfunc {
@@ -34,10 +34,10 @@ typedef struct _testfunc {
 
 
 
-/**  Perform all of the unit testing specified in a 
+/**  Perform all of the unit testing specified in a
  *  table.
  *
- *  @param TestFunc * an array of test functions that 
+ *  @param TestFunc * an array of test functions that
  *  are invoked sequentially from the calling function.
  *
  *  @return int TRUE if everything passes the unit test,
@@ -50,7 +50,7 @@ int  unittest              (TestFunc * testfunc);
  * Utility functions.
  */
 //Get rid of the FILE *
-void unittest_print_header (FILE * ofp, 
+void unittest_print_header (FILE * ofp,
                             const char * tag);
 
 

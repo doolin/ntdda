@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 
-static int 
+static int
 test_loadpoint_new(void) {
 
    int passed = TRUE;
@@ -50,7 +50,7 @@ loadpoint_test() {
 
    int i = 0;
    int passed = TRUE;
-  
+
    while (testfunc[i].test != NULL) {
 
       if (testfunc[i].test()) {
@@ -76,13 +76,13 @@ loadpoint_test() {
 #ifdef STANDALONE
 #include <stdio.h>
 
-int 
+int
 main (int argc, char ** argv) {
 
-   int checkval; 
+   int checkval;
 
    checkval = loadpoint_test();
-    
+
 
    //printf("---\nFALSE value: %d\nTRUE value:  %d\n---\n",FALSE,TRUE);
 

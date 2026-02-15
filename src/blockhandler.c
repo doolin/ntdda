@@ -3,7 +3,7 @@
  * this subroutine.  No error checking is performed.
  * The "block.in" file is written by dc19.  This piece of code
  * will be maintained for third party purposes, but the actual
- * blocks will be passed in a data structure returned from the 
+ * blocks will be passed in a data structure returned from the
  * geometry routine in the DDA for Windows code.
  *
  * $Author: doolin $
@@ -22,7 +22,7 @@
 /* FIXME: this function for reading block data from a file
  * will have to be completely rewritten.
  */
-Geometrydata * 
+Geometrydata *
 gdata_read_block_file(Filepaths *filepath) {
 
    FILE * blocksInFile;
@@ -53,25 +53,25 @@ gdata_read_block_file(Filepaths *filepath) {
 
    //bdn = (BLOCKDATA *)malloc(sizeof(BLOCKDATA));
 
-  /* We make the dangerous assumption that the 
+  /* We make the dangerous assumption that the
    * blockfile has already been initialized in the
    * dc19 function of the geometry part.
    */
-   //blocksInFile = fopen (filepath->blockfile,"r"); 
+   //blocksInFile = fopen (filepath->blockfile,"r");
 
    blocksInFile = fopen("block.in","r");
-   
+
 
 #ifdef WIN32
 #else
    printf("Blockfile name (blockreader):  %s\n", filepath->blockfile);
 #endif
 
-  /* These next comments help to document the format 
-   * of the block file, and are intentionally redundant 
+  /* These next comments help to document the format
+   * of the block file, and are intentionally redundant
    * because the data is not parsed in any way. Also,
    * Since there is no documentation for this format,
-   * and no comments are allowed in the file, it gets 
+   * and no comments are allowed in the file, it gets
    * very tiring to keep relearning the same crap.
    * The data is simply read in and assumed to be correct.
    */
@@ -83,7 +83,7 @@ gdata_read_block_file(Filepaths *filepath) {
    * number of fixed points, number of loading points, number of measured points
    */
    fscanf(blocksInFile,"%d %d %d",&bdn->nFPoints,&bdn->nLPoints,&bdn->nMPoints);
-   
+
    assert(bdn->nBlocks > 0);
    assert(bdn->nBolts == 0);
 
@@ -103,7 +103,7 @@ gdata_read_block_file(Filepaths *filepath) {
    n8=3;
    vindex = IntMat2DGetMem(n7, n8);
 
-  
+
   /*------------------------------------------------*/
   /* d : 0 number of joint material of edge i i+1   */
   /* d : 1 x  2 y of coordinates of vertices        */
@@ -115,7 +115,7 @@ gdata_read_block_file(Filepaths *filepath) {
 
   /* rockBolts : rock bolt matrix.                  */
   /* rockBolts : x1 y1 x2 y2 n1 n2 e0 t0 f0 of bolt. */
-  /* n1, n2 carry (?) block number (i.e., are the 
+  /* n1, n2 carry (?) block number (i.e., are the
   /* block numbers of start and stop of bolt?)  */
   /* rockBolts[nBolts+1][10]  */
    rockBolts = DoubMat2DGetMem(bdn->nBolts+1, 10);
@@ -132,11 +132,11 @@ gdata_read_block_file(Filepaths *filepath) {
    * vertices is stored in "slots" of the d matrix.  The
    * following input reads in the material number into the
    * the first position of each slot, followed by the index
-   * of the starting vertex, followed by the index of the 
-   * last unique vertex associated with that block.  The 
+   * of the starting vertex, followed by the index of the
+   * last unique vertex associated with that block.  The
    * "block.in" file repeats the starting index after this,
-   * in position 'block end' +1.  The reason for this is 
-   * explained below.  The block vertices are stored in 
+   * in position 'block end' +1.  The reason for this is
+   * explained below.  The block vertices are stored in
    * CCW order.
    */
  		for (i=1; i<= bdn->nBlocks; i++)
@@ -144,13 +144,13 @@ gdata_read_block_file(Filepaths *filepath) {
       fscanf(blocksInFile,"%d %d %d",
          &vindex[i][0], &vindex[i][1], &vindex[i][2]);
    }  /*  i  */
-   
- 
+
+
   /* 0:joint material   1:x   2:y  of block vertices */
-  /* The "number of vertices" is stored in vertexCount, but note that 
+  /* The "number of vertices" is stored in vertexCount, but note that
    * this number is more than the actual number of vertices.
    * Each block has one repeated vertex, to "close the loop".
-   * The block vertices are stored in CCW order.  Note that 
+   * The block vertices are stored in CCW order.  Note that
    * each set of block vertices indexed in k0 is followed
    * by a repeat of the first, the three more vertices whose
    * purpose is not known right now.
@@ -160,7 +160,7 @@ gdata_read_block_file(Filepaths *filepath) {
       fscanf(blocksInFile,"%lf %lf %lf",
          &vertices[i][0],&vertices[i][1],&vertices[i][2]);
    }  /*  i  */
-   
+
   /* h: x1  y1  x2  y2  nBlocks  n2  e0  t0  f0  of bolt */
   /* nBlocks n2 carry block number        f0 pre-tension */
   /* Bolts are indexed from zero.  This will need to be changed

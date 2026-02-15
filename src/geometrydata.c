@@ -2,7 +2,7 @@
  * geometrydata.c
  *
  * Implements all the public methods associated with a
- * a geometry struct.  
+ * a geometry struct.
  */
 
 #include <stdlib.h>
@@ -15,7 +15,7 @@
 
 
 #include "geometrydata.h"
-
+#include "dda.h"
 #include "ddamemory.h"
 #include "ddaml.h"
 #include "inpoly.h"
@@ -54,7 +54,7 @@ emitJoints(Geometrydata * gd, PrintFunc printer, void * stream) {
 
 /* FIXME: Completely rewrite point handling code,
  * for the entire project.
- * 
+ *
  * NOTE: This has been done in the modec code.
  */
 void
@@ -98,7 +98,7 @@ if (gd->nLPoints > 0)
 /**************** Measured points  ************/
 if (gd->nMPoints > 0)
 {
-   printer(stream,"<Measuredpointlist>\n");      
+   printer(stream,"<Measuredpointlist>\n");
    for (i=gd->nFPoints+gd->nLPoints+1; i<= gd->nFPoints+gd->nLPoints+gd->nMPoints; i++)
 	{
       printer(stream,"<Point>");
@@ -112,7 +112,7 @@ if (gd->nMPoints > 0)
 /**************  Hole points ****************/
 if (gd->nHPoints > 0)
 {
-   printer(stream,"<Holepointlist>\n");      
+   printer(stream,"<Holepointlist>\n");
    for (i=gd->nFPoints+gd->nLPoints+gd->nMPoints+1;i<= gd->nFPoints+gd->nLPoints+gd->nMPoints+gd->nHPoints; i++)
    {
       printer(stream,"<Point>");
@@ -123,7 +123,7 @@ if (gd->nHPoints > 0)
    printer(stream,"</Holepointlist>\n");
 }
 
-} 
+}
 
 
 void
@@ -131,7 +131,7 @@ gdata_emit_bolts(Geometrydata * gd, PrintFunc printer, void * stream) {
 
 
    int i;
-   
+
    printer(stream,"<Boltlist>\n");
    for(i=1;i<=gd->nFPoints;i++)
    {
@@ -147,12 +147,12 @@ gdata_emit_bolts(Geometrydata * gd, PrintFunc printer, void * stream) {
 }  /* close emitBolts() */
 
 
-static void 
+static void
 emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
 
 
    int i;
-   
+
    printer(stream,"<Matlinelist>\n");
    for(i=1;i<=gd->nFPoints;i++) {
 
@@ -160,7 +160,7 @@ emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
       printer(stream,"<Line>");
       printer(stream," %f %f %f %f %d",
               gd->matlines[i][1],gd->matlines[i][2],
-              gd->matlines[i][3],gd->matlines[i][4], 
+              gd->matlines[i][3],gd->matlines[i][4],
               (int)gd->matlines[i][5]);
       printer(stream,"</Line>");
    }
@@ -169,7 +169,7 @@ emitMatlines(Geometrydata * gd, PrintFunc printer, void * stream) {
 }
 
 
-void 
+void
 gdata_write_ddaml_header(double edgenode, PrintFunc printer, void * outfile) {
 
 
@@ -197,9 +197,9 @@ gdata_write_ddaml_trailer(PrintFunc printer, void * outfile) {
 }
 
 // FIXME: This should take a FILE * instead of a file name.
-// Makes it much more flexible.  Also, the function pointer 
+// Makes it much more flexible.  Also, the function pointer
 // in the geometry struct calls for a file pointer instead
-// of a char *.  The Windows compiler just isn't smart enough 
+// of a char *.  The Windows compiler just isn't smart enough
 // to catch that, because it should result in a compile error.
 void
 gdata_write_ddaml(Geometrydata * gd, PrintFunc printer, void * outfile) {
@@ -262,7 +262,7 @@ deleteBlock(Geometrydata * gd, int blocknumber)
    double ** vertices = gd->vertices;
    double ** points = gd->points;
    double ** rockbolts = gd->rockbolts;
-  
+
 
 
    FILE * ofp;
@@ -277,16 +277,16 @@ deleteBlock(Geometrydata * gd, int blocknumber)
    i1=0;  /* node  counter  */
    for (i=1; i<=gd->nBlocks; i++)
    {
-     /* Basically, what this says is that if the 
+     /* Basically, what this says is that if the
       * block number matches the block number we
-      * want to delete, then don't count 
+      * want to delete, then don't count
       * that block, ie delete it.
       */
       if (i == blocknumber)
          continue;
 
-     /* If not the particular block number, then 
-      * copy forward in the vertex array.  
+     /* If not the particular block number, then
+      * copy forward in the vertex array.
       */
       i0 += 1;     /* block number+1 */
       i2  = i1+1;  /* start of block */
@@ -321,7 +321,7 @@ deleteBlock(Geometrydata * gd, int blocknumber)
              break;
           }
           else
-          { 
+          {
              points[i][3] = 0;
              //break;
           }
@@ -334,21 +334,21 @@ deleteBlock(Geometrydata * gd, int blocknumber)
   /*------------------------------------------------*/
   /* case of having points without carry block      */
   /* FIXME: Remove such a point from the point list */
-  /* FIXME: This code is duplicated in dc11().  Turn it 
+  /* FIXME: This code is duplicated in dc11().  Turn it
    * into its own function.
    */
    i0 = 0;  // counts deletions, start with 0 deletions
    for (i= 1; i<= gd->nFPoints+gd->nLPoints+gd->nMPoints+1; i++)
    {
-    
+
       if ( (int)points[i][3] == 0 )
       {
          switch ((int)points[i][0])
          {
             case 0://fixed:
-               gd->nFPoints--; 
+               gd->nFPoints--;
                break;
-            case 2://load: 
+            case 2://load:
                gd->nLPoints--;
                break;
             case 1://measured:
@@ -357,7 +357,7 @@ deleteBlock(Geometrydata * gd, int blocknumber)
             default:
                break;
          }
-         i0++;  // counts deletions   
+         i0++;  // counts deletions
          //fprintf(ddacutlog,"fixed load measured point outside all blocks %d \n",i);
          //fprintf(ddacutlog,"%f , %f \n",points[i][1],points[i][2]);
          continue;
@@ -374,7 +374,7 @@ deleteBlock(Geometrydata * gd, int blocknumber)
 //printPoints(gd, "deleteblocks",ofp);
 
 
-  /* Next, reset the bolt endpoints... 
+  /* Next, reset the bolt endpoints...
    * FIXME: Bolt endpoints outside of blocks are not handled.
    * The easiest thing to do about such a case is to throw
    * an exception.
@@ -398,14 +398,14 @@ deleteBlock(Geometrydata * gd, int blocknumber)
 
 
 /* The simplex area function depends on having the vertex coordinates
- * in a certain order so that the coordinates can be traversed in 
+ * in a certain order so that the coordinates can be traversed in
  * a CCW direction.  vertexInit performs this reordering at the outset,
- * for all subsequent calls to area.  Since the area function is 
+ * for all subsequent calls to area.  Since the area function is
  * called everytime step, initializing ahead of time saves a lot of
  * overhead.
  */
 /**
- * @todo  Change the algorithm to use modular arithmetic so 
+ * @todo  Change the algorithm to use modular arithmetic so
  * this loop does not have to be computed.
  */
 void
@@ -423,14 +423,14 @@ gdata_vertex_init(Geometrydata *gd) {
       i2 = gd->vindex[i][2];
       gd->vertices[i1-1][0]=gd->vertices[i2][0];
       gd->vertices[i1-1][1]=gd->vertices[i2][1];
-      gd->vertices[i1-1][2]=gd->vertices[i2][2]; 
+      gd->vertices[i1-1][2]=gd->vertices[i2][2];
    }  /*  i  */
 
 }
 
 
-/* Code to specifically free the geometry data structure 
- * passed in to the analysis procedure.  This code should 
+/* Code to specifically free the geometry data structure
+ * passed in to the analysis procedure.  This code should
  * be changed to take advantage of 2D matrix freeing code.
  */
 void
@@ -497,7 +497,7 @@ gdata_delete(Geometrydata * gd) {
    gd = NULL;
 
    return;
-}  
+}
 
 
 
@@ -505,7 +505,7 @@ void
 gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
 
    IFT gfv;
- 
+
    assert(geomfile != NULL);
 
    gfv = ddafile_get_type(geomfile);
@@ -516,11 +516,11 @@ gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
           ddaml_read_geometry_file(geomdata,geomfile);
           break;
 
-       case extended: 
+       case extended:
           dda_display_warning("Extended geometry file format obsolete");
           exit(0);
           //geomdata = geometryReader2(geomfile);
-          //if (!geomdata) 
+          //if (!geomdata)
           //{
           //   iface->displaymessage("Error in geometry file" /* Error */);
           //   return NULL;
@@ -529,10 +529,10 @@ gdata_read_input_file(Geometrydata * geomdata, char * geomfile ) {
        case original:
        default:
           dda_display_warning("Obsolete geometry file detected");
-          geometryReader1(geomdata,geomfile);  
+          geometryReader1(geomdata,geomfile);
           break;
    }
-}  
+}
 
 
 
@@ -545,7 +545,7 @@ gdata_clone(Geometrydata * gdn) {
    int i;
    /* There should be a way to initialize this
     * in the type declaration and pass back the
-    * address, but it does not seem to work on the 
+    * address, but it does not seem to work on the
     * MS compiler, so initialize manually.  :(
     */
 
@@ -557,7 +557,7 @@ gdata_clone(Geometrydata * gdn) {
 
 
    //gdo->getblocknumber = gdn->getblocknumber;
-   
+
   /* scale and w0 initialized in dc02  */
    for (i=0;i<4;i++)
       gdo->scale[i] = gdn->scale[i];
@@ -616,7 +616,7 @@ gdata_clone(Geometrydata * gdn) {
   /* Points for water table surface.  */
    if (gdn->watertable)
       gdo->watertable = clone2DMatDoub(gdn->watertable,gdn->wtablesize1,gdn->wtablesize2);
-   else 
+   else
       gdo->watertable = NULL;
 
    /* These may or may not be useful. */
@@ -629,7 +629,7 @@ gdata_clone(Geometrydata * gdn) {
 
    return gdo;
 
-} 
+}
 
 
 
@@ -638,13 +638,13 @@ gdata_clone(Geometrydata * gdn) {
 /* dc02: draw lines and points             */
 /**************************************************/
 /*  dc02() really just sets the scale of the drawing area,
- * as near as I can tell right now. 
- * FIXME: This is almost the same function as df01().  Get rid of 
+ * as near as I can tell right now.
+ * FIXME: This is almost the same function as df01().  Get rid of
  * df01() if possible.
  */
 //void dc02(Geometrydata *gd)
 /* FIXME: Combine this with df01() to make one function out
- * these 2 very similar functions.  In fact, they are almost 
+ * these 2 very similar functions.  In fact, they are almost
  * identical.  And both are the same as computeBoundingBox,
  [which is deleted]
  * so there are 3 [2] functions doing the same task here.
@@ -660,7 +660,7 @@ void computeDomainscale(Geometrydata *gd)
    double w0;
    double ** joints = gd->joints;
 
-  /* The variables named w1-w4 need to renamed min/max x/y.  They are for 
+  /* The variables named w1-w4 need to renamed min/max x/y.  They are for
    * determining the scale of the problem.
    */
    //double  w1;  /* min x */
@@ -673,14 +673,14 @@ void computeDomainscale(Geometrydata *gd)
    double miny, maxy;
    double height, width;
 
-  /* compute min x  max x  min y  max y             
+  /* compute min x  max x  min y  max y
    */
    minx = joints[1][1];
    maxx = joints[1][1];
    miny = joints[1][2];
    maxy = joints[1][2];
 
-   
+
    for (i=1; i<= gd->nJoints; i++)
    {
       for (j=2; j<= 4; j+=2)
@@ -696,9 +696,9 @@ void computeDomainscale(Geometrydata *gd)
 
          if ( maxy < joints[i][j  ] )
             maxy = joints[i][j];         // w4 = max y
-      } 
-   } 
-      
+      }
+   }
+
     gd->scale[0] = minx;
     gd->scale[1] = maxx;
     gd->scale[2] = miny;
@@ -714,15 +714,15 @@ void computeDomainscale(Geometrydata *gd)
    height=(maxy-miny)/2;
    w0=height;
 
-  /* This is a very peculiar construction.  
-   * Eliminating this goto might have a nasty 
-   * side effect on the value of w0.  Leave it 
-   * in for now.  It has something to do with the 
+  /* This is a very peculiar construction.
+   * Eliminating this goto might have a nasty
+   * side effect on the value of w0.  Leave it
+   * in for now.  It has something to do with the
    * aspect ratio of the problem.
    */
-   //if ( w7 <= (1.3*w0) ) 
+   //if ( w7 <= (1.3*w0) )
       //goto a205;
-   if ( width > (1.3*w0) ) 
+   if ( width > (1.3*w0) )
       w0=width/1.3;
 
 //a205:
@@ -733,8 +733,8 @@ void computeDomainscale(Geometrydata *gd)
 
 }  /* Close dc02().  */
 
-  
-int 
+
+int
 gdata_get_block_number(Geometrydata * gd, double x, double y) {
 
   int i;
@@ -761,11 +761,11 @@ gdata_get_number_of_blocks(Geometrydata * gd) {
 
 
 
-/* The Geometrydata struct is built in the 
+/* The Geometrydata struct is built in the
  * geometry code and contains blocks, points
- * vertices needed by the analysis code to 
- * run a numerical computation.  One of these 
- * should be declared in the gui or command 
+ * vertices needed by the analysis code to
+ * run a numerical computation.  One of these
+ * should be declared in the gui or command
  * line wrapper that drives an analysis.
  */
 Geometrydata *
@@ -785,10 +785,10 @@ gdata_new(void) {
 
    return gdo;
 
-} 
+}
 
 
-/** @todo Write a unit test for this then replace the 
+/** @todo Write a unit test for this then replace the
  * inner loop in computeMoments() with this function.
  */
 /** This function computes all the relevant moments for
@@ -802,7 +802,7 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
 
    for (i=1; i<=8; i++) {
       moments[i] = 0;
-   }    
+   }
 
    for (i=vindex[1]; i<=vindex[2]; i++) {
 
@@ -824,7 +824,7 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
       moments[6] += f1*(2*x2*y2+2*x3*y3+x2*y3+x3*y2)/24;
    }
 
-  /* Compute current centroids. */   
+  /* Compute current centroids. */
    moments[7] = moments[2]/moments[1];
    moments[8] = moments[3]/moments[1];
 }
@@ -838,13 +838,13 @@ moments_compute(double * moments, double ** vertices, int * vindex) {
  * This is also called from df25.
  */
 /* i  j  x2  y2  x3  y3  f1  moments[][] */
-/* FIXME: This needs to be written to call a function 
+/* FIXME: This needs to be written to call a function
  * that takes a block number.
  */
-double 
+double
 gdata_compute_moments(Geometrydata * gd) {
 
-  /* FIXME: Need this to track the block 
+  /* FIXME: Need this to track the block
    * centroids.
    */
 
@@ -866,19 +866,19 @@ gdata_compute_moments(Geometrydata * gd) {
      /** @todo replace the following inner loops with a function call
       * which is much easier to test.  But don't replace it until it
       * is tested!
-      */     
+      */
       //moments_compute(moments[block], vertices, vindex[block]);
 
-     /* This loop to zero the moments matrix may or may not be 
-      * necessary.  Leave it in for now, as it is not the 
+     /* This loop to zero the moments matrix may or may not be
+      * necessary.  Leave it in for now, as it is not the
       * problem affecting the areas.  This could also be moved
       * outside the loop and zeroed with the subroutine call.
       */
      /* @todo move this into the function above. */
       for (j=1; j<=8; j++) {
          moments[block][j] = 0;
-      }       
-      
+      }
+
 
       for (vertex=vindex[block][1]; vertex<=vindex[block][2]; vertex++) {
 
@@ -886,7 +886,7 @@ gdata_compute_moments(Geometrydata * gd) {
          y2 = vertices[vertex][2];
          x3 = vertices[vertex+1][1];
          y3 = vertices[vertex+1][2];
-      
+
          f1 = (x2*y3-x3*y2);
          moments[block][1] += f1/2;
         /* Evidently, the 0 represents the value of
@@ -901,7 +901,7 @@ gdata_compute_moments(Geometrydata * gd) {
 
 
 
-     /* Compute current centroids. */   
+     /* Compute current centroids. */
       moments[block][7] = moments[block][2]/moments[block][1];
       moments[block][8] = moments[block][3]/moments[block][1];
 
@@ -916,18 +916,18 @@ gdata_compute_moments(Geometrydata * gd) {
    for (block=1; block<= nBlocks; block++) {
 	   avgArea += moments[block][1];
    }
-      
+
    avgArea  = avgArea/nBlocks;
-   
+
    return avgArea;
-}  
+}
 
 
 
-void 
+void
 gdata_get_centroid(double * moments, double * x0, double * y0) {
 
-  *x0 = moments[7];   
+  *x0 = moments[7];
   *y0 = moments[8];
 }
 
@@ -940,7 +940,7 @@ gdata_get_block_area(Geometrydata * gd, int block) {
   /* Need a function that will just compute moments for a single block. */
    gdata_compute_moments(gd);
 
-   return moments[block][1]; 
+   return moments[block][1];
 
 }
 
@@ -950,7 +950,7 @@ gdata_rockbolt_init(Geometrydata * gd, int numbolts) {
 
    gd->maxSegmentsPerBolt = 24;  // hardwired
    gd->nBolts = numbolts;
-   
+
    // mmm: make the array extra huge for potential segments
    // similar to what's done for the fixed lines (even if it's bad coding)
    gd->rockboltsize1 = gd->maxSegmentsPerBolt * numbolts+1;

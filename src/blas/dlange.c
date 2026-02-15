@@ -5,81 +5,81 @@
 #define ABS(a)             ( ((a)<0.0)   ? -(a) : (a) )
 
 
-double dlange_(char *norm, int *m, int *n, double *a, int 
+double dlange_(char *norm, int *m, int *n, double *a, int
 	*lda, double *work)
 {
-/*  -- LAPACK auxiliary routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       October 31, 1992   
+/*  -- LAPACK auxiliary routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       October 31, 1992
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DLANGE  returns the value of the one norm,  or the Frobenius norm, or 
-  
-    the  infinity norm,  or the  element of  largest absolute value  of a 
-  
-    real matrix A.   
+    DLANGE  returns the value of the one norm,  or the Frobenius norm, or
 
-    Description   
-    ===========   
+    the  infinity norm,  or the  element of  largest absolute value  of a
 
-    DLANGE returns the value   
+    real matrix A.
 
-       DLANGE = ( MAX(ABS(A(i,j))), NORM = 'M' or 'm'   
-                (   
-                ( norm1(A),         NORM = '1', 'O' or 'o'   
-                (   
-                ( normI(A),         NORM = 'I' or 'i'   
-                (   
-                ( normF(A),         NORM = 'F', 'f', 'E' or 'e'   
+    Description
+    ===========
 
-    where  norm1  denotes the  one norm of a matrix (maximum column sum), 
-  
-    normI  denotes the  infinity norm  of a matrix  (maximum row sum) and 
-  
-    normF  denotes the  Frobenius norm of a matrix (square root of sum of 
-  
-    squares).  Note that  MAX(ABS(A(i,j)))  is not a  matrix norm.   
+    DLANGE returns the value
 
-    Arguments   
-    =========   
+       DLANGE = ( MAX(ABS(A(i,j))), NORM = 'M' or 'm'
+                (
+                ( norm1(A),         NORM = '1', 'O' or 'o'
+                (
+                ( normI(A),         NORM = 'I' or 'i'
+                (
+                ( normF(A),         NORM = 'F', 'f', 'E' or 'e'
 
-    NORM    (input) CHARACTER*1   
-            Specifies the value to be returned in DLANGE as described   
-            above.   
+    where  norm1  denotes the  one norm of a matrix (maximum column sum),
 
-    M       (input) INT   
-            The number of rows of the matrix A.  M >= 0.  When M = 0,   
-            DLANGE is set to zero.   
+    normI  denotes the  infinity norm  of a matrix  (maximum row sum) and
 
-    N       (input) INT   
-            The number of columns of the matrix A.  N >= 0.  When N = 0, 
-  
-            DLANGE is set to zero.   
+    normF  denotes the  Frobenius norm of a matrix (square root of sum of
 
-    A       (input) DOUBLE PRECISION array, dimension (LDA,N)   
-            The m by n matrix A.   
+    squares).  Note that  MAX(ABS(A(i,j)))  is not a  matrix norm.
 
-    LDA     (input) INT   
-            The leading dimension of the array A.  LDA >= MAX(M,1).   
+    Arguments
+    =========
 
-    WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK),   
-            where LWORK >= M when NORM = 'I'; otherwise, WORK is not   
-            referenced.   
+    NORM    (input) CHARACTER*1
+            Specifies the value to be returned in DLANGE as described
+            above.
 
-   ===================================================================== 
-  
+    M       (input) INT
+            The number of rows of the matrix A.  M >= 0.  When M = 0,
+            DLANGE is set to zero.
+
+    N       (input) INT
+            The number of columns of the matrix A.  N >= 0.  When N = 0,
+
+            DLANGE is set to zero.
+
+    A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+            The m by n matrix A.
+
+    LDA     (input) INT
+            The leading dimension of the array A.  LDA >= MAX(M,1).
+
+    WORK    (workspace) DOUBLE PRECISION array, dimension (LWORK),
+            where LWORK >= M when NORM = 'I'; otherwise, WORK is not
+            referenced.
+
+   =====================================================================
 
 
-    
-   Parameter adjustments   
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static int c__1 = 1;
-    
+
     /* System generated locals */
     int  i__1, i__2;
     double ret_val, d__1, d__2, d__3;
@@ -89,7 +89,7 @@ double dlange_(char *norm, int *m, int *n, double *a, int
     static double scale;
     extern long int lsame_(char *, char *);
     static double value;
-    extern /* Subroutine */ int dlassq_(int *, double *, int *, 
+    extern /* Subroutine */ int dlassq_(int *, double *, int *,
 	    double *, double *);
     static double sum;
 

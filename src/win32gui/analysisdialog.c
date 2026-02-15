@@ -1,7 +1,7 @@
-/* 
+/*
  * analysisdialog.c
- * 
- * Handles the result of message passing from the 
+ *
+ * Handles the result of message passing from the
  * analysis dialog box.
  * $Author: doolin $
  * $Date: 2003/12/17 23:36:36 $
@@ -21,7 +21,7 @@
 #include "ddamemory.h"
 #include "ddaml.h"
 #include "joint.h"
- 
+
 /* ugh */
 #ifdef WIN32
 #define snprintf _snprintf
@@ -30,7 +30,7 @@
 /* Static variables declared outside of function calls
  * are file specific, that is, these following variables
  * are local to this file, but global to the functions
- * in this file.  Many of these can undoubtedly be moved 
+ * in this file.  Many of these can undoubtedly be moved
  * back into a local variable status at a later date.
  */
 
@@ -41,7 +41,7 @@ static int bindex = 0;
 static int loadindex = 0;
 /* scrollpos = vscroll position
  */
-static int lpscrollpos = 0;  
+static int lpscrollpos = 0;
 static int njmatOld = 0, nbmatOld = 0;
 static Jointmat *jmat, *jmatOld = NULL;
 static BlockMat *bmat, *bmatOld = NULL;
@@ -70,7 +70,7 @@ static Analysisdata * ad;
  * can probably be moved to a local or a struct
  * member.  Not implemented right now because time
  * stepping problems in the analysis code.  FIXME:
- * reimplement tsSaveInterval through using the 
+ * reimplement tsSaveInterval through using the
  * struct.
  */
 int tsSaveInterval;
@@ -91,14 +91,14 @@ static void handleJointMinus(HWND hDlg);
 
 
 
-/* Externs from winmain.c  
+/* Externs from winmain.c
  * This needs to be tucked into the DAD struct.
  */
 extern Filepaths filepath;
 
 
 /* This is now passed in from the dialog box call
- * as an lparam or something and is cast out of the 
+ * as an lparam or something and is cast out of the
  * the pointer variable.  See the init function.
  */
 //static Geometrydata * geomdata;
@@ -106,9 +106,9 @@ extern Filepaths filepath;
 static void handleInitAnalysisDialog(HWND hDlg, WPARAM wParam, LPARAM lParam);
 
 
-BOOL CALLBACK AnalDlgProc (HWND hDlg, 
-         UINT iMessage, 
-         WPARAM wParam, 
+BOOL CALLBACK AnalDlgProc (HWND hDlg,
+         UINT iMessage,
+         WPARAM wParam,
          LPARAM lParam)
 {
 
@@ -136,23 +136,23 @@ BOOL CALLBACK AnalDlgProc (HWND hDlg,
 
 
 
-static void 
+static void
 handleInitAnalysisDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
    OFSTRUCT of;
    HFILE hFile;
 
-  /* Get rid of this by refusing to read in anything but the 
+  /* Get rid of this by refusing to read in anything but the
    * ddaml format.
    */
    //geomdata = (Geometrydata *)lParam;
 
-   if(filepath.afile[0] != '\0') 
+   if(filepath.afile[0] != '\0')
    {
       //iface->setdisplay((unsigned int)hDlg);
       loadFileData(hDlg, &hFile, &of);
-   } 
-   else 
+   }
+   else
    {
       loadDefaults();
    }   /* end if INITDIALOG  */
@@ -173,7 +173,7 @@ handleADSave(HWND hDlg, WPARAM wParam, LPARAM lParam)
    HFILE hFile;
 
 
-   LPCTSTR szFilter[] = 
+   LPCTSTR szFilter[] =
                 {"Analysis files (*.ana)\0*.ana\0All files (*.*)\0*.*\0\0"};
    fileBrowse(hDlg, &ofn, szFilter, filepath.oldpath, filepath.apath, "ana");
    nts = GetDlgItemInt(hDlg, AD_NTS, NULL, FALSE);
@@ -181,12 +181,12 @@ handleADSave(HWND hDlg, WPARAM wParam, LPARAM lParam)
    GetDlgItemText(hDlg, AD_MAXDISP, temp, 20);
    maxdisp = strtod(temp, NULL);
 
-   if( !GetSaveFileName(&ofn) ) 
+   if( !GetSaveFileName(&ofn) )
    {
       strcpy(filepath.apath, filepath.oldpath);
       return FALSE;  // user pressed cancel
-   } 
-   else 
+   }
+   else
    { // open file and save data
             // if it exists already, delete it
       if(-1 != OpenFile(filepath.apath, &of, OF_WRITE) )
@@ -196,7 +196,7 @@ handleADSave(HWND hDlg, WPARAM wParam, LPARAM lParam)
          MessageBox(NULL, "Error: Cannot create file", "ERROR", MB_OK | MB_ICONINFORMATION);
          return FALSE;
          }
-             
+
       saveData();
      _lclose(hFile);
       EndDialog (hDlg, 1);
@@ -215,7 +215,7 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
    switch (LOWORD(wParam))
    {
-     /* What follows can eventually be moved to  
+     /* What follows can eventually be moved to
       * a handler function.
       */
       case AD_SAVE:
@@ -224,9 +224,9 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
       case IDCANCEL:
          tsSaveInterval = GetDlgItemInt(hDlg, AD_SAVEINT, NULL, FALSE);
-         if(jmatOld) 
+         if(jmatOld)
             free(jmatOld);
-        /* FIXME: Seg fault here if you add and subtract a joint using the +/- 
+        /* FIXME: Seg fault here if you add and subtract a joint using the +/-
          * buttons.  This points out that memory management in the
          * dialog boxes is probably not too good.
          */
@@ -234,11 +234,11 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
          if(jmat)
             free(jmat);
          */
-         if(bmatOld) 
+         if(bmatOld)
             free(bmatOld);
          free(bmat);
 
-        /* FIXME: free the analysis struct also, if 
+        /* FIXME: free the analysis struct also, if
          * it is a new one.  Else, don't free it.
          */
          EndDialog (hDlg, 0);
@@ -263,7 +263,7 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
    case AD_GRAVITY:
       gravity = 1;
       break;
-  
+
    case AD_ROTATION:
       rotation = 1;
       break;
@@ -296,8 +296,8 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
    case AD_TIMEDEPS:
       loadindex = (int) SendDlgItemMessage(hDlg, AD_TIMEDEPS, CB_GETCURSEL, 0, 0L);
-     /* Set the scroll bar position */ 
-     /* FIXME: Combine with other code to set 
+     /* Set the scroll bar position */
+     /* FIXME: Combine with other code to set
       * scroll bar and make a function out of it.
       * FIXME: Clicking on this box when adding a new
       * analysis produces a segfault.  Need to check
@@ -312,7 +312,7 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
       if (nlp > 3)
          i = nlp-4;
-      else 
+      else
          i = 0;
 
       SetScrollRange(hLPScroller, SB_CTL, 0, i, FALSE);
@@ -324,47 +324,47 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
    case AD_BPLUS:
       SendMessage(hDlg, WM_COMMAND, AD_BMAT, 0L);
-      if(nbmat < 20) 
+      if(nbmat < 20)
       {
-         if(bmatOld && bmatOld != bmat) 
+         if(bmatOld && bmatOld != bmat)
             free(bmatOld);
          bmatOld = bmat;
          nbmatOld = nbmat;
          nbmat++;
          bmat = (BlockMat *) malloc(sizeof(BlockMat) * nbmat);
-         for(i = 0; i<nbmatOld; i++) 
+         for(i = 0; i<nbmatOld; i++)
          {
             bmat[i].dens = bmatOld[i].dens;
             bmat[i].wt = bmatOld[i].wt;
             bmat[i].ymod = bmatOld[i].ymod;
             bmat[i].pois = bmatOld[i].pois;
 
-            for(j=0; j<3; j++) 
+            for(j=0; j<3; j++)
                bmat[i].iss[j] = bmatOld[i].iss[j];
-            for(j=0; j<3; j++) 
+            for(j=0; j<3; j++)
                bmat[i].ist[j] = bmatOld[i].ist[j];
-            for(j=0; j<3; j++) 
+            for(j=0; j<3; j++)
                bmat[i].ivel[j] = bmatOld[i].ivel[j];
          }
 
-         for(i = nbmatOld; i<nbmat; i++) 
+         for(i = nbmatOld; i<nbmat; i++)
          {
             bmat[i].dens = 2.5;
             bmat[i].wt = 25;
             bmat[i].ymod = 100000;
             bmat[i].pois = .49;
-  
-            for(j=0; j<3; j++) 
+
+            for(j=0; j<3; j++)
                bmat[i].iss[j] = 0;
-            for(j=0; j<3; j++) 
+            for(j=0; j<3; j++)
                bmat[i].ist[j] = 0;
-            for(j=0; j<3; j++) 
+            for(j=0; j<3; j++)
                bmat[i].ivel[j] = 0;
          }
 
          SetDlgItemInt(hDlg, AD_NBMAT, nbmat, FALSE);
          SendDlgItemMessage(hDlg, AD_BMAT, CB_RESETCONTENT, 0, 0);
-         for(i=0; i<nbmat; i++) 
+         for(i=0; i<nbmat; i++)
          {
             SendDlgItemMessage(hDlg, AD_BMAT, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
          }
@@ -378,46 +378,46 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
          gcvt(bmat[0].pois, 4, temp);
          SetDlgItemText(hDlg, AD_POIS, temp);
 
-         for(i=0; i<3; i++) 
+         for(i=0; i<3; i++)
          {
             gcvt(bmat[0].iss[i], 4, temp);
             SetDlgItemText(hDlg, AD_ISSX+i, temp);
          }
 
-         for(i=0; i<3; i++) 
+         for(i=0; i<3; i++)
          {
             gcvt(bmat[0].ist[i], 4, temp);
             SetDlgItemText(hDlg, AD_ISTX+i, temp);
          }
 
-         for(i=0; i<3; i++) 
+         for(i=0; i<3; i++)
          {
             gcvt(bmat[0].ivel[i], 4, temp);
             SetDlgItemText(hDlg, AD_IVELX+i, temp);
          }
- 
+
          bindex = 0;
       }  //end if
       break;
 
    case AD_BMINUS:
       SendMessage(hDlg, WM_COMMAND, AD_BMAT, 0L);
-      if(nbmat > 1) 
+      if(nbmat > 1)
       {
-         if(bmatOld && bmatOld != bmat) 
+         if(bmatOld && bmatOld != bmat)
             free(bmatOld);
 
          bmatOld = bmat;
          nbmatOld = nbmat;
          nbmat--;
-         /* This (itoa) probably needs to be replaced with 
+         /* This (itoa) probably needs to be replaced with
           * an sprintf.
           */
          itoa(nbmat, temp, 10);
          SetDlgItemText(hDlg, AD_NBMAT, temp);
          SendDlgItemMessage(hDlg, AD_BMAT, CB_RESETCONTENT, 0, 0);
 
-         for(i=0; i<nbmat; i++) 
+         for(i=0; i<nbmat; i++)
          {
             SendDlgItemMessage(hDlg, AD_BMAT, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
          }
@@ -432,19 +432,19 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
          gcvt(bmat[0].pois, 4, temp);
          SetDlgItemText(hDlg, AD_POIS, temp);
 
-         for(i=0; i<3; i++) 
+         for(i=0; i<3; i++)
          {
             gcvt(bmat[0].iss[i], 4, temp);
             SetDlgItemText(hDlg, AD_ISSX+i, temp);
          }
 
-         for(i=0; i<3; i++) 
+         for(i=0; i<3; i++)
          {
             gcvt(bmat[0].ist[i], 4, temp);
             SetDlgItemText(hDlg, AD_ISTX+i, temp);
          }
 
-         for(i=0; i<3; i++) 
+         for(i=0; i<3; i++)
          {
             gcvt(bmat[0].ivel[i], 4, temp);
             SetDlgItemText(hDlg, AD_IVELX+i, temp);
@@ -463,19 +463,19 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
       SetDlgItemText(hDlg, AD_YMOD, temp);
       gcvt(bmat[i].pois, 4, temp);
       SetDlgItemText(hDlg, AD_POIS, temp);
-      for(i=0; i<3; i++) 
+      for(i=0; i<3; i++)
       {
          gcvt(bmat[i].iss[i], 4, temp);
          SetDlgItemText(hDlg, AD_ISSX+i, temp);
       }
- 
-      for(i=0; i<3; i++) 
+
+      for(i=0; i<3; i++)
       {
          gcvt(bmat[i].ist[i], 4, temp);
          SetDlgItemText(hDlg, AD_ISTX+i, temp);
       }
 
-      for(i=0; i<3; i++) 
+      for(i=0; i<3; i++)
       {
          gcvt(bmat[i].ivel[i], 4, temp);
          SetDlgItemText(hDlg, AD_IVELX+i, temp);
@@ -485,8 +485,8 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
       break;
 
   /* Friction, cohesion and tensile strength edit controls. */
-   case AD_FRIC: 
-   case AD_COH: 
+   case AD_FRIC:
+   case AD_COH:
    case AD_TENS:
    if(HIWORD(wParam) == EN_KILLFOCUS) {
 
@@ -502,25 +502,25 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
          GetDlgItemText(hDlg, AD_TENS, temp, 20);
          //jmat[jindex].tens = strtod(temp, NULL);
          jointmat_set_tension(&jmat[jindex],strtod(temp,NULL));
-      } 
-   } 
+      }
+   }
    break;
 
-  /*  Mass density, weight, Poisson's ratio, etc.  saving 
-   * worked on June 26 1998.  
+  /*  Mass density, weight, Poisson's ratio, etc.  saving
+   * worked on June 26 1998.
    */
-   case AD_DENS: 
-   case AD_WT: 
-   case AD_YMOD: 
+   case AD_DENS:
+   case AD_WT:
+   case AD_YMOD:
    case AD_POIS:
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       // MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", NULL);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, AD_DENS, temp, 20);
-         bmat[bindex].dens = strtod(temp, NULL); 
+         bmat[bindex].dens = strtod(temp, NULL);
          GetDlgItemText(hDlg, AD_WT, temp, 20);
          bmat[bindex].wt = strtod(temp, NULL);
          GetDlgItemText(hDlg, AD_YMOD, temp, 20);
@@ -532,40 +532,40 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
    break;
 
   /*  Load the edit controls with initial values of
-   * stress, strain and initial velocity.  These worked 
-   * test file as of 25 June, 1998.  However, traversing 
+   * stress, strain and initial velocity.  These worked
+   * test file as of 25 June, 1998.  However, traversing
    * over to the number of blocks control changes the values
-   * in these controls.  
+   * in these controls.
    */
-   case AD_ISSX:  
-   case AD_ISSY:  
+   case AD_ISSX:
+   case AD_ISSY:
    case AD_ISSXY:
-   case AD_ISTX: 
+   case AD_ISTX:
    case AD_ISTY:
    case AD_ISTXY:
-   case AD_IVELX: 
-   case AD_IVELY: 
+   case AD_IVELX:
+   case AD_IVELY:
    case AD_IVELR:
-      if(HIWORD(wParam) == EN_KILLFOCUS) 
+      if(HIWORD(wParam) == EN_KILLFOCUS)
       {
          // MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", NULL);
-         if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+         if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
          {
             SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
 
-            for(i=0; i<3; i++) 
+            for(i=0; i<3; i++)
             {
                GetDlgItemText(hDlg, AD_ISSX+i, temp, 20);
                bmat[bindex].iss[i] = strtod(temp, NULL);
             }
- 
-            for(i=0; i<3; i++) 
+
+            for(i=0; i<3; i++)
             {
                GetDlgItemText(hDlg, AD_ISTX+i, temp, 20);
                bmat[bindex].ist[i] = strtod(temp, NULL);
             }
 
-            for(i=0; i<3; i++) 
+            for(i=0; i<3; i++)
             {
                GetDlgItemText(hDlg, AD_IVELX+i, temp, 20);
                bmat[bindex].ivel[i] = strtod(temp, NULL);
@@ -576,39 +576,39 @@ handleWMCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
   /* Handle the load points.
    */
-   case AD_STARTTIME1:  
-   case AD_FORCEX1:  
+   case AD_STARTTIME1:
+   case AD_FORCEX1:
    case AD_FORCEY1:
-   case AD_STARTTIME2: 
+   case AD_STARTTIME2:
    case AD_FORCEX2:
    case AD_FORCEY2:
-   case AD_STARTTIME3: 
-   case AD_FORCEX3: 
+   case AD_STARTTIME3:
+   case AD_FORCEX3:
    case AD_FORCEY3:
    case AD_STARTTIME4:
    case AD_FORCEX4:
    case AD_FORCEY4:
-      if(HIWORD(wParam) == EN_KILLFOCUS) 
+      if(HIWORD(wParam) == EN_KILLFOCUS)
       {
          // MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", NULL);
-         if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+         if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
          {
             int k = 0;
             SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
-/* FIXME: I am sure this is necessary to handle less than 
+/* FIXME: I am sure this is necessary to handle less than
  * 4 loadpoint time values.
- */               
+ */
 /*
 if (lpoints[index].loadpointsize1 < 4)
    j = lpoints[index].loadpointsize1;
-else 
+else
    j = 4;
 */
 //int nCells; /* might be less values than cells. */
-            for(i=0; i<4; i++) 
+            for(i=0; i<4; i++)
             {
                for (j=0; j<3; j++)
-               {  
+               {
                   GetDlgItemText(hDlg, AD_STARTTIME1+k, temp, 20);
                   lpoints[loadindex].vals[lpscrollpos+i][j] = strtod(temp, NULL);
                   k++;
@@ -627,20 +627,20 @@ else
 
 
 /* What follows is a set of helper functions that allow
- * much cleaner message handling in the main body of the 
- * analysis dialog code.  All of the static variables 
- * declared in this file should be initialized from 
+ * much cleaner message handling in the main body of the
+ * analysis dialog code.  All of the static variables
+ * declared in this file should be initialized from
  * this function.  No members of the analysis struct
- * (ad) should be used outside of this function and the 
+ * (ad) should be used outside of this function and the
  * save function.
  */
-static void 
+static void
 loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
 {
    int i;
 
 
-  /* The following block of code is what actually reads the file 
+  /* The following block of code is what actually reads the file
    * information into the analysis dialog box.  This will eventually
    * be replaced with a function that will translate the analysis
    * data structure arrays into the structs data needed for the file
@@ -650,9 +650,9 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
    // open afile and read in data
   //*hFile = OpenFile(filepath.afile, of, OF_READ);
 
-  /* FIXME: Get rid of dependence of geometry input files. 
-   * This can only be done by either eliminating everything 
-   * but ddaml input, or by trapping other formats and 
+  /* FIXME: Get rid of dependence of geometry input files.
+   * This can only be done by either eliminating everything
+   * but ddaml input, or by trapping other formats and
    * refusing to proceed.
    */
    //ad = XMLparseDDA_Analysis_File(filepath.afile);
@@ -694,13 +694,13 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
    autotimestep = ad->autotimestepflag;
    autopenalty = ad->autopenaltyflag;
 
-  /* Get the materials and initial state of each 
-   * block material. 
+  /* Get the materials and initial state of each
+   * block material.
    */
    bmat = (BlockMat *) malloc(sizeof(BlockMat) * nbmat);
 
 
-   for(i=0; i<nbmat; i++) 
+   for(i=0; i<nbmat; i++)
    {
       bmat[i].dens = ad->materialProps[i+1][0];
       bmat[i].wt = ad->materialProps[i+1][1];
@@ -730,9 +730,9 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
       //jmat[i].tens = ad->phiCohesion[i+1][2];
       jointmat_set_tension(&jmat[i], ad->phiCohesion[i+1][2]);
    }
-      
-  /* This is a really bad business here. 
-   * FIXME: Time dependent points code needs to 
+
+  /* This is a really bad business here.
+   * FIXME: Time dependent points code needs to
    * be rewritten very badly.  This probably
    * will not happen until the entire point
    * handling code gets rewritten.
@@ -743,16 +743,16 @@ loadFileData(HWND hDlg, HFILE * hFile, OFSTRUCT * of)
 
     // hFile = OpenFile(afile, &of, OF_EXIST);
     //      _lclose(*hFile);
-           
+
 }  /* close loadFileData2() */
 
 
 /* FIXME: Initialize all of the static analysis variables
- * declared in this file, then initialize the analysis 
+ * declared in this file, then initialize the analysis
  * struct with these variables in the save routine, right
- * before the call to dumpAnalysisData(). 
+ * before the call to dumpAnalysisData().
  */
-static void 
+static void
 loadDefaults()
 {
    int i, j;
@@ -778,26 +778,26 @@ loadDefaults()
       jmat[i].tens = 0;
    }
 */
-    
+
    bmat = (BlockMat *) malloc(sizeof(BlockMat) * nbmat);
-   for (i = 0; i<nbmat; i++) 
+   for (i = 0; i<nbmat; i++)
    {
       bmat[i].dens = 2.5;
       bmat[i].wt = 25;
       bmat[i].ymod = 1000000;
       bmat[i].pois = .49;
 
-      for(j=0; j<3; j++) 
+      for(j=0; j<3; j++)
          bmat[i].iss[j] = 0;
 
-      for(j=0; j<3; j++) 
+      for(j=0; j<3; j++)
          bmat[i].ist[j] = 0;
 
-      for(j=0; j<3; j++) 
+      for(j=0; j<3; j++)
          bmat[i].ivel[j] = 0;
    }
 
-  /* Kludge: make numtdeps depend on 
+  /* Kludge: make numtdeps depend on
    * having a valid geometry file loaded.
    */
    //numtdeps = geomdata->nFPoints+geomdata->nLPoints;
@@ -823,14 +823,14 @@ setDialogValues(HWND hDlg, LPARAM lParam, WPARAM wParam)
    CheckRadioButton(hDlg, AD_STAT, AD_DYNAM, AD_STAT + dynam);
    CheckRadioButton(hDlg, AD_PSTRESS, AD_PSTRAIN, AD_PSTRESS + planestrain);
 
-   if (gravity) 
+   if (gravity)
       CheckDlgButton(hDlg, AD_GRAVITY, MF_CHECKED);
-   else 
+   else
       CheckDlgButton(hDlg, AD_GRAVITY, MF_UNCHECKED);
 
-   if (rotation) 
+   if (rotation)
       CheckDlgButton(hDlg, AD_ROTATION, MF_CHECKED);
-   else 
+   else
       CheckDlgButton(hDlg, AD_ROTATION, MF_UNCHECKED);
 
   /* Analysis parameters */
@@ -865,36 +865,36 @@ setDialogValues(HWND hDlg, LPARAM lParam, WPARAM wParam)
    SetDlgItemText(hDlg, AD_YMOD, temp);
    gcvt(bmat[0].pois, 14, temp);
    SetDlgItemText(hDlg, AD_POIS, temp);
-   
+
 
   /*  Initialize the stress values. */
-   for(i=0; i<3; i++) 
+   for(i=0; i<3; i++)
    {
       gcvt(bmat[0].iss[i], 14, temp);
       SetDlgItemText(hDlg, AD_ISSX+i, temp);
    }
-   
+
   /* Initialize the strain values.  */
-   for(i=0; i<3; i++) 
+   for(i=0; i<3; i++)
    {
       gcvt(bmat[0].ist[i], 14, temp);
       SetDlgItemText(hDlg, AD_ISTX+i, temp);
    }
 
   /*  The initial velocity values. */
-   for(i=0; i<3; i++) 
+   for(i=0; i<3; i++)
    {
       gcvt(bmat[0].ivel[i], 14, temp);
       SetDlgItemText(hDlg, AD_IVELX+i, temp);
    }
 
-   for(i=0; i<njmat; i++) 
+   for(i=0; i<njmat; i++)
    {
       SendDlgItemMessage(hDlg, AD_JMAT, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
    }
    SendDlgItemMessage(hDlg, AD_JMAT, CB_SETCURSEL, 0, 0);
 
-   for(i=0; i<nbmat; i++) 
+   for(i=0; i<nbmat; i++)
    {
       SendDlgItemMessage(hDlg, AD_BMAT, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
    }
@@ -903,7 +903,7 @@ setDialogValues(HWND hDlg, LPARAM lParam, WPARAM wParam)
   /* Handle the time dependent stuff.
    * The next block gets the spinner.
    */
-   for(i=0; i<numtdeps; i++) 
+   for(i=0; i<numtdeps; i++)
    {
       SendDlgItemMessage(hDlg, AD_TIMEDEPS, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
    }
@@ -911,8 +911,8 @@ setDialogValues(HWND hDlg, LPARAM lParam, WPARAM wParam)
   /* Now set the scrollbar. */
    hLPScroller = GetDlgItem(hDlg, AD_TDSCROLL);
    scrollinfo.fMask = SIF_POS;
-   
-  /* We just set the scrollbar, now set the values in the visible 
+
+  /* We just set the scrollbar, now set the values in the visible
    * part of the homegrown cell matrix widget.
    */
   /* FIXME:  segfaults here if new analysis menu item is selected.
@@ -926,18 +926,18 @@ setDialogValues(HWND hDlg, LPARAM lParam, WPARAM wParam)
    //if (nlp > 0)
    //   setLoadCells(hDlg, 0, 0);
 
-  /* Set the initial scroll bar position */ 
+  /* Set the initial scroll bar position */
    if (nlp > 3)
       i = nlp-4;
-   else 
+   else
       i = 0;
-   
+
    SetScrollRange(hLPScroller, SB_CTL, 0, i, FALSE);
    SetScrollPos(hLPScroller, SB_CTL, 0, TRUE);
-   
+
    if (nlp > 0)
       ; //  Do nothing for now: initBoltBoxes(hDlg);
-   else 
+   else
       enableLoadBoxes(hDlg, FALSE);
 
 }  /* Close setDialogValues()  */
@@ -976,12 +976,12 @@ saveData()
    ad->materialpropsize1 = nbmat+1;
    ad->materialpropsize2 = 13;
    ad->materialProps = DoubMat2DGetMem(ad->materialpropsize1,ad->materialpropsize2);
- 
+
    ad->phicohesionsize1 = njmat+1;
    ad->phicohesionsize2 = 3;
    ad->phiCohesion = DoubMat2DGetMem(ad->phicohesionsize1,ad->phicohesionsize2);
 
-   for(i=0; i<nbmat; i++) 
+   for(i=0; i<nbmat; i++)
    {
       ad->materialProps[i+1][0] = bmat[i].dens;
       ad->materialProps[i+1][1] = bmat[i].wt;
@@ -1004,14 +1004,14 @@ saveData()
       ad->phiCohesion[i+1][1] = jointmat_get_cohesion(&jmat[i]);
       ad->phiCohesion[i+1][2] = jointmat_get_tension(&jmat[i]);
    }
-      
-  /* This is a really bad business here. 
-   * FIXME: Time dependent points code needs to 
+
+  /* This is a really bad business here.
+   * FIXME: Time dependent points code needs to
    * be rewritten very badly.  This probably
    * will not happen until the entire point
    * handling code gets rewritten.
    */
-  /* Number of loading points will not change in 
+  /* Number of loading points will not change in
    * analysis dialog.
    */
    //numtdeps = ad->nLPoints;
@@ -1030,10 +1030,10 @@ saveData()
 
 
   /* Leave this stuff for clean up. */
-   if(jmatOld) 
+   if(jmatOld)
       free(jmatOld);
    free(jmat);
-   if(bmatOld)  
+   if(bmatOld)
       free(bmatOld);
    free(bmat);
   /* FIXME: free analysis data struct also */
@@ -1043,31 +1043,31 @@ saveData()
 
 /* Eventually, setLoadPoints should handle all
  * instances of filling in cells.  In fact,
- * given a window handle, and parameters, it 
- * could probably be used from the geometry 
- * file as well.  scrollpos is the same as the 
+ * given a window handle, and parameters, it
+ * could probably be used from the geometry
+ * file as well.  scrollpos is the same as the
  * global lpscrollpos.
- * FIXME: This segfaults when loading up an analysis 
+ * FIXME: This segfaults when loading up an analysis
  * file during run time.
  */
-static void 
+static void
 setLoadCells(HWND hDlg, int index, int scrollpos)
 {
    int i,j;
 
   /* FIXME: New analysis crashes this because there are
-   * no load points to check for.   
-   */                                                                                           
+   * no load points to check for.
+   */
    if (lpoints[index].loadpointsize1 < 4)
       j = lpoints[index].loadpointsize1;
-   else 
+   else
       j = 4;
 
   /* FIXME: rewrite this in the same way the KILLFOCUS
    * is handled, provided that the kill focus works.
    */
    for (i=0;i<j;i++)
-   {   
+   {
       gcvt(lpoints[index].vals[scrollpos+i][0], 14, temp);
       SetDlgItemText(hDlg, AD_STARTTIME1+3*i, temp);
       gcvt(lpoints[index].vals[scrollpos+i][1], 14, temp);
@@ -1079,9 +1079,9 @@ setLoadCells(HWND hDlg, int index, int scrollpos)
 }  /* close  setLoadCells() */
 
 
-/* The basic stuff here was copied from the geometry 
+/* The basic stuff here was copied from the geometry
  * dialog.  If the analysis dialog needs to be extended
- * in the future, the geometry dialog code should be 
+ * in the future, the geometry dialog code should be
  * used as example for implementing extra scrollbars.
  */
 static void
@@ -1104,38 +1104,38 @@ handleScrollBar(HWND hDlg, LPARAM lParam, WPARAM wParam, int lpoint)
    else
       np = lpoints[0].loadpointsize1;
 
-   switch (LOWORD(wParam)) 
+   switch (LOWORD(wParam))
    {
-      case SB_LINEDOWN: 
-         lpscrollpos++; 
+      case SB_LINEDOWN:
+         lpscrollpos++;
          break;
 
-      case SB_LINEUP: 
-         lpscrollpos--; 
+      case SB_LINEUP:
+         lpscrollpos--;
          break;
 
-      case SB_PAGEDOWN: 
-         lpscrollpos += 5; 
+      case SB_PAGEDOWN:
+         lpscrollpos += 5;
          break;
 
-      case SB_PAGEUP: 
-         lpscrollpos -= 5; 
+      case SB_PAGEUP:
+         lpscrollpos -= 5;
          break;
 
-      case SB_THUMBTRACK: 
-         lpscrollpos =  HIWORD(wParam); 
+      case SB_THUMBTRACK:
+         lpscrollpos =  HIWORD(wParam);
          break;
    }
 
-   if(lpscrollpos > np-4) 
+   if(lpscrollpos > np-4)
       lpscrollpos = np-4;
 
-   if(lpscrollpos < 0) 
+   if(lpscrollpos < 0)
       lpscrollpos=0;
-  
+
    if(lpscrollpos != GetScrollPos(hLPScroller, SB_CTL))
       SetScrollPos(hLPScroller, SB_CTL, lpscrollpos, TRUE);
-   
+
   /* Kludge. Loadpoint handling is totally kludged.
    */
    if (np != 0)
@@ -1145,13 +1145,13 @@ handleScrollBar(HWND hDlg, LPARAM lParam, WPARAM wParam, int lpoint)
 
 
 
-static void 
+static void
 enableLoadBoxes(HWND hDlg, BOOLEAN flag)
 {
    int i;
    HWND hEditCtrl;
 
-   /* This will need to be changed to allow 
+   /* This will need to be changed to allow
     * i to start from a certain value.
     */
    for (i=0;i<13;i++)
@@ -1163,7 +1163,7 @@ enableLoadBoxes(HWND hDlg, BOOLEAN flag)
 }  /* close enableLoadBoxes() */
 
 
-static void 
+static void
 handleJointPlus(HWND hDlg)
 {
    int i;
@@ -1189,7 +1189,7 @@ handleJointPlus(HWND hDlg)
          //jmat[i].tens = jmatOld[i].tens;
          jointmat_set_tension(&jmat[i],jointmat_get_tension(&jmatOld[i]));
       }
-        
+
       for(i = njmatOld; i<njmat; i++) {
          //jmat[i].fric = 0;
          jointmat_set_friction(&jmat[i],0);
@@ -1202,7 +1202,7 @@ handleJointPlus(HWND hDlg)
       SetDlgItemInt(hDlg, AD_NJMAT, njmat, FALSE);
       SendDlgItemMessage(hDlg, AD_JMAT, CB_RESETCONTENT, 0, 0);
 
-      for(i=0; i<njmat; i++) 
+      for(i=0; i<njmat; i++)
       {
          SendDlgItemMessage(hDlg, AD_JMAT, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
       }
@@ -1231,21 +1231,21 @@ handleJointMinus(HWND hDlg)
 {
    int i;
 
-   if(njmat > 1) 
+   if(njmat > 1)
    {
-      if(jmatOld && jmatOld != jmat) 
+      if(jmatOld && jmatOld != jmat)
          free(jmatOld);
       jmatOld = jmat;
       njmatOld = njmat;
       njmat--;
-      /* itoa probably needs to be replaced with 
-       * sprintf 
+      /* itoa probably needs to be replaced with
+       * sprintf
        */
       itoa(njmat, temp, 10);
       SetDlgItemText(hDlg, AD_NJMAT, temp);
       SendDlgItemMessage(hDlg, AD_JMAT, CB_RESETCONTENT, 0, 0);
 
-      for(i=0; i<njmat; i++) 
+      for(i=0; i<njmat; i++)
       {
          SendDlgItemMessage(hDlg, AD_JMAT, CB_ADDSTRING, 0, (LPARAM) ((LPCSTR) numlist[i]));
       }

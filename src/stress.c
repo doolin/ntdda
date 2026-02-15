@@ -93,7 +93,7 @@ stress_clone(const double * s1) {
 
 
 void
-stress_update(double ** e0, double ** D, int * k1, 
+stress_update(double ** e0, double ** D, int * k1,
               int numblocks, BoundCond apply_boundary_cond, StrainModel strain_compute) {
 
    int i, i1;
@@ -108,11 +108,11 @@ stress_update(double ** e0, double ** D, int * k1,
 }
 
 
-/** A strain identity, assumes D has the small strain 
+/** A strain identity, assumes D has the small strain
  * elements already and does nothing.
  *
- * @warning DO NOT DELETE THIS FUNCTION.  Deleting 
- *  this function will break the callback structure, 
+ * @warning DO NOT DELETE THIS FUNCTION.  Deleting
+ *  this function will break the callback structure,
  *  and will require one or more if statements.
  */
 void
@@ -132,7 +132,7 @@ strain_linear_elastic(double * D, double strain[4]) {
  *
  * @todo Write a unit test for this.
  */
-void 
+void
 strain_green_lagrange(double * D, double strain[4]) {
 
    double h11 = D[3];
@@ -180,7 +180,7 @@ stress_planestrain_mohrcoulomb(double * stress, double strain[4]) {
    double a1;
    double E  = stress[_E_];
    double nu = stress[_nu_];
-   // probably below array should be added 
+   // probably below array should be added
    // that can be obtained from analysisreader
    double c = stress[_c_];
    double phi = stress[_phi_];
@@ -233,12 +233,12 @@ stress_planestress(double * stress, double strain[4]) {
  * ICADD 1 proceedings.  See also Eqs. 18 and 19 for
  * formulas for updating the deformation rates.
  */
-/* TODO: verify that doing the updating here is 
- * mathematically correct.  It might need to be done 
+/* TODO: verify that doing the updating here is
+ * mathematically correct.  It might need to be done
  * before adding to the existing block stresses which
  * are (presumably) already in referential coordinates.
  */
-void 
+void
 stress_rotate(double * stress, double r0) {
 
    double sigmaxx, sigmayy, tauxy;
@@ -354,7 +354,7 @@ stiffness_finite_2d_planestress(double e[7][7], const double S0,
    E21 = a2*nu;
    E22 = a2;
    E33 = a2*(1-nu)/2;
-   
+
    e[3][3] = E11;
    e[4][4] = E33;
    e[5][5] = E33;
@@ -373,13 +373,13 @@ stiffness_finite_2d_planestress(double e[7][7], const double S0,
 /**
  * Future callback.  This function might also disappear,
  * or could be used to wrap a couple of calls that are
- * interdependent, with this function being the single 
- * callback invoked instead or two callbacks from the 
- * function that loops over the block list which would 
+ * interdependent, with this function being the single
+ * callback invoked instead or two callbacks from the
+ * function that loops over the block list which would
  * have to be compatible.
  */
 void
-stiffness_compute(double * K, const double E, const double nu, 
+stiffness_compute(double * K, const double E, const double nu,
                   const double S0,int planestrainflag) {
 
    //int i;
@@ -387,7 +387,7 @@ stiffness_compute(double * K, const double E, const double nu,
    //double a2;
    double e[7][7] = {{0.0}};
 
-   /* Since e is only used once per call, this 
+   /* Since e is only used once per call, this
     * loop should be unnecessary.
     */
    /*
@@ -395,7 +395,7 @@ stiffness_compute(double * K, const double E, const double nu,
       for (j=1; j<= 6; j++) {
          e[i][j]=0;
       }
-   } 
+   }
    */
 
   /* The stiffness function needs to come in as a callback. */
@@ -423,7 +423,7 @@ stiffness_compute(double * K, const double E, const double nu,
 
          j1 = 6*(j-1)+l;  /* set index to global matrix */
          K[j1] += e[j][l];  /* add elastic coefficients */
-      }  
+      }
    }
 #endif
 
@@ -433,8 +433,8 @@ stiffness_compute(double * K, const double E, const double nu,
 /**************************************************/
 /* df13: submatrix of stiffness                    */
 /**************************************************/
-void 
-stress_stiffness(int numblocks, double ** K, const int *k1, double **e0, 
+void
+stress_stiffness(int numblocks, double ** K, const int *k1, double **e0,
                  double ** moments, int **n, int planestrainflag) {
 
    int i2, i3;
@@ -447,13 +447,13 @@ stress_stiffness(int numblocks, double ** K, const int *k1, double **e0,
    int i,j,j1,l;
    double a2;
 
-   double e[7][7]; 
+   double e[7][7];
 
    for (i=1; i<= 6; i++) {
       for (j=1; j<= 6; j++) {
          e[i][j]=0;
       }
-   } 
+   }
    */
    for (block=1; block<=numblocks; block++) {
 
@@ -494,12 +494,12 @@ stress_stiffness(int numblocks, double ** K, const int *k1, double **e0,
 
             j1 = 6*(j-1)+l;  /* set index to global matrix */
             K[i3][j1] += e[j][l];  /* add elastic coefficients */
-         }  
-      } 
+         }
+      }
 #endif
 
-   }  
-}  
+   }
+}
 
 
 
@@ -536,7 +536,7 @@ stress_print(double * s, PrintFunc printer, void * stream) {
 void
 stress_print_stresses(double * s, PrintFunc printer, void * stream) {
 
-   printer(stream,"sigma = [ %f %f  \n          %f %f ];\n", 
+   printer(stream,"sigma = [ %f %f  \n          %f %f ];\n",
                    s[_s11_],s[_s12_],s[_s12_],s[_s22_]);
 }
 

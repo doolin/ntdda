@@ -1,7 +1,7 @@
 
 
 
-/** @todo Remove the geomdlg file, or 
+/** @todo Remove the geomdlg file, or
  * make it into something useful.
  */
 /*

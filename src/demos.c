@@ -23,7 +23,7 @@ handleARS(HWND hwMain)
 
  char mess[80];
 
-       STARTUPINFO ves; 
+       STARTUPINFO ves;
        BOOL  flag;
 	      PROCESS_INFORMATION pi;
 	      ves.lpReserved=NULL;
@@ -35,17 +35,17 @@ handleARS(HWND hwMain)
 	      strcpy(mess,"D:\\Program Files\\ars\\launcher.exe D:\\Program Files\\ars\\ars.ini");
        flag = CreateProcess(NULL,(LPTSTR)mess,NULL,NULL,FALSE,
           NORMAL_PRIORITY_CLASS,NULL,NULL,&ves,&pi);
-       
+
        ShowWindow(hwMain, SW_MINIMIZE);
        flag = WaitForSingleObject(pi.hProcess,INFINITE);
-       
+
        if (flag != WAIT_OBJECT_0)
-       { 
+       {
           MessageBox(hwMain, "TSlope not found in path",mess /* "Not found"*/, MB_OK);
-       }         
+       }
        else
           ShowWindow(hwMain, SW_MINIMIZE);
- 
+
        ShowWindow(hwMain, SW_RESTORE);
 }  /* close handleTSlope() */
 
@@ -55,7 +55,7 @@ handleTSlope(HWND hwMain)
 
 char mess[80];
 
-       STARTUPINFO ves; 
+       STARTUPINFO ves;
        BOOL  flag;
 	      PROCESS_INFORMATION pi;
 	      ves.lpReserved=NULL;
@@ -67,17 +67,17 @@ char mess[80];
 	      strcpy(mess,"D:\\Program Files\\tslope\\launcher.exe D:\\Program Files\\tslope\\tslope.ini");
        flag = CreateProcess(NULL,(LPTSTR)mess,NULL,NULL,FALSE,
           NORMAL_PRIORITY_CLASS,NULL,NULL,&ves,&pi);
-       
+
        ShowWindow(hwMain, SW_MINIMIZE);
        flag = WaitForSingleObject(pi.hProcess,INFINITE);
-       
+
        if (flag != WAIT_OBJECT_0)
-       { 
+       {
           MessageBox(hwMain, "TSlope not found in path",mess /* "Not found"*/, MB_OK);
-       }         
+       }
        else
           ShowWindow(hwMain, SW_MINIMIZE);
- 
+
        ShowWindow(hwMain, SW_RESTORE);
 }  /* close handleTSlope() */
 //#endif /* DEMO */

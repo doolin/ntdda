@@ -27,32 +27,32 @@ void            th_delete                    (TimeHistory * th);
 
 
 /**
- * @todo Explain what a valid time history is. 
+ * @todo Explain what a valid time history is.
  *
  * @return 1 pass 0 fail
  */
 int             th_validate                  (TimeHistory * th);
 
 void            th_read_data_file            (TimeHistory * th,
-                                              char * filename, 
+                                              char * filename,
                                               format);
 
 int             th_get_number_of_datapoints  (TimeHistory * th);
 
 double          th_get_delta_t               (TimeHistory * th);
 
-double          th_get_data_value            (TimeHistory * th, 
+double          th_get_data_value            (TimeHistory * th,
                                               int timestep);
 
 
-/** At some point in the future, this will be moved into a 
+/** At some point in the future, this will be moved into a
  * seismic module, and the timehistory will be hidden in that.
  */
-void            seismic_update_points        (DList * seispoints, 
-                                              double ** moments,  
+void            seismic_update_points        (DList * seispoints,
+                                              double ** moments,
                                               double ** F,
                                               int * k1,
-                                              TransMap transmap, 
+                                              TransMap transmap,
                                               TransApply transapply);
 
 

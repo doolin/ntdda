@@ -6,7 +6,7 @@
 #include"resource.h"
 
 
-BOOL CALLBACK 
+BOOL CALLBACK
 UnitDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
    char scaletext[10];

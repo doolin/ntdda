@@ -30,7 +30,7 @@ loadpoint_new_array(int numloadpoints) {
 }
 
 
-void 
+void
 loadpoint_delete(Loadpoint * lp) {
 
    if (lp == NULL) {
@@ -42,12 +42,12 @@ loadpoint_delete(Loadpoint * lp) {
    }
 
    free(lp);
-}  
+}
 
 
 
 
-Loadpoint * 
+Loadpoint *
 loadpoint_clone(Loadpoint * lpo, int numloadpoints) {
 
    int i,j,m,n;
@@ -58,7 +58,7 @@ loadpoint_clone(Loadpoint * lpo, int numloadpoints) {
    for (i=0;i<numloadpoints;i++) {
 
       lp[i].loadpointsize1 = n = lpo[i].loadpointsize1;
-      lp[i].loadpointsize2 = m = lpo[i].loadpointsize2;  
+      lp[i].loadpointsize2 = m = lpo[i].loadpointsize2;
       lp[i].vals = DoubMat2DGetMem(n,m);
       for (j=0;j<n;j++) {
 
@@ -69,10 +69,10 @@ loadpoint_clone(Loadpoint * lpo, int numloadpoints) {
    }
 
    return lp;
-}  
+}
 
 void
-loadpoint_print (Loadpoint * lp, int numloadpoints, 
+loadpoint_print (Loadpoint * lp, int numloadpoints,
                  PrintFunc printer, void * bfp) {
 
    int i, j, n;
@@ -88,7 +88,7 @@ loadpoint_print (Loadpoint * lp, int numloadpoints,
 
      	for (j = 0; j < n; j++) {
 
-	        printer (bfp, "%.4f  %.4f  %.4f\n", 
+	        printer (bfp, "%.4f  %.4f  %.4f\n",
                     lpoints[j][0], lpoints[j][1], lpoints[j][2]);
       }
    }
@@ -107,7 +107,7 @@ loadpoint_print_current(Loadpoint * lp, PrintFunc printer, void * stream) {
 
 #if 0
 void
-loadpoint_print_xml(Loadpoint * lp, int numloadpoints, 
+loadpoint_print_xml(Loadpoint * lp, int numloadpoints,
                  PrintFunc printer, void * bfp) {
 
    int i, j, n;
@@ -121,7 +121,7 @@ loadpoint_print_xml(Loadpoint * lp, int numloadpoints,
 
      	for (j = 0; j < n; j++) {
 
-	        printer (bfp, "%.4f  %.4f  %.4f\n", 
+	        printer (bfp, "%.4f  %.4f  %.4f\n",
                     lpoints[j][0], lpoints[j][1], lpoints[j][2]);
       }
    }
@@ -137,8 +137,8 @@ loadpoint_print_xml(Loadpoint * lp, int numloadpoints,
 /* df09: time interpolation                       */
 /**************************************************/
 /* This appears to be linear lagrange intepolation
- * for time dependent loading points.  Note that fixed 
- * points are considered time dependent, except that from 
+ * for time dependent loading points.  Note that fixed
+ * points are considered time dependent, except that from
  * time 0 to 100000, 0 load is applied.  Behavior for
  * t > 100000 appears to be unspecified...
  */
@@ -164,37 +164,37 @@ void df09(Loadpoint * lp,
    double current_time;
    double **lpoints;
    const int TIME = 0;
-  
+
    double dt;
 
   /* a3 is the elapsed time at the end of the current step.
    * This allows to find the force to apply in the current
-   * configuration (applied at a point in the reference 
+   * configuration (applied at a point in the reference
    * configuration).
    */
   /* FIXME: Note where globaltime is updated.
    */
    current_time = globalTime[cts-1][0]+(delta_t);
-      
+
 
    for (i = 0; i < numloadpoints; i++) {
 
      	n = lp[i].loadpointsize1;
      	lpoints = lp[i].vals;
      	for (j = 0; j < n-2; j++) {
-         if ( (lpoints[j][TIME] <= current_time) && 
+         if ( (lpoints[j][TIME] <= current_time) &&
               (current_time  <= lpoints[j+1][TIME]) ) {
             break;
-          }   
+          }
 	    }
 
       dt = (lpoints[j+1][TIME] - lpoints[j][TIME]);
-      
-      
+
+
       if (dt <= 0) {
          lp->display_error("Loadpoint error: Adjacent time step values must be different.\n");
       }
-      
+
 		a1 = (current_time - lpoints[j][TIME]) / dt;
       lp->time = current_time;
       lp->xload = lpoints[j][1] + a1*(lpoints[j+1][1] - lpoints[j][1]);
@@ -203,7 +203,7 @@ void df09(Loadpoint * lp,
       points[i+nfp+1][5] = lp->yload;
    }
 
-}  
+}
 
 
 

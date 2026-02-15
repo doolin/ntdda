@@ -1,7 +1,7 @@
 
 
 #include <windows.h>
-#include <windowsx.h> 
+#include <windowsx.h>
 #include "resource.h"
 #include <commctrl.h>
 #include "toolbar.h"
@@ -46,7 +46,7 @@ toolbar_get_visibility() {
 }
 
 
-void 
+void
 toolbar_set_visibility(int v) {
    visibility = v;
    toolbar_show();
@@ -71,7 +71,7 @@ toolbar_send_message(HWND hToolBar, unsigned int button, unsigned short state) {
 }
 
 
-void 
+void
 toolbar_resize(void){
 
    SendMessage(hToolBar,WM_SIZE,0,0);
@@ -82,7 +82,7 @@ toolbar_set_state(unsigned int state) {
 
 
    switch (state) {
-   
+
       case (GEOM_STATE | FINISHED):
          toolbar_send_message(hToolBar,GEOM_APPLY, TBSTATE_ENABLED);
          toolbar_send_message(hToolBar,ANAL_BROWSE,TBSTATE_ENABLED);
@@ -140,12 +140,12 @@ toolbar_set_state(unsigned int state) {
 
 
 
-void 
+void
 toolbar_init(HWND hwMain) {
 
    HINSTANCE hInst;
 
-   TBBUTTON tbbutton[] = {  
+   TBBUTTON tbbutton[] = {
 	  /* FIXME:  Second member of array is actually the command. */
 	   {0, GEOM_NEW,        TBSTATE_ENABLED, TBSTYLE_BUTTON, 0,   0},
 	   {1, ANAL_NEW,        0,               TBSTYLE_BUTTON, 0,   0},
@@ -178,22 +178,22 @@ toolbar_init(HWND hwMain) {
 
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
-   hToolBar = CreateToolbarEx(hwMain, 
-	                           WS_CHILD | TBSTYLE_TOOLTIPS | CCS_ADJUSTABLE, 
+   hToolBar = CreateToolbarEx(hwMain,
+	                           WS_CHILD | TBSTYLE_TOOLTIPS | CCS_ADJUSTABLE,
 	                           TOOLBAR_DDA_MAIN,
                               NUMIMAGES,
-                              hInst, 
+                              hInst,
                               TOOLBAR_DDA_MAIN,
                               tbbutton,
                               sizeof(tbbutton)/sizeof(TBBUTTON),
                               BUTTONWIDTH,
-                              BUTTONHEIGHT, 
+                              BUTTONHEIGHT,
                               IMAGEWIDTH,
-                              IMAGEHEIGHT, 
+                              IMAGEHEIGHT,
                               sizeof(TBBUTTON));
 
    toolbar_set_visibility(1);
-}  
+}
 
 
 

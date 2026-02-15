@@ -1,8 +1,8 @@
-/* 
+/*
  * drawtitle.c
- * 
+ *
  * Removes functionality from the message handling
- * switch statement.  Helps to clean up the code a 
+ * switch statement.  Helps to clean up the code a
  * bit.
  */
 
@@ -12,12 +12,12 @@
 
 
 
-/** 
- * FIXME: Change the name of this function to 
- * "displayImage" or something.  Then it can be invoked 
+/**
+ * FIXME: Change the name of this function to
+ * "displayImage" or something.  Then it can be invoked
  * from which ever functions need it.
  */
-void 
+void
 drawTitle(HWND hwMain, HDC hdc, HINSTANCE ghInstance)
 {
    HDC hdcMem;
@@ -40,7 +40,7 @@ drawTitle(HWND hwMain, HDC hdc, HINSTANCE ghInstance)
 			rectClient.bottom -= (long)(nHeight / 2.5);
 
 	//if(hBitmap = LoadBitmap(ghInstance, "TITLE")) {
-	if(hBitmap = LoadBitmap(hInst, "TITLE")) 
+	if(hBitmap = LoadBitmap(hInst, "TITLE"))
    {
 	   hdcMem = CreateCompatibleDC(hdc);
 		SelectObject(hdcMem, hBitmap);

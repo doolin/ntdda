@@ -15,12 +15,12 @@
 
 /**
  * @todo sc1 can be opened to a line number in a file
- * using the syntax "sc1 filename -goto:linenum". 
- * Implement this using the line number information 
+ * using the syntax "sc1 filename -goto:linenum".
+ * Implement this using the line number information
  * returned from the xml parser on an error.
  */
 
-/* FIXME: Point handling.  If there are no fixed points, the  
+/* FIXME: Point handling.  If there are no fixed points, the
  * code fails.  Has to do with how the structs are laid out.
  * It would have been easier to understand if it had segfaulted.
  */
@@ -41,12 +41,12 @@
 
 
 typedef DList JOINTLIST;
-typedef DList POINTLIST; 
-typedef DList FPOINTLIST; 
+typedef DList POINTLIST;
+typedef DList FPOINTLIST;
 typedef DList LPOINTLIST;
 typedef DList SPOINTLIST;
-typedef DList MATLINELIST; 
-typedef DList BOUNDLIST; 
+typedef DList MATLINELIST;
+typedef DList BOUNDLIST;
 
 static JOINTLIST * jointlist = NULL;
 static POINTLIST * pointlist = NULL;
@@ -76,7 +76,6 @@ static void transferPointlistToGeomStruct(Geometrydata *, POINTLIST *);
 /** @todo  Move transferBoltlist function into bolt.c */
 static void transferBoltlistToGeomStruct(Geometrydata *, Boltlist *);
 static void transferMatlinelistToGeomStruct(Geometrydata *, MATLINELIST *);
-static double ** DoubMat2DGetMem(int n, int m);
 
 
 //static void  checkGeometryDoc(xmlDocPtr doc);
@@ -89,7 +88,7 @@ Geometrydata * gdata;
 
 
 
-void 
+void
 initializeGLists() {
 
    jointlist = dlist_new();
@@ -101,23 +100,23 @@ initializeGLists() {
    boltlist = boltlist_new();
 
    matlinelist = dlist_new();
-} 
+}
 
 
 
-void 
+void
 parseEdgenodedist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    gdata->e00 = atof(xmlGetProp(cur, "distance"));
-}  
+}
 
 
 
-void 
-parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
   /* This has to be initialized so that the mickeysoft
-   * compiler understands that floating point means 
+   * compiler understands that floating point means
    * floating point.  Piece of crap.
    */
    double temp[4] = {0.0};
@@ -135,20 +134,20 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 /* Added Jointset tag */
 //while (cur != NULL)
 //{
-   
+
    //jscur = cur->children;
 
-  /* Now there should be a linked list of <Joint> 
+  /* Now there should be a linked list of <Joint>
    * elements to traverse over.  The validator (DTD
-   * checker) should make some of the following code 
+   * checker) should make some of the following code
    * irrelevant.
    */
    while (cur != NULL)
    {
-      if ((!strcmp(cur->name, "Joint")) )//&& (cur->ns == ns)) 
+      if ((!strcmp(cur->name, "Joint")) )//&& (cur->ns == ns))
       {
 
-        /* Here I will have to load up a joint structure that 
+        /* Here I will have to load up a joint structure that
          * goes into a dlist. So I have to grab another joint
          * structure, and another dlist node
          */
@@ -158,14 +157,14 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          * FIXME: xmlGetProp(cur, "type") returning NULL causes a segfault here.
          */
          joint->type = atoi(xmlGetProp(cur, "type"));
-  	
-        /* WARNING!!!  The MickeySoft compiler will not load the 
+
+        /* WARNING!!!  The MickeySoft compiler will not load the
          * floating point library without an explicit reference
-         * to a double.  It WILL NOT scan the format strings to 
+         * to a double.  It WILL NOT scan the format strings to
          * pick this up.  Piece of crap.
          */
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
-         checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);  
+         checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);
          if (checkval == 4) {
             joint->epx1 = temp[0];
             joint->epy1 = temp[1];
@@ -176,34 +175,34 @@ parseJointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             exit(0);
          }
 
-        /* Here, add the joint struct to the dlist node, then 
+        /* Here, add the joint struct to the dlist node, then
          * add the node to the end of the dlist.
          */
          dl_insert_b(jointlist, (void*)joint);
       }
       else
       {
-        /* Big problems.  Validator failed to find a wrong 
+        /* Big problems.  Validator failed to find a wrong
          * markup element.  Fix this by writing to log file.
          * FIXME: An XML comment statement (<!--) fires this warning.
          * This needs to be trapped nd ignored.
          */
-         //iface->displaymessage("Validation failure in joint parsing."  
+         //iface->displaymessage("Validation failure in joint parsing."
          //                " Contact author.\n");
          ;  //  null statement
       }
-       
+
       gdata->nJoints++;
       //jscur = jscur->next;
       cur = cur->next;
    }
-}  
+}
 
 
 /* FIXME: Move this to a fpointlist instead of a pointlist.
  */
-static void 
-parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+static void
+parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    DDALine * line;
   /* Make the compiler link the floating point libraries. */
@@ -218,11 +217,11 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    while (cur != NULL)
    {
 
-      if ((!strcmp(cur->name, "Line")) )// && (cur->ns == ns)) 
+      if ((!strcmp(cur->name, "Line")) )// && (cur->ns == ns))
       {
          fprintf(stdout, "Fixed line\n");
 
-        /* Here I will have to load up a ddapoint structure that 
+        /* Here I will have to load up a ddapoint structure that
          * goes into a dlist. So I have to grab another ddapoint
          * structure, and another dlist node
          */
@@ -230,29 +229,29 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          line->type = fixed; //  This will be an enum for fixed.
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          fprintf(stdout,"%s\n", tempstring);
-         sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);  
-         fprintf(stdout,"%f %f %f %f\n",temp[0],temp[1],temp[2],temp[3]);  
+         sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],&temp[2],&temp[3]);
+         fprintf(stdout,"%f %f %f %f\n",temp[0],temp[1],temp[2],temp[3]);
          line->x1 = temp[0];
          line->y1 = temp[1];
          line->x2 = temp[2];
          line->y2 = temp[3];
 
-        /* Here, add the joint struct to the dlidt node, then 
+        /* Here, add the joint struct to the dlidt node, then
          * add the node to the end of the dlist.
          */
          dl_insert_b(fpointlist,(void*)line);
          gdata->nFPoints++;
-      } 
-      else if ((!strcmp(cur->name, "Point")) )//&& (cur->ns == ns)) 
+      }
+      else if ((!strcmp(cur->name, "Point")) )//&& (cur->ns == ns))
       {
          fprintf(stdout, "Fixed point\n");
 
          line = getNewLine();
-         line->type = fixed; //  enum for fixed 
+         line->type = fixed; //  enum for fixed
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          fprintf(stdout,"%s\n", tempstring);
-         sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);  
-         fprintf(stdout,"%f %f\n",temp[0],temp[1]);  
+         sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);
+         fprintf(stdout,"%f %f\n",temp[0],temp[1]);
          line->x1 = temp[0];
          line->y1 = temp[1];
          line->x2 = temp[0];
@@ -261,23 +260,23 @@ parseFixedpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          gdata->nFPoints++;
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         fprintf(stderr,"Validation failure in fixed point parsing."  
+         */
+         fprintf(stderr,"Validation failure in fixed point parsing."
                         " Contact author.\n");
 
       }
       cur = cur->next;
    }
 
-}  
+}
 
 
-static void 
-parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{   
+static void
+parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
+{
    DDAPoint * point;
   /* Make the compiler link the floating point libraries. */
    double temp[2] = {0.0};
@@ -295,19 +294,19 @@ parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
 
          point = getNewPoint();
-         point->type = measured; //  enum for measured 
+         point->type = measured; //  enum for measured
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
-         {  
+         {
             fprintf(stdout,"Warning: Empty measured point value\n");
          }
-         else 
+         else
          {
             fprintf(stdout,"%s\n", tempstring);
-            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]); 
+            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);
             if (checkval == 2)
-            { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1]);  
+            {
+               fprintf(stdout,"%f %f\n",temp[0],temp[1]);
                point->x = temp[0];
                point->y = temp[1];
                dl_insert_b(pointlist,point);
@@ -317,24 +316,24 @@ parseMeasuredpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             {
                fprintf(stdout,"Warning: Empty measured points tag.\n");
             }
-         } 
+         }
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         fprintf(stderr,"Validation failure in measured point parsing."  
+         */
+         fprintf(stderr,"Validation failure in measured point parsing."
                         " Contact author.\n");
       }
       cur = cur->next;
    }
-}  
+}
 
 
-static void 
-parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
-{   
+static void
+parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
+{
    DDAPoint * point;
   /* Make the compiler link the floating point libraries. */
    double temp[2] = {0.0};
@@ -352,19 +351,19 @@ parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
 
          point = getNewPoint();
-         point->type = seismic; //  enum for measured 
+         point->type = seismic; //  enum for measured
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
-         {  
+         {
             fprintf(stdout,"Warning: Empty seismic point value\n");
          }
-         else 
+         else
          {
             fprintf(stdout,"%s\n", tempstring);
-            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]); 
+            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);
             if (checkval == 2)
-            { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1]);  
+            {
+               fprintf(stdout,"%f %f\n",temp[0],temp[1]);
                point->x = temp[0];
                point->y = temp[1];
                dl_insert_b(spointlist,point);
@@ -374,14 +373,14 @@ parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             {
                fprintf(stdout,"Warning: Empty measured points tag.\n");
             }
-         } 
+         }
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         fprintf(stderr,"Validation failure in measured point parsing."  
+         */
+         fprintf(stderr,"Validation failure in measured point parsing."
                         " Contact author.\n");
       }
       cur = cur->next;
@@ -391,8 +390,8 @@ parseSeismicpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
 
 
-static void 
-parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+static void
+parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    DDAPoint * point;
   /* Make the compiler link the floating point libraries. */
@@ -411,19 +410,19 @@ parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       {
 
          point = getNewPoint();
-         point->type = load; //  enum for load 
+         point->type = load; //  enum for load
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
-         {  
+         {
             fprintf(stdout,"Warning: Empty load point value\n");
          }
-         else 
+         else
          {
             fprintf(stdout,"%s\n", tempstring);
-            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]); 
+            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);
             if (checkval == 2)
-            { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1]);  
+            {
+               fprintf(stdout,"%f %f\n",temp[0],temp[1]);
                point->x = temp[0];
                point->y = temp[1];
                dl_insert_b(pointlist,point);
@@ -433,14 +432,14 @@ parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             {
                fprintf(stdout,"Warning: Empty load points tag.\n");
             }
-         } 
+         }
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         fprintf(stderr,"Validation failure in load point parsing."  
+         */
+         fprintf(stderr,"Validation failure in load point parsing."
                         " Contact author.\n");
 
       }
@@ -451,8 +450,8 @@ parseLoadpointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
 
 
-static void 
-parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+static void
+parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
 
    DDAPoint * point;
@@ -475,16 +474,16 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          point->type = hole; //  enum for hole
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
-         {  
+         {
             fprintf(stdout,"Warning: Empty hole point value\n");
          }
-         else 
+         else
          {
             fprintf(stdout,"%s\n", tempstring);
-            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]); 
+            checkval = sscanf(tempstring,"%lf%lf",&temp[0],&temp[1]);
             if (checkval == 2)
-            { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1]);  
+            {
+               fprintf(stdout,"%f %f\n",temp[0],temp[1]);
                point->x = temp[0];
                point->y = temp[1];
                dl_insert_b(pointlist,point);
@@ -494,14 +493,14 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             {
                fprintf(stdout,"Warning: Empty hole points tag.\n");
             }
-         } 
+         }
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         fprintf(stderr,"Validation failure in hole point parsing."  
+         */
+         fprintf(stderr,"Validation failure in hole point parsing."
                         " Contact author.\n");
       }
       cur = cur->next;
@@ -510,16 +509,16 @@ parseHolepointlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*  close parseHolepointlist() */
 
 
-/** @todo The bolt properties used to be handled in the geometry 
+/** @todo The bolt properties used to be handled in the geometry
  * file.  To make the file input system more uniform, bolt properties
  * are now handled in the analysis input file.  There needs to be
  * a function written that will transfer the bolt properties
  * from the analysis side to the geometry side.
  *
- * @todo New bolts are allocated, but if there is an error 
+ * @todo New bolts are allocated, but if there is an error
  * they are not deallocated, which needs to be fixed.
- */ 
-static void 
+ */
+static void
 parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    Bolt * bolt;
@@ -556,20 +555,20 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 			   if (bolt_type < 1 || bolt_type > 2) {
 				   ddaml_display_warning("Warning: Invalid bolt type specified, using default");
 				   bolt_type = 1;  // defaults to bolt type 1 (GHS bolt)
-            }		
+            }
          }
 
 
 		   tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL) {
-           
+
             ddaml_display_error("Empty Bolt element.");
          } else {
 
             checkval = sscanf(tempstring,"%lf%lf%lf%lf",
-                              &temp[0],&temp[1],&temp[2], &temp[3]); 
+                              &temp[0],&temp[1],&temp[2], &temp[3]);
             if (checkval == 4) {
-             
+
                // mmm: needed to move this several lines up
 			      // bolt = bolt_new();
                bolt = bolt_new();
@@ -582,12 +581,12 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
                ddaml_display_error("Wrong number of values in Bolt element.");
             }
-         } 
-      } else { 
+         }
+      } else {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         ddaml_display_warning("Validation failure in bolt parsing."  
+         */
+         ddaml_display_warning("Validation failure in bolt parsing."
                                " Contact author.");
       }
 
@@ -596,7 +595,7 @@ parseBoltlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 }
 
 
-void 
+void
 parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
 
    DDALine * line;
@@ -627,17 +626,17 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
 
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
-         {  
+         {
             fprintf(stdout,"Warning: Empty material line tag\n");
          }
-         else 
+         else
          {
             fprintf(stdout,"%s\n", tempstring);
             checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],
-                              &temp[2], &temp[3]); 
+                              &temp[2], &temp[3]);
             if (checkval == 4)
-            { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1],temp[2],temp[3]);  
+            {
+               fprintf(stdout,"%f %f\n",temp[0],temp[1],temp[2],temp[3]);
                line->x1 = temp[0];
                line->y1 = temp[1];
                line->x2 = temp[2];
@@ -649,14 +648,14 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
             {
                ddaml_display_warning("Warning: Malformed material lines tag.\n");
             }
-         } 
+         }
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         ddaml_display_error("Validation failure in material lines parsing."  
+         */
+         ddaml_display_error("Validation failure in material lines parsing."
                                       " Contact author.\n");
 
       }
@@ -664,16 +663,16 @@ parseMatlinelist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)  {
       cur = cur->next;
    }
 
-}  
+}
 
-void 
+void
 parseJointset(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
-}  
+}
 
 
 
-void 
-parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    DDALine * line;
   /* Make the compiler link the floating point libraries. */
@@ -693,17 +692,17 @@ parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
          line = getNewLine();
          tempstring = xmlNodeListGetString(doc, cur->children, 1);
          if (tempstring == NULL)
-         {  
+         {
             fprintf(stdout,"Warning: Empty boundary line tag\n");
          }
-         else 
+         else
          {
             fprintf(stdout,"%s\n", tempstring);
             checkval = sscanf(tempstring,"%lf%lf%lf%lf",&temp[0],&temp[1],
-                              &temp[2], &temp[3]); 
+                              &temp[2], &temp[3]);
             if (checkval == 4)
-            { 
-               fprintf(stdout,"%f %f\n",temp[0],temp[1],temp[2],temp[3]);  
+            {
+               fprintf(stdout,"%f %f\n",temp[0],temp[1],temp[2],temp[3]);
                line->x1 = temp[0];
                line->y1 = temp[1];
                line->x2 = temp[2];
@@ -715,21 +714,21 @@ parseBoundlist(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             {
                fprintf(stdout,"Warning: Empty boundary lines tag.\n");
             }
-         } 
+         }
       }
       else
-      { 
+      {
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
-         fprintf(stderr,"Validation failure in boundary lines parsing."  
+         */
+         fprintf(stderr,"Validation failure in boundary lines parsing."
                         " Contact author.\n");
 
       }
 
       cur = cur->next;
    }
-} 
+}
 
 
 Joint *
@@ -749,10 +748,10 @@ getNewPoint(void)
    DDAPoint * p;
    p = (DDAPoint *)calloc(1,sizeof(DDAPoint));
 
-  /* FIXME: Because DDA uses the value of "0" to designate 
-   * a point type, in this case a fixed point, returning the 
+  /* FIXME: Because DDA uses the value of "0" to designate
+   * a point type, in this case a fixed point, returning the
    * calloced point ensures that the the fixed points code
-   * will fire and run.  This is bad.  What needs to happen is 
+   * will fire and run.  This is bad.  What needs to happen is
    * that all the memory in the struct should be set to garbage
    * values to aid in debugging.  Lets try that now...
    */
@@ -782,14 +781,14 @@ transferGData(void) {
    transferBoltlistToGeomStruct(gdata,boltlist);
    transferMatlinelistToGeomStruct(gdata, matlinelist);
 
-}  
+}
 
 
 
 /* FIXME: Combine this with code in the geometry dialog.
  */
 void
-transferJointlistToGeomStruct(Geometrydata * gd, 
+transferJointlistToGeomStruct(Geometrydata * gd,
                               JOINTLIST * jointlist)
 {
    int i = 0;
@@ -810,19 +809,19 @@ transferJointlistToGeomStruct(Geometrydata * gd,
       jtmp = ptr->val;
 
       gd->joints[i+1][1] = jtmp->epx1;
-      gd->joints[i+1][2] = jtmp->epy1; 
+      gd->joints[i+1][2] = jtmp->epy1;
       gd->joints[i+1][3] = jtmp->epx2;
       gd->joints[i+1][4] = jtmp->epy2;
       gd->joints[i+1][5] = jtmp->type;
       i++;
-   } 
+   }
 
 
 }  /* close  transferJointlistToGeomStruct() */
 
 
 void
-transferPointlistToGeomStruct(Geometrydata * gd, 
+transferPointlistToGeomStruct(Geometrydata * gd,
                               POINTLIST * pointlist)
 {
   /* WARNING!!!  The counter i is carried across four
@@ -837,16 +836,16 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    int n5;
    POINTLIST * ptr;
    DDAPoint * ptmp;
-   DDALine * ltmp;  
+   DDALine * ltmp;
 
-  /* The edge-node distance probably ought to 
+  /* The edge-node distance probably ought to
    * be set as a part of the CAD scaling.
    */
    //gd->e00 = 0.01;
-   
+
    // mmm: this should probably be set somewhere else, but I don't know where
    // is there a file that contains hardwired parameters?
-   // We can make a file for that, or use ddatypes.h in the 
+   // We can make a file for that, or use ddatypes.h in the
    // meantime.  I am planning on turning all of this in linked
    // list code at some point.
    gd->maxFixedPointsPerFixedLine = 100; // hardwired
@@ -870,15 +869,15 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    gd->points = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
    gd->prevpoints = DoubMat2DGetMem(gd->pointsize1, gd->pointsize2);
 
-  /* Massive kludgery here induced by the way that the 
+  /* Massive kludgery here induced by the way that the
    * points are ordered in the points array.  The order
-   * and the type are not the same.  The technique is 
+   * and the type are not the same.  The technique is
    * to traverse the list once for each type of point,
    * only storing one type at a time, and in the correct
    * order in the points array.  First up is FIXED:
    */
 
-  /* This is really botched up.  The fixed point list has to 
+  /* This is really botched up.  The fixed point list has to
    * be handled separately from the other lists because the
    * data structure is different.
    */
@@ -890,17 +889,17 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       {
          gd->points[i+1][0] = ltmp->type;
          gd->points[i+1][1] = ltmp->x1;
-         gd->points[i+1][2] = ltmp->y1; 
+         gd->points[i+1][2] = ltmp->y1;
          gd->points[i+1][3] = ltmp->x2;
          gd->points[i+1][4] = ltmp->y2;
 
-        /* FIXME: This will conflict with other uses where the 
+        /* FIXME: This will conflict with other uses where the
          * number of points is not known.
          */
          //gd->nFPoints++;
          i++;
       }
-   } 
+   }
 
   /* Now store LOAD points, i carries forward */
    dlist_traverse(ptr, pointlist)
@@ -910,15 +909,15 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       {
          gd->points[i+1][0] = ptmp->type;
          gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
-     /* FIXME: This will conflict with other uses where the 
+         gd->points[i+1][2] = ptmp->y;
+     /* FIXME: This will conflict with other uses where the
       * number of points is not known.
       */
          //gd->nLPoints++;
          i++;
       }
    }
-   
+
   /* MEASURED points */
    dlist_traverse(ptr, pointlist)
    {
@@ -927,14 +926,14 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       {
          gd->points[i+1][0] = ptmp->type;
          gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
-     /* FIXME: This will conflict with other uses where the 
+         gd->points[i+1][2] = ptmp->y;
+     /* FIXME: This will conflict with other uses where the
       * number of points is not known.
       */
          //gd->nMPoints++;
          i++;
       }
-   }   
+   }
 
   /* HOLE points */
    dlist_traverse(ptr, pointlist)
@@ -944,16 +943,16 @@ transferPointlistToGeomStruct(Geometrydata * gd,
       {
          gd->points[i+1][0] = ptmp->type;
          gd->points[i+1][1] = ptmp->x;
-         gd->points[i+1][2] = ptmp->y; 
-     /* FIXME: This will conflict with other uses where the 
+         gd->points[i+1][2] = ptmp->y;
+     /* FIXME: This will conflict with other uses where the
       * number of points is not known.
       */
          //gd->nHPoints++;
          i++;
       }
-   } 
+   }
 
-  /* The seismic points are independent, so we can try to 
+  /* The seismic points are independent, so we can try to
    * do those correctly.
    */
    if (gd->nSPoints > 0) {
@@ -961,14 +960,14 @@ transferPointlistToGeomStruct(Geometrydata * gd,
    }
 
    gd->origpoints = clone2DMatDoub(gd->points,gd->pointsize1,gd->pointsize2);
-}  
+}
 
 
 
 
 
 void
-transferBoltlistToGeomStruct(Geometrydata * gd, 
+transferBoltlistToGeomStruct(Geometrydata * gd,
                              Boltlist * boltlist) {
 
    int i = 0;
@@ -991,36 +990,11 @@ transferBoltlistToGeomStruct(Geometrydata * gd,
 
    gd->origbolts = clone2DMatDoub(gd->rockbolts, gd->rockboltsize1, gd->rockboltsize2);
 
-}  
+}
 
 
 
-static double **
-DoubMat2DGetMem(int n, int m)
-{
-   int i;
-   double **x;
-
-   assert ( (m!=0) && (n!=0) );
-
-   x = (double **)calloc(n,sizeof(double *));
-   if (x == NULL)
-      return NULL;
-
-   for ( i = 0; i < n; ++i) {
-
-      x[i] = (double *)calloc(m,sizeof(double));
-      if(x[i] == NULL)
-         return NULL;
-   }
-
-   return x;
-
-} 
-
-
-
-static void 
+static void
 transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
 {
 
@@ -1031,7 +1005,7 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
   /* just in case... */
    nummatlines = dlist_length(matlinelist);
    gd->nMatLines = nummatlines;
-   
+
    gd->matlinesize1 = nummatlines+1;
    gd->matlinesize2 = 6;
    gd->matlines = DoubMat2DGetMem(gd->jointsize1, gd->jointsize2);
@@ -1043,12 +1017,12 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
       ltmp = ptr->val;
 
       gd->matlines[i+1][1] = ltmp->x1;
-      gd->matlines[i+1][2] = ltmp->y1; 
+      gd->matlines[i+1][2] = ltmp->y1;
       gd->matlines[i+1][3] = ltmp->x2;
       gd->matlines[i+1][4] = ltmp->y2;
       gd->matlines[i+1][5] = ltmp->type;
       i++;
-   } 
+   }
 
 }  /* close transferMatlinelistToGeomStruct() */
 
@@ -1059,7 +1033,7 @@ transferMatlinelistToGeomStruct(Geometrydata * gd, MATLINELIST * matlinelist)
 KWDTAB gtab_type[] = {
 {"Edgenodedist",     0, *parseEdgenodedist     },
 {"Jointlist",        0, *parseJointlist        },
-{"Fixedpointlist",   0, *parseFixedpointlist   },   
+{"Fixedpointlist",   0, *parseFixedpointlist   },
 {"Measuredpointlist",0, *parseMeasuredpointlist},
 {"Loadpointlist",    0, *parseLoadpointlist    },
 {"Holepointlist",    0, *parseHolepointlist    },
@@ -1067,12 +1041,12 @@ KWDTAB gtab_type[] = {
 {"Boltlist",         0, *parseBoltlist         },
 {"Matlinelist",      0, *parseMatlinelist      },
 {"Boundlist",        0, *parseBoundlist        },
-{NULL,               0,  0                     }			
+{NULL,               0,  0                     }
 };
 
 
 static void
-parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    int i = 0;
 
@@ -1082,13 +1056,13 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
    }
 
 
-  /* Easiest to parse into a list, then count 
-   * and grab array memory, then copy data into 
-   * arrays.  This will be good, because I will 
+  /* Easiest to parse into a list, then count
+   * and grab array memory, then copy data into
+   * arrays.  This will be good, because I will
    * now have lists of elements that can eventually
    * be used in the main code.
    */
-   initializeGLists(); 
+   initializeGLists();
 
   /** This is global and not thread safe. */
    gdata = gd;
@@ -1099,7 +1073,7 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       i = 0;
       while (gtab_type[i].kwd) {
 
-         if ( ( !strcmp(gtab_type[i].kwd,cur->name) ) )//&&  (cur->ns == ns)  ) 
+         if ( ( !strcmp(gtab_type[i].kwd,cur->name) ) )//&&  (cur->ns == ns)  )
          {
             fprintf(stderr,"Keyscan loop: Current name %s:\n", cur->name);
             switch(gtab_type[i].ktok)
@@ -1118,20 +1092,20 @@ parseGeometry(Geometrydata * gd, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
                default:;
                break;
-            }  
+            }
             break;
-         }  
+         }
          i++;
-      }   //close key scan loop 
+      }   //close key scan loop
 
 	   cur = cur->next;
    }
-   
+
   /** Transfer list format to array format. */
    transferGData();
-}  
+}
 
- 
+
 void
 ddaml_read_geometry_file(void * userdata, char *filename) {
 
@@ -1171,9 +1145,9 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
 
    ns = nspace;
 
-  /* Here, we not only do not want the parent, we want to 
+  /* Here, we not only do not want the parent, we want to
    * bypass the top level node, in this case `DDA',
-   * completely to start with the first element in the 
+   * completely to start with the first element in the
    * geometry part of the document.
    */
    cur = cur->children;
@@ -1181,19 +1155,19 @@ ddaml_read_geometry_file(void * userdata, char *filename) {
    while (cur != NULL) {
       if ( !strcmp( cur->name, "Geometry") ) {
          cur = cur->children;
-         parseGeometry(gd,doc, ns, cur); 
+         parseGeometry(gd,doc, ns, cur);
          break;
       }
 	   cur = cur->next;
    }
-}  
+}
 
 
 
 
 
 #ifdef STANDALONE
-int 
+int
 main(int argc, char **argv) {
 
    int i;
@@ -1205,6 +1179,6 @@ main(int argc, char **argv) {
    }
 
    return(0);
-} 
+}
 
 #endif /* STANDALONE */

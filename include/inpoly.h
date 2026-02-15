@@ -5,16 +5,16 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 #if 0
 }
 #endif
 
 
-int pointinpoly  (int blocknumber, 
-                  double x11, 
+int pointinpoly  (int blocknumber,
+                  double x11,
                   double y11,
-                  int ** vindex, 
+                  int ** vindex,
                   double ** vertices);
 
 

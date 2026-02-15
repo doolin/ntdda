@@ -3,7 +3,7 @@
 
 
 #ifdef WIN32
-#pragma warning( disable : 4201 4115 )        
+#pragma warning( disable : 4201 4115 )
 #endif
 
 #include <stdio.h>
@@ -26,14 +26,14 @@ extern "C" {
 
 HWND statusbar;
 
-HICON g_hIcon0 = NULL;		
-HICON g_hIcon1 = NULL;		
+HICON g_hIcon0 = NULL;
+HICON g_hIcon1 = NULL;
 
 //HWND hprogbar;
 
-/** 
- * @todo Move these into a statusbar struct that 
- * can be passed around by reference, which is a 
+/**
+ * @todo Move these into a statusbar struct that
+ * can be passed around by reference, which is a
  * lot more portable.
  */
 #define SB_READY_PARTS 1
@@ -78,7 +78,7 @@ statusbar_get_visibility() {
 }
 
 
-void 
+void
 statusbar_set_visibility(int v) {
    visibility = v;
    statusbar_show();
@@ -111,7 +111,7 @@ statusbar_set_text(WPARAM wParam, LPARAM lParam) {
 
 
 
-void 
+void
 progressbar_move(Progbar * pb, u_int ulx, u_int xwidth) {
 
    /*
@@ -131,7 +131,7 @@ BOOL MoveWindow(
               xwidth,
               pb->ywidth,
               TRUE);
- 
+
 }
 
 
@@ -144,8 +144,8 @@ statusbar_set_analysis_parts() {
 
   /* These field stops need to be handled with a finite state
    * machine after font metric handling is implemented.
-   */   
-   
+   */
+
    field0 = 60;
    field1 = field0 + 90;
    field2 = field1 + 90;
@@ -162,7 +162,7 @@ statusbar_set_analysis_parts() {
                     field3 + offset,
                     field4- (field3 + 2*offset));
 
-   anaparts[0] = field0; 
+   anaparts[0] = field0;
    anaparts[1] = field1;
    anaparts[2] = field2;
    anaparts[3] = field3;
@@ -183,8 +183,8 @@ statusbar_set_geometry_parts() {
    u_int field0,field1,field2,field3,field4,field5,field6;
 
   /* These field stops need to be handled with a finite state
-   * machine after font metric handling is implemented.  The 
-   * (x,y) coordinates field can be computed using domain 
+   * machine after font metric handling is implemented.  The
+   * (x,y) coordinates field can be computed using domain
    * scaling width g0.
    */
    field0 = 90;
@@ -230,7 +230,7 @@ void
 statusbar_set_state(unsigned int state) {
 
    switch (state) {
-   
+
       case (GEOM_STATE | FINISHED):
          statusbar_set_geometry_parts();
          //ShowWindow(hprogbar, SW_HIDE);
@@ -252,18 +252,18 @@ statusbar_set_state(unsigned int state) {
 
 }
 
-void 
+void
 statusbar_set_progbar_range(unsigned short value) {
 
    SendMessage(progbar.hwnd,PBM_SETRANGE,(WPARAM)0,MAKELPARAM(0,value));
 }
 
 
-void 
+void
 statusbar_update_geometry(int numblocks) {
 
 
-  /* This is ill-advised, and is only a kludge until 
+  /* This is ill-advised, and is only a kludge until
    * status text size can be computed.
    */
    char numblocktext[STATUSBAR_TEXT_WIDTH];
@@ -290,7 +290,7 @@ statusbar_update_geometry(int numblocks) {
    SendMessage(statusbar,SB_SETTEXT,(WPARAM)4,(LPARAM)minareatext);
    SendMessage(statusbar,SB_SETTEXT,(WPARAM)(6|SBT_NOBORDERS),(LPARAM)"");
 
-}  
+}
 
 
 void
@@ -298,7 +298,7 @@ statusbar_update_analysis(int numblocks, double elapsedtime,
                           int currtimestep, int numtimesteps,
                           int openclosecount) {
 
-  /* This is ill-advised, and is only a kludge until 
+  /* This is ill-advised, and is only a kludge until
    * status text size can be computed.
    */
    char numblocktext[STATUSBAR_TEXT_WIDTH];
@@ -325,7 +325,7 @@ statusbar_update_analysis(int numblocks, double elapsedtime,
 
    //redoff = LoadImage(hInst,MAKEINTRESOURCE(ICON_REDLEDOFF),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
 
-}  
+}
 
 
 void
@@ -340,8 +340,8 @@ statusbar_update_progbar(unsigned int wparam) {
 void
 statusbar_init(HWND hwMain) {
 
-  /* FIXME: This needs to be just one control ID for 
-   * one status bar, and it should be set from the 
+  /* FIXME: This needs to be just one control ID for
+   * one status bar, and it should be set from the
    * appropriate value in the resource.h file.
    */
    UINT DDA_A_STATUSBAR = 2;
@@ -360,17 +360,17 @@ statusbar_init(HWND hwMain) {
 
 
 
-  /* FIXME: Move this to its own initialization function. 
+  /* FIXME: Move this to its own initialization function.
    * Initialization needs to take location parameters computed
-   * according to size of status bar slot instead of hardwired 
+   * according to size of status bar slot instead of hardwired
    * as it is here.
-   */  
+   */
    //u_int ulx;   //230,5,117,12,  // ulx, uly, xwidth, ywidth
    progbar.uly = 5;
    progbar.xwidth = 117;
    progbar.ywidth = 12;
-   progbar.hwnd = CreateWindow(PROGRESS_CLASS, 
-                               "Prog bar", 
+   progbar.hwnd = CreateWindow(PROGRESS_CLASS,
+                               "Prog bar",
                                WS_CHILD|PBS_SMOOTH,
                                230,
                                progbar.uly,

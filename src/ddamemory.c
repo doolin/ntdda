@@ -2,7 +2,7 @@
  * ddamemory.c
  *
  * General memory functions to malloc and free specific
- * data structures in dda.  
+ * data structures in dda.
  *
  * $Author: doolin $
  * $Date: 2003/02/06 14:08:25 $
@@ -61,7 +61,7 @@ IntMat2DGetMem(int n, int m)
    //x = (int **)malloc(sizeof(int *)*n);
    x = (int **)calloc(n,sizeof(int *));
   /* This should be changed to call a "Out of memory,
-   * close some applications" error.  For now, pass a 
+   * close some applications" error.  For now, pass a
    * NULL pointer back and trap the failure elsewhere.
    */
    if (x == NULL)
@@ -76,7 +76,7 @@ IntMat2DGetMem(int n, int m)
        */
       if(x[i] == NULL)
          return NULL;
-      //else 
+      //else
          //memset(x[i], 0xDDA, m);
    }
 
@@ -106,7 +106,7 @@ DoubMat2DGetMem(int n, int m)
       memset(x[i],0,m*sizeof(double));
       if(x[i] == NULL)
          return NULL;
-      //else 
+      //else
          //memset(x[i], 0xDDA, m);
    }
 
@@ -153,7 +153,7 @@ clone2DMatInt(int ** mat,int n, int m) {
          x[i][j] = mat[i][j];
 
    return x;
-}  
+}
 
 
 int *
@@ -171,7 +171,7 @@ clone1DMatInt(int * mat,int m) {
 
    return x;
 
-} 
+}
 
 
 
@@ -185,7 +185,7 @@ initCentroids(GRAPHICS *g, int nBlocks)
    * FIXME: Add an initialization function pointer to the
    * dl struct to take care of mallocing.
    */
-#if DLCENTROIDS   
+#if DLCENTROIDS
    g->centroidsize1 = AData->nTimeSteps+1;
    g->centroidsize2 = nBlocks+1;
    g->centroids = (DPoint **)malloc(sizeof(DPoint *)*(g->centroidsize1));
@@ -201,7 +201,7 @@ initCentroids(GRAPHICS *g, int nBlocks)
 #endif
 
 
-/* This function is a prime candidate for 
+/* This function is a prime candidate for
  * turning into a macro.
  */
 /** Careful with the indexing on this bad boy. */
@@ -217,24 +217,24 @@ setMatrixToZero(double **matrix, int row, int column)
       for (j=0; j< column; j++)
       {
          matrix[i][j] = 0;
-      } 
+      }
       */
       memset((void*)matrix[i],'0',column*sizeof(double));
-   }  
+   }
 
 }  /* close setMatrixToZero() */
 
 
-void 
+void
 free2DMat(void ** mat, int m)
 {
    int i;
 
    if (mat == NULL)
-   { 
+   {
       /* Should probably be warnings instead of errors,
        * and in any case should throw a NULL pointer
-       * warning function instead of a generic error 
+       * warning function instead of a generic error
        * function.
        */
       //error ("Null mat passed into freemat().");
@@ -256,7 +256,7 @@ free2Darray(void ** array, int m)
    int i;
 
    if (array == NULL)
-   { 
+   {
       //error ("Null array passed into free2Darray().");
       return;
    }
@@ -275,7 +275,7 @@ free2DIntArray(int ** array, int m, int n)
    int i;
 
    if (array == NULL)
-   { 
+   {
       //error ("Null array passed into free2DIntArray().");
       return;
    }
@@ -303,7 +303,7 @@ free2DDoubleArray(double ** array, int m, int n)
    int i;
 
    if (array == NULL)
-   { 
+   {
       //error ("Null array passed into free2DDoubleArray().");
       return;
    }

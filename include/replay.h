@@ -16,18 +16,18 @@ extern "C" {
 #endif
 
 
-int     handleResultsViewReplay (HWND hwMain, 
-                                 LPARAM lParam, 
+int     handleResultsViewReplay (HWND hwMain,
+                                 LPARAM lParam,
                                  GRAPHICS *);
 
-void    initReplayFile          (Geometrydata * gd, 
+void    initReplayFile          (Geometrydata * gd,
                                  Analysisdata * ad);
 
-void    writeReplayFile         (Geometrydata * gd, 
+void    writeReplayFile         (Geometrydata * gd,
                                  Analysisdata * ad);
 
-void    replay_analysis         (HWND hwMain, 
-                                 GRAPHICS * g, 
+void    replay_analysis         (HWND hwMain,
+                                 GRAPHICS * g,
                                  char *replayfilename);
 
 void  (*replay_display_warning) (const char * message);
@@ -40,5 +40,5 @@ void  (*replay_display_error)   (const char * message);
 #endif
 
 
-#endif  /*  __REPLAY_H__ */ 
+#endif  /*  __REPLAY_H__ */
 

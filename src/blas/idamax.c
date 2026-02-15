@@ -18,14 +18,14 @@ int idamax_(int *n, double *dx, int *incx)
     static int i, ix;
 
 
-/*     finds the index of element having max. absolute value.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 3/93 to return if incx .le. 0.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     finds the index of element having max. absolute value.
+       jack dongarra, linpack, 3/11/78.
+       modified 3/93 to return if incx .le. 0.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DX(I) dx[(I)-1]
 

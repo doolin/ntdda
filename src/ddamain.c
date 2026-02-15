@@ -33,11 +33,11 @@
 
 
 /* This function will eventually get fixed to take only a
- * JSYSTEM struct, and be called by the options handling 
+ * JSYSTEM struct, and be called by the options handling
  * function.
  */
 int rundda(int argc, char ** argv);
-/* Accompanies main to handle the options, then pass a 
+/* Accompanies main to handle the options, then pass a
  * jsystem struct to the function that actually produces
  * the fracture geometry.
  */
@@ -82,7 +82,7 @@ rundda(int argc, char ** argv)
 
    //char * cwd;
 
-  /* What I need to do here is load the entire path and 
+  /* What I need to do here is load the entire path and
    * the root of the file name into filepath->rootname.
    * This will match the windows side.  Eventually, a
    * rootpath field needs to be added to the filepath struct
@@ -94,7 +94,7 @@ rundda(int argc, char ** argv)
 
   /* The path information will need to be handled manually.
    * The win32 calls handle paths more or less transparently
-   * to the programmer, which is very convenient, unless 
+   * to the programmer, which is very convenient, unless
    * porting to a non-windows application.
    */
    strcpy (filepath.rootname, "../../../../examples/ddaml/squarexml");
@@ -106,7 +106,7 @@ rundda(int argc, char ** argv)
    g = initGraphicStruct ();
 
    ddacut (geomdata);
-   
+
    ddanalysis (&filepath, g);
 
    exportfig(geomdata);
@@ -142,13 +142,13 @@ main (int argc, char ** argv)
    opt(&argc,&argv);
 
   /* TODO: put a function between main and the driver code
-   * that handles all of the options parsing.  The result 
+   * that handles all of the options parsing.  The result
    * with using libopt then means that instead of a single
    * main method to drive a code, there is a main method
-   * that handles option registration, which then calls 
+   * that handles option registration, which then calls
    * an options handler, which then calls the functions
-   * to produce the output.  This second function is what 
-   * will be called as a library function from external 
+   * to produce the output.  This second function is what
+   * will be called as a library function from external
    * programs.
    */
 #endif /* OPTIONS */
@@ -169,11 +169,11 @@ main (int argc, char ** argv)
 
 
 #if OPTIONS
-/* This is the layer between the main function and the 
+/* This is the layer between the main function and the
  * function to actually produce joints.  It will load
  * a struct using the options code.  In an external function,
  * assume that the jsystem struct is loaded elsewhere, then
- * this function is bypassed and the joint generating 
+ * this function is bypassed and the joint generating
  * function is called directly.
  */
 static int

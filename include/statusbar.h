@@ -11,7 +11,7 @@ extern "C" {
 }
 #endif
 
-/* This is ill-advised, and is only a kludge until 
+/* This is ill-advised, and is only a kludge until
  * status text size can be computed.
  */
 #define STATUSBAR_TEXT_WIDTH 25
@@ -29,12 +29,12 @@ void statusbar_resize           (void);
 
 void statusbar_set_state        (unsigned int state);
 
-void statusbar_set_text         (WPARAM wParam, 
+void statusbar_set_text         (WPARAM wParam,
                                  LPARAM lParam);
 
 void statusbar_update_analysis  (int numblocks,
                                  double elapsedtime,
-                                 int currtimestep, 
+                                 int currtimestep,
                                  int numtimesteps,
                                  int openclosecount);
 

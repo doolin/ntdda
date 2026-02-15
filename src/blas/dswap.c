@@ -5,7 +5,7 @@
 */
 
 
-/* Subroutine */ int dswap_(int *n, double *dx, int *incx, 
+/* Subroutine */ int dswap_(int *n, double *dx, int *incx,
 	double *dy, int *incy)
 {
 
@@ -19,14 +19,14 @@
     static int ix, iy, mp1;
 
 
-/*     interchanges two vectors.   
-       uses unrolled loops for increments equal one.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     interchanges two vectors.
+       uses unrolled loops for increments equal one.
+       jack dongarra, linpack, 3/11/78.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DY(I) dy[(I)-1]
 #define DX(I) dx[(I)-1]
@@ -39,7 +39,7 @@
 	goto L20;
     }
 
-/*       code for unequal increments or equal increments not equal   
+/*       code for unequal increments or equal increments not equal
            to 1 */
 
     ix = 1;
@@ -61,7 +61,7 @@
     }
     return 0;
 
-/*       code for both increments equal to 1   
+/*       code for both increments equal to 1
 
 
          clean-up loop */

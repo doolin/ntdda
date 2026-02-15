@@ -1,7 +1,7 @@
-/* 
+/*
  * handlemainmenu.c
  *
- * All of the main menu code gets handled here in 
+ * All of the main menu code gets handled here in
  * response to a WM_INITMENU message.
  */
 
@@ -81,7 +81,7 @@ updateMainMenuA(HWND hwMain, int state)
 
       case ANA_STATE:
          break;
-      
+
       case (ANA_STATE | READY_STATE):
          submenuposition = findSubMenuPosition(hMainMenu, ANAL_RUN);
          hSubMenu = GetSubMenu(hMainMenu, submenuposition);
@@ -105,7 +105,7 @@ updateMainMenuA(HWND hwMain, int state)
 			EnableMenuItem(hSubMenu, ANAL_EDITPARAMD, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(hSubMenu, ANAL_EDITPARAMN, MF_BYCOMMAND | MF_ENABLED);
          break;
-    
+
       case (ANA_STATE | RUNNING):
          submenuposition = findSubMenuPosition(hMainMenu, ANAL_ABORT);
          hSubMenu = GetSubMenu(hMainMenu, submenuposition);
@@ -121,18 +121,18 @@ updateMainMenuA(HWND hwMain, int state)
 }  /* close updateMainMenu() */
 
 
-/* If the user wants to look at spy plot of the matrix, 
+/* If the user wants to look at spy plot of the matrix,
  * then we have to handle the appropriate menu entry.
- * Most of this is fairly well documented in the win32 
- * docs that shipped with msvc++ v6. 
- */  
-void 
+ * Most of this is fairly well documented in the win32
+ * docs that shipped with msvc++ v6.
+ */
+void
 handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
-{  
+{
    int submenuposition;
    MENUITEMINFO mii;
    HMENU hMainMenu, hSubMenu;
-   						
+
    hMainMenu = GetMenu(hwMain);
    submenuposition = findSubMenuPosition(hMainMenu, OPTIONS_TIMING);
    hSubMenu = GetSubMenu(hMainMenu, submenuposition);
@@ -143,12 +143,12 @@ handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
    mii.dwItemData = OPTIONS_SPYPLOTS;
    mii.hbmpChecked = NULL;  // Use default bitmap check mark
    mii.hbmpUnchecked = NULL; // Use no bit map at all
- 
+
 
    switch (wParam)
    {
       case OPTIONS_SPYPLOTS:
-        /* Check the state of the menu item.  If we can't find the 
+        /* Check the state of the menu item.  If we can't find the
          * menu item for some reason, then throw an error in the
          * debug versin, do nothing in the release version.
          */
@@ -217,7 +217,7 @@ handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
             showlasterror(GetLastError());
          }
 #endif
-         break;   
+         break;
 
 
       case OPTIONS_BLOCKAREAS:
@@ -241,7 +241,7 @@ handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
             showlasterror(GetLastError());
          }
 #endif
-         break;   
+         break;
 
 
       case OPTIONS_MEASUREDPOINTS:
@@ -265,7 +265,7 @@ handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
             showlasterror(GetLastError());
          }
 #endif
-         break;   
+         break;
 
 
 
@@ -292,8 +292,8 @@ handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o)
 #endif
          break;
 
-         /* Showing the original geometry is by default. Move that 
-          * option elsewhere, or move the analysis options from 
+         /* Showing the original geometry is by default. Move that
+          * option elsewhere, or move the analysis options from
           * their own main menu item to a subitem under analysis
           * menu item and make them a popup, and the values set either
           * in the registry or an ini file.

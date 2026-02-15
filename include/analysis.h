@@ -1,7 +1,7 @@
 
-/* 
+/*
  * analysis.h
- * 
+ *
  * This is the main header file for the analysis routines
  * in DDA.
  *
@@ -29,7 +29,7 @@ extern "C" {
 #include "stress.h"
 
 
-/* These are the old variable names, retained for 
+/* These are the old variable names, retained for
  * historical purposes.
  */
 /*------------------------------------------------*/
@@ -121,20 +121,20 @@ extern "C" {
 /* call subroutines            n9:total iteration */
 
 
-void allocateAnalysisArrays(Geometrydata * GData, 
-                            int ** kk, 
-                            int ** k1, 
-                            double *** c0, 
+void allocateAnalysisArrays(Geometrydata * GData,
+                            int ** kk,
+                            int ** k1,
+                            double *** c0,
                             //double *** e0,
-                            double *** angles, 
+                            double *** angles,
                             int *** n);
 
 
-void deallocateAnalysisArrays(int * kk, 
-                              int * k1, 
-                              double ** c0, 
-                              //double ** e0, 
-                              double ** U, 
+void deallocateAnalysisArrays(int * kk,
+                              int * k1,
+                              double ** c0,
+                              //double ** e0,
+                              double ** U,
                               int ** n);
 
 
@@ -142,8 +142,8 @@ void deallocateAnalysisArrays(int * kk,
 
 
 
-double df01  (double ** vertices, 
-              int ** vindex, 
+double df01  (double ** vertices,
+              int ** vindex,
               int numblocks);
 
 
@@ -157,8 +157,8 @@ void setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, int *
 void df06(Geometrydata *, Analysisdata *, int **, int **, int **, int **, double **,
             int *, int *, int *);
 
-void sparsestorage(Geometrydata *, Analysisdata *, Contacts *, 
-                   int *, int *, 
+void sparsestorage(Geometrydata *, Analysisdata *, Contacts *,
+                   int *, int *,
                    int *, int **);
 
 
@@ -181,21 +181,21 @@ void congrad(double ** A, double ** F, int * colnums, int * k1, int ** colindex,
 
 void initCGTemp(Geometrydata * gd);
 
-void df18(Geometrydata *, Analysisdata *, Contacts *, 
+void df18(Geometrydata *, Analysisdata *, Contacts *,
           int *, int *, double **,  int **,
           TransMap transmap);
 
 
-void df22(Geometrydata *, Analysisdata *, Contacts *, 
+void df22(Geometrydata *, Analysisdata *, Contacts *,
             /*double **,*/ int * /*, double ** moments */,
             TransMap);
 
 double df24(Geometrydata *, Analysisdata *, double ** F,
           int * k1, TransMap transmap, TransApply transapply);
 
-void df25(Geometrydata *, Analysisdata *, int *, 
+void df25(Geometrydata *, Analysisdata *, int *,
             double **, /* double ** moments,*/ double **,
-            TransMap transmap, TransApply transapply, 
+            TransMap transmap, TransApply transapply,
 
             BoundCond boundary_conditions, StrainModel strain_compute);
 
@@ -205,7 +205,7 @@ void df25(Geometrydata *, Analysisdata *, int *,
 void computeTimeStep(Geometrydata *, Analysisdata *);
 
 
-void proj(double ** vertices, double w0, double **, int *, 
+void proj(double ** vertices, double w0, double **, int *,
             int, int, int, int, int /* , CONSTANTS *  */);
 void invr(double [][7], double [][7]);
 void mult(double [][7], double [][7], double [][7]);
@@ -217,7 +217,7 @@ void multnewnew(double [][7], double [][7]);
 
 
 
-void findContacts(Geometrydata * GData, Analysisdata * AData, 
+void findContacts(Geometrydata * GData, Analysisdata * AData,
                   Contacts * Ctacts,
             /*double ** contactlength,*/ /*int ** m1,*/ int * kk, int * k1,
             int ** n, double ** c0);
@@ -226,13 +226,13 @@ void assemble(Geometrydata * GData, Analysisdata * AData,
             int ** locks, double ** e0, int * k1, int * kk,
             /* double ** moments, */int ** n, double ** U, TransMap transmap);
 
-void timeintegration(Geometrydata * GData, 
+void timeintegration(Geometrydata * GData,
                      Analysisdata * AData,
-                     double ** e0, 
+                     double ** e0,
                      int * k1,
                      //double ** moments,
-                     int ** n, 
-                     double ** U, 
+                     int ** n,
+                     double ** U,
                      MassMatrix massmatrix);
 
 
@@ -255,7 +255,7 @@ void closeAnalysisFiles();
 int porepressure(Geometrydata *, int *, double **, double **, double **);
 int inpoly(double **, int, double, double);
 
-int viscosity(Geometrydata *, Analysisdata *, double **, 
+int viscosity(Geometrydata *, Analysisdata *, double **,
               double **, double **);
 
 
@@ -268,8 +268,8 @@ double getBlockMass(Geometrydata *, double ** moments, double ** e0, int blocknu
 
 /* Spring stiffness */
 double computeSpringStiffness(Geometrydata *, Analysisdata *, int **, double **);
-      
-int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *, FILE *);  
+
+int checkParameters(Geometrydata * GData, Analysisdata * AData, Contacts *, FILE *);
 
 
 
@@ -302,13 +302,13 @@ void freeIntegrationArrays(void);
 void allocateK(Analysisdata *);
 
 
-/* These defines are a first attempt to impose some 
+/* These defines are a first attempt to impose some
  * rational memory handling on the dozens of scratch
  * arrays needed for an analysis run.  The values will
- * be used to set the sizes of the array dimensions, which 
- * can then be used again in deallocation routines. 
- * The next go-round will probably require using an 
- * array struct and function pointers. 
+ * be used to set the sizes of the array dimensions, which
+ * can then be used again in deallocation routines.
+ * The next go-round will probably require using an
+ * array struct and function pointers.
  */
 #define ELEVEN 11
 #define TWENTYONE 21
@@ -320,7 +320,7 @@ void allocateK(Analysisdata *);
 /* These global ints are used in the ddanalysis function,
  * the deallocateAData function, and a yet-to-be-written
  * function that will initialize all of these variables.
- * In the future, this can be morphed into 
+ * In the future, this can be morphed into
  * object oriented code.
  */
 int __contactsize1, __contactsize2;

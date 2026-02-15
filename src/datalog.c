@@ -7,7 +7,7 @@
 
 
 /* This struct records a large amount of data
- * collected during an analysis.  
+ * collected during an analysis.
  */
 void
 datalog_delete(Datalog * dl) {
@@ -27,13 +27,13 @@ datalog_delete(Datalog * dl) {
       free(dl->numdistcontact);
 
    if(dl->numanglecontact)
-      free(dl->numanglecontact); 
+      free(dl->numanglecontact);
 
    if(dl->numsidesperblock)
       free(dl->numsidesperblock);
 
    if(dl->num_v_v_contacts)
-      free(dl->num_v_v_contacts); 
+      free(dl->num_v_v_contacts);
 
    if(dl->num_v_s_contacts)
       free(dl->num_v_s_contacts);
@@ -52,11 +52,11 @@ datalog_delete(Datalog * dl) {
 
    free(dl);
 
-} 
+}
 
 
 
-Datalog * 
+Datalog *
 datalog_new(int numtimesteps, int numjointmats, int numblocks)
 {
    int numtimesteplus1   = numtimesteps + 1;
@@ -67,8 +67,8 @@ datalog_new(int numtimesteps, int numjointmats, int numblocks)
    */
    Datalog * dlo;
    dlo = (Datalog *)calloc(1,sizeof(Datalog));
-   
-  /* At some point this stuff will need to be set in 
+
+  /* At some point this stuff will need to be set in
    * this function.   This will likely have to be rewritten
    * when disp dep params get implemented for real.
    */
@@ -115,6 +115,6 @@ datalog_new(int numtimesteps, int numjointmats, int numblocks)
 
    return dlo;
 
-}  
+}
 
 

@@ -1,8 +1,8 @@
 
 
-/* FIXME: Get rid of this header file, or change into 
- * something that actually exports the capability of the 
- * analysis dialog. 
+/* FIXME: Get rid of this header file, or change into
+ * something that actually exports the capability of the
+ * analysis dialog.
  */
 
 

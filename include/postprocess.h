@@ -25,10 +25,10 @@ extern "C" {
 #define FIXEDPOINTS     1 << 1
 #define SOLUTIONVECTOR  1 << 2
 #define BLOCKMASSES     1 << 3
-#define BLOCKSTRESSES   1 << 4  
+#define BLOCKSTRESSES   1 << 4
 #define PENALTYFORCES   1 << 5
-#define MOMENTS         1 << 6  
-#define FRICTIONFORCES  1 << 7  
+#define MOMENTS         1 << 6
+#define FRICTIONFORCES  1 << 7
 #define MEASPOINTS      1 << 8
 #define BOLTS			   1 << 9
 
@@ -60,7 +60,7 @@ void writeMFile(double ** K, double ** F, double ** D,
                 int * kk, int * k1, int ** n, int numblocks);
 
 
-void writeSolutionVector(double ** D, int * kk, 
+void writeSolutionVector(double ** D, int * kk,
                          int * k1, int ** n, int nBlocks);
 
 void writeSX0();

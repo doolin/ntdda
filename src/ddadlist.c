@@ -17,10 +17,10 @@
 
 
 /*---------------------------------------------------------------------*
- * PROCEDURES FOR MANIPULATING DOUBLY LINKED LISTS 
- * Each list contains a sentinel node, so that     
- * the first item in list l is l->flink.  If l is  
- * empty, then l->flink = l->blink = l.            
+ * PROCEDURES FOR MANIPULATING DOUBLY LINKED LISTS
+ * Each list contains a sentinel node, so that
+ * the first item in list l is l->flink.  If l is
+ * empty, then l->flink = l->blink = l.
  *---------------------------------------------------------------------*/
 
 DList *
@@ -34,7 +34,7 @@ dlist_new(void) {
   d->val = (void *) 0;
   return d;
 }
- 
+
 void dl_insert_b(DList *node, void * val)	/* Inserts to the end of a list */
 
 {
@@ -77,7 +77,7 @@ DList * list_to_insert;
 
 
 /* Deletes an arbitrary iterm */
-void dl_delete_node(DList * item)		
+void dl_delete_node(DList * item)
 {
   item->flink->blink = item->blink;
   item->blink->flink = item->flink;
@@ -108,17 +108,17 @@ DList * l;
  * been initialized.  So if you find yourself here
  * as a result of a segfault, make sure that you
  * have a "dlist = make_dl()" somewhere previous
- * to this call. (Note: the "make_dl()" function 
- * may change names.  
+ * to this call. (Note: the "make_dl()" function
+ * may change names.
  */
 int
 dlist_length(DList * dlist)
 {
    DList *   tmp;
    int             i = 0;
-   for (tmp = dlist->flink; tmp != dlist; tmp = tmp->flink) 
+   for (tmp = dlist->flink; tmp != dlist; tmp = tmp->flink)
       ++i;
-   
+
 return i;
 }
 
@@ -149,7 +149,7 @@ merge(DList * d1, DList * d2)
 {
   DList *  d3;
   DList *  todo;
- 
+
   d3 = dlist_new();
   /*
    * While 1st list doesn't point to itself or 2d list doesn't point to

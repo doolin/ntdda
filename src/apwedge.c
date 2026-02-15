@@ -14,7 +14,7 @@
 #ifndef PI
 #define PI 3.141592653
 #endif
-       
+
 //static BOOLEAN handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam);
 //static BOOLEAN handleInit(HWND);
 static BOOLEAN handleSave(HWND);
@@ -71,7 +71,7 @@ static Analysisdata *  adata;
 static Geometrydata * gdata;
 
 
-/* This function also needs to handle initializing 
+/* This function also needs to handle initializing
  * the edit boxes in the dialog box.
  */
 static BOOLEAN
@@ -93,11 +93,11 @@ handleInit(HWND hDlg)
    jc1 = 0;
    jc2 = 0;
    jc3 = 0;
-   
+
   /* and some tensile strength (not used) */
    jt1 = 0;
    jt2 = 0;
-   jt3 = 0; 
+   jt3 = 0;
 
 
   /* Initialize secondary angles */
@@ -143,7 +143,7 @@ handleInit(HWND hDlg)
    gdata->jointsize1 = gdata->nJoints + 1;  // joints[0][i] not used
    gdata->jointsize2 = 6;
    gdata->joints = DoubMat2DGetMem(gdata->jointsize1,gdata->jointsize2);
-  /* Fixedpoints and measured points are really messy.  This code 
+  /* Fixedpoints and measured points are really messy.  This code
    * uses geometry reading code for prototype.
    */
 
@@ -154,7 +154,7 @@ handleInit(HWND hDlg)
 
    gdata->pointsize2 = 9;  /* add cum disp in [][7] and [][8]  */
    gdata->points = DoubMat2DGetMem(gdata->pointsize1, gdata->pointsize2);
-  
+
    adata->materialpropsize1 = adata->nBlockMats + 1;
    adata->materialpropsize2 = 13;
    adata->materialProps = DoubMat2DGetMem(adata->materialpropsize1,adata->materialpropsize2);
@@ -180,12 +180,12 @@ handleInit(HWND hDlg)
    _getcwd(path,256);
    dirnameptr = strrchr(path,'\\');
   /* Pay attention here: First we got the complete directory
-   * name with path prefixed.  Then we grabbed a pointer the 
+   * name with path prefixed.  Then we grabbed a pointer the
    * _last '\' in the path, which is followed by the directory
-   * name. Now we don't really care about the '\', so we 
-   * increment the pointer to the character following, which is 
-   * the first letter of the path.  Also, for string matching, 
-   * we have to match against the null value terminating the 
+   * name. Now we don't really care about the '\', so we
+   * increment the pointer to the character following, which is
+   * the first letter of the path.  Also, for string matching,
+   * we have to match against the null value terminating the
    * string, or else have to count characters and do a strncmp
    * (which would probably be safer anyway.
    */
@@ -203,7 +203,7 @@ handleInit(HWND hDlg)
 
 
 
-/* Write out the analysis and geometry data into XML 
+/* Write out the analysis and geometry data into XML
  * input files.
  */
 BOOLEAN
@@ -232,13 +232,13 @@ handleSave(HWND hDlg)
 
 }  /* close handleSave() */
 
-         
-         
+
+
 static void
 changeJoint1(HWND hDlg, LPARAM lParam,WPARAM wParam)
 {
 
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
       if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
@@ -246,8 +246,8 @@ changeJoint1(HWND hDlg, LPARAM lParam,WPARAM wParam)
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
 
          GetDlgItemText(hDlg, APWEDGE_JF1, temp, 20);
-        /* FIXME: atof should be changed to strtod, but I am 
-         * not sure what win32 uses for end marker.  
+        /* FIXME: atof should be changed to strtod, but I am
+         * not sure what win32 uses for end marker.
          */
          jf1 = atof(temp);
          adata->phiCohesion[1][0] = jf1;
@@ -265,12 +265,12 @@ changeJoint1(HWND hDlg, LPARAM lParam,WPARAM wParam)
    } // end if
 
 }  /* changeJoint1() */
-         
+
 static void
 changeJoint2(HWND hDlg, LPARAM lParam,WPARAM wParam)
 {
 
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
       if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
@@ -294,13 +294,13 @@ changeJoint2(HWND hDlg, LPARAM lParam,WPARAM wParam)
    } // end if
 
 }  /* changeJoint2() */
-         
+
 
 static void
 changeJoint3(HWND hDlg, LPARAM lParam,WPARAM wParam)
 {
 
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
       if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
@@ -326,7 +326,7 @@ changeJoint3(HWND hDlg, LPARAM lParam,WPARAM wParam)
 }  /* changeJoint3() */
 
 
-static BOOLEAN 
+static BOOLEAN
 setDialogValues(HWND hDlg)
 {
 
@@ -412,7 +412,7 @@ updatePsi()
    tau = 180 - sigma - delta;
    theta = 180 - psi - tau;
    gamma = 180 - theta - alpha;
- 
+
    updateB();
 
 }  /* close updatePsi() */
@@ -446,7 +446,7 @@ updateAlpha()
    gamma = 180 - theta - alpha;
 
    updateD();
-    
+
 }  /* close updateAlpha() */
 
 static void
@@ -457,7 +457,7 @@ updateB()
    AB = H/sin(psi*DD);
    B.x = A.x + AB*cos(psi*DD);
    B.y = 2.0; //A.y + AB*sin(psi*DD);
-  
+
   /* Then update the next vertex */
    updateC();
 
@@ -492,7 +492,7 @@ updateD()
 
    /* Now update all the joints */
     updateGeometry();
-    
+
 }  /* close updateD() */
 
 static void
@@ -504,7 +504,7 @@ updateGeometry()
 
 }  /* close updateGeometry() */
 
-/* Now we have all of the vertices, so we need to 
+/* Now we have all of the vertices, so we need to
  * update the geometry structure.
  */
 static void
@@ -568,7 +568,7 @@ updateJoints()
    joints[9][5] = 4;
 
 
-  /* Then recompute the problem domain size, 
+  /* Then recompute the problem domain size,
    * fixed point locations, etc.
    */
 
@@ -607,7 +607,7 @@ updateMpoints()
   /* Have to find centroids of the two blocks. */
    findCentroids();
 
-  /* measured points are after load points.  We don't 
+  /* measured points are after load points.  We don't
    * have any load points in here (yet).
    */
   /* Block 1 */
@@ -616,8 +616,8 @@ updateMpoints()
   /* Block 2 */
    points[i+1][1] = 0;
    points[i+1][2] = 0;
-  
-    
+
+
 }  /* close updateMpoints(0 */
 
 
@@ -683,14 +683,14 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
 
 } /* close handleWMCommand() */
 
-BOOL CALLBACK  
+BOOL CALLBACK
 APWEDGEDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
    switch (iMessage)
    {
       case WM_INITDIALOG :
-         return(handleInit(hDlg));     
-    
+         return(handleInit(hDlg));
+
       case WM_COMMAND:
          return(handleWMCommand(hDlg, lParam, wParam));
 

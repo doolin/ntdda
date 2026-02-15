@@ -13,13 +13,13 @@
 #include "bolt.h"
 
 
-typedef enum TOOLTYPE {joint = 0, fixedpoint, measpoint, loadpoint, 
+typedef enum TOOLTYPE {joint = 0, fixedpoint, measpoint, loadpoint,
                        holepoint, bolt};
 
 
 typedef DList JOINTLIST;
-typedef DList POINTLIST; 
-//typedef DList BOLTLIST; 
+typedef DList POINTLIST;
+//typedef DList BOLTLIST;
 
 void handleInit(HWND, WPARAM wParam, LPARAM lParam);
 void handleRockBolts(HWND);

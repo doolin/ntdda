@@ -1,8 +1,8 @@
 
-/** 
- * material.h --- Encapsulate the material properties for 
- * the blocks in DDA.  This has been done to help test 
- * a finite deformation implementation.  The variable in 
+/**
+ * material.h --- Encapsulate the material properties for
+ * the blocks in DDA.  This has been done to help test
+ * a finite deformation implementation.  The variable in
  * the original DDA code is e0;
  */
 
@@ -37,17 +37,17 @@ double     material_get_density (Material * m);
 
 
 /** Make sure that the block type is [1,nbmats].
- * If the block type is less than 1, it is set to 
+ * If the block type is less than 1, it is set to
  * 1.  If greater than nbmats, it is set to nbmats.
- * 
+ *
  * @warning Invalid material numbers are just fixed
  *  instead of failing.
  *
  * @todo Make this function fail for bad input instead
  *  of fixing it silently.
  *
- * @param vindex contains start and stop indexes for the 
- *  vertex array.  The block material type is stored in 
+ * @param vindex contains start and stop indexes for the
+ *  vertex array.  The block material type is stored in
  * the 0th (!) slot.
  *
  * @param numblocks the number of blocks in the analysis
@@ -55,7 +55,7 @@ double     material_get_density (Material * m);
  *
  * @param nbmats number of block materials.
  */
-void       material_validate    (int ** vindex, 
+void       material_validate    (int ** vindex,
                                  int numblocks,
                                  int nbmats);
 

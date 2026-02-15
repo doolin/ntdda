@@ -16,7 +16,7 @@ struct _error {
 };
 
 
-Error * 
+Error *
 error_new() {
 
   return (Error*)malloc(sizeof(Error));
@@ -28,26 +28,26 @@ error_delete(Error * e) {
 }
 
 
-/** 
+/**
  * register a callback function.
- * 
- * Minimum: need to handle print, fprintf to stderr 
- * and to an error file, and handle MessageBox for 
+ *
+ * Minimum: need to handle print, fprintf to stderr
+ * and to an error file, and handle MessageBox for
  * win32.
- * 
- * What we can rely on: 
+ *
+ * What we can rely on:
  * void * to function such as fprintf or MessageBox
  * char * win_frame_title
  * char * error_string
  *
- * So what happens is that the function that gets 
- * registered has to handle all of these.  For 
- * printf or fprintf, the win_frame_title could be 
+ * So what happens is that the function that gets
+ * registered has to handle all of these.  For
+ * printf or fprintf, the win_frame_title could be
  * passed in as NULL.
- * 
+ *
  */
 
-void 
+void
 error_register_handler(Error * e,
 		       void * stream,
 		       PrintFunc printer,
@@ -61,7 +61,7 @@ void
 error_display(Error * e, const char * message) {
 
   e->printer(e->stream, e->win_frame_title, message);
-} 
+}
 
 #ifdef __cplusplus
 }

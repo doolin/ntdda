@@ -15,7 +15,7 @@ extern "C" {
 // Some indentation.
 #ifndef I2
 #define I2 "      "
-#endif 
+#endif
 
 
 /** @todo Add code for supporting Joints as
@@ -24,12 +24,12 @@ extern "C" {
 
 
 /**
- * @todo Figure out a way to "handle" exceptions 
+ * @todo Figure out a way to "handle" exceptions
  * in C without resorting to ugly macros, then
  * use one here to throw when a joint value is
  * out of range.
  */
-int 
+int
 joint_check_range(double value, double min, double max) {
 
    if ( (value >= min) &&
@@ -41,7 +41,7 @@ joint_check_range(double value, double min, double max) {
 }
 
 
-Jointmat * 
+Jointmat *
 jointmat_new (void) {
 
    Jointmat * jm = (Jointmat*)malloc(sizeof(Jointmat));
@@ -60,69 +60,69 @@ jointmat_array_new (int numjoints) {
 }
 
 
-void       
+void
 jointmat_delete (Jointmat * jm) {
 
    free(jm);
 }
 
 
-double     
+double
 jointmat_get_friction  (Jointmat * jm) {
 
    return jm->friction;
 }
 
 
-void       
+void
 jointmat_set_friction  (Jointmat * jm, double friction) {
 
    jm->friction = friction;
 }
 
 
-double     
+double
 jointmat_get_cohesion  (Jointmat * jm) {
 
    return jm->cohesion;
 }
 
 
-void       
+void
 jointmat_set_cohesion  (Jointmat * jm, double cohesion) {
 
    jm->cohesion = cohesion;
 }
 
 
-double     
+double
 jointmat_get_tension   (Jointmat * jm) {
 
    return jm->tension;
 }
 
 
-void       
+void
 jointmat_set_tension (Jointmat * jm, double tension) {
 
    jm->tension = tension;
 }
 
 
-int        
+int
 jointmat_get_type (Jointmat * jm) {
 
    return jm->type;
 }
 
-void       
+void
 jointmat_set_type (Jointmat * jm, int type) {
 
    jm->type = type;
 }
 
 
-void       
+void
 joint_print_xml (Joint * j, PrintFunc printer, void * stream) {
 
 

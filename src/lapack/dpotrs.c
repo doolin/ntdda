@@ -3,74 +3,74 @@
 #define MIN(a,b)      ( ((a)<(b)) ? (a) : (b) )
 #define MAX(a,b)      ( ((a)<(b)) ? (b) : (a) )
 
-/* Subroutine */ int dpotrs_(char *uplo, int *n, int *nrhs, 
+/* Subroutine */ int dpotrs_(char *uplo, int *n, int *nrhs,
 	double *a, int *lda, double *b, int *ldb, int *
 	info)
 {
-/*  -- LAPACK routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       March 31, 1993   
+/*  -- LAPACK routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       March 31, 1993
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DPOTRS solves a system of linear equations A*X = B with a symmetric   
-    positive definite matrix A using the Cholesky factorization   
-    A = U**T*U or A = L*L**T computed by DPOTRF.   
+    DPOTRS solves a system of linear equations A*X = B with a symmetric
+    positive definite matrix A using the Cholesky factorization
+    A = U**T*U or A = L*L**T computed by DPOTRF.
 
-    Arguments   
-    =========   
+    Arguments
+    =========
 
-    UPLO    (input) CHARACTER*1   
-            = 'U':  Upper triangle of A is stored;   
-            = 'L':  Lower triangle of A is stored.   
+    UPLO    (input) CHARACTER*1
+            = 'U':  Upper triangle of A is stored;
+            = 'L':  Lower triangle of A is stored.
 
-    N       (input) INT   
-            The order of the matrix A.  N >= 0.   
+    N       (input) INT
+            The order of the matrix A.  N >= 0.
 
-    NRHS    (input) INT   
-            The number of right hand sides, i.e., the number of columns   
-            of the matrix B.  NRHS >= 0.   
+    NRHS    (input) INT
+            The number of right hand sides, i.e., the number of columns
+            of the matrix B.  NRHS >= 0.
 
-    A       (input) DOUBLE PRECISION array, dimension (LDA,N)   
-            The triangular factor U or L from the Cholesky factorization 
-  
-            A = U**T*U or A = L*L**T, as computed by DPOTRF.   
+    A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+            The triangular factor U or L from the Cholesky factorization
 
-    LDA     (input) INT   
-            The leading dimension of the array A.  LDA >= MAX(1,N).   
+            A = U**T*U or A = L*L**T, as computed by DPOTRF.
 
-    B       (input/output) DOUBLE PRECISION array, dimension (LDB,NRHS)   
-            On entry, the right hand side matrix B.   
-            On exit, the solution matrix X.   
+    LDA     (input) INT
+            The leading dimension of the array A.  LDA >= MAX(1,N).
 
-    LDB     (input) INT   
-            The leading dimension of the array B.  LDB >= MAX(1,N).   
+    B       (input/output) DOUBLE PRECISION array, dimension (LDB,NRHS)
+            On entry, the right hand side matrix B.
+            On exit, the solution matrix X.
 
-    INFO    (output) INT   
-            = 0:  successful exit   
-            < 0:  if INFO = -i, the i-th argument had an illegal value   
+    LDB     (input) INT
+            The leading dimension of the array B.  LDB >= MAX(1,N).
 
-    ===================================================================== 
-  
+    INFO    (output) INT
+            = 0:  successful exit
+            < 0:  if INFO = -i, the i-th argument had an illegal value
+
+    =====================================================================
 
 
-       Test the input parameters.   
 
-    
-   Parameter adjustments   
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static double c_b9 = 1.;
-    
+
     /* System generated locals */
     int  i__1;
     /* Local variables */
     extern long int lsame_(char *, char *);
-    extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *, 
-	    int *, int *, double *, double *, int *, 
+    extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
+	    int *, int *, double *, double *, int *,
 	    double *, int *);
     static long int upper;
     extern /* Subroutine */ int xerbla_(char *, int *);
@@ -108,7 +108,7 @@
 
     if (upper) {
 
-/*        Solve A*X = B where A = U'*U.   
+/*        Solve A*X = B where A = U'*U.
 
           Solve U'*X = B, overwriting B with X. */
 
@@ -120,7 +120,7 @@
 		A(1,1), lda, &B(1,1), ldb);
     } else {
 
-/*        Solve A*X = B where A = L*L'.   
+/*        Solve A*X = B where A = L*L'.
 
           Solve L*X = B, overwriting B with X. */
 

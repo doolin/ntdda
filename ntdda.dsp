@@ -7,19 +7,19 @@
 CFG=ntdda - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "ntdda.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "ntdda.mak" CFG="ntdda - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "ntdda - Win32 Release" (based on "Win32 (x86) Application")
 !MESSAGE "ntdda - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -84,7 +84,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib comctl32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib opengl32.lib glu32.lib libxml2_a.lib wsock32.lib htmlhelp.lib zlib.lib iconv_a.lib /nologo /subsystem:windows /debug /machine:I386 /out:"bin/ntddad.exe" /pdbtype:sept /libpath:"C:\ddaincludes\libxml2-2.6.24.win32\lib" /libpath:"C:\ddaincludes\zlib-1.2.3.win32\lib" /libpath:"C:\ddaincludes\iconv-1.9.2.win32\lib" /libpath:"C:\Program Files\HTML Help Workshop\lib"
 # SUBTRACT LINK32 /nodefaultlib
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 

@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 #ifdef WIN32
-#pragma warning( disable : 4115 )        
+#pragma warning( disable : 4115 )
 #endif
 
 #include "ddadlist.h"
@@ -24,11 +24,11 @@ extern "C" {
 
 typedef struct _geo_data_tag Geometrydata;
 
-/* The Geometrydata struct is built in the 
+/* The Geometrydata struct is built in the
  * geometry code and contains blocks, points
- * vertices needed by the analysis code to 
- * run a numerical computation.  One of these 
- * should be declared in the gui or command 
+ * vertices needed by the analysis code to
+ * run a numerical computation.  One of these
+ * should be declared in the gui or command
  * line wrapper that drives an analysis.
  */
 struct _geo_data_tag {
@@ -47,15 +47,15 @@ struct _geo_data_tag {
 
   /* Initialized in the geometry reader code. */
    double e00;  /* minimum edge-node distance */
-   int nJoints;   
-   int nBoundaryLines;     
+   int nJoints;
+   int nBoundaryLines;
    int nMatLines;
    int nBolts;
    int nFPoints;
    int maxFixedPointsPerFixedLine;
    int nLPoints;
    int nMPoints;
-   int nHPoints; 
+   int nHPoints;
    int nSPoints;  // Seismic loading points
   /* FIXME: Where is nPoints set and does it include
    * the hole points.
@@ -65,13 +65,13 @@ struct _geo_data_tag {
    int nWtable;
    int nIntersectionPoints;
    int nContacts;
-  /* pointCount is a "compatibility" value.  
-   * Eliminate this as soon as possible.  This 
-   * probably corresponds to the `np' variable 
+  /* pointCount is a "compatibility" value.
+   * Eliminate this as soon as possible.  This
+   * probably corresponds to the `np' variable
    * in GHS code.
    */
    int pointCount;
- 
+
   /* nBlocks initialized where dc08 */
    int nBlocks;
   /* Initialized in geometryToReturn(). */
@@ -79,8 +79,8 @@ struct _geo_data_tag {
   /* Not sure what its for... */
    int n2;
   /* n3 initialized in dc05 */
-   int n3;  
-  /* scale and w0 initialized in dc02  */   
+   int n3;
+  /* scale and w0 initialized in dc02  */
    // w1;  /* min x */
    // w2;  /* max x */
    // w3;  /* min y */
@@ -92,7 +92,7 @@ struct _geo_data_tag {
    //int nt;
 
   /* Handy values for malloc, free and loop counting
-   * over arrays.  This will also help when the code is 
+   * over arrays.  This will also help when the code is
    * ported to c++.
    */
    int pointsize1;
@@ -153,16 +153,16 @@ struct _geo_data_tag {
    int porepressize1;
    int porepressize2;
   /* Vertices for the pore pressure polygon. */
-   double **porepres; 
+   double **porepres;
 
    int wtablesize1;
    int wtablesize2;
   /* Points for water table surface. */
-   double **watertable;  
+   double **watertable;
 
 
    /****************************************************/
-  /* FIXME: The next several variables need to go into a 
+  /* FIXME: The next several variables need to go into a
    * block structure.
    */
   /* These may or may not be useful. */
@@ -170,7 +170,7 @@ struct _geo_data_tag {
    int momentsize2;
    double ** moments;
 
-  /* Need to keep original areas to conserve mass.  
+  /* Need to keep original areas to conserve mass.
    * See TCK p. 213.
    */
    int origareasize;  // num blocks + 1
@@ -178,19 +178,19 @@ struct _geo_data_tag {
 
   /* Need to conserve mass:  TCK p. 213 */
    int origdensitysize;  // numblocks + 1
-   double * origdensity; 
+   double * origdensity;
 
 
   /*********************************************************/
 
    void (*computeBBox)(Geometrydata * this);
-  /* FIXME: Add zbuffering to this later. 
-   * Function returns block number where cursor 
-   * is located.  Units are physical, so need to 
+  /* FIXME: Add zbuffering to this later.
+   * Function returns block number where cursor
+   * is located.  Units are physical, so need to
    * translate device->logical->physical.
    */
    //int (*getblocknumber)(Geometrydata * this, double x, double y);
-   
+
   /* Add comments and code to initialize and colne geometry structs */
    void (*deleteblock)(Geometrydata * this, int blocknum);
    void (*deletepoint)(Geometrydata * this, int pointnum);
@@ -203,7 +203,7 @@ struct _geo_data_tag {
 
 
 
-/* These two input parsers need to be static in some 
+/* These two input parsers need to be static in some
  * driver function.
  */
 void geometryReader1(Geometrydata *,char *);
@@ -237,9 +237,9 @@ void dumpGeometrydata(Geometrydata *, void *);
 
 
 /* Moved from dc02 in blocks.c.  Duplicates df01 */
-/* FIXME: Move the bounding box code out of here, then 
- * rewrite this function to handle scaling from the 
- * already computed bounding box.  This will allow the 
+/* FIXME: Move the bounding box code out of here, then
+ * rewrite this function to handle scaling from the
+ * already computed bounding box.  This will allow the
  * domain bounding box to be computed in only one place,
  * and will even allow for a unit test!  w00h00!
  */
@@ -247,7 +247,7 @@ void computeDomainscale(Geometrydata *);  // was dc02()
 
 
 /* All the new code added will follow the Peter Mattis
- * convention for syntactic structure.  It's about the 
+ * convention for syntactic structure.  It's about the
  * most readable way to write c code.
  */
 Geometrydata * gdata_new                   (void);
@@ -259,34 +259,34 @@ void           gdata_delete                (Geometrydata * gd);
 
 int            gdata_get_number_of_blocks  (Geometrydata * gd);
 
-int            gdata_get_block_number      (Geometrydata * gd, 
-                                            double x, 
+int            gdata_get_block_number      (Geometrydata * gd,
+                                            double x,
                                             double y);
 
-double         gdata_compute_moments       (Geometrydata * gd); 
+double         gdata_compute_moments       (Geometrydata * gd);
 
 
 void           gdata_vertex_init           (Geometrydata * gd);
 
 
-void           gdata_get_centroid          (double * moments, 
+void           gdata_get_centroid          (double * moments,
 
-                                            double * x0, 
+                                            double * x0,
 
                                             double * y0);
 
 
 
-double         gdata_get_block_area        (Geometrydata * gd, 
+double         gdata_get_block_area        (Geometrydata * gd,
                                             int block);
 
-void           gdata_rockbolt_init         (Geometrydata * gd, 
+void           gdata_rockbolt_init         (Geometrydata * gd,
                                             int numbolts);
 /**
  * gdata_read_input_file wraps all of the file format ugliness
  * behind a single call.  If there is a recoverable problem,
  * the Geometrydata * will come back NULL, and the memory freed
- * internally somewhere.  
+ * internally somewhere.
  *
  * @param Geometrydata * points to a preallocated struct.
  * @param void * filestream needs to be cast in the actual
@@ -294,20 +294,20 @@ void           gdata_rockbolt_init         (Geometrydata * gd,
  *
  * @return NULL Geometrydata * (with freed memory).
  */
-void           gdata_read_input_file       (Geometrydata *, 
+void           gdata_read_input_file       (Geometrydata *,
                                             char * filename);
 
 Geometrydata * gdata_read_block_file       (Filepaths * filepaths);
 
 
 // Temporary while some xml handling code is being rewritten.
-void           gdata_emit_points           (Geometrydata * gd, 
-                                            PrintFunc printer, 
+void           gdata_emit_points           (Geometrydata * gd,
+                                            PrintFunc printer,
                                             void * stream);
 
 // Temporary while some xml handling code is being rewritten.
-void           gdata_emit_bolts            (Geometrydata * gd, 
-                                            PrintFunc printer, 
+void           gdata_emit_bolts            (Geometrydata * gd,
+                                            PrintFunc printer,
                                             void * stream);
 
 

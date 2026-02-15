@@ -1,8 +1,8 @@
 /* FIXME: Move the blas functions into a blas.h */
-/* This is just a prototype to keep the compiler 
+/* This is just a prototype to keep the compiler
  * from complaining.
  */
-extern double dlansy_(char *norm, char *uplo, int *n, double *a, int 
+extern double dlansy_(char *norm, char *uplo, int *n, double *a, int
                       *lda, double *work);
 int daxpy_(int *n, double *da, double *dx, int *incx, double *dy, int *incy);
 double ddot_(int *n, double *dx, int *incx, double *dy, int *incy);
@@ -19,7 +19,7 @@ int dgemm_(char *transa, char *transb, int *rows_a, int * cols_b, int *rowcol, d
 int dgetrf_(int *m, int *n, double *a, int * lda, int *ipiv, int *info);
 int dgetri_(int *n, double *a, int *lda, int *ipiv, double *work, int *lwork, int *info);
 /* FIXME: Start a blas.h and a lapack.h */
-/* This is just a prototype to keep the compiler 
+/* This is just a prototype to keep the compiler
  * from complaining.
  */
 double dlansy_(char *norm, char *uplo, int *n, double *a, int *lda, double *work);

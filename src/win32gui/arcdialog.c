@@ -19,7 +19,7 @@ extern addJoint (hDlg);
 // Added by Roozbeh to Draw a Arc using dialog box
 
 // Refactor all these messages to call functions.
-// Feel free to put them into new files.  It will 
+// Feel free to put them into new files.  It will
 // make it easier to maintain in the future.
 BOOL CALLBACK
 ArcDlgProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)

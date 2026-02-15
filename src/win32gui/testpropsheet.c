@@ -29,7 +29,7 @@ void FillInPropertyPage( PROPSHEETPAGE* , int, LPSTR, DLGPROC, UINT, LPARAM, HIN
 
 int CreateTestPropSheet(HWND hwndOwner, Analysisdata * ad)
 {
-    
+
    PROPSHEETPAGE psp[9];
    PROPSHEETHEADER psh;
    LPARAM lparam;
@@ -42,8 +42,8 @@ int CreateTestPropSheet(HWND hwndOwner, Analysisdata * ad)
    //   psp[i].hInstance = hInst;
 
 
-  /* Right about in here I need to clone the analysisdata that 
-   * is passed in so that "Cancel" will restore the original 
+  /* Right about in here I need to clone the analysisdata that
+   * is passed in so that "Cancel" will restore the original
    * data.
    */
   /* Now, turn it into an LPARAM for each of the property sheet
@@ -60,9 +60,9 @@ int CreateTestPropSheet(HWND hwndOwner, Analysisdata * ad)
 	FillInPropertyPage( &psp[6], IDD_BOLTPROPERTIES, TEXT("Bolts"), BoltMatsProc, ICON_ROCKBOLT, lparam, hInst);
 	FillInPropertyPage( &psp[7], IDD_GRAVITY, TEXT("Gravity"), GravityProc, ICON_GRAVITY, lparam, hInst);
 	FillInPropertyPage( &psp[8], IDD_SEISMIC, TEXT("Seismic"), AnaSeismicProc, ICON_EARTHQUAKE, lparam, hInst);
-    
+
    psh.dwSize = sizeof(PROPSHEETHEADER);
-   psh.dwFlags = PSH_PROPSHEETPAGE   | 
+   psh.dwFlags = PSH_PROPSHEETPAGE   |
                  PSH_HASHELP         |
                  PSH_USEHICON;
    psh.hwndParent = hwndOwner;
@@ -71,9 +71,9 @@ int CreateTestPropSheet(HWND hwndOwner, Analysisdata * ad)
    psh.nPages = sizeof(psp) / sizeof(PROPSHEETPAGE);
    psh.nStartPage = 2;
    psh.ppsp = (LPCPROPSHEETPAGE) &psp;
-   psh.hIcon = LoadImage(hInst,  
-                           MAKEINTRESOURCE(ICON_DDAMAIN), 
-                           IMAGE_ICON, 
+   psh.hIcon = LoadImage(hInst,
+                           MAKEINTRESOURCE(ICON_DDAMAIN),
+                           IMAGE_ICON,
                            LR_DEFAULTSIZE,
                            LR_DEFAULTSIZE,
                            LR_DEFAULTCOLOR);
@@ -82,23 +82,23 @@ int CreateTestPropSheet(HWND hwndOwner, Analysisdata * ad)
     PropertySheet(&psh);
     return TRUE;
 
-} 
+}
 
 
 
 //
-//  FUNCTION: FillInPropertyPage(PROPSHEETPAGE *, int, LPSTR, LPFN) 
+//  FUNCTION: FillInPropertyPage(PROPSHEETPAGE *, int, LPSTR, LPFN)
 //
-//  PURPOSE: Fills in the given PROPSHEETPAGE structure 
+//  PURPOSE: Fills in the given PROPSHEETPAGE structure
 //
 //  COMMENTS:
 //      This function fills in a PROPSHEETPAGE structure with the
 //      information the system needs to create the page.
-// 
-void 
-FillInPropertyPage( PROPSHEETPAGE* psp, 
-                   int idDlg, 
-                   LPSTR pszProc, 
+//
+void
+FillInPropertyPage( PROPSHEETPAGE* psp,
+                   int idDlg,
+                   LPSTR pszProc,
                    DLGPROC pfnDlgProc,
                    UINT icon,
                    LPARAM lparam,
@@ -112,9 +112,9 @@ FillInPropertyPage( PROPSHEETPAGE* psp,
     psp->pfnDlgProc = pfnDlgProc;
     psp->pszTitle = pszProc;
     psp->lParam = lparam;
-    psp->hIcon = LoadImage(hInst,  
-                           MAKEINTRESOURCE(icon), 
-                           IMAGE_ICON, 
+    psp->hIcon = LoadImage(hInst,
+                           MAKEINTRESOURCE(icon),
+                           IMAGE_ICON,
                            LR_DEFAULTSIZE,
                            LR_DEFAULTSIZE,
                            LR_DEFAULTCOLOR);
@@ -127,8 +127,8 @@ FillInPropertyPage( PROPSHEETPAGE* psp,
 void
 handleNotify(HWND hparent, LPARAM lParam)
 {
-   
-   switch (((NMHDR FAR *) lParam)->code) 
+
+   switch (((NMHDR FAR *) lParam)->code)
    {
    case PSN_SETACTIVE:
       //MessageBox(NULL,"SETACTIVE","SETACTIVE",MB_OK);
@@ -173,8 +173,8 @@ GravityProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -211,8 +211,8 @@ BoltMatsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -248,8 +248,8 @@ JointMatsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -286,8 +286,8 @@ BlockMatsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -320,7 +320,7 @@ AFlagsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
          ad = (Analysisdata *)psp->lParam;
          if (ad->gravityflag == 0)
             ;
-         
+
          //hpage = psp->phpage[7];
 
          //MessageBox(hDlg,"Flags up",NULL,MB_OK);
@@ -335,7 +335,7 @@ AFlagsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
          int wNotifyCode = HIWORD(wParam);      // notification code
          HWND hcontrol = (HWND)lParam;
 
@@ -347,7 +347,7 @@ AFlagsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
                   //ad->gravityflag = 1;
                   MessageBox(hDlg,"Gravity checked",NULL,MB_OK);
                }
-               else 
+               else
                {
                   //ad->gravityflag = 0;
                   MessageBox(hDlg,"Gravity unchecked",NULL,MB_OK);
@@ -360,7 +360,7 @@ AFlagsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
                   //ad->rotationflag = 1;
                   MessageBox(hDlg,"Rotation checked",NULL,MB_OK);
                }
-               else 
+               else
                {
                   //ad->rotationflag = 0;
                   MessageBox(hDlg,"Rotation unchecked",NULL,MB_OK);
@@ -417,8 +417,8 @@ ContactProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -455,8 +455,8 @@ TimeStepProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -493,8 +493,8 @@ LPointsProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {
@@ -530,8 +530,8 @@ AnaSeismicProc(HWND hDlg, UINT messageID, WPARAM wParam, LPARAM lParam)
 
       case WM_COMMAND:
       {
-         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control 
-         int wNotifyCode = HIWORD(wParam);      // notification code 
+         int idEditCtrl = (int) LOWORD(wParam); // identifier of edit control
+         int wNotifyCode = HIWORD(wParam);      // notification code
 
          switch (idEditCtrl)
          {

@@ -1,12 +1,12 @@
 /* File contains functions to handle the creation and editing
- * of geometry files for DDA.  
+ * of geometry files for DDA.
  */
 
 #include "drawdialog.h"
 //#include <gl/gl.h>
 #if OPENGL
 #include <gl/glut.h>
-#endif  
+#endif
 
 /* These 7 variables used to extern from main.  Some can probably
  * go local, others will be "global" in the sense of a class variable,
@@ -14,14 +14,14 @@
  */
 static int gridSp=10;
 static int newgridSp;
-/* Lets get a whole bunch for now.  Array is the 
+/* Lets get a whole bunch for now.  Array is the
  * wrong data structure, linked list is better, but
  * that can be done later.
  */
 int estNumPts = 200;
 int estNumJts = 200;
-/* Bounding box.  Was set in winmain.  Needs to be set 
- * here.  See note on DD_GRON  
+/* Bounding box.  Was set in winmain.  Needs to be set
+ * here.  See note on DD_GRON
  */
 static int llx=0,lly=0,urx=100,ury=100;
 
@@ -40,11 +40,11 @@ static enum TOOLTYPE  tool;
 //static int tool=0;
 static int type=1, inside = 0;
 //static int grid=0;
-static int  radius, maxSize;	
+static int  radius, maxSize;
 
 static HPEN hCurrentPen;
 static HBRUSH hCurrentBr;
-/* Global for handleInit.  These will 
+/* Global for handleInit.  These will
  * get rolled into a struct at some point.
  */
 static Joint *jp;
@@ -54,7 +54,7 @@ static POINT  ptBegin, ptNew, ptOld;
 static POINT tri[3];
 static	char temp[80];
 /* Global for handleInit */
-static HDC hdc; 
+static HDC hdc;
 //static HGLRC hRC1;
 
 
@@ -63,7 +63,7 @@ static HDC hdc;
 	extern GRAPHICS * g;
 
 
-BOOL CALLBACK DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam) 
+BOOL CALLBACK DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 
   	switch (iMessage)
@@ -91,13 +91,13 @@ BOOL CALLBACK DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lPara
      /* As usual, add a destroy handler if this gets long */
       case WM_DESTROY:
         /* Put a message box here to test this out */
-         //MessageBox(hDlg, "WM Destroy test", "WM_DESTROY", MB_OK); 
+         //MessageBox(hDlg, "WM Destroy test", "WM_DESTROY", MB_OK);
         /* Then free up all allocated memory. */
          freePointList();
          freeJointList();
       break;
 
-     /* Probably should free some memory, etc. before 
+     /* Probably should free some memory, etc. before
       * shutting down.
       */
     		default:
@@ -128,7 +128,7 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
      	case DD_MP: type = 1; tool=measpoint; hCurrentPen = drawPen[1]; break;
 	   		case DD_LP: type = 2; tool=loadpoint; hCurrentPen = drawPen[1]; break;
   				case DD_HP: type = 3; tool=holepoint; hCurrentPen = drawPen[1]; break;
-				
+
 	    	case DD_BOLT1:
          handleRockbolts(hDlg);
       break;
@@ -149,20 +149,20 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
          handleRemovePoints(hDlg,hdc,pp);
  					break;
 
-     /* Handles changing grid spacing? 
-      * TODO: Collapse this into a single callable function. 
+     /* Handles changing grid spacing?
+      * TODO: Collapse this into a single callable function.
       */
 	 				case IDC_GRID:
 	   	   	if (grid)
-	   		   { 
+	   		   {
 		         	handleGridOff(hdc,jp,nLines,pp,nPoints);
 	         		grid=TRUE;
-	      		}			
+	      		}
 		      	gridSp=changeGridSpacing(hDlg,lParam,wParam);
 
 			      if (grid)
-		      	{ 
-		         	handleGridOn(hdc,jp,nLines,pp,nPoints);			
+		      	{
+		         	handleGridOn(hdc,jp,nLines,pp,nPoints);
 	      		}
  					break;
 
@@ -182,23 +182,23 @@ static void
 handleLButtonDown(HWND hDlg, LPARAM lParam)
 {
    SetCapture(hDlg);
-  /* Get the (x,y) of the pointer when the left 
+  /* Get the (x,y) of the pointer when the left
    * mouse button is pressed.
    */
-   ptBegin.x = LOWORD(lParam); 
+   ptBegin.x = LOWORD(lParam);
    ptBegin.y = HIWORD(lParam);
 
    DPtoLP(hdc, &ptBegin, 1);
    //ScreenToClient(hDlg,&ptBegin);
-		 if(ptBegin.x <= maxSize && 
-      ptBegin.x >= 0       && 
-      ptBegin.y <= maxSize && 
-      ptBegin.y >= 0        ) 
+		 if(ptBegin.x <= maxSize &&
+      ptBegin.x >= 0       &&
+      ptBegin.y <= maxSize &&
+      ptBegin.y >= 0        )
    {
 			   ptOld = ptBegin;
 			   inside = TRUE;
-		 } 
-   else 
+		 }
+   else
    {
 			   inside = FALSE;
    }
@@ -223,27 +223,27 @@ handleLButtonUp(HWND hDlg, LPARAM lParam)
 
   /* We insist on actually being inside the drawing area...
    */
-			if(ptNew.x <= maxSize && 
-      ptNew.x >= 0       && 
-      ptNew.y <= maxSize && 
-      ptNew.y >= 0       && 
-      inside) 
+			if(ptNew.x <= maxSize &&
+      ptNew.x >= 0       &&
+      ptNew.y <= maxSize &&
+      ptNew.y >= 0       &&
+      inside)
    {
 			   SetROP2(hdc, R2_COPYPEN);
 				  SelectObject(hdc, hCurrentPen);
 
      /* TODO: Turn this into a swicth on tool. */
-			  	if(tool==joint) 
+			  	if(tool==joint)
          addJoint(hDlg);
-      else if (tool==fixedpoint || tool==loadpoint) 
+      else if (tool==fixedpoint || tool==loadpoint)
          addTriangle(hDlg);
-      else if (tool==measpoint || tool==holepoint) 
+      else if (tool==measpoint || tool==holepoint)
          addCircle(hDlg);
-  	} 
+  	}
    else /* outside drawing area */
-   { 
+   {
 	     SetROP2(hdc, R2_NOT);
-    		if(!tool && inside) 
+    		if(!tool && inside)
       {
 	    				MoveToEx(hdc, ptBegin.x, ptBegin.y, NULL);
 	     			LineTo(hdc, ptOld.x, ptOld.y);
@@ -262,7 +262,7 @@ addJoint(HWND hDlg)
   /* Ok, here is the new stuff, just for the joints for now...
    * (Welcome to the wild world of data structures.)
    */
-   if( (ptBegin.x != ptNew.x) ||  
+   if( (ptBegin.x != ptNew.x) ||
        (ptBegin.y != ptNew.y)  )
    {
      /* Grab a new joint.. */
@@ -274,19 +274,19 @@ addJoint(HWND hDlg)
 	  			newjoint->d2.y = ptNew.y;
 		 			newjoint->type = type;
       //nLines++;  //May not need this.
-     /* Now add this turkmeister to the tail of the 
+     /* Now add this turkmeister to the tail of the
       * ddadlist type jointlist...
       */
       dl_insert_b(jointlist, (void *)newjoint);
    }
-      
 
-/* Old stuff.  Keep this as duplicate, then 
+
+/* Old stuff.  Keep this as duplicate, then
  * #define away, then delete.
  */
-   if(nLines < estNumJts && 
-      (ptBegin.x != ptNew.x || 
-       ptBegin.y != ptNew.y)) 
+   if(nLines < estNumJts &&
+      (ptBegin.x != ptNew.x ||
+       ptBegin.y != ptNew.y))
    {
       //MessageBox(hDlg, "Added one Joint", "Add", MB_OK);
 			   jp[nLines].d1.x = ptBegin.x;
@@ -295,11 +295,11 @@ addJoint(HWND hDlg)
 	  			jp[nLines].d2.y = ptNew.y;
 		 			jp[nLines].type = type;
 		 			nLines++;
-			} 
+			}
   /* We certainly will NOT need this after the array based
    * implementation is replaced.
    */
-   else if(nLines >= estNumJts) 
+   else if(nLines >= estNumJts)
    {
 	     MessageBox(hDlg, "Estimated # of Joints Exceeded", "Too many joints", MB_OK);
 	   		SetROP2(hdc, R2_NOT);
@@ -323,27 +323,27 @@ addJoint(HWND hDlg)
 	 	glEnd();
   	glPopMatrix();
 	 	SwapBuffers(hdc);
-#endif 
+#endif
 
 }  /* close addJoint() */
 
 
-static void 
+static void
 addTriangle(HWND hDlg)
 {
 
-   if(nPoints < estNumPts) 
+   if(nPoints < estNumPts)
    {
       pp[nPoints].x = ptNew.x;
 		    pp[nPoints].y = ptNew.y;
 	     pp[nPoints].type = type;
 		    nPoints++;
-				  if(tool==3) 
+				  if(tool==3)
          nlp++;
-					 else 
+					 else
          nfp++;
 					 hCurrentBr = GetStockObject(WHITE_BRUSH);
-					 if(tool==3) 
+					 if(tool==3)
          hCurrentBr = GetStockObject(BLACK_BRUSH);
 				  SelectObject(hdc, hCurrentBr);
 		    tri[0].x = (int) (ptNew.x);
@@ -354,8 +354,8 @@ addTriangle(HWND hDlg)
 		    tri[2].y = (int) (ptNew.y - 1.2*0.5*radius);
 				  SetPolyFillMode (hdc, WINDING) ;
 			   Polygon(hdc, tri, 3);
-			 } 
-    else 
+			 }
+    else
     {
 			    MessageBox(hDlg, "Estimated # of Points Exceeded", "Too many points", MB_OK);
 		 	}
@@ -367,26 +367,26 @@ static void
 addCircle(HWND hDlg)
 {
 
-   if(nPoints < estNumPts) 
+   if(nPoints < estNumPts)
    {
 			   pp[nPoints].x = ptNew.x;
 			   pp[nPoints].y = ptNew.y;
       pp[nPoints].type = type;
 			   nPoints++;
-			   if(tool == holepoint) 
-      {         
+			   if(tool == holepoint)
+      {
          hCurrentBr = GetStockObject(BLACK_BRUSH);
          nhp++;
       }
 			  	else /* tool == measured points */
-      {			   
+      {
          hCurrentBr = GetStockObject(WHITE_BRUSH);
          nmp++;
       }
 			   SelectObject(hdc, hCurrentBr);
 			   Ellipse(hdc, ptNew.x-radius, ptNew.y+radius, ptNew.x+radius, ptNew.y-radius);
-	   } 
-    else 
+	   }
+    else
     {
 	     	MessageBox(hDlg, "Estimated # of Points Exceeded", "Too many points", MB_OK);
 	   }
@@ -394,7 +394,7 @@ addCircle(HWND hDlg)
 }  /* close addCircle() */
 
 
-static void 
+static void
 handleMouseMove(HWND hDlg, LPARAM lParam, WPARAM wParam)
 {
 
@@ -404,7 +404,7 @@ handleMouseMove(HWND hDlg, LPARAM lParam, WPARAM wParam)
 #endif
 
 			ptNew.x = LOWORD(lParam); ptNew.y = HIWORD(lParam);
-			
+
 			DPtoLP(hdc, &ptNew, 1);
 			if(ptNew.x <= maxSize && ptNew.x >= 0 && ptNew.y <= maxSize && ptNew.y >= 0 && inside) {
 
@@ -489,35 +489,35 @@ handleInit(HWND hDlg)
 			SetClassLong(GetDlgItem(hDlg,IDC_DRAWSPACE), GCL_HCURSOR, (long)LoadCursor(NULL,"IDC_CROSS "));
 
 			hCurrentPen = drawPen[1];  // black
-			
+
 			SetMapMode(hdc, MM_ISOTROPIC);
-						
+
   /*
-			sprintf(mess, "Dialog top is %d bottom is %d\nDraw top is %d bottom is %d.\n\nClick to continue.", 
+			sprintf(mess, "Dialog top is %d bottom is %d\nDraw top is %d bottom is %d.\n\nClick to continue.",
 									winSize.top,winSize.bottom,drawSize.top,drawSize.bottom);
 			MessageBox( hDlg, mess, "Geometry: Window Size", MB_ICONINFORMATION );
 		 */
-	
+
 			orig_x= drawSize.left-winSize.left;
 			orig_y= drawSize.top-winSize.top;
 			ext_x=drawSize.right-drawSize.left;
 			ext_y=drawSize.bottom-drawSize.top;
 
-			
+
 			SetWindowOrgEx(hdc,orig_x,orig_y, NULL);
 			SetWindowExtEx(hdc,ext_x,ext_y,NULL);
 
 			// want square area to draw in
 
 			maxSize = ext_x-orig_x; /*> ury-lly ? urx : ury;*/
-			if (ury-lly>maxSize) 
-      maxSize=ext_y-orig_y; 
+			if (ury-lly>maxSize)
+      maxSize=ext_y-orig_y;
 
 
 			SetViewportOrgEx(hdc,orig_x,ext_y-orig_y-1, NULL); /*device units*/
 			SetViewportExtEx(hdc, maxSize, -maxSize, NULL); /*device units*/
   /*
-			sprintf(mess, "Viewport origin x is %d y is %d\nExtent x is %d y is %d.\n\nClick to continue.", 
+			sprintf(mess, "Viewport origin x is %d y is %d\nExtent x is %d y is %d.\n\nClick to continue.",
 									orig_x,ext_y-orig_y-1,maxSize,-maxSize);
 			MessageBox( hDlg, mess, "Geometry: Window Size", MB_ICONINFORMATION );
 			*/
@@ -530,8 +530,8 @@ handleInit(HWND hDlg)
 //			glLoadIdentity();
 //			gluOrtho2D(0.0,1.0,1.0,0.0);
 //			glutMouseFunc(Mouse);
-			
-			   
+
+
 			radius = (int) ((urx-llx)/20);
 			SetDlgItemInt(hDlg,IDC_MINX,llx,TRUE);
 			SetDlgItemInt(hDlg,IDC_MINY,lly,TRUE);
@@ -542,10 +542,10 @@ handleInit(HWND hDlg)
 			ScaleY=Scale(ury,lly);
 			CheckRadioButton(hDlg, DD_J1, DD_HP, DD_J1);
 			CheckRadioButton(hDlg, DD_GRON, DD_GROFF, DD_GROFF);
- 
-			if(jp) 
+
+			if(jp)
 				free(jp);
-			if(pp) 
+			if(pp)
 				free(pp);
 
 			jp = (Joint *) malloc(sizeof(Joint) * estNumJts);
@@ -571,17 +571,17 @@ double Scale (int max, int min)
 }  /* close scale*/
 
 
-void       
+void
 handleRockbolts(HWND hDlg)
 {
   HPEN hCurrentPen;
-   MessageBox(hDlg, "Rock bolts are not yet implemented", "Rock bolts", MB_OK); 
-   type = 1; tool=5; hCurrentPen = drawPen[1]; 
+   MessageBox(hDlg, "Rock bolts are not yet implemented", "Rock bolts", MB_OK);
+   type = 1; tool=5; hCurrentPen = drawPen[1];
 
 }  /* close handleRockBolts() */
 
 
-void 
+void
 drawGridLines(HDC hdc, int color, GRAPHICS * g)
 {
    int i;
@@ -601,7 +601,7 @@ drawGridLines(HDC hdc, int color, GRAPHICS * g)
 
 					SelectObject(hdc, drawPen[3]); // blue
 					SetROP2(hdc, R2_COPYPEN);
-					
+
 						MoveToEx(hdc, 0, 0, NULL);
 						LineTo(hdc, maxSize, maxSize);
 
@@ -611,7 +611,7 @@ drawGridLines(HDC hdc, int color, GRAPHICS * g)
 		red=g->R[color];green=g->G[color];blue=g->B[color];
 		glColor3f( red, green, blue );
 #endif
-			   
+
 					SelectObject(hdc, drawPen[color]); // grey
 					SetROP2(hdc, R2_COPYPEN);
 					i=0;
@@ -664,13 +664,13 @@ drawJoints(HDC hdc, Joint * jp, int nLines, GRAPHICS * g)
 #endif
 
 			SetROP2(hdc, R2_COPYPEN);
-			for(i=0; i<nLines; i++) 
+			for(i=0; i<nLines; i++)
    {
 						j = jp[i].type;
 						SelectObject(hdc, drawPen[j]);
 						MoveToEx(hdc, (int) jp[i].d1.x, (int) jp[i].d1.y, NULL);
 						LineTo(hdc, (int) jp[i].d2.x, (int) jp[i].d2.y);
-#if OPENGL			
+#if OPENGL
 	   		red=g->R[type];green=g->G[type];blue=g->B[type];
 	   		glColor3f( red, green, blue );
     		p1x = jp[i].d1.x/(double)maxSize;
@@ -701,20 +701,20 @@ drawJoints(HDC hdc, Joint * jp, int nLines, GRAPHICS * g)
 
 static void
 drawPoints(HDC hdc, DPoint * pp, int nPoints)
-{  
+{
    int i,j;
 	  POINT tri[3];
 
-			for(i=0; i<nPoints; i++) 
+			for(i=0; i<nPoints; i++)
    {
       SelectObject(hdc, drawPen[1]); // black
 				  j = pp[i].type;
-				  if(j > 1) 
+				  if(j > 1)
          SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-				  else 
+				  else
          SelectObject(hdc, GetStockObject(WHITE_BRUSH));
 
-				  if( j == 0 || j == 2) 
+				  if( j == 0 || j == 2)
       {
 					    tri[0].x = (int) (pp[i].x);
 					    tri[0].y = (int) (pp[i].y + 1.2*radius);
@@ -724,8 +724,8 @@ drawPoints(HDC hdc, DPoint * pp, int nPoints)
 	    				tri[2].y = (int) (pp[i].y - 1.2*0.5*radius);
 			    		SetPolyFillMode (hdc, WINDING) ;
 			    		Polygon(hdc, tri, 3);
-			  	} 
-      else 
+			  	}
+      else
       {
 					    Ellipse(hdc, (int) pp[i].x-radius, (int) pp[i].y+radius, (int) pp[i].x+radius, (int) pp[i].y-radius);
 			  	}
@@ -734,16 +734,16 @@ drawPoints(HDC hdc, DPoint * pp, int nPoints)
 
 
 
-static void 
+static void
 handleGridOn(HDC hdc, Joint * jp, int nLines, DPoint * pp, int nPoints)
 {
    grid = TRUE;
-  /* Ok, the deal here is that the bounding box (llx, lly etc) 
-   * used to declared extern, and the values set elsewhere. 
+  /* Ok, the deal here is that the bounding box (llx, lly etc)
+   * used to declared extern, and the values set elsewhere.
    * We don't want to that anymore.  For now, I have hard wired
    * these in just to make something show up on the screen.
-   * What needs to be done is to compute the values from the 
-   * viewport and geometry scale.  For a new geometry, we can 
+   * What needs to be done is to compute the values from the
+   * viewport and geometry scale.  For a new geometry, we can
    * provide a scale, say from 0:100 in each direction, and
    * have a text widget where the user can overide the scale.
    */
@@ -753,7 +753,7 @@ handleGridOn(HDC hdc, Joint * jp, int nLines, DPoint * pp, int nPoints)
 }  /* close handleGridOn() */
 
 
-static void 
+static void
 handleGridOff(HDC hdc, Joint * jp, int nLines, DPoint * pp, int nPoints)
 {
 	grid = FALSE;
@@ -762,25 +762,25 @@ handleGridOff(HDC hdc, Joint * jp, int nLines, DPoint * pp, int nPoints)
    drawPoints(hdc, pp, nPoints);
 }  /* close handleGridOff() */
 
-static void 
+static void
 handleRemoveJoints(HWND hDlg, HDC hdc, Joint * jp)
 {
-   if(nLines) 
+   if(nLines)
    {
 						SelectObject(hdc, drawPen[9]); // grey
 						SetROP2(hdc, R2_COPYPEN);
 						MoveToEx(hdc, (int) jp[nLines-1].d1.x, (int) jp[nLines-1].d1.y, NULL);
 						LineTo(hdc, (int) jp[nLines-1].d2.x, (int) jp[nLines-1].d2.y);
 						nLines--;
-						if(grid) 
+						if(grid)
          SendMessage(hDlg, WM_COMMAND, DD_GRON, 0L);
-						else 
+						else
          SendMessage(hDlg, WM_COMMAND, DD_GROFF, 0L);
 			}
 
 }  /* close removeJoints() */
 
-static void 
+static void
 handleRemovePoints(HWND hDlg, HDC hdc, DPoint * pp)
 {
 int i;
@@ -788,7 +788,7 @@ POINT tri[3];
 
 					if(nPoints) {
 						SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));
-						SelectObject(hdc, drawPen[9]); 
+						SelectObject(hdc, drawPen[9]);
 						SetROP2(hdc, R2_COPYPEN);
 						i = pp[nPoints-1].type;
 						if( i == 0 || i == 2) {
@@ -825,7 +825,7 @@ handleCancel(HWND hDlg)
 } /* close handleCancel() */
 
 
-int 
+int
 handleSave(HWND hDlg)
 {
 	  int i;
@@ -838,7 +838,7 @@ handleSave(HWND hDlg)
 			LPCTSTR szFilter[] = {
 								"Geometry files (*.geo)\0*.geo\0All files (*.*)\0*.*\0\0"};
 					strcpy(filepath.oldpath, filepath.gpath);
-    /*  Need to make a call to the filebrowser. 
+    /*  Need to make a call to the filebrowser.
      */
 					filepath.gpath[0] = '\0';
 					memset( &ofn, 0, sizeof(OPENFILENAME) );
@@ -851,29 +851,29 @@ handleSave(HWND hDlg)
 					ofn.lpstrDefExt = "geo";
 					ofn.nMaxFileTitle = 256;
 					ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
-					
+
 					numflushed = _flushall();  // flush buffer
 
 					if( !GetSaveFileName(&ofn) ) {
 						strcpy(filepath.gpath, filepath.oldpath);
 						//break;  // user pressed cancel
-     /* Cannot have a break here. 
-      * WARNING!!!!  I am assuming this should 
+     /* Cannot have a break here.
+      * WARNING!!!!  I am assuming this should
       * pass back as false.
       */
       return FALSE;
 					} else { // open file and save data
 						// if it exists already, delete it
 						if(-1 != OpenFile(filepath.gpath, &of, OF_WRITE) )
-								hFile = OpenFile(filepath.gpath, &of, OF_DELETE); 
+								hFile = OpenFile(filepath.gpath, &of, OF_DELETE);
 						if(-1 == (hFile = OpenFile(filepath.gpath, &of, OF_CREATE)) ) {
 								MessageBox(NULL, "Error: Cannot create file", "ERROR", MB_OK | MB_ICONINFORMATION);
 								return 0;
 						}
 						fp = fopen(filepath.gpath, "w+");
-						
+
 						fprintf(fp, "0.01\r\n%d 0\r\n0\r\n0\r\n%d\r\n%d\r\n%d\r\n%d\r\n", nLines, nfp, nlp, nmp, nhp);
-	
+
 //			MessageBox(NULL, "Opened file", "Output started", MB_OK);
 
 						for(i=0; i<nLines; i++) {
@@ -901,15 +901,15 @@ handleSave(HWND hDlg)
 
 
 
-static int 
+static int
 changeGridSpacing(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
    //int i;
 
-   if (HIWORD(wParam) == EN_KILLFOCUS) 
+   if (HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          gridSp=GetDlgItemInt(hDlg, IDC_GRID, NULL, TRUE);
@@ -928,7 +928,7 @@ freeJointList()
 }  /* close freeJointList() */
 
 
-static void 
+static void
 freePointList()
 {
 

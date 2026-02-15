@@ -31,7 +31,7 @@ typedef struct _project {
 
 
 
-personPtr parsePerson(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur); 
+personPtr parsePerson(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
 
 void printPerson(personPtr cur);
 

@@ -1,5 +1,5 @@
 
-/** This procedure reads in the data from the 
+/** This procedure reads in the data from the
  * .ana files in original ghs format
  *
  * $Author: doolin $
@@ -39,9 +39,9 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
 
    Constants * constants;
 
-   int nFPoints = nfp;  
-   int pointCount = pc;  
-   int nLPoints = nlp;  
+   int nFPoints = nfp;
+   int pointCount = pc;
+   int nLPoints = nlp;
 
 
 
@@ -64,9 +64,9 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
    k5 = IntMat2DGetMem(adn->k5size1, adn->k5size2);
   /* c : movement u v of fixed measured load points */
   /* c[pointCount+1][3]                             */
-  /* It appears that c[][] is used as a flag in 
+  /* It appears that c[][] is used as a flag in
    * analysisreader(2) to indicate when to read in values
-   * for time dependent properties, then later used to 
+   * for time dependent properties, then later used to
    * record movement of measured, fixed, and load
    * points.
    */
@@ -91,13 +91,13 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
   /* dynamic diplacement and loading input          */
   /* k5[i][0] >= 2                                  */
    for (i=1; i<= nFPoints+nLPoints; i++) {
-     /* What this means is that the c matrix is always set 
+     /* What this means is that the c matrix is always set
       * to unity in the next loop.
       */
 	     k5[i][0] = 0; /* no time-dependent loads or displacements */
    }  /*  i  */
 
-      
+
   /* (GHS: k5[i][0]=0 fixed points   c[i][0]=1 flag) */
    for (i=1; i<= nFPoints+nLPoints; i++) {
 
@@ -105,12 +105,12 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
       {
          c[i][0]=1;
          k5[i][0]=2;
-      } 
+      }
       else
       {
          c[i][0] = 0;
       }
-   } 
+   }
 
   /* (GHS: k5[i][0] start     k5[i][1]  end) */
    i1=0;
@@ -122,7 +122,7 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
    }  /*  i  */
   /* Set nt to the accumulated value...
    */
-   adn->nt=k5[nFPoints+nLPoints][1]; 
+   adn->nt=k5[nFPoints+nLPoints][1];
 
 
   /**************************************************/
@@ -155,7 +155,7 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
    adn->phicohesionsize1 = n7;
    adn->phicohesionsize2 = n8;
    phiCohesion = DoubMat2DGetMem(n7, n8);
-  
+
   /**************************************************/
   /* u0: t x y of time dependent displacements      */
   /* u0: t x y of time dependent loading            */
@@ -165,7 +165,7 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
 
    for (i=1; i<=nFPoints+nLPoints; i++)
    {
-      //if (c[i][0] < 0.5) 
+      //if (c[i][0] < 0.5)
         // goto a201;
       /* Since displacement dependent properties are not
        * implemented in this version, the following if statement
@@ -182,8 +182,8 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
          timeDeps[i1][1] = 0;
          timeDeps[i1][2] = 0;
       }
- 
-      else 
+
+      else
       {
          for (j=k5[i][0]; j<=k5[i][1]; j++)
          {
@@ -193,9 +193,9 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
          }  /*  j  */
       }
    }  /*  i  */
-      
+
   /* ma we e0 u0 s11 s22 s12 t11 t22 t12 vx vy vr   */
-  /* Note that the dimension of a is 
+  /* Note that the dimension of a is
    * [number of block (types?)][13].
    */
    for (i=1; i<= adn->nBlockMats; i++)
@@ -210,7 +210,7 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
 
 
   /* friction-angle   cohesion   tension-strength   */
-   /* nJointMats probably is the number of JOINT TYPES, not the 
+   /* nJointMats probably is the number of JOINT TYPES, not the
     * number of JOINTS!!!!
     */
    for (jointmat=1; jointmat<= adn->nJointMats; jointmat++)
@@ -219,7 +219,7 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
          &phiCohesion[jointmat][0],
          &phiCohesion[jointmat][1],&phiCohesion[jointmat][2]);
    }  /*  i  */
-      
+
    fclose(analysisFile);
 
 
@@ -230,12 +230,12 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
   /* Get rid of c */
    adn->c = c;
 
-  /* Kludge kludge kludge:  The original file format has no 
+  /* Kludge kludge kludge:  The original file format has no
    * notion of constant time step.
    */
    adn->autotimestepflag = 1;
    adn->autopenaltyflag = 1;
-  /* The ddaml file allows the penalty number to be 
+  /* The ddaml file allows the penalty number to be
    * be adjusted.  Since this one does not, we need
    * to set the multiplier explicitly.
    */
@@ -253,18 +253,18 @@ ddafile_read_original_analysis(void * userdata, char * af, int nfp, int pc, int 
 
 
 
-/* fgets pound comments:  Handle comments embedded into 
+/* fgets pound comments:  Handle comments embedded into
  * input files.
  */
 /* FIXME: This needs to be abstracted out. */
 int
 fgetspc(char *paramstring, int bufsize, FILE * infile, int linenumber) {
 
-  /* Grab a line, check the first character for a 
-   * comment marker, spin until no comment marker in 
+  /* Grab a line, check the first character for a
+   * comment marker, spin until no comment marker in
    * first position.
    */
-   do { 
+   do {
      fgets(paramstring, bufsize, infile);linenumber++;
    } while (paramstring[0] == '#');
 

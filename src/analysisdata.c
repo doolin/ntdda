@@ -1,7 +1,7 @@
 
 
 #ifdef WIN32
-#pragma warning( disable : 4115 )        
+#pragma warning( disable : 4115 )
 #endif
 
 
@@ -62,9 +62,9 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber) {
 
    /* Set the memory in what was the last element to garbage to make
     * sure it isn't accidently used.
-    */ 
+    */
     memset((void*)e0[mpsize1],0xDA,mpsize2*sizeof(double));
-}  
+}
 
 
 
@@ -72,7 +72,7 @@ deleteBlockMaterial(Analysisdata * ad, int blocknumber) {
 static void
 abortAnalysis(Analysisdata * ad) {
 
-  /* Save the time step where the analysis was aborted.  This will 
+  /* Save the time step where the analysis was aborted.  This will
    * be needed for writing data after the analysis ends.
    */
    ad->abortedtimestep = ad->cts;
@@ -82,13 +82,13 @@ abortAnalysis(Analysisdata * ad) {
    * happens automatically.
    */
    ad->cts = ad->nTimeSteps;
-  /* Reset so the function that writes the data to the 
-   * log file does not write out a bunch of unnecessary 
+  /* Reset so the function that writes the data to the
+   * log file does not write out a bunch of unnecessary
    * zero values.
    */
    ad->nTimeSteps = ad->abortedtimestep;
 
-  /* FIXME: Here is a good place to disable some menu 
+  /* FIXME: Here is a good place to disable some menu
    * items.
    */
   return;
@@ -123,7 +123,7 @@ adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
 
    if (ad->analysistype == 0)
       strcpy(attribute,"static");
-   else 
+   else
       strcpy(attribute,"dynamic");
 
    printer(outfile,"<Analysis type=\"%s\">\n\n",attribute);
@@ -146,10 +146,10 @@ adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
    }
    printer(outfile,I1"<Rotation type=\"%s\"/>\n",attribute);
 
-   
+
    if (ad->gravityflag == 0)
       strcpy(attribute,"no");
-   else 
+   else
       strcpy(attribute,"yes");
 
    printer(outfile,I1"<Gravity flag=\"%s\">\n",attribute);
@@ -158,24 +158,24 @@ adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
 
    if (ad->autotimestepflag == 0)
       strcpy(attribute,"no");
-   else 
+   else
       strcpy(attribute,"yes");
    printer(outfile,I1"<Autotimestep flag=\"%s\"/>\n",attribute);
 
    if (ad->autopenaltyflag == 0)
       strcpy(attribute,"no");
-   else 
+   else
       strcpy(attribute,"yes");
    printer(outfile,I1"<Autopenalty flag=\"%s\" pfactor=\"50\"/>\n",attribute);
 
 
    if (ad->planestrainflag == 0)
       strcpy(attribute,"no");
-   else 
+   else
       strcpy(attribute,"yes");
    printer(outfile,I1"<Planestrain flag=\"%s\"/>\n",attribute);
- 
-   
+
+
    printer(outfile,I1"<Numtimesteps timesteps=\"%d\"/>\n",ad->nTimeSteps);
    printer(outfile,I1"<Maxtimestep maxtimestep=\"%f\"/>\n",ad->maxtimestep);
    printer(outfile,I1"<OCLimit maxopenclose=\"%d\"/>\n",ad->OCLimit);
@@ -183,12 +183,12 @@ adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
    printer(outfile,I1"<Saveinterval step=\"%d\"/>\n",ad->tsSaveInterval);
 
 
-   printer(outfile,I1"<!-- These used to be hard-wired into the\n"); 
+   printer(outfile,I1"<!-- These used to be hard-wired into the\n");
    printer(outfile,I1"     DDA source code.  Not currently used -->\n");
 
    constants_print_xml(ad->constants, printer, outfile);
 
-/** 
+/**
  * @todo implement loadpoints_print_xml
  */
    //loadpoints_print_xml(ad, outfile);
@@ -200,11 +200,11 @@ adata_write_ddaml(Analysisdata * ad, PrintFunc printer, void * outfile) {
    printer(outfile,"</Analysis>\n");
    printer(outfile,"</Berkeley:DDA>\n");
 
-}  
+}
 
 
 
-static void 
+static void
 emitBlockMaterials(Analysisdata * ad, PrintFunc printer, void * outfile)
 {
    int i;
@@ -219,7 +219,7 @@ emitBlockMaterials(Analysisdata * ad, PrintFunc printer, void * outfile)
    for (i=1; i<= ad->nBlockMats; i++) {
 
       printer(outfile,I1"<Blockmaterial  type=\"%d\">\n",i);
-   
+
       printer(outfile,I2"<Unitmass> %f </Unitmass>\n",ad->materialProps[i][0]);
       printer(outfile,I2"<Unitweight> %f </Unitweight>\n",ad->materialProps[i][1]);
       printer(outfile,I2"<Youngsmod> %f </Youngsmod>\n",ad->materialProps[i][2]);
@@ -242,14 +242,14 @@ emitBlockMaterials(Analysisdata * ad, PrintFunc printer, void * outfile)
       printer(outfile,I1"</Blockmaterial>\n");
 
 
-   }  
+   }
 
 
 }  /* close emitBlockMaterials() */
 
 
 
-static void 
+static void
 emitJointMaterials(Analysisdata * ad, PrintFunc printer, void * outfile) {
 
 
@@ -257,27 +257,27 @@ emitJointMaterials(Analysisdata * ad, PrintFunc printer, void * outfile) {
 
    for (i=1; i<= ad->nJointMats; i++) {
 
-     
-      printer(outfile,I1"<Jointproperties type=\"%d\">\n",i);  
+
+      printer(outfile,I1"<Jointproperties type=\"%d\">\n",i);
       printer(outfile,I2"<Friction> %.2f</Friction>\n",ad->phiCohesion[i][0]);
       printer(outfile,I2"<Cohesion> %.2f</Cohesion>\n",ad->phiCohesion[i][1]);
       printer(outfile,I2"<Tensile> %.2f</Tensile>\n",ad->phiCohesion[i][2]);
-      printer(outfile,I1"</Jointproperties>\n");  
-   } 
+      printer(outfile,I1"</Jointproperties>\n");
+   }
 
-}  
+}
 
 
 
 /*
 static void
 emitBoltMaterials(Analysisdata * ad, FILE * outfile) {
-}  
+}
 */
 
 
 
-/* TODO: Instead of exit(0), construct an API for 
+/* TODO: Instead of exit(0), construct an API for
  * "fixing" mistakes, and use that instead.
  */
 void
@@ -285,7 +285,7 @@ adata_validate(Analysisdata * ad) {
 
    int i;
    int nb = ad->nBlockMats;
-   //double grav = ad->gravaccel; 
+   //double grav = ad->gravaccel;
    //double ** materialProps = ad->materialProps;
 
   /* Check to make sure that density and unit weight
@@ -295,26 +295,26 @@ adata_validate(Analysisdata * ad) {
      /* That is, set the initial spring stiffness
       * equal to the highest Young's modulus...
       */
-      /* This code should no longer be necessary since 
-       * the unit weight is computed from the density 
+      /* This code should no longer be necessary since
+       * the unit weight is computed from the density
        * and gravitational acceleration.
        */
       /*
-      if (fabs((grav*materialProps[i][0] - materialProps[i][1])) > 0.01) 
+      if (fabs((grav*materialProps[i][0] - materialProps[i][1])) > 0.01)
       {
          iface->displaymessage("Density and unit weight are inconsistent");
          //exit(0);
       }
       */
-   }  
+   }
 
-}  
-
-
+}
 
 
 
-void 
+
+
+void
 adata_delete(Analysisdata * ad) {
 
    free2DMat((void **)ad->timeDeps, ad->timedepsize1);
@@ -360,8 +360,8 @@ adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
        case ddaml:
           ddaml_read_analysis_file((void*)ad,infilename);
           break;
-          
-       case extended: 
+
+       case extended:
           //iface->displaymessage("Extended analysis file format deprecated");
           //AData->printer(NULL,"Warning","Extended analysis file format deprecated");
           //exit(0);
@@ -375,37 +375,37 @@ adata_read_input_file(Analysisdata * ad, char * infilename, int numfixedpoints,
           break;
           */
        case original:
-       default:          
-          ddafile_read_original_analysis(ad, infilename, numfixedpoints,pointcount,numloadpoints);  
+       default:
+          ddafile_read_original_analysis(ad, infilename, numfixedpoints,pointcount,numloadpoints);
           ad->display_warning("Obsolete geometry file detected");
           break;
    }
-}  
+}
 
 
 
 
-void 
+void
 adata_set_output_flag(Analysisdata * ad, int flag) {
    ad->options |= flag;
 }
 
-void 
+void
 adata_clear_output_flag(Analysisdata * ad, int flag) {
    ad->options ^= flag;
 }
 
 
-/* 
+/*
  * Is mathematical analysis...only a vain play of the mind?
  * It can give to the physicist only a convenient language;
  * is this not a mediocre service, which, strictly speaking,
  * could be done without; and even is it not to be feared
  * that this artificial language may be a veil interposed
- * between reality and the eye of the physicist?  Far from 
+ * between reality and the eye of the physicist?  Far from
  * it; without this language most of the intimate analogies
  * of things would heave remained forever unknown to us;
- * and we should forever have been ignorant of the internal 
+ * and we should forever have been ignorant of the internal
  * harmony of the world, which is...the only true reality.
  *     --- Henri Poincar\'e
  */
@@ -420,7 +420,7 @@ adata_clone(Analysisdata * adn) {
    int i;
 
    Analysisdata * ado;  /* i.e, ad out */
-   
+
    /* make a call to the initAnalysis data here instead */
    ado = (Analysisdata *)malloc(sizeof(Analysisdata));
 
@@ -447,7 +447,7 @@ adata_clone(Analysisdata * adn) {
    }
 
    ado->initialconstants = constants_clone(adn->initialconstants);
-   
+
   /* FIXME: clone the timehistory points/array also: */
    //ado->timehistory = cloneTimeHistory(adn->timehistory);
 
@@ -458,11 +458,11 @@ adata_clone(Analysisdata * adn) {
 
 Analysisdata *
 adata_new() {
-  /* According to Kelley and Pohl, the code in 
+  /* According to Kelley and Pohl, the code in
    * NEWINIT should perform the same initialization
    * functions as the code in OLDINIT.  However,
    * what the OLDINIT code does is suck up all the ram
-   * and make NT die.  FIXME: find out whether the 
+   * and make NT die.  FIXME: find out whether the
    * initialization problem is an MS problem, or a
    * non-standard c construct.
    */
@@ -471,7 +471,7 @@ adata_new() {
 
   /* FIXME:  change to malloc. */
    ado = (Analysisdata *)calloc(1,sizeof(Analysisdata));
-   
+
   /* FIXME: This makes everything blow up. Probably there is behavior
    * that is relying on NULL pointers (e.g., timehistory below)
    * so giving this a default value ensures a segfault.
@@ -480,7 +480,7 @@ adata_new() {
 
 
    /* Doing this basically introduces a user interface bug.
-    * We need something to note whether the gravity tag is 
+    * We need something to note whether the gravity tag is
     * seen by the xml parser.  Then this can go away.
     */
    ado->gravaccel = -1;
@@ -505,8 +505,8 @@ adata_new() {
    * initialize the lagrange variables before the open-close
    * iteration starts for any particular time step.
    */
-   //AData->contactmethod = auglagrange; 
-   ado->contactmethod = penalty; 
+   //AData->contactmethod = auglagrange;
+   ado->contactmethod = penalty;
   /* TODO: Set this from the xml file at least. */
    ado->tsSaveInterval = 1;
    ado->frictionlaw = tpmc;
@@ -525,14 +525,14 @@ adata_new() {
    ado->free = adata_delete; //freeAnalysisData;
 
 
-  /* FIXME: The xml input file has this as a user controlled 
+  /* FIXME: The xml input file has this as a user controlled
    * parameter.  8 is default value from GHS code.
    */
    if (ado->OCLimit == 0)
       ado->OCLimit = 6+2;
 
    return ado;
-}  
+}
 
 
 void
@@ -545,12 +545,12 @@ adata_get_contact_damping(Analysisdata * ad) {
    return ad->contact_damping;
 }
 
-void 
+void
 adata_set_grav_accel(Analysisdata * ad, double grav) {
    ad->gravaccel = grav;
 }
 
-double 
+double
 adata_get_grav_accel(Analysisdata * ad){
    return ad->gravaccel;
 }

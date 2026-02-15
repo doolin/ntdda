@@ -2,7 +2,7 @@
 /*
  * loghtml.c
  *
- * Provides nicely formatted html output from DDA 
+ * Provides nicely formatted html output from DDA
  *
  * $Author: doolin $
  * $Date: 2003/12/17 23:36:36 $
@@ -12,18 +12,18 @@
 
 /* We need to pass in the file name. *
 /* Probably need to include dda.h or some
- * thing also. 
+ * thing also.
  */
 /* This eventually needs to go into its own
  * library, which will be a pain in the butt
  * with respect to headers.
  */
-/** @note: Previous comment with respect to 
+/** @note: Previous comment with respect to
  * headers can be mitigated by passing primitives
  * instead of Geometrydata and Analysisdata.
  */
 
-/** @todo Change the output to xml, perhaps a 
+/** @todo Change the output to xml, perhaps a
  * ddaml-specific output, with an xslt ruleset
  * and css for display.
  */
@@ -61,8 +61,8 @@ extern Options options;
 
 
 /* One way to get information into this function is
- * to pass in lists of info, each list corresponding 
- * to a table or cell, and function to write that 
+ * to pass in lists of info, each list corresponding
+ * to a table or cell, and function to write that
  * table or cell.
  */
 int
@@ -90,16 +90,16 @@ writeHTMLLogFile(Geometrydata * gd, Analysisdata * ad,
 static void
 writeHTMLHeader(FILE * htmlfile)
 {
-   
-   fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\"\n"); 
-   fprintf(htmlfile,"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"); 
+
+   fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\"\n");
+   fprintf(htmlfile,"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n");
 
    fprintf(htmlfile,"<html>\n<head>\n");
 
    fprintf(htmlfile,"<meta name=\"creator\" content=\"DDA for Windows v. 1.6\">\n");
   /* This can be changed in the future for unicode support. */
    fprintf(htmlfile,"<meta http-equiv=\"charset\" content=\"iso-8859-1\">\n");
-  
+
   /* This should be set as either geometry base file name or project
    * geometry base file name.
    */
@@ -112,7 +112,7 @@ writeHTMLHeader(FILE * htmlfile)
    fprintf(htmlfile,"SPAN.error {color:red;}\n");
    fprintf(htmlfile,"</style>\n");
 
-  /* A good candidate would be the cpu run time of the total 
+  /* A good candidate would be the cpu run time of the total
    * program and various functions.
    */
 
@@ -153,7 +153,7 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
 
   /* FIXME: Bad division for breaking into functions.
    * All the following belongs in the body, but I need info
-   * from the analysis data struct and the constants struct 
+   * from the analysis data struct and the constants struct
    * as well.
    */
    fprintf(htmlfile,"<body>\n");// bgcolor=\"white\">\n\n");
@@ -162,11 +162,11 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
 
   /* Open 1 row table and set left column */
    //fprintf(htmlfile,"<table border=0 cellpadding=0>\n<tr>\n <td width=\"10%%\"></td>\n");
-   
+
   /* Open middle column */
    //fprintf(htmlfile,"<td>\n\n");
 
-  /* Now have some tables or something to organize 
+  /* Now have some tables or something to organize
    * errors, run time stats, etc.
    */
 
@@ -211,7 +211,7 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
    fprintf(htmlfile, "</ul>\n</p>\n");
 
 
-  /* The plots probably will have to not go with the 
+  /* The plots probably will have to not go with the
    * bar tables, but for now it is a handy reference.
    */
    strcpy(bgcolor,"#99FF66");
@@ -232,11 +232,11 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
    //fprintf(htmlfile,"<li>Update: %f</li>\n",update_runtime);
    fprintf(htmlfile,"</ul>\n");
    fprintf(htmlfile,"</td>\n");
-   
+
    fprintf(htmlfile,"<td align=\"top\">\n");
    fprintf(htmlfile,"<h3>Flag states</h3>\n");
    fprintf(htmlfile,"<ul>\n");
-   fprintf(htmlfile,"<li>Auto time step: %d</li>\n",ad->autotimestepflag);   
+   fprintf(htmlfile,"<li>Auto time step: %d</li>\n",ad->autotimestepflag);
    fprintf(htmlfile,"<li>Auto penalty: %d</li>\n",ad->autopenaltyflag);
    fprintf(htmlfile,"<li>Max disp.: %f</li>\n",ad->maxdisplacement);
    fprintf(htmlfile,"<li>Max time step: %f</li>\n",ad->maxtimestep);
@@ -244,7 +244,7 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
    fprintf(htmlfile,"</ul>\n");
    fprintf(htmlfile,"</td>\n");
 
-   fprintf(htmlfile,"</tr>\n</table>\n");  
+   fprintf(htmlfile,"</tr>\n</table>\n");
 
    fprintf(htmlfile,"<h3>Open-close count</h3>\n");
    fprintf(htmlfile,"Total number of open-close iterations was %d over %d time steps",
@@ -255,7 +255,7 @@ writeHTMLBody(Datalog * DLog, Analysisdata * ad, FILE * htmlfile) {
    {
       printBarTable("Spy plots",htmlfile);
       fprintf(htmlfile,"<img src=\"spy1.png\">");
-      //printBarTable("Spy plot after reordering",htmlfile); 
+      //printBarTable("Spy plot after reordering",htmlfile);
       fprintf(htmlfile,"<img src=\"spy2.png\">\n\n");
    }
 #endif
@@ -292,7 +292,7 @@ static void
 writeHTMLFooter(FILE * htmlfile)
 {
 
-  /* Put some extra fancy goodies in here before 
+  /* Put some extra fancy goodies in here before
    * closing, maybe an hrule or something.
    */
 
@@ -325,7 +325,7 @@ writeGnuplotFile(Geometrydata * gd)
    fprintf(fp.gnuplotfile,"set term png small color\n");
    fprintf(fp.gnuplotfile,"set size .7,.5\n");
 
-   
+
    fprintf(fp.gnuplotfile,"set logscale y\n");
    fprintf(fp.gnuplotfile,"set output \"spring.png\"\n");
    fprintf(fp.gnuplotfile,"plot \"%s\" using 1:2 with lines 1\n",filepath.datafile);
@@ -340,8 +340,8 @@ writeGnuplotFile(Geometrydata * gd)
    fprintf(fp.gnuplotfile,"set output \"openclose.png\"\n");
    fprintf(fp.gnuplotfile,"plot \"%s\" using 1:4 with lines 3\n",filepath.datafile);
 
-  /* Fix range on openclose cuts so that they will be easier to 
-   * see on the plots. 
+  /* Fix range on openclose cuts so that they will be easier to
+   * see on the plots.
    */
    //fprintf(fp.gnuplotfile,"set yrange [-1:%d]\n", maxcuts+1);
    fprintf(fp.gnuplotfile,"set output \"openclosecut.png\"\n");

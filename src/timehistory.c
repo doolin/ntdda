@@ -1,4 +1,4 @@
-/** 
+/**
  * lexer/parser for eq data.  This should work with the same files
  * used with SHAKE.
  *
@@ -31,7 +31,7 @@ struct _timehistory {
 
 
 /** @todo Implement some validation code. */
-int             
+int
 
 th_validate (TimeHistory * th) {
 
@@ -56,7 +56,7 @@ static double * getTHData(int);
 
 
 void
-seismic_update_points(DList * seispoints, double ** moments, double ** F, int * k1, 
+seismic_update_points(DList * seispoints, double ** moments, double ** F, int * k1,
                       TransMap transmap, TransApply transapply) {
 
    int i0,i1;
@@ -76,10 +76,10 @@ seismic_update_points(DList * seispoints, double ** moments, double ** F, int * 
       i0 = ptmp->blocknum;
       x  = ptmp->x;
       y  = ptmp->y;
-         
+
       transmap(moments[i0],T,x,y);
       i1 = k1[i0];
-      transapply(T,F[i1],&u1,&u2);       
+      transapply(T,F[i1],&u1,&u2);
       ptmp->x += u1;
       ptmp->y += u2;
    }
@@ -89,7 +89,7 @@ seismic_update_points(DList * seispoints, double ** moments, double ** F, int * 
 
 
 /* If we have a time history, we need to make sure the time
- * interval in the time series matches the analysis time 
+ * interval in the time series matches the analysis time
  * step.
  */
 
@@ -108,9 +108,9 @@ seismic_update_points(DList * seispoints, double ** moments, double ** F, int * 
    */
 
 
-/* I should separate the "lexing" stuff from the 
- * driver, i.e. just have this main() handle the 
- * file io and call the lexer/parser as a function 
+/* I should separate the "lexing" stuff from the
+ * driver, i.e. just have this main() handle the
+ * file io and call the lexer/parser as a function
  * call that returns a struct of the data and headers.
  * Will do it later.
  */
@@ -118,7 +118,7 @@ seismic_update_points(DList * seispoints, double ** moments, double ** F, int * 
 
 
 
-static void 
+static void
 writeATHistory(TimeHistory *th) {
 
    int i;
@@ -136,32 +136,32 @@ writeATHistory(TimeHistory *th) {
 
    fflush(seisfile);
    fclose(seisfile);
-}  
+}
 
-      
-int 
+
+int
 th_get_number_of_datapoints(TimeHistory * th) {
 
    return th->number_of_datapoints;
-}  
+}
 
 
-double 
+double
 th_get_delta_t(TimeHistory * th) {
 
    return th->delta_t;
-}  
+}
 
 
 double
 th_get_data_value(TimeHistory * th, int timestep) {
 
    return th->data[timestep];
-}  
+}
 
 
 
-TimeHistory * 
+TimeHistory *
 parseShakeFormat(FILE * motionfile)
 {
    TimeHistory * th;
@@ -171,18 +171,18 @@ parseShakeFormat(FILE * motionfile)
    char * temp;
 
    //FILE * motionfile;
-   double * data; 
+   double * data;
    int i, j;
 
    th = getNewTimeHistory();
 
   /* Get the first 2 lines and parse them.
    */
-   fgets(firstline, 256, motionfile); 
-   fgets(secondline, 256, motionfile); 
+   fgets(firstline, 256, motionfile);
+   fgets(secondline, 256, motionfile);
    //iface->displaymessage(firstline);
    //iface->displaymessage(secondline);
- 
+
    temp = strtok(secondline, " ");
    //iface->displaymessage(temp);
 
@@ -201,8 +201,8 @@ parseShakeFormat(FILE * motionfile)
    {
       data[i] = atof(strtok(linebuf, " "));
       i++;
-      for (j = 1; j < 8; j++) 
-      { 
+      for (j = 1; j < 8; j++)
+      {
          data[i] = atof(strtok((char *)NULL, " "));
          i++;
       }
@@ -242,7 +242,7 @@ parseMatlabFormat(FILE * motionfile)
       data[i] = atof(strtok(linebuf, " "));
       i++;
    }
- 
+
    th->data = data;
    return th;
 
@@ -250,7 +250,7 @@ parseMatlabFormat(FILE * motionfile)
 
 
 
-void 
+void
 th_read_data_file(TimeHistory * th, char * filename, format fileformat) {
 
    FILE * motionfile;
@@ -273,17 +273,17 @@ th_read_data_file(TimeHistory * th, char * filename, format fileformat) {
        case matlab:
           th = parseMatlabFormat(motionfile);
           break;
-       
+
        default:
           th->display_warning("Warning: need a file format to parse\n");
-          break;       
+          break;
    }
 
    fclose(motionfile);
 
    writeATHistory(th);
 
-}  
+}
 
 
 
@@ -300,31 +300,31 @@ getTHData(int n)
 }  /* close getTHData() */
 
 
-static TimeHistory * 
+static TimeHistory *
 getNewTimeHistory()
 {
    TimeHistory * th;
    th = (TimeHistory *)malloc(sizeof(TimeHistory));
    memset(th,0xDA,sizeof(TimeHistory));
    return th;
-}  
+}
 
 
-static void 
+static void
 freeTHData(double * data, int n) {
 
    memset(data, 0xDD, n*sizeof(double));
    free(data);
-}  
+}
 
 
-void 
+void
 th_delete (TimeHistory * th) {
 
    freeTHData(th->data, th->number_of_datapoints);
    memset(th,0xDD,sizeof(TimeHistory));
    free(th);
-} 
+}
 
 
 

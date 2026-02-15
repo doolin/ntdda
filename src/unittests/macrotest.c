@@ -74,11 +74,11 @@ test_contact_state_changed() {
    printf("PREVIOUS = 1 (open to closed), CURRENT = 0 (unchanged)\n");
    if (CONTACT_STATE_CHANGED(QQ))
       printf("Passed, previous contact changed from open to closed\n\n");
-   else 
+   else
    {
       printf("FAILED, previous contact changed from open to closed\n");
       return FALSE;
-   }   
+   }
 
 
    QQ[0][PREVIOUS] = 1;
@@ -86,22 +86,22 @@ test_contact_state_changed() {
    printf("PREVIOUS = 1 (open to closed), CURRENT = 1 (open to closed)\n");
    if (CONTACT_STATE_CHANGED(QQ))
       printf("Passed, both contacts changed from open to closed\n\n");
-   else 
+   else
    {
       printf("FAILED, both contacts changed from open to closed\n");
       return FALSE;
-   }   
+   }
 
    QQ[0][PREVIOUS] = 1;
    QQ[0][CURRENT] = -1;
    printf("PREVIOUS = 1 (open to closed), CURRENT = -1 (closed to open)\n");
    if (CONTACT_STATE_CHANGED(QQ))
       printf("Passed, both contacts changed\n\n");
-   else 
+   else
    {
       printf("FAILED, both contacts changed\n");
       return FALSE;
-   }   
+   }
 
 
    QQ[0][PREVIOUS] = -1;
@@ -109,11 +109,11 @@ test_contact_state_changed() {
    printf("PREVIOUS = -1 (closed to open), CURRENT = 0 (unchanged)\n");
    if (CONTACT_STATE_CHANGED(QQ))
       printf("Passed, previous contact changed from closed to open\n\n");
-   else 
+   else
    {
       printf("FAILED, previous contact changed from closed to open\n");
       return FALSE;
-   }   
+   }
 
 
    QQ[0][PREVIOUS] = -1;
@@ -121,11 +121,11 @@ test_contact_state_changed() {
    printf("PREVIOUS = -1 (closed to open), CURRENT = 1 (open to closed)\n");
    if (CONTACT_STATE_CHANGED(QQ))
       printf("Passed, both contacts changed\n\n");
-   else 
+   else
    {
       printf("FAILED, both contacts changed\n");
       return FALSE;
-   }   
+   }
 
 
    QQ[0][PREVIOUS] = -1;
@@ -133,13 +133,13 @@ test_contact_state_changed() {
    printf("PREVIOUS = -1 (closed to open), CURRENT = -1 (closed to open)\n");
    if (CONTACT_STATE_CHANGED(QQ))
       printf("Passed, both contacts changed from closed to open\n\n");
-   else 
+   else
    {
       printf("FAILED, both contacts changed from closed to open\n");
       return FALSE;
-   }   
+   }
 
-  
+
   return TRUE;
 
 }  /* close test_contact_state_changed() */

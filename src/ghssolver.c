@@ -125,7 +125,7 @@ freeSolverTempArrays()
 
    if (workb)
       free(workb);
-   
+
    if (workc)
       free(workc);
 
@@ -139,51 +139,51 @@ void saveState(double ** K, double ** Kcopy, int n3,
                double ** F, double ** Fcopy, int numblocks,
                double ** c0) {
    int i,j;
-    
+
   /* (GHS: save equation coefficient matrix before change) */
-  /* FIXME: Why do we need to do this?  Also, this 
+  /* FIXME: Why do we need to do this?  Also, this
    * could be turned into a macro.
    */
    for (i=1; i<= n3; i++) {
       for (j=1; j<= 36; j++) {
          Kcopy[i][j] = K[i][j];
-      }  
+      }
    }
 
   /* (GHS: save f[]          add friction loading to f[]) */
-  /* There is some very strange stuff going on in this 
-   * next block of code.  The Fcopy array has to be set 
-   * exactly where it is right now, or the analyses will 
-   * not work correctly.  This was changed in either in 
-   * 1.5.117 or 1.5.118.  
+  /* There is some very strange stuff going on in this
+   * next block of code.  The Fcopy array has to be set
+   * exactly where it is right now, or the analyses will
+   * not work correctly.  This was changed in either in
+   * 1.5.117 or 1.5.118.
    */
    for (i=1; i<= numblocks; i++) {
-      for (j=1; j<=6; j++) { 
+      for (j=1; j<=6; j++) {
         /* If the time step has to be cut during an analysis,
-         * we will need the original values again. 
+         * we will need the original values again.
          * FIXME: Take out the dependency in the time step cutting
-         * on this saved F vector.  Or at least check the 
+         * on this saved F vector.  Or at least check the
          * performance against adaptive time stepping.
          */
          Fcopy[i][j]  =  F[i][j];
         /* Frictional terms from c0 get transferred into
          * the "Force" vector, and we have no further use
-         * of c0 until the next round of open/close 
+         * of c0 until the next round of open/close
          * iteration.
          * FIXME: Explain this in detail.  Also, this should
-         * probably be done before calling the solver, so that 
-         * this solver can be replaced with any other. This 
+         * probably be done before calling the solver, so that
+         * this solver can be replaced with any other. This
          * should be moved back into df18().
          */
          F[i][j] += c0[i][j];
       }
-   }  
+   }
 
-}  
+}
 
 
 
-/* For use with dgemm.  These can later be moved into a header file 
+/* For use with dgemm.  These can later be moved into a header file
  * or somewhere more appropriate.
  */
 static char transa = 'N', transb = 'N';
@@ -199,13 +199,13 @@ static int incx = 1, incy = 1;
 /* df20: triangle discomposition equation solver  */
 /**************************************************/
 /* kk: records which blocks of a lower triangular matrix are
- * non-zero.  Final value of this array is set in df08, 
+ * non-zero.  Final value of this array is set in df08,
  * in the new subfunction reorderK.
  * k1:
  * n[i][1]: points at the start of each in lower triangular
  * matrix of non-zero storage positions kk;
  * n[i][2]: value is the number of elements in ith row
- * of lower triangular matrix.  This can be used with 
+ * of lower triangular matrix.  This can be used with
  * the first value (n[i][[1]) to loop over the entries
  * in a lower triangular matrix.
  */
@@ -217,7 +217,7 @@ void df20(double ** K, double ** F, int *kk,int **n, int nBlocks)
    int h, h1;  // was l, l1; bad letters for indices.
    int currColIthRow; //i2
    int endColIthRow;  //i1, diagi?
-   int currColJthRow; //j2 
+   int currColJthRow; //j2
    int endColJthRow;  //j1, diagj?
    const int blocksize = 6;
    const int index = 1;
@@ -230,9 +230,9 @@ void df20(double ** K, double ** F, int *kk,int **n, int nBlocks)
 
   /* L U triangle   A=L D^(-1) L^T  i1:i-i j1:j0-j0 */
    for (i=1; i<= nBlocks; i++)
-   {     
-     /* If the ith block doesn't contact any other 
-      * blocks, that is, if n[i][2] == 1, jump to 
+   {
+     /* If the ith block doesn't contact any other
+      * blocks, that is, if n[i][2] == 1, jump to
       * c001, and solve for this block.
       */
      /* Another way to see this is testing whether or
@@ -241,8 +241,8 @@ void df20(double ** K, double ** F, int *kk,int **n, int nBlocks)
       * code to figure this out.
       */
      /* if(MACRO_noContacts(n[i][2])) */
-      //if (n[i][2]==1)   
-      //   goto c001;  /* this conditional can be switched to !=, 
+      //if (n[i][2]==1)
+      //   goto c001;  /* this conditional can be switched to !=,
        //  then all the following code scoped with braces. */
       if (n[i][2]!=1)   /* then we contact other blocks */
       {
@@ -250,10 +250,10 @@ void df20(double ** K, double ** F, int *kk,int **n, int nBlocks)
          for (j=n[i][1]; j<= n[i][1]+n[i][2]-1; j++)
          {
            /* i1 records the index at which the last
-            * (diagonal?) element of the ith row is 
+            * (diagonal?) element of the ith row is
             * stored in kk.  Example, if i = 3, and
-            * block 3 contacts block 2 and block 1, 
-            * which do not contact each other, than the 
+            * block 3 contacts block 2 and block 1,
+            * which do not contact each other, than the
             * value of i1 should be 5.
             */
             //i1 = n[i][1]+n[i][2]-1;
@@ -267,7 +267,7 @@ void df20(double ** K, double ** F, int *kk,int **n, int nBlocks)
            /* Now, we are in the ith row and the jth column of
             * a lower triangular matrix.  ????
             */
-            if (n[j0][2]==1)  
+            if (n[j0][2]==1)
                continue; //goto c002;  //continue;
 
            /* j1: index location of end of jth row */
@@ -292,7 +292,7 @@ c005:;
 c006:;
                currColIthRow += 1;
               /* This looks like the end-of-row condition */
-               if (currColIthRow > endColIthRow-1 /*i1-1*/) 
+               if (currColIthRow > endColIthRow-1 /*i1-1*/)
                   continue; //goto c002;
             }
 //c003:;
@@ -300,16 +300,16 @@ c006:;
             if (kk[currColIthRow] > kk[currColJthRow])
             {
                currColJthRow += 1;
-               if (currColJthRow > endColJthRow-1 /*j1-1*/) 
+               if (currColJthRow > endColJthRow-1 /*j1-1*/)
                   continue; //goto c002;
             }
 /* If we get to this label, the next if statement should
  * ALWAYS be false, otherwise it should be an infinite
- * loop.  Check with assert().  But not true.  The bolt 
+ * loop.  Check with assert().  But not true.  The bolt
  * analysis triggers the assert.
  */
 //c004:;
-            if (kk[currColIthRow]!=kk[currColJthRow]) 
+            if (kk[currColIthRow]!=kk[currColJthRow])
             {
                //assert(0);
                goto c005;
@@ -324,14 +324,14 @@ c006:;
                beta = 0.0;
                transa = 'T';
                transb = 'T';
-               dgemm_(&transa, &transb, &rows_a, &cols_b, &rowcol, 
-                      &alpha, K[currColIthRow]+index, &lda, 
+               dgemm_(&transa, &transb, &rows_a, &cols_b, &rowcol,
+                      &alpha, K[currColIthRow]+index, &lda,
 	                   Dinv[j3]+index, &ldb, &beta, worka+index, &ldc);
 
                transa = 'N';
                transb = 'N';
-               dgemm_(&transa, &transb, &rows_a, &cols_b, &rowcol, 
-                      &alpha, worka+index, &lda, 
+               dgemm_(&transa, &transb, &rows_a, &cols_b, &rowcol,
+                      &alpha, worka+index, &lda,
 	                   K[currColJthRow]+index,&ldb, &beta, workb+index, &ldc);
 
 
@@ -341,22 +341,22 @@ c006:;
                   {
                      i3 = blocksize*(h-index)+h1;
                      K[j][i3] += -workb[6*(h1-1)+h];
-                  }  
-               }  
+                  }
+               }
 
                //print1DDoubleArray(workb, 37, "df20");
 */
             //}
             //else  // ghs factor
             //{
-              /* Compute the lower triangular blocks using 
+              /* Compute the lower triangular blocks using
                * formula 5.9 (or 5.12) Shi 1988, Section 5.2,
                * p. 197.  All of this could probably be speeded
                * up quite a bit.
                */
               /* L_{ik} L_{kk}^{-1}   Q*E => Q      i2:i-k  k=j3 */
-              /* FIXME: Try and work out some way of doing a memcpy here. 
-               * It can be worked out and tested in the unit testing 
+              /* FIXME: Try and work out some way of doing a memcpy here.
+               * It can be worked out and tested in the unit testing
                * code for matrices.
                */
                for (h=index; h < blocksize+index;  h++)
@@ -368,7 +368,7 @@ c006:;
                      e[h][h1] = Dinv[j3][i3];
                   }  /*  l1 */
                }  /*  l  */
-      
+
               /* "Returns" qq */
                //mult(T, e, qq);
                multnew(e, qq);
@@ -386,7 +386,7 @@ c006:;
               /* "Returns" qq */
                //mult(T, e, qq);
                multnew(e, qq);
-      
+
               /* L_{ij} = A_{ij} - \sum_{k=1}^j-1 L_{ik} L_{kk}^{-1} L_{jk}^T    */
                for (h =index; h < blocksize+index;  h++)
                {
@@ -401,7 +401,7 @@ c006:;
 
             //}  //   end if blas else ghs factor
 
-           /* This label jumps essentially to the inside of an 
+           /* This label jumps essentially to the inside of an
             * if statement.
             */
             goto c006;
@@ -413,21 +413,21 @@ c006:;
      /* Jump to here directly if block is "self-intersecting",
       * or on diagonal I think...
       * otherwise fall-through from previous loop.
-      */         
+      */
       i9=n[i][1]+n[i][2]-1;
 
       //if (0) // lapack inverse
       //{
       //   memcpy((void*)Dinv[i],(void*)K[i9],(size_t)doublesize*(blocksize*blocksize+index));
         /*
-         INFO    (output) INT   
-            = 0:  successful exit   
-            < 0:  if INFO = -i, the i-th argument had an illegal value   
-            > 0:  if INFO = i, U(i,i) is exactly zero. The factorization 
-                  has been completed, but the factor U is exactly   
-                  singular, and division by zero will occur if it is used 
-                  to solve a system of equations.   
-         */        
+         INFO    (output) INT
+            = 0:  successful exit
+            < 0:  if INFO = -i, the i-th argument had an illegal value
+            > 0:  if INFO = i, U(i,i) is exactly zero. The factorization
+                  has been completed, but the factor U is exactly
+                  singular, and division by zero will occur if it is used
+                  to solve a system of equations.
+         */
          //rows = cols = lda = 6;
       //   dgetrf_(&rows, &cols, Dinv[i]+index, &lda, ipiv, &info);
       //   dgetri_(&rows, Dinv[i]+index, &lda, ipiv, workc, &lwork, &info);
@@ -444,11 +444,11 @@ c006:;
             {
                j9 = 6*(j-1)+h;
                qq[j][h] = K[i9][j9];
-            }  /*  l  */ 
+            }  /*  l  */
          }  /*  j  */
-  
+
          invr(e, qq);
-      
+
 	     /* printf("Inverted Kii matrix for block %d:\n", i); */
          for (j=1; j<= 6; j++)
          {
@@ -458,7 +458,7 @@ c006:;
                Dinv[i][j9] = e[j][h];
             }  /*  l  */
          }  /*  j  */
-   
+
           //printDinv(Dinv, i, "df20");
 
 
@@ -503,7 +503,7 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
          }  /*  l  */
 
       }  /*  j  */
-      
+
      /* Y_i = L_{ii}^{-1} (F_i - \sum_{k=1}^{i-1} L_{ik} Y_k) back */
       for (j=1; j<= 6; j++)
       {
@@ -515,13 +515,13 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
          }  /*  l  */
 
       }  /*  j  */
-      
+
       for (j=1; j<= 6; j++)
       {
          F[i][j] = s[j];
       }  /*  j  */
    }  /*  i  */
-   
+
 
   /* find L_ki^T  k>i  i:i k:j=>j1   fore */
    for (i=nBlocks-1;    i>=1;                 i--)
@@ -533,13 +533,13 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
          for (l=n[j][1]; l<=n[j][1]+n[j][2]-1; l++)
          {
             ji=l;
-		      if (kk[l]==i) 
+		      if (kk[l]==i)
                goto c102;   //  break
          }  /*  l  */
 
          continue; //goto c101;   // continue;
  c102:;
-      
+
 /*
          if(0)  // blas
          {
@@ -553,11 +553,11 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
             for (l =index; l < blocksize+index;  l++)
             {
                   F[i][l] += -workb[l];
-            }  
+            }
 
          }
 */
-         //else   // ghs 
+         //else   // ghs
          //{
 
            /* Q=L_ii^(-1)  E=L_ki^T  E => E^T   fore  */
@@ -569,7 +569,7 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
                   e[l1][l] = K[ji][6*(l-1)+l1];
                }  /*  l1 */
             }  /*  l  */
-      
+
            /* E=L_ki^T  F[j]=X_k  E*F => T=L_ki^T X_k   fore */
             for (l=1;   l<= 6;  l++)
             {
@@ -579,7 +579,7 @@ void df21(double ** K, double ** F,int *kk, int **n,int nBlocks)
                   T[l][1]+=e[l][l1]*F[j][l1];
                }  /*  l1 */
             }  /*  l  */
-      
+
            /* X_i = Y_i - S_(k=i+1)^n L_ii^(-1) L_ki^T X_k   */
             for (l =1;  l<= 6;  l++)
             {
@@ -609,7 +609,7 @@ void mult(double t[][7], double e[][7], double qq[][7])
 {
   /* Array indices.  */
    int i, j, k;
-   
+
    for (i=1; i<= 6; i++)
    {
       for (j=1; j<= 6; j++)
@@ -624,10 +624,10 @@ void mult(double t[][7], double e[][7], double qq[][7])
          }  /*  l3 */
       }  /*  l2 */
    }  /*  l1 */
-      
+
 
   /* This appears to be a simple cloning loop.
-   * FIXME: Check to see if we can get rid of 
+   * FIXME: Check to see if we can get rid of
    * the t array in the previous, and just use
    * the qq array.
    */
@@ -638,7 +638,7 @@ void mult(double t[][7], double e[][7], double qq[][7])
          qq[i][j]=t[i][j];
       }  /*  l2 */
    }  /*  l1 */
-     
+
 }  /* Close mult() */
 
 /**************************************************/
@@ -648,7 +648,7 @@ void mult(double t[][7], double e[][7], double qq[][7])
 //void mult(double t[][7], double e[][7], double qq[][7])
 void multnew(double e[][7], double qq[][7])
 {
-  /* Array indices.  Should be renamed i, j, k just to 
+  /* Array indices.  Should be renamed i, j, k just to
    * conform to accepted practice.
    */
    int i, j, k;
@@ -657,13 +657,13 @@ void multnew(double e[][7], double qq[][7])
    * the loop.
    */
    static double t[7][7];
-   
+
    for (i=1; i<= 6; i++)
    {
       for (j=1; j<= 6; j++)
       {
         /* FIXME: This assignment should not
-         * be necessary. 
+         * be necessary.
          */
          t[i][j]=0;
          for (k=1; k<= 6; k++)
@@ -672,14 +672,14 @@ void multnew(double e[][7], double qq[][7])
          }  /*  l3 */
       }  /*  l2 */
    }  /*  l1 */
-      
+
 
   /* This appears to be a simple cloning loop.
-   * FIXME: Check to see if we can get rid of 
+   * FIXME: Check to see if we can get rid of
    * the t array in the previous, and just use
    * the qq array.
    */
-  /* FIXME: If this can't be removed, change to 
+  /* FIXME: If this can't be removed, change to
    * a memcpy.
    */
    for (i=1; i<= 6; i++)
@@ -689,14 +689,14 @@ void multnew(double e[][7], double qq[][7])
          qq[i][j]=t[i][j];
       }  /*  l2 */
    }  /*  l1 */
-     
+
 }  /* Close multnew() */
 
 
 
 /**
- * 6-by-6 gemm taking arrays as arguments, not 
- * pointers to arrays.  Second argument is 
+ * 6-by-6 gemm taking arrays as arguments, not
+ * pointers to arrays.  Second argument is
  * overwritten as a return value.
  */
 void
@@ -704,7 +704,7 @@ multnewnew(double e[][7], double qq[][7])
 {
    int i, j, k;
    double t[7][7] = {0};
-   
+
    for (i=1; i<= 6; i++)
    {
       for (j=1; j<= 6; j++)
@@ -712,10 +712,10 @@ multnewnew(double e[][7], double qq[][7])
          for (k=1; k<= 6; k++)
          {
             t[i][j] += qq[i][k]*e[k][j];
-         }  
-      } 
+         }
+      }
    }
-   
+
    memcpy(qq,t,sizeof(t));
 
 }  /* Close multnewnew() */
@@ -724,7 +724,7 @@ multnewnew(double e[][7], double qq[][7])
 /* invr: inverse of 6*6 matrix               0002 */
 /**************************************************/
 /* jj  j  l  l1  e[][]  qq[][]                     */
-/* WARNING!!!  e is overwritten for return, but 
+/* WARNING!!!  e is overwritten for return, but
  * q is also overwritten.
  */
 void invr(double e[][7], double qq[][7])
@@ -735,11 +735,11 @@ void invr(double e[][7], double qq[][7])
    //printf2Dmat(qq, 7, 7, " from invr");
 
   /* (GHS: E=I as n=6 free term columns)  */
-  /* This loop zeroing out the matrix may be unnecessary 
-   * if the matrix is initialized to zero.  Leave the loop 
+  /* This loop zeroing out the matrix may be unnecessary
+   * if the matrix is initialized to zero.  Leave the loop
    * for now.
    */
-  /* FIXME: do a memset to 0, then a single loop to 
+  /* FIXME: do a memset to 0, then a single loop to
    * initialize the diagonals to 1.
    */
    for (j=1; j<= 6; j++)
@@ -750,7 +750,7 @@ void invr(double e[][7], double qq[][7])
       }  /*  l  */
       e[j][j]=1;
    }  /*  j  */
-      
+
   /* L_ij = A_ij - S_(k=1)^j-1 L_ik L_kk^-1 L_jk^T  */
    for (j =1; j <= 6;    j++)
    {
@@ -762,7 +762,7 @@ void invr(double e[][7], double qq[][7])
          }  /*  l1 */
       }  /*  l  */
    }  /*  j  */
-   
+
   /* Y_i = L_ii^-1 (F_i - S_k=1^i-1 L_ik Y_k)  back */
    for (jj=1; jj<= 6; jj++)
    {
@@ -775,8 +775,8 @@ void invr(double e[][7], double qq[][7])
          e[j][jj] /= qq[j][j];
       }  /*  j  */
    }  /*  jj */
-   
-   
+
+
   /* X_i = Y_i - S_(k=i+1)^n L_ii^(-1) L_ki^T X_k   */
    for (jj=1; jj<= 6; jj++)
    {
@@ -788,26 +788,26 @@ void invr(double e[][7], double qq[][7])
          }  /*  l  */
       }  /*  j  */
    }  /*  jj */
-   
+
 //printf2Dmat(e, 7, 7, " from invr");
 
 }  /*  Close invr().  */
 
 
 /* Try to match the blas or lapack calling parameters.
- * This function multiplies a square block matrix A 
+ * This function multiplies a square block matrix A
  * stored in row form by a vector x to produce a vector
  * y. The variable `index' handles storage from non-zero
  * initial pointer, and requires that all arguments use
- * the same indexing scheme whether starting from 0, 1, 
+ * the same indexing scheme whether starting from 0, 1,
  * or whatever.
  */
-/* For blockwise Ax, this function should be callable 
- * as many times as there are actual elements in the 
+/* For blockwise Ax, this function should be callable
+ * as many times as there are actual elements in the
  * row of A, which is sparse.
  */
 /* This function is equivalent to dgemv. */
-void 
+void
 sp_mult(double * Arow, double * x, double * y, int blocksize, int index)
 {
    int i,j,k;
@@ -824,7 +824,7 @@ sp_mult(double * Arow, double * x, double * y, int blocksize, int index)
 
 
 /* Writes a matlab file of stiffness and load vectors. */
-void 
+void
 writeMFile(double ** K, double ** F, double ** D,
            int * kk, int * k1, int ** n, int numblocks) {
 
@@ -905,7 +905,7 @@ writeMFile(double ** K, double ** F, double ** D,
 
    fprintf(fp.mfile,"%% Forcing vector is already permuted.\n");
    for (i=1;i<=numblocks;i++)
-   {  
+   {
       row = k1[i];
       startrow = (blocksize*(row-1)) + 1;  // + index;
       stoprow = blocksize*row;
@@ -915,7 +915,7 @@ writeMFile(double ** K, double ** F, double ** D,
             for (J=1;J<=blocksize;J++)
             {
                fprintf(fp.mfile," %30.16e\n ",F[row][J]);
-            }         
+            }
          fprintf(fp.mfile,"];\n");
 
    }

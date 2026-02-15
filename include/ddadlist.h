@@ -42,7 +42,7 @@ extern "C" {
                          |           |
                           \           \
                            --> "1"     --> "2"
-    
+
    Suppose we want to print out the list.  Then we could do the
    following:
 
@@ -50,9 +50,9 @@ extern "C" {
      printf("%s\n", tmp->val);
    }
 
-   Note how having a sentinel element makes life easier.  If the 
+   Note how having a sentinel element makes life easier.  If the
    list is empty, the loop works perfectly.  In this header file,
-   there is a macro defined:  dl_traverse.  Look at it and make 
+   there is a macro defined:  dl_traverse.  Look at it and make
    sure you know how it works.  The above loop can be rewritten using
    dl_traverse:
 
@@ -75,10 +75,10 @@ typedef void (*FreeFunc)(void*);
 typedef struct dlist {
   struct dlist *flink;
   struct dlist *blink;
-  void *val; 
+  void *val;
 } DList;
 
-/* Nil, first, next, and prev are macro expansions for list traversal 
+/* Nil, first, next, and prev are macro expansions for list traversal
  * primitives. */
 
 #ifndef nil
@@ -105,10 +105,10 @@ typedef struct dlist {
 
 DList *    dlist_new (void);
 
-void dl_insert_b(DList *, void *); 
+void dl_insert_b(DList *, void *);
                                      /* Makes a new node, and inserts it before
-                                        the given node -- if that node is the 
-                                        head of the list, the new node is 
+                                        the given node -- if that node is the
+                                        head of the list, the new node is
                                         inserted at the end of the list */
 
 #define dl_insert_a(n, val) dl_insert_b(n->flink, val)
@@ -129,7 +129,7 @@ extern void *dl_val(DList *);   /* Returns node->val (used to shut lint up).
 			 	 Do not use on the head node */
 
 /* This is a macro that traverses a list.  Look this one over, and be
- * sure you're convinced of how it works 
+ * sure you're convinced of how it works
  */
 #define dlist_traverse(ptr, list) \
   for (ptr = first(list); ptr != nil(list); ptr = next(ptr))

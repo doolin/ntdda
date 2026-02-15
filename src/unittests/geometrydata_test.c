@@ -16,7 +16,7 @@ dda_display_warning(const char * warning) {
 
 }
 
-void 
+void
 ddaml_read_geometry_file(void * userdata, char * filename) {
 
 
@@ -24,7 +24,7 @@ ddaml_read_geometry_file(void * userdata, char * filename) {
 
 
 /** See if we are releasing all the memory. */
-int 
+int
 test_gdata_new(void) {
 
   Geometrydata * gd = gdata_new();
@@ -45,7 +45,7 @@ geometrydata_test(void) {
 }
 
 
-int 
+int
 main() {
 
   geometrydata_test();

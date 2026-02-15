@@ -1,6 +1,6 @@
 
 /*
- * analysisddaml.c 
+ * analysisddaml.c
  *
  * An example program for DDA analysis input file  XML format.
  *
@@ -25,8 +25,8 @@
 #include "analysisdata.h"
 #include "timehistory.h"
 
-/** Get rid of this later. 
- * The way to get rid of it is to define 
+/** Get rid of this later.
+ * The way to get rid of it is to define
  * ddaml_display_* functions, then set them
  * to the dda_display_* functions.
  */
@@ -42,8 +42,8 @@ static char mess[128];
 
 typedef DList LOADPOINTLIST;
 typedef DList JOINTMATLIST;
-typedef DList BOLTMATLIST; 
-typedef DList BLOCKMATLIST; 
+typedef DList BOLTMATLIST;
+typedef DList BLOCKMATLIST;
 
 static LOADPOINTLIST * loadpointlist;
 static JOINTMATLIST * jointmatlist;
@@ -62,7 +62,6 @@ void transferJointMatlistToAStruct(Analysisdata * adata, JOINTMATLIST * jointmat
 void transferLoadpointlistToAStruct(Analysisdata * adata, LOADPOINTLIST * loadpointlist);
 void transferBoltMatlistToAStruct(Analysisdata * adata, BOLTMATLIST * boltmatlist);
 void transferBlockMatlistToAStruct(Analysisdata * adata, BLOCKMATLIST * blockmatlist);
-static double ** DoubMat2DGetMem(int n, int m);
 
 
 static void initializeALists(void);
@@ -71,7 +70,7 @@ Analysisdata * adata;
 
 
 
-void 
+void
 initializeALists()
 {
    jointmatlist = dlist_new();
@@ -82,7 +81,7 @@ initializeALists()
 }  /* close initializeLists() */
 
 
-void 
+void
 transferAData(void)
 {
 
@@ -93,7 +92,7 @@ transferAData(void)
 }  /* close transferAData() */
 
 
-void 
+void
 transferJointMatlistToAStruct(Analysisdata * ad, JOINTMATLIST * jointmatlist)
 {
    int i = 0;
@@ -111,7 +110,7 @@ transferJointMatlistToAStruct(Analysisdata * ad, JOINTMATLIST * jointmatlist)
    ad->phicohesionsize2 = 3;
    ad->phiCohesion = DoubMat2DGetMem(adata->phicohesionsize1,adata->phicohesionsize2);
 
-  /* WARNING: This assumes that joint types are listed in order 
+  /* WARNING: This assumes that joint types are listed in order
    * of occurrence in xml file.  The type attribute is ignored
    * for now.
    */
@@ -119,24 +118,24 @@ transferJointMatlistToAStruct(Analysisdata * ad, JOINTMATLIST * jointmatlist)
    {
       jmtmp = ptr->val;
       ad->phiCohesion[i+1][0] = jointmat_get_friction(jmtmp);//->fric;
-      ad->phiCohesion[i+1][1] = jointmat_get_cohesion(jmtmp);//->coh; 
+      ad->phiCohesion[i+1][1] = jointmat_get_cohesion(jmtmp);//->coh;
       ad->phiCohesion[i+1][2] = jointmat_get_tension(jmtmp);//->tens;
       i++;
    }
-    
+
 }  /*  close transferJointMatListToAStruct() */
 
 
-void 
+void
 transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
 {
    int i = 0;
    int s1,s2;
    double ** lp;
-   
+
    Loadpoint * lptmp;
    LOADPOINTLIST * ptr;
-  
+
    ad->nLPoints = dlist_length(loadpointlist);
 
    if (ad->nLPoints == 0)
@@ -145,8 +144,8 @@ transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
    //ad->loadpoints = (Loadpoint *) calloc (ad->nLPoints, sizeof (Loadpoint));
    ad->loadpoints = loadpoint_new_array(ad->nLPoints);
 
-  /* WARNING: This assumes that load points are listed in order 
-   * of occurrence in xml file.  
+  /* WARNING: This assumes that load points are listed in order
+   * of occurrence in xml file.
    */
    dlist_traverse(ptr, loadpointlist)
    {
@@ -160,12 +159,12 @@ transferLoadpointlistToAStruct(Analysisdata * ad, LOADPOINTLIST * loadpointlist)
       ad->loadpoints[i].vals = clone2DMatDoub(lp, s1, s2);
       i++;
    }
-   
+
 }  /*  close transferLoadPointlistToAStruct() */
 
 
 
-static void 
+void
 transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
 {
 
@@ -193,7 +192,7 @@ transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
       bmtmp = ptr->val;
       boltmat_get_props(bmtmp,&e00,&t0,&f0);
       ad->boltmats[i][0] = e00;
-      ad->boltmats[i][1] = t0; 
+      ad->boltmats[i][1] = t0;
       ad->boltmats[i][2] = f0;
       i++;
    }
@@ -201,7 +200,7 @@ transferBoltMatlistToAStruct(Analysisdata * ad, BOLTMATLIST * boltmatlist)
 }  /*  close transferBoltMatlistToAStruct() */
 
 
-void 
+void
 transferBlockMatlistToAStruct(Analysisdata * ad, BLOCKMATLIST * blockmatlist)
 {
    int i = 0;
@@ -219,7 +218,7 @@ transferBlockMatlistToAStruct(Analysisdata * ad, BLOCKMATLIST * blockmatlist)
    ad->materialpropsize2 = 14;
    ad->materialProps = DoubMat2DGetMem(adata->materialpropsize1,adata->materialpropsize2);
 
-  /* WARNING: This assumes that joint types are listed in order 
+  /* WARNING: This assumes that joint types are listed in order
    * of occurrence in xml file.  The type attribute is ignored
    * for now.
    */
@@ -227,7 +226,7 @@ transferBlockMatlistToAStruct(Analysisdata * ad, BLOCKMATLIST * blockmatlist)
    {
       bmtmp = ptr->val;
       ad->materialProps[i+1][0] = bmtmp->dens;
-      ad->materialProps[i+1][1] = bmtmp->wt; 
+      ad->materialProps[i+1][1] = bmtmp->wt;
       ad->materialProps[i+1][2] = bmtmp->ymod;
       ad->materialProps[i+1][3] = bmtmp->pois;
       ad->materialProps[i+1][4] = bmtmp->iss[0];
@@ -246,16 +245,16 @@ transferBlockMatlistToAStruct(Analysisdata * ad, BLOCKMATLIST * blockmatlist)
 
 
 
-static void 
-parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+static void
+parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
-  /* Need to grab a tempstring, then switch for different 
+  /* Need to grab a tempstring, then switch for different
    * types of rotation,
    */
    char * temp;
 
    fprintf(stdout,"Parsing rotation...\n");
-   
+
    temp = xmlGetProp(cur,"type");
 
    if (!strcmp(temp, "linear")) {
@@ -269,11 +268,11 @@ parseRotation(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       ddaml_display_warning("Parse problem in rotation attributes");
    }
 
-}  
+}
 
 
-void 
-parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
 
    fprintf(stdout,"Parsing gravity...\n");
@@ -284,16 +283,16 @@ parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       Gravity * grav;
      /* Set the flag: */
       adata->gravityflag = 1;
-     /* Collect the parameters controlling the 
-      * the gravity time steps, convergence, etc. 
+     /* Collect the parameters controlling the
+      * the gravity time steps, convergence, etc.
       */
       grav  = newGravity();  //(Gravity *)calloc(1,sizeof(Gravity));
-     
+
       fprintf(stderr,"Inside gravity\n");
 
       cur = cur->children;
 
-      while (cur != NULL) 
+      while (cur != NULL)
       {
          if ((!strcmp(cur->name, "Gravitysteplimit")) )// && (cur->ns == ns))
             grav->gravTurnonLimit = atoi(xmlGetProp(cur,"val"));
@@ -319,8 +318,8 @@ parseGravity(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*close parseGravity() */
 
 
-void 
-parseAutotimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseAutotimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    fprintf(stdout,"Parsing auto time step...\n");
 
@@ -340,10 +339,10 @@ parseAutotimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*close parseAutoTimestep() */
 
 
-void 
-parseAnalysistype(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseAnalysistype(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
-  
+
   /* This will be a struct at some point */
    if (!strcmp("dynamic",xmlGetProp(cur,"type")) )
    {
@@ -357,8 +356,8 @@ parseAnalysistype(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
 }  /*close parseAnalysistype() */
 
-void 
-parseNumtimesteps(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseNumtimesteps(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
 
    adata->nTimeSteps = atoi(xmlGetProp(cur,"timesteps"));
@@ -367,8 +366,8 @@ parseNumtimesteps(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*close parseNumtimesteps() */
 
 
-void 
-parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    char * pfactor;
    fprintf(stdout,"Parsing auto penalty flag...\n");
@@ -397,7 +396,7 @@ parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       dda_display_warning("Penalty factor missing from Autopenalty element");
 
    }
-   else 
+   else
    {
       adata->pfactor = atof(pfactor);
    }
@@ -408,8 +407,8 @@ parseAutopenalty(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
 
 
-void 
-parsePlanestrain(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parsePlanestrain(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
 
    fprintf(stdout,"Parsing planestrain flag...\n");
@@ -432,15 +431,15 @@ parsePlanestrain(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*close parsePlanestrain() */
 
 
-void 
-parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
-  /* constants needs to be changed into an instance 
+  /* constants needs to be changed into an instance
    * variable.
    */
    //CONSTANTS * constants;
    //constants  = (CONSTANTS *)calloc(1,sizeof(CONSTANTS));
-  
+
    Constants * constants = constants_new_defaults();
 
 
@@ -448,7 +447,7 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    cur = cur->children;
 
-   while (cur != NULL) 
+   while (cur != NULL)
    {
 
       if (!strcmp(cur->name, "Openclose")) {
@@ -462,7 +461,7 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       }
 
      /* w0 gets reset during the analysis.  Probably need to turn this
-      * into a factor of w0 to see if that helps scaling issues in 
+      * into a factor of w0 to see if that helps scaling issues in
       * problems with vastly different block sizes.
       */
       /*
@@ -471,12 +470,12 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
        */
 
       /* The following three are derived from the other five */
-      
+
       if (!strcmp(cur->name, "NormSpringPen")) {  //&& (cur->ns == ns)) {
 
         //constants->norm_spring_pen = atof(xmlGetProp(cur,"value"));
         constants_set_norm_spring_pen(constants,atof(xmlGetProp(cur,"value")));
-       /* if this assert fires, check the attribute value in the 
+       /* if this assert fires, check the attribute value in the
         * given tag.
         */
         //assert(constants->norm_spring_pen > 0);
@@ -508,23 +507,23 @@ parseAConstants(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    }  /* end loop over current pointer */
 
-   adata->constants = constants;   
+   adata->constants = constants;
 
 
 }  /*close parseAConstants() */
 
 
 
-void 
-parseOpencloselimit(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseOpencloselimit(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    adata->OCLimit = atoi(xmlGetProp(cur,"maxopenclose"));
 }  /*close parseOpencloselimit() */
 
 
 
-void 
-parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    char * filename;
    char * fileformat;
@@ -539,10 +538,10 @@ parseTimehistory(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       th_read_data_file(adata->timehistory,filename,matlab);
    else // blow up
       dda_display_error("Bad motion file format");
-} 
+}
 
 
-void 
+void
 parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    char * grav_val = xmlGetProp(cur,"value");
@@ -556,14 +555,14 @@ parseGravaccel(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 }
 
 
-void 
+void
 parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    char * step;
 
    fprintf(stdout,"Parsing save interval...\n");
 
    step = xmlGetProp(cur,"step");
-   
+
    if (step != NULL) {
       adata->tsSaveInterval = atoi(step);
    } else {
@@ -581,35 +580,35 @@ parseSaveinterval(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 }  /*close parseSaveinterval() */
 
 
-void 
+void
 parseMaxtimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    fprintf(stdout,"Parsing max time step...\n");
    adata->maxtimestep = atof(xmlGetProp(cur,"maxtimestep"));
-}  
+}
 
 
-void 
+void
 parseMintimestep(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    fprintf(stdout,"Parsing max time step...\n");
    adata->min_delta_t = atof(xmlGetProp(cur,"mintimestep"));
-}  
+}
 
 
-void 
+void
 parseMaxdisplacement(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    fprintf(stdout,"Parsing max displacement...\n");
    adata->maxdisplacement = atof(xmlGetProp(cur,"maxdisplacement"));
-}  
+}
 
 
-void 
+void
 parseContactDamping(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    double cn = atof(xmlGetProp(cur,"value"));
    adata_set_contact_damping(adata, cn);
-}  
+}
 
-void 
-parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    Jointmat * jmat;
    double temp;
@@ -644,8 +643,8 @@ parseJointproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 }  /*close parseJointproperties() */
 
 
-void 
-parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+void
+parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
    BlockMat * bmat;
    double temp[3] = {0.0};
@@ -656,14 +655,14 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    cur = cur->children;
   /* Grab a struct for block materials */
-   bmat = getNewBlockMat(); 
+   bmat = getNewBlockMat();
 
   /** @todo Reimplement namespace checking. */
    while (cur != NULL) {
 
       if ((!strcmp(cur->name, "Unitmass")) ) //&& (cur->ns == ns))
          bmat->dens = atof(xmlNodeListGetString(doc, cur->children, 1));
-         
+
      /** @todo Find a way to get rid of unit weight, it's redundant. */
       if ((!strcmp(cur->name, "Unitweight")) ) //&& (cur->ns == ns))
          bmat->wt = atof(xmlNodeListGetString(doc, cur->children, 1));
@@ -674,7 +673,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
       if ((!strcmp(cur->name, "Poissonratio")) ) //&& (cur->ns == ns))
          bmat->pois = atof(xmlNodeListGetString(doc, cur->children, 1));
 
-      if ((!strcmp(cur->name, "Damping")) ) //&& (cur->ns == ns)) 
+      if ((!strcmp(cur->name, "Damping")) ) //&& (cur->ns == ns))
       {
          bmat->damping = atof(xmlNodeListGetString(doc, cur->children, 1));
          gotdamping = 1;  //kludge
@@ -689,9 +688,9 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             bmat->iss[0] = temp[0];
             bmat->iss[1] = temp[1];
             bmat->iss[2] = temp[2];
-         } else { 
+         } else {
             ddaml_display_error("Wrong number of initial stress values");
-         }  
+         }
       }
 
       if ((!strcmp(cur->name, "Istrain")) ) //&& (cur->ns == ns))
@@ -704,7 +703,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
             bmat->ist[2] = temp[2];
          } else {
             ddaml_display_error("Wrong number of initial strain values");
-         }     
+         }
       }
 
       if ((!strcmp(cur->name, "Ivelocity")) ) //&& (cur->ns == ns))
@@ -730,7 +729,7 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 
    dl_insert_b(blockmatlist,(void*)bmat);
 
-}  
+}
 
 
 
@@ -739,11 +738,11 @@ parseBlockmaterial(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 typedef struct _loadpoint {
    double x, y;
    int loadpointsize1;
-   int loadpointsize2;  // = 3 
+   int loadpointsize2;  // = 3
    double ** vals;
 }LOADPOINT;
 */
-void 
+void
 parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    int i;
@@ -766,13 +765,13 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
       if ((!strcmp(cur->name, "Loadpoint")) ) {
 
-         // TODO: Consider moving this to a function to make the inner 
+         // TODO: Consider moving this to a function to make the inner
          // easier to read.
         /* Get the size of this thing from the attribute value: */
         /* FIXME: Segfaults if no attribute specified.  Either output
-         * from the xml parser must be examined, or the call needs to 
+         * from the xml parser must be examined, or the call needs to
          * checked for NULL return value.  To reproduce this error,
-         * pick some analysis with loading points, and delete the 
+         * pick some analysis with loading points, and delete the
          * `numpoints="n"' attribute.
          */
          numloadpoints = atoi(xmlGetProp(cur,"numpoints"));
@@ -790,7 +789,7 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
         /* Now, lots of heinous parsing... */
          recordstring = strtok(timehiststring, ";");
 
-        /* FIXME: Check the behavior of this with respect to the 
+        /* FIXME: Check the behavior of this with respect to the
          * start of indexing value 0 or 1.
          */
          for (i=0; i<numloadpoints; i++) {
@@ -807,7 +806,7 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
                 ddaml_display_warning("Empty load point list.\n");
             }
 
-         }  
+         }
 
          if (parsepoints != numloadpoints) {
             ddaml_display_error("Load point att and val inconsistent");
@@ -824,31 +823,31 @@ parseLoadpoints(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
         /* Big problems.  Something passed the validator that was
          * not supposed to pass.  Do Something About It!
-         */         
+         */
          // TODO: Extract the file name and line number of ddaml file
          // so that the analyst can fix it.
-         ddaml_display_warning("Unknown element in load point parsing."  
+         ddaml_display_warning("Unknown element in load point parsing."
                              " Contact author.\n");
       }
       cur = cur->next;
    }
-}  
+}
 
 
 
-/* The values parsed here will correspond to the 
+/* The values parsed here will correspond to the
  * entries 7,8,9 in the geometry structure bolt array
- */ 
-void 
+ */
+void
 parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    Boltmat * boltmat;
    char * tempstring;
-   int checkval;  
+   int checkval;
    double stiffness, strength, pretension;
 
    cur = cur->children;
-            
+
    tempstring = xmlNodeListGetString(doc, cur, 1);
 
   /* Everything below should be moved into the rock bolt
@@ -862,65 +861,38 @@ parseBoltproperties(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
                      &stiffness,&strength,&pretension);
    if (checkval == 3) {
       boltmat_set_props(boltmat,stiffness,strength,pretension);
-   } else {  
-      ddaml_display_error("Wrong number of bolt property values");   
+   } else {
+      ddaml_display_error("Wrong number of bolt property values");
    }
 
    dl_insert_b(boltmatlist,(void*)boltmat);
-}  
+}
 
 
 
-static void 
-parseWritevertices(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+static void
+parseWritevertices(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
-  /* Need to grab a tempstring, then look for a code to write ALL vertices. 
+  /* Need to grab a tempstring, then look for a code to write ALL vertices.
    * Default is to only write vertices for blocks containing measured points.
    */
    char * temp;
 
    fprintf(stdout,"Parsing Writevertices...\n");
-   
+
    temp = xmlGetProp(cur,"type");
 
    if (!strcmp("all",xmlGetProp(cur,"flag")) ) {
       adata->verticesflag = 1;
    }
-   else { 
+   else {
       adata->verticesflag = 0;
    } // end if
 
 
    fprintf(stdout,"verticesflag: %d\n\n", adata->verticesflag);
 
-}  
-
-static double **
-DoubMat2DGetMem(int n, int m)
-{
-   int i;
-   double **x;
-
-   assert ( (m!=0) && (n!=0) );
-
-   //x = (double **)malloc(sizeof(double *)*n);
-   x = (double **)calloc(n,sizeof(double *));
-   if (x == NULL)
-      return NULL;
-
-   for ( i = 0; i < n; ++i)
-   {
-      //x[i] = (double *)malloc(sizeof(double)*m);
-      x[i] = (double *)calloc(m,sizeof(double));
-      if(x[i] == NULL)
-         return NULL;
-      //else 
-         //memset(x[i], 0xDDA, m);
-   }
-
-   return x;
-
-}  
+}
 
 
 
@@ -970,13 +942,13 @@ KWDTAB atab_type[] = {
 {"AConstants",     0, *parseAConstants     },
 {"Opencloselimit" ,0, *parseOpencloselimit },
 {"Saveinterval",   0, *parseSaveinterval   },
-{"Maxtimestep",    0, *parseMaxtimestep    }, 
-{"Mintimestep",    0, *parseMintimestep    }, 
+{"Maxtimestep",    0, *parseMaxtimestep    },
+{"Mintimestep",    0, *parseMintimestep    },
 {"Maxdisplacement",0, *parseMaxdisplacement},
 {"Timehistory",    0, *parseTimehistory    },
 {"ContactDamping", 0, *parseContactDamping },
 {"Gravaccel",      0, *parseGravaccel      },
-{NULL,             0,  0                   }			
+{NULL,             0,  0                   }
 };
 
 
@@ -985,20 +957,20 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
 
    int i = 0;
 
-  /* Easiest to parse into a list, then count 
-   * and grab array memory, then copy data into 
-   * arrays.  This will be good, because I will 
+  /* Easiest to parse into a list, then count
+   * and grab array memory, then copy data into
+   * arrays.  This will be good, because I will
    * now have lists of elements that can eventually
    * be used in the main code.
    */
-   initializeALists(); 
+   initializeALists();
 
-   while (cur != NULL) 
+   while (cur != NULL)
    {
       i = 0;
       while (atab_type[i].kwd)
       {
-         if ((!strcmp(atab_type[i].kwd,cur->name)) ) //&& (cur->ns == ns)) 
+         if ((!strcmp(atab_type[i].kwd,cur->name)) ) //&& (cur->ns == ns))
          {
             fprintf(stderr,"A Keyscan loop: Current name %s:\n", cur->name);
             switch(atab_type[i].ktok)
@@ -1020,7 +992,7 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
             }  /* end switch on node type */
          }
          i++;
-      }   //close key scan loop 
+      }   //close key scan loop
 
       cur = cur->next;
 
@@ -1029,7 +1001,7 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
   /** Transfer data from list format to array format. */
    transferAData();
 
-  /* @warning  Gravity kludge, needs to be fixed. 
+  /* @warning  Gravity kludge, needs to be fixed.
    * A better way to do this would be to check to see
    * whether the gravity tag and attribute are seen
    * and set properly.
@@ -1037,12 +1009,12 @@ parseAnalysis(Analysisdata * ad, xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) {
    if (adata->gravaccel == -1) {
       adata->gravaccel = 9.81;
    }
-}  
+}
 
 
 void
-ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
-
+ddaml_read_analysis_file(void * userdata, char *filename) {
+   Analysisdata * ad = (Analysisdata *)userdata;
    xmlDocPtr doc;
    xmlNsPtr ns;
    xmlNodePtr cur;
@@ -1052,7 +1024,7 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
 
    //xmlDoValidityCheckingDefaultValue = 1;
 
-   adata = ad;
+   adata = (Analysisdata *)userdata;
 
    ddaml_display_error   = ad->display_error;
 
@@ -1083,21 +1055,21 @@ ddaml_read_analysis_file(Analysisdata * ad, char *filename) {
    while (cur != NULL) {
          if ( !strcmp( cur->name, "Analysis") )  {
             cur = cur->children;
-            parseAnalysis(ad,doc, ns, cur); 
+            parseAnalysis(ad,doc, ns, cur);
             break;
          }
 	     cur = cur->next;
    }
 
    assert(ad != NULL);
-} 
+}
 
 
 
 
 #ifdef STANDALONE
-int 
-main(int argc, char **argv) 
+int
+main(int argc, char **argv)
 {
    int i;
    fprintf(stderr,"Parsing analysis data...\n");
@@ -1107,6 +1079,6 @@ main(int argc, char **argv)
    }
 
    return(0);
-}  
+}
 
 #endif /* STANDALONE */

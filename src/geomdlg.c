@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-/** @todo Remove the geomdlg.h file, 
+/** @todo Remove the geomdlg.h file,
  * or turn it into something useful.
  */
 //#include "geomdlg.h"
@@ -79,20 +79,20 @@ static void initBoltBoxes(HWND hDlg);
 static void setBoltBoxes(HWND hDlg, int);
 
 /* Code to handle the geometry dialog box.  This is not particularly
- * clever as it relies on the file to edit being stored in an external 
- * variable.   Then it has to read in the geometry data.  A better way would 
- * be to pass in the geometry data directly.  Or at least to use the 
+ * clever as it relies on the file to edit being stored in an external
+ * variable.   Then it has to read in the geometry data.  A better way would
+ * be to pass in the geometry data directly.  Or at least to use the
  * previously written geometry file data reader.
  */
 
-BOOL CALLBACK  
+BOOL CALLBACK
 GeomDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
    switch (iMessage)
    {
       case WM_INITDIALOG :
-         return(handleInit(hDlg));     
-    
+         return(handleInit(hDlg));
+
       case WM_COMMAND:
          return(handleWMCommand(hDlg, lParam, wParam));
 
@@ -111,9 +111,9 @@ static BOOLEAN
 handleInit(HWND hDlg)
 {
 
-   if(filepath.gfile[0] != '\0') 
+   if(filepath.gfile[0] != '\0')
       loadFromFile2(hDlg);
-   else 
+   else
       loadDefaults();
 
    return(setDialogValues(hDlg));
@@ -121,7 +121,7 @@ handleInit(HWND hDlg)
 }  /* close handleInit() */
 
 
-/* 
+/*
  * Night time, in the switching yard...
  */
 
@@ -148,51 +148,51 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
          changeNumberOfPoints(hDlg,lParam,wParam);
          break;
 
-      case GD_J1X1: 
-      case GD_J1Y1: 
-      case GD_J1X2: 
-      case GD_J1Y2: 
+      case GD_J1X1:
+      case GD_J1Y1:
+      case GD_J1X2:
+      case GD_J1Y2:
       case GD_J1T:
          changeJointRow1(hDlg,lParam,wParam);
          break;
 
-      case GD_J2X1: 
-      case GD_J2Y1: 
-      case GD_J2X2: 
-      case GD_J2Y2: 
+      case GD_J2X1:
+      case GD_J2Y1:
+      case GD_J2X2:
+      case GD_J2Y2:
       case GD_J2T:
          changeJointRow2(hDlg,lParam,wParam);
          break;
 
-      case GD_J3X1: 
-      case GD_J3Y1: 
-      case GD_J3X2: 
-      case GD_J3Y2: 
+      case GD_J3X1:
+      case GD_J3Y1:
+      case GD_J3X2:
+      case GD_J3Y2:
       case GD_J3T:
          changeJointRow3(hDlg,lParam,wParam);
          break;
 
-      case GD_J4X1: 
-      case GD_J4Y1: 
-      case GD_J4X2: 
-      case GD_J4Y2: 
+      case GD_J4X1:
+      case GD_J4Y1:
+      case GD_J4X2:
+      case GD_J4Y2:
       case GD_J4T:
          changeJointRow4(hDlg,lParam,wParam);
          break;
 
-      case GD_J5X1: 
-      case GD_J5Y1: 
-      case GD_J5X2: 
-      case GD_J5Y2: 
+      case GD_J5X1:
+      case GD_J5Y1:
+      case GD_J5X2:
+      case GD_J5Y2:
       case GD_J5T:
          changeJointRow5(hDlg,lParam,wParam);
          break;
 
-      case GD_P1X: 
-      case GD_P1Y: 
-      case GD_P2X: 
-      case GD_P2Y: 
-      case GD_P3X: 
+      case GD_P1X:
+      case GD_P1Y:
+      case GD_P2X:
+      case GD_P2Y:
+      case GD_P3X:
       case GD_P3Y:
          changePointRow(hDlg,lParam,wParam);
          break;
@@ -200,11 +200,11 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
       case GD_NUMBOLTS:
          changeNumberOfBolts(hDlg,lParam,wParam);
          break;
-  
+
       case GD_BOLTNUMBER:
          handleBoltNumber(hDlg,lParam,wParam);
          break;
- 
+
       case GD_BOLTX1:
       case GD_BOLTY1:
       case GD_BOLTX2:
@@ -225,13 +225,13 @@ handleWMCommand(HWND hDlg, LPARAM lParam, WPARAM wParam)
 
 
 
-/* FIXME: This function should easily be able to handle 
- * both the analysis and the geometry dialogs if the 
- * appropriate structure was passed in.  The way to 
+/* FIXME: This function should easily be able to handle
+ * both the analysis and the geometry dialogs if the
+ * appropriate structure was passed in.  The way to
  * do this would be to cast all struct to a `vscrollstruct
  * pointer, switch on `i', then cast back to appropriate
  * struct type in the case handler.
- */  
+ */
 static BOOLEAN
 handleVScroll(HWND hDlg, LPARAM lParam, WPARAM wParam)
 {
@@ -242,34 +242,34 @@ handleVScroll(HWND hDlg, LPARAM lParam, WPARAM wParam)
 
    hScroll = (HWND)lParam;
    i = GetDlgCtrlID(hScroll);
-   if(i==GD_JSCROLL) 
-   {     
-      switch (LOWORD(wParam)) 
+   if(i==GD_JSCROLL)
+   {
+      switch (LOWORD(wParam))
       {
-         case SB_LINEDOWN: 
+         case SB_LINEDOWN:
             jindex++;
             break;
 
-         case SB_LINEUP: 
-            jindex--;  
+         case SB_LINEUP:
+            jindex--;
             break;
 
-         case SB_PAGEDOWN: 
-            jindex += 5;  
+         case SB_PAGEDOWN:
+            jindex += 5;
             break;
 
-         case SB_PAGEUP: 
-            jindex -= 5;  
+         case SB_PAGEUP:
+            jindex -= 5;
             break;
 
-         case SB_THUMBTRACK: 
-            jindex =  HIWORD(wParam); 
+         case SB_THUMBTRACK:
+            jindex =  HIWORD(wParam);
             break;
       }
 
-      if(jindex > nj-5) 
+      if(jindex > nj-5)
          jindex = nj-5;
-      if(jindex < 0) 
+      if(jindex < 0)
          jindex=0;
       if(jindex != GetScrollPos(hScroll, SB_CTL))
          SetScrollPos(hScroll, SB_CTL, jindex, TRUE);
@@ -293,42 +293,42 @@ handleVScroll(HWND hDlg, LPARAM lParam, WPARAM wParam)
          SetDlgItemText(hDlg, GD_J1X1+5*i+3, temp);
          SetDlgItemInt(hDlg, GD_J1X1+5*i+4, joints[jindex + i].type, FALSE);
       }
-   } 
-   else if(i==GD_PSCROLL) 
+   }
+   else if(i==GD_PSCROLL)
    {
-      switch (LOWORD(wParam)) 
+      switch (LOWORD(wParam))
       {
-         case SB_LINEDOWN: 
-            pindex++;  
+         case SB_LINEDOWN:
+            pindex++;
             break;
 
-         case SB_LINEUP: 
-            pindex--;  
+         case SB_LINEUP:
+            pindex--;
             break;
 
-         case SB_PAGEDOWN: 
-            pindex += 3;  
+         case SB_PAGEDOWN:
+            pindex += 3;
             break;
 
-         case SB_PAGEUP: 
-            pindex -= 3;  
+         case SB_PAGEUP:
+            pindex -= 3;
             break;
 
-         case SB_THUMBTRACK: 
-            pindex = HIWORD(wParam); 
+         case SB_THUMBTRACK:
+            pindex = HIWORD(wParam);
             break;
       }
 
-      if(pindex > np-3) 
+      if(pindex > np-3)
          pindex = np-3;
-      if(pindex < 0) 
+      if(pindex < 0)
          pindex=0;
       if(pindex != GetScrollPos(hScroll, SB_CTL))
          SetScrollPos(hScroll, SB_CTL, pindex, TRUE);
 
       // move point coords in edit boxes
       j = (np < 3)? np: 3;
-      for(i=0; i<j; i++) 
+      for(i=0; i<j; i++)
       {
          SetDlgItemInt(hDlg, GD_PLAB1+i, pindex+i+1, FALSE);
          gcvt(points[pindex + i].x, 6, temp);
@@ -340,14 +340,14 @@ handleVScroll(HWND hDlg, LPARAM lParam, WPARAM wParam)
          SetDlgItemText(hDlg, GD_P1X+3*i+2, temp);
       }
    } // end if
-   
+
    return TRUE;
 
 }  /* close handleVScroll() */
 
 
 
-static void 
+static void
 loadDefaults()
 {
    int i;
@@ -356,8 +356,8 @@ loadDefaults()
 
    nj = 3; nfp = 3; nmp = 0; nlp = 0; nhp = 0;
    joints = (Joint *) malloc(sizeof(Joint) * nj);
-   
-   for(i=0; i<nj; i++) 
+
+   for(i=0; i<nj; i++)
    {
       joints[i].epx1 = 0;
       joints[i].epy1 = 0;
@@ -369,7 +369,7 @@ loadDefaults()
    np = nfp + nmp + nlp + nhp;
    points = (DPoint *) malloc(sizeof(DPoint) * np);
 
-   for(i=0; i<np; i++) 
+   for(i=0; i<np; i++)
    {
       points[i].x = 0;
       points[i].y = 0;
@@ -379,7 +379,7 @@ loadDefaults()
 } /* close loadDefaults() */
 
 
-static void 
+static void
 loadFromFile1(HWND hDlg)
 {
    int i;
@@ -388,19 +388,19 @@ loadFromFile1(HWND hDlg)
    // read in data from file blocks.out <--- (!?)
    hFile = OpenFile(filepath.gfile, &of, OF_READ);
    fp = fopen(filepath.gfile, "r");
-    
+
   /*  Read in geometry data from file.  */
    fscanf(fp, "%*lf %d %*d %*d %*d %d %d %d %d",
           &nj, &nfp, &nlp, &nmp, &nhp);
-  /*  Pseudo-static memory allocation: get the number of 
+  /*  Pseudo-static memory allocation: get the number of
    *  joints from the file, grab enough memory.
    */
    joints = (Joint *) malloc(sizeof(Joint) * nj);
 
-  /*  Read in all the joints. This technique is prone to 
+  /*  Read in all the joints. This technique is prone to
    *  syntax erros.
    */
-   for(i=0; i<nj; i++) 
+   for(i=0; i<nj; i++)
    {
       fscanf(fp, "%lf %lf %lf %lf %d", &joints[i].epx1,
              &joints[i].epy1, &joints[i].epx2, &joints[i].epy2,
@@ -412,7 +412,7 @@ loadFromFile1(HWND hDlg)
    */
    np = nfp + nmp + nlp + nhp;
    points = (DPoint *) malloc(sizeof(DPoint) * np);
-   for(i=0; i<nfp; i++) 
+   for(i=0; i<nfp; i++)
    {
       fscanf(fp, "%lf %lf %*lf %*lf", &points[i].x,
              &points[i].y);
@@ -421,13 +421,13 @@ loadFromFile1(HWND hDlg)
   /*  This is not too good.  These points are coming in
    * in a particular order.  Very prone to syntax problems.
    */
-   for(i=nfp; i<np; i++) 
+   for(i=nfp; i<np; i++)
    {
       fscanf(fp, "%lf %lf", &points[i].x, &points[i].y);
       points[i].type = 1;
-      if(i >= nfp+nmp) 
+      if(i >= nfp+nmp)
          points[i].type += 1;
-      if(i >= nfp+nmp+nlp) 
+      if(i >= nfp+nmp+nlp)
          points[i].type += 1;
    }
     // hFile = OpenFile(gfile, &of, OF_EXIST);
@@ -436,7 +436,7 @@ loadFromFile1(HWND hDlg)
 } /* close loadFromFile1() */
 
 
-static void 
+static void
 loadFromFile2(HWND hDlg)
 {
    int i;
@@ -449,7 +449,7 @@ loadFromFile2(HWND hDlg)
    //geometryInput(gd, filepath.gfile);
    gdata_read_input_file(gd, filepath.gfile);
 
-  /* Now transfer the data to the local structs. */      
+  /* Now transfer the data to the local structs. */
    nj = gd->nJoints;
    nfp = gd->nFPoints;
    nlp = gd->nLPoints;
@@ -461,11 +461,11 @@ loadFromFile2(HWND hDlg)
   /* Transfer joint data   */
    for(i=0; i<nj; i++) {
       joints[i].epx1 = gd->joints[i+1][1];
-      joints[i].epy1 = gd->joints[i+1][2]; 
+      joints[i].epy1 = gd->joints[i+1][2];
       joints[i].epx2 = gd->joints[i+1][3];
       joints[i].epy2 = gd->joints[i+1][4];
       joints[i].type = (int)gd->joints[i+1][5];
-   } 
+   }
 
   /* Read in all the points.  These mnemonics are not
    * particulary useful.
@@ -479,16 +479,16 @@ loadFromFile2(HWND hDlg)
       points[i].x = gd->points[i+1][1];
       points[i].y = gd->points[i+1][2];
    }
-   
+
    numbolts = gd->nBolts;
    if (numbolts > 0)
       bolts = clone2DMatDoub(gd->rockbolts, gd->rockboltsize1, gd->rockboltsize2);
 
-}  
+}
 
 
 
-static BOOLEAN 
+static BOOLEAN
 setDialogValues(HWND hDlg)
 {
    int i,j;
@@ -501,7 +501,7 @@ setDialogValues(HWND hDlg)
    SetDlgItemInt(hDlg, GD_NHP, nhp, FALSE);
 
    j = (nj < 5)? nj: 5;
-   for(i=0; i<j; i++) 
+   for(i=0; i<j; i++)
    {
       gcvt(joints[i].epx1, 4, temp);
       SetDlgItemText(hDlg, GD_J1X1+5*i, temp);
@@ -515,7 +515,7 @@ setDialogValues(HWND hDlg)
    }
 
    j = (np < 3)? np: 3;
-   for(i=0; i<j; i++) 
+   for(i=0; i<j; i++)
    {
       gcvt(points[i].x, 6, temp);
       SetDlgItemText(hDlg, GD_P1X+3*i, temp);
@@ -529,18 +529,18 @@ setDialogValues(HWND hDlg)
 
    if (numbolts > 0)
       initBoltBoxes(hDlg);
-   else 
+   else
       enableBoltBoxes(hDlg, FALSE);
 
-  /* Grab some scrollers for the dialog box to deal with 
-   * large numbers of points and joints.  
+  /* Grab some scrollers for the dialog box to deal with
+   * large numbers of points and joints.
    */
    hScroll = GetDlgItem(hDlg, GD_JSCROLL);
    scrollinfo.fMask = SIF_POS;
 
    if (nj > 4)
       i = nj-5;
-   else 
+   else
       i = 0;
 
    scrollinfo.nPos = i;
@@ -553,12 +553,12 @@ setDialogValues(HWND hDlg)
 
    if (np > 2)
       i = np-3;
-   else 
+   else
       i = 0;
 
    SetScrollRange(hScroll, SB_CTL, 0, i, FALSE);
    SetScrollPos(hScroll, SB_CTL, 0, TRUE);
-   
+
    return TRUE;
 
 }  /* close setDialogValues() */
@@ -571,36 +571,36 @@ saveData(HWND hDlg)
    int i;
    FILE * fp;
 
-   
-   LPCTSTR szFilter[] = 
+
+   LPCTSTR szFilter[] =
       {"Geometry files (*.geo)\0*.geo\0All files (*.*)\0*.*\0\0"};
    fileBrowse(hDlg, &ofn, szFilter, filepath.gpath, filepath.gfile, "geo");
 
-   if( !GetSaveFileName(&ofn) ) 
+   if( !GetSaveFileName(&ofn) )
    {
       strcpy(filepath.gpath, filepath.oldpath);
             //break;  // user pressed cancel
             /* Probably need to return TRUE or FALSE here */
    }
-   else 
-   { 
+   else
+   {
       // open file and save data
       // if it exists already, delete it
       if(-1 != OpenFile(filepath.gpath, &of, OF_WRITE) )
          hFile = OpenFile(filepath.gpath, &of, OF_DELETE);
-      if(-1 == (hFile = OpenFile(filepath.gpath, &of, OF_CREATE)) ) 
+      if(-1 == (hFile = OpenFile(filepath.gpath, &of, OF_CREATE)) )
       {
          MessageBox(NULL, "Error: Cannot create file", "ERROR", MB_OK | MB_ICONINFORMATION);
          return 0;
       }
 
 
-     /* At some point, all these temporary local variables 
+     /* At some point, all these temporary local variables
       * could be deleted, all the action put in the struct.
-      * This would eliminate having to transfer local variable 
+      * This would eliminate having to transfer local variable
       * values to and from the struct.
       */
-     /* Now transfer the data to the local structs. */      
+     /* Now transfer the data to the local structs. */
       gd->nJoints = nj;
       gd->nFPoints = nfp;
       gd->nLPoints = nlp;
@@ -608,15 +608,15 @@ saveData(HWND hDlg)
       gd->nHPoints = nhp;
       gd->nBolts = numbolts;
 
-     /* Transfer joint data   */ 
-      for(i=0; i<nj; i++) 
+     /* Transfer joint data   */
+      for(i=0; i<nj; i++)
       {
          gd->joints[i+1][1] = joints[i].epx1;
-         gd->joints[i+1][2] = joints[i].epy1; 
+         gd->joints[i+1][2] = joints[i].epy1;
          gd->joints[i+1][3] = joints[i].epx2;
          gd->joints[i+1][4] = joints[i].epy2;
          gd->joints[i+1][5] = joints[i].type;
-      } 
+      }
 
      /* Read in all the points.  These mnemonics are not
       * particulary useful.
@@ -630,19 +630,19 @@ saveData(HWND hDlg)
          gd->points[i+1][2] = points[i].y;
       }
 
-     /* There will be some memory issues to deal with 
+     /* There will be some memory issues to deal with
       * here.
       */
       if(numbolts > 0)
          gd->rockbolts = bolts;
-         
+
 
       fp = fopen(filepath.gfile,"w");
       gd->dumptofile(gd,fprintf,fp);
       fclose(fp);
 
    }
-   
+
   /* FIXME: verify this return value */
    return TRUE;
 
@@ -655,21 +655,21 @@ changeNumberOfJoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
    int i,j,k;
    int nOld;
 
-   if (HIWORD(wParam) == EN_KILLFOCUS) 
+   if (HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          nOld = nj;
          jOld = joints;
          nj = GetDlgItemInt(hDlg, GD_NJOI, NULL, FALSE);
          joints = (Joint *) malloc(sizeof(Joint) * nj);
-         if(nj < nOld) 
+         if(nj < nOld)
             nOld = nj;
 
         /*  These look like cloning loops.  */
-         for(i=0; i<nOld; i++) 
+         for(i=0; i<nOld; i++)
          {
             joints[i].epx1 = jOld[i].epx1;
             joints[i].epy1 = jOld[i].epy1;
@@ -679,7 +679,7 @@ changeNumberOfJoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
          }
          free(jOld);
 
-         for(i=nOld; i<nj; i++) 
+         for(i=nOld; i<nj; i++)
          {
             joints[i].epx1 = 0;
             joints[i].epy1 = 0;
@@ -690,7 +690,7 @@ changeNumberOfJoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
 
          j = (nj<5)? nj:5;
          jindex = 0;
-         for(i=0; i<j; i++) 
+         for(i=0; i<j; i++)
          {
             SetDlgItemInt(hDlg, GD_JLAB1+i, i+1, FALSE);
             gcvt(joints[i].epx1, 4, temp);
@@ -705,10 +705,10 @@ changeNumberOfJoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
          }
 
          temp[0] = '\0';
-         for(i=j; i<5; i++) 
+         for(i=j; i<5; i++)
          {
             SetDlgItemText(hDlg, GD_JLAB1+i, temp);
-            for(k=0; k<5; k++) 
+            for(k=0; k<5; k++)
             {
                SetDlgItemText(hDlg, GD_J1X1+5*i+k, temp);
             }
@@ -731,11 +731,11 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
    int i,j,k;
    int nOld;
 
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //if(lParam == EN_KILLFOCUS) {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage((HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage((HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage((HWND) lParam, EM_SETMODIFY, FALSE, 0L);
 
@@ -749,22 +749,22 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
          points = (DPoint *) malloc(sizeof(DPoint) * np);
 
          i=0; j=0;
-         while (i < nfp && j < nOld && pOld[j].type == 0) 
+         while (i < nfp && j < nOld && pOld[j].type == 0)
          {
             points[i].x = pOld[j].x;
             points[i].y = pOld[j].y;
             points[i].type = 0;
             i++; j++;
          }
- 
-         while (i < nfp) 
+
+         while (i < nfp)
          {
             points[i].x = 0; points[i].y = 0;
             points[i].type = 0;
             i++;
          }
 
-         while (i < nfp + nmp && j < nOld && pOld[j].type == 1) 
+         while (i < nfp + nmp && j < nOld && pOld[j].type == 1)
          {
             points[i].x = pOld[j].x;
             points[i].y = pOld[j].y;
@@ -772,29 +772,29 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
             i++; j++;
          }
 
-         while (i < nfp + nmp) 
+         while (i < nfp + nmp)
          {
             points[i].x = 0; points[i].y = 0;
             points[i].type = 1;
             i++;
          }
 
-         while (i < nfp + nmp + nlp && j < nOld && pOld[j].type == 2) 
+         while (i < nfp + nmp + nlp && j < nOld && pOld[j].type == 2)
          {
             points[i].x = pOld[j].x;
             points[i].y = pOld[j].y;
             points[i].type = 2;
             i++; j++;
          }
- 
-         while (i < nfp + nmp + nlp) 
+
+         while (i < nfp + nmp + nlp)
          {
             points[i].x = 0; points[i].y = 0;
             points[i].type = 2;
             i++;
          }
- 
-         while (i < nfp + nmp + nlp + nhp && j < nOld && pOld[j].type == 3) 
+
+         while (i < nfp + nmp + nlp + nhp && j < nOld && pOld[j].type == 3)
          {
             points[i].x = pOld[j].x;
             points[i].y = pOld[j].y;
@@ -802,9 +802,9 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
             i++; j++;
          }
 
-         while (i < nfp + nmp + nlp + nhp) 
+         while (i < nfp + nmp + nlp + nhp)
          {
-            points[i].x = 0; 
+            points[i].x = 0;
             points[i].y = 0;
             points[i].type = 3;
             i++;
@@ -815,7 +815,7 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
 
          j = (np<3)? np:3;
          pindex = 0;
-         for(i=0; i<j; i++) 
+         for(i=0; i<j; i++)
          {
             SetDlgItemInt(hDlg, GD_PLAB1+i, pindex+i+1, FALSE);
             gcvt(points[i].x, 4, temp);
@@ -828,15 +828,15 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
          }
 
          temp[0] = '\0';
-         for(i=j; i<3; i++) 
+         for(i=j; i<3; i++)
          {
             SetDlgItemText(hDlg, GD_PLAB1+i, temp);
-            for(k=0; k<3; j++) 
+            for(k=0; k<3; j++)
             {
                SetDlgItemText(hDlg, GD_P1X+3*i+k, temp);
             }
          }
- 
+
          // reset scroll bar
          hScroll = GetDlgItem(hDlg, GD_PSCROLL);
          i = (np>2)? np-3:0;
@@ -849,10 +849,10 @@ changeNumberOfPoints(HWND hDlg, LPARAM lParam, WPARAM wParam)
 }  /*  close changeNumberOfPoints() */
 
 
-static void 
+static void
 changeJointRow1(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
       if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
@@ -874,10 +874,10 @@ changeJointRow1(HWND hDlg,LPARAM lParam,WPARAM wParam)
 } /* close changeJointRow1() */
 
 
-static void 
+static void
 changeJointRow2(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //if(lParam == EN_KILLFOCUS) {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
@@ -897,20 +897,20 @@ changeJointRow2(HWND hDlg,LPARAM lParam,WPARAM wParam)
          GetDlgItemText(hDlg, GD_J2Y2, temp, 20);
          joints[jindex + 1].epy2 = strtod(temp, NULL);
          joints[jindex + 1].type = GetDlgItemInt(hDlg, GD_J2T, NULL, FALSE);
-      } 
+      }
 
-   } 
+   }
 
 } /* close changeJointRow2() */
 
 
-static void 
+static void
 changeJointRow3(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, GD_J3X1, temp, 20);
@@ -929,13 +929,13 @@ changeJointRow3(HWND hDlg,LPARAM lParam,WPARAM wParam)
 } /* close changeJointRow3() */
 
 
-static void 
+static void
 changeJointRow4(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage((HWND) lParam, EM_SETMODIFY, FALSE, 0L);
          GetDlgItemText(hDlg, GD_J4X1, temp, 20);
@@ -954,10 +954,10 @@ changeJointRow4(HWND hDlg,LPARAM lParam,WPARAM wParam)
 } /* close changeJointRow4() */
 
 
-static void 
+static void
 changeJointRow5(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
       if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
@@ -982,7 +982,7 @@ changeJointRow5(HWND hDlg,LPARAM lParam,WPARAM wParam)
 static void
 changePointRow(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
-   if(HIWORD(wParam) == EN_KILLFOCUS) 
+   if(HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
       if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
@@ -1000,8 +1000,8 @@ changePointRow(HWND hDlg,LPARAM lParam,WPARAM wParam)
          points[pindex + 2].x = strtod(temp, NULL);
          GetDlgItemText(hDlg, GD_P3Y, temp, 20);
          points[pindex + 2].y = strtod(temp, NULL);
-        /* change this to the loop assuming the 
-         * text boxes for the points are in 
+        /* change this to the loop assuming the
+         * text boxes for the points are in
          * correct order
          */
         /*
@@ -1020,7 +1020,7 @@ changePointRow(HWND hDlg,LPARAM lParam,WPARAM wParam)
 } /* close changePointRow() */
 
 
-/* This edit box is read-only for now due to 
+/* This edit box is read-only for now due to
  * memory handling problems and over all bad
  * design.  This is probably a throw-away
  * function.
@@ -1037,17 +1037,17 @@ setNumberOfBolts(HWND hDlg)
  * arrays that makes it segfault when more newer than
  * older bolts happen.
  */
-static void 
+static void
 changeNumberOfBolts(HWND hDlg,LPARAM lParam,WPARAM wParam)
 {
    int numOld;
    int i,j;
    //int tmp;
 
-   if (HIWORD(wParam) == EN_KILLFOCUS) 
+   if (HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
 
@@ -1057,33 +1057,33 @@ changeNumberOfBolts(HWND hDlg,LPARAM lParam,WPARAM wParam)
          numbolts = GetDlgItemInt(hDlg, GD_NUMBOLTS, NULL, FALSE);
          bolts = DoubMat2DGetMem(numbolts, 14);
 
-        /* The way this is handled is to have the 
-         * bolts as an ordered set.  Changing the 
+        /* The way this is handled is to have the
+         * bolts as an ordered set.  Changing the
          * number of bolts results in either truncating
          * the list of bolts if the new number is less
          * than the old number, or adding new bolts to
-         * the end of the list if the more bolts are 
-         * added.  This is not a particularly flexible 
-         * implementation if one wants to say delete 
+         * the end of the list if the more bolts are
+         * added.  This is not a particularly flexible
+         * implementation if one wants to say delete
          * one or more bolts in the middle of the list.
          */
-         if(numbolts < numOld) 
+         if(numbolts < numOld)
             numOld = numbolts;
 
         /* Clone the first part of the bolt array */
          bolts = clone2DMatDoub(oldbolts,numbolts,14);
          free2DMat(oldbolts,numOld);
- 
-        /* If the number of new bolts is greater than the 
-         * number of old bolts, initialize to zero, 
+
+        /* If the number of new bolts is greater than the
+         * number of old bolts, initialize to zero,
          * else skip.
          */
-         for(i=numOld; i<numbolts; i++) 
+         for(i=numOld; i<numbolts; i++)
             for(j=0;j<14;j++)
                bolts[i][j] = 0.0;
 
          boltindex = 0;
-         
+
          for (i=1;i<=4;i++)
          {
             gcvt(bolts[0][i], 4, temp);
@@ -1093,10 +1093,10 @@ changeNumberOfBolts(HWND hDlg,LPARAM lParam,WPARAM wParam)
         /* Probably sets labels */
         /*
          temp[0] = '\0';
-         for(i=j; i<5; i++) 
+         for(i=j; i<5; i++)
          {
             SetDlgItemText(hDlg, GD_JLAB1+i, temp);
-            for(k=0; k<5; k++) 
+            for(k=0; k<5; k++)
             {
                SetDlgItemText(hDlg, GD_J1X1+5*i+k, temp);
             }
@@ -1109,22 +1109,22 @@ changeNumberOfBolts(HWND hDlg,LPARAM lParam,WPARAM wParam)
 
 
 
-static void 
+static void
 changeBoltProperties(HWND hDlg,LPARAM lParam,WPARAM wParam, int index)
 {
    int i;
 
-   if (HIWORD(wParam) == EN_KILLFOCUS) 
+   if (HIWORD(wParam) == EN_KILLFOCUS)
    {
       //MessageBox(hDlg, "Got EN_KILLFOCUS", "WM_COMMAND", MB_OK);
-      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L)) 
+      if (SendMessage( (HWND) lParam,  EM_GETMODIFY, 0, 0L))
       {
          SendMessage( (HWND) lParam, EM_SETMODIFY, FALSE, 0L);
 
          for (i=7;i<10;i++)
          {
-           /* Use BOLTX1 because BOLTSTIFFNESS is the 
-            * 7th text box up, and we can use i to 
+           /* Use BOLTX1 because BOLTSTIFFNESS is the
+            * 7th text box up, and we can use i to
             * index the bolt array.
             */
             GetDlgItemText(hDlg, GD_BOLTX1+i, temp, 20);
@@ -1140,7 +1140,7 @@ changeBoltProperties(HWND hDlg,LPARAM lParam,WPARAM wParam, int index)
 
 
 
-static void 
+static void
 enableBoltBoxes(HWND hDlg, BOOLEAN flag)
 {
    int i;
@@ -1170,12 +1170,12 @@ initBoltBoxes(HWND hDlg)
   /* Set the combo box to point to bolt 1 */
    SendDlgItemMessage(hDlg, GD_BOLTNUMBER, CB_SETCURSEL, 0, 0);
 
-  /* Display the first (number 0) bolt in the 
+  /* Display the first (number 0) bolt in the
    * list of bolts.
    */
    setBoltBoxes(hDlg, 0);
 
-  /* Set the number of bolts into a read-only box. 
+  /* Set the number of bolts into a read-only box.
    */
    SetDlgItemInt(hDlg, GD_NUMBOLTS, numbolts, FALSE);
 
@@ -1193,7 +1193,7 @@ setBoltBoxes(HWND hDlg, int index)
    }
 
   /* The block numbers are stored in j = 5,6,
-   * so we have to skip those numbers.  Since 
+   * so we have to skip those numbers.  Since
    * win32 controls expect linear progression,
    * its easier to do an extra loop rather than
    * add yet one more layer of crufty kludge
@@ -1203,11 +1203,11 @@ setBoltBoxes(HWND hDlg, int index)
       gcvt(bolts[index][j], 6, temp);
       SetDlgItemText(hDlg, GD_BOLTX1+j-3, temp);
    }
-  
+
 }  /* close initBoltBoxes() */
 
 
-static void 
+static void
 handleBoltNumber(HWND hDlg, LPARAM lParam, WPARAM wParam)
 {
    boltindex = (int)SendDlgItemMessage(hDlg, GD_BOLTNUMBER, CB_GETCURSEL, 0,0L);

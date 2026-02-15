@@ -32,14 +32,14 @@ handleVisualEditor(HWND hwMain, LPARAM lParam)
 char mess[80];
 
 /* The following defed out code is from the `New Geometry'
- * case, which is a bit different from handling existing 
+ * case, which is a bit different from handling existing
  * geometries.  TODO: Integrate this later.
  */
-#if NEWVISEDGEOM          
-   STARTUPINFO ves; 
+#if NEWVISEDGEOM
+   STARTUPINFO ves;
 	PROCESS_INFORMATION pi;
    int doDraw=0;
-			  		
+
    strcpy(filepath.oldfile, filepath.gfile);
 	filepath.gfile[0] = '\0';
 	sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
@@ -53,7 +53,7 @@ char mess[80];
    CreateProcess(NULL,"VisualEditor",NULL,NULL,FALSE,CREATE_NEW_PROCESS_GROUP|HIGH_PRIORITY_CLASS,NULL,NULL,&ves,&pi);
 #endif  /* Code for new geometry with visual editor */
 
-       STARTUPINFO ves; 
+       STARTUPINFO ves;
        BOOL  flag;
 	      PROCESS_INFORMATION pi;
 	      ves.lpReserved=NULL;
@@ -69,14 +69,14 @@ char mess[80];
        flag = WaitForSingleObject(pi.hProcess,INFINITE);
 
        if (flag != WAIT_OBJECT_0)
-       { 
+       {
           MessageBox(hwMain, "Visual Editor not found in path", "Not found", MB_OK);
-       }         
+       }
        else
           ShowWindow(hwMain, SW_MINIMIZE);
 
        SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
        ShowWindow(hwMain, SW_RESTORE);
-    
+
 
 }  /* close handleVisualEditor() */

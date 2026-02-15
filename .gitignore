@@ -10,6 +10,24 @@ bin/
 Release/
 Debug/
 
+# C compiler artifacts
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.d
+*.pch
+*.gch
+*.exe
+*.out
+*.ilk
+*.pdb
+*.s
+*.i
+*.ii
+
 # Editor and temp files
 *~
 
@@ -19,6 +37,9 @@ Dox/
 
 # Patches
 *.diff
+
+# Library build
+.obj/
 
 # Unit test binaries
 bolttest

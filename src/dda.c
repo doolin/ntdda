@@ -1,5 +1,5 @@
 /*
- * dda.c is the "controller" module for running 
+ * dda.c is the "controller" module for running
  * an analysis.  It has to deal with both geometry
  * and analysis data.
  */
@@ -12,14 +12,16 @@
 #define getcwd _getcwd
 #define mkdir _mkdir
 #define putenv _putenv
-#else 
+#else
 #include <unistd.h>
+#include <sys/stat.h>
+#define _putenv putenv
 #endif
 
 
 #include "dda.h"
 
-/** @todo These are included to handle toggling 
+/** @todo These are included to handle toggling
  * code, get rid of them as soon as possible.
  */
 #include "statusbar.h"
@@ -40,33 +42,33 @@ struct _dda_tag  {
    short ycur;
 };
 
-int 
+int
 dda_get_menu_state(DDA * dda) {
    return dda->menu_state;
 }
 
-void 
+void
 dda_set_menu_state(DDA * dda, int state) {
    dda->menu_state = state;
 }
 
 
-int 
+int
 dda_get_xcur(DDA * dda) {
    return dda->xcur;
 }
 
-void 
+void
 dda_set_xcur(DDA * dda, int xcur) {
    dda->xcur = xcur;
 }
 
-int 
+int
 dda_get_ycur(DDA * dda) {
    return dda->ycur;
 }
 
-void 
+void
 dda_set_ycur(DDA * dda, int ycur) {
    dda->ycur = ycur;
 }
@@ -117,7 +119,7 @@ dda_set_tooltipvis(DDA * dda, ddaboolean vis) {
 }
 
 
-Analysisdata * 
+Analysisdata *
 dda_get_analysisdata(DDA * dda) {
    return dda->analysis;
 }
@@ -127,12 +129,12 @@ dda_set_analysisdata(DDA * dda, Analysisdata * ad) {
    dda->analysis = ad;
 }
 
-Geometrydata * 
-dda_get_geometrydata(DDA * dda){ 
+Geometrydata *
+dda_get_geometrydata(DDA * dda){
    return dda->geometry;
 }
 
-void 
+void
 dda_set_geometrydata(DDA * dda, Geometrydata * gd) {
    dda->geometry = gd;
 }
@@ -159,7 +161,7 @@ dda_delete(DDA * dda) {
 }
 
 
-int 
+int
 dda_run(DDA * dda) {
 
    return 0;
@@ -183,16 +185,24 @@ dda_set_output_directory(const char * dirname, size_t dirnamesize) {
 
 
    strncpy(outdir,wdbuf,sizeof(wdbuf));
+#ifdef WIN32
    strncat(outdir,"\\",sizeof("\\"));
+#else
+   strncat(outdir,"/",sizeof("/"));
+#endif
    strncat(outdir,dirname,dirnamesize);
 
-/** This is really crappy. Should use stat or here. 
- * MS doesn't list errno for stat, so checking to 
- * see whether the directory already exists will be 
+/** This is really crappy. Should use stat or here.
+ * MS doesn't list errno for stat, so checking to
+ * see whether the directory already exists will be
  * done with mkdir.  Smells like a kludge.
  */
+#ifdef WIN32
    checkval = mkdir(outdir);
- 
+#else
+   checkval = mkdir(outdir, 0755);
+#endif
+
 
  /* @todo rewrite all of this because EEXIST
   * doesn't matter.  Need only check for ENOENT.
@@ -205,7 +215,7 @@ dda_set_output_directory(const char * dirname, size_t dirnamesize) {
       _putenv(outdirenv);
       //_chdir(outdir);
    } else {
-      
+
       dda_display_error("Problem with setting environment");
    }
 #endif
@@ -232,7 +242,7 @@ dda_test() {
 
 #if 0
 #ifdef STANDALONE
-int 
+int
 main() {
 
    if(dda_test())

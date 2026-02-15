@@ -1,4 +1,4 @@
-del *.dvi 
+del *.dvi
 del *.aux
 del *.ps
 del *.log

@@ -12,7 +12,7 @@
  * c:         cohesion
  * psi:       dilation angle
  * tnph:      tan(phi)
- * snph:      sin(phi) 
+ * snph:      sin(phi)
  * theta:     lode angle
  */
 
@@ -29,7 +29,7 @@ static double sigm, dsbar, theta, cs[5], pl[5][5];
 static int i, j;
 
 /*
- *  first invariant "sigm", second invariant "dsbar" 
+ *  first invariant "sigm", second invariant "dsbar"
  *  and lode angle "theta" for a stress tensor "stress"
  */
 void
@@ -66,7 +66,7 @@ invar ()
 
 /*
  * Mohr-Coulomb yield function F from invariants "sigm"
- * and "dsbar" lode angle "theta (radian) of friction "phi" 
+ * and "dsbar" lode angle "theta (radian) of friction "phi"
  * and cohesion "c"
  */
 double
@@ -83,7 +83,7 @@ mocouf (double c, double phi)
 }
 
 /*
- * plastic stress-strain matrix "pl" from stresses "stress" 
+ * plastic stress-strain matrix "pl" from stresses "stress"
  * angle of friction "phi", dilation "psi" and elastic stiffness "E"
  * ,"nu" for a Mohr-Coulomb material
  */
@@ -172,7 +172,7 @@ mocopl (double phi, double psi, double nu, double ymod)
 }
 
 /*
- * main function in order to obtain the 
+ * main function in order to obtain the
  * correct stress using Mohr-Coulomb criteria
  */
 void
@@ -214,7 +214,7 @@ mohrcoulomb (double c, double phi, double psi, double nu, double ymod,
 #endif
 
 #ifdef mohrcoulomb_STANDALONE
-/** 
+/**
  * Free standing program for testing Mohr-Coulomb
  * computations.
  *
@@ -222,7 +222,7 @@ mohrcoulomb (double c, double phi, double psi, double nu, double ymod,
  * gcc -Wall -o mc mohrcoulomb.c -I../include -DSTANDALONE
  *
  */
-int 
+int
 main(int argc, char ** argv) {
 
    return 0;

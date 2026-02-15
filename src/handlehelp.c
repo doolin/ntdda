@@ -2,11 +2,11 @@
 
 /* FIXME: There is a bug in here.  If the HTML Help is not
  * used initially, then it will not launch subsequently.
- * This may be related to improper callback returns in 
+ * This may be related to improper callback returns in
  * wmcommand switchyard.
- * Another possibility is that it can't find the help 
- * directory.  Since I am not tracking the return from 
- * HTMLHelp(), hard to say... 
+ * Another possibility is that it can't find the help
+ * directory.  Since I am not tracking the return from
+ * HTMLHelp(), hard to say...
  */
 #include <windows.h>
 #include "resource.h"
@@ -15,7 +15,7 @@
 #include "win32utils.h"
 
 
-void 
+void
 handleHtmlHelp(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
    HH_FTS_QUERY q ;
@@ -43,7 +43,7 @@ handleHtmlHelp(HWND hwMain, WPARAM wParam, LPARAM lParam)
             break;
             //return 0;
          }
-#endif    
+#endif
 
       case DDAHELP_GEOMETRY:
          HtmlHelp(NULL, "ddahelp\\ddahelp.chm::/ddageometry.html", HH_DISPLAY_TOPIC, 0);
@@ -66,7 +66,7 @@ handleHtmlHelp(HWND hwMain, WPARAM wParam, LPARAM lParam)
             break;
             //return 0;
          }
-#endif    
+#endif
 
 
 		case MAIN_ABOUT:

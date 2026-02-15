@@ -1,4 +1,4 @@
-// Added by Roozbeh 
+// Added by Roozbeh
 #define STRICT
 #include<windows.h>
 #include"resource.h"

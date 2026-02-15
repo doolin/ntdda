@@ -6,88 +6,88 @@
 /* Subroutine */ int dlauum_(char *uplo, int *n, double *a, int *
 	lda, int *info)
 {
-/*  -- LAPACK auxiliary routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       February 29, 1992   
+/*  -- LAPACK auxiliary routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       February 29, 1992
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DLAUUM computes the product U * U' or L' * L, where the triangular   
-    factor U or L is stored in the upper or lower triangular part of   
-    the array A.   
+    DLAUUM computes the product U * U' or L' * L, where the triangular
+    factor U or L is stored in the upper or lower triangular part of
+    the array A.
 
-    If UPLO = 'U' or 'u' then the upper triangle of the result is stored, 
-  
-    overwriting the factor U in A.   
-    If UPLO = 'L' or 'l' then the lower triangle of the result is stored, 
-  
-    overwriting the factor L in A.   
+    If UPLO = 'U' or 'u' then the upper triangle of the result is stored,
 
-    This is the blocked form of the algorithm, calling Level 3 BLAS.   
+    overwriting the factor U in A.
+    If UPLO = 'L' or 'l' then the lower triangle of the result is stored,
 
-    Arguments   
-    =========   
+    overwriting the factor L in A.
 
-    UPLO    (input) CHARACTER*1   
-            Specifies whether the triangular factor stored in the array A 
-  
-            is upper or lower triangular:   
-            = 'U':  Upper triangular   
-            = 'L':  Lower triangular   
+    This is the blocked form of the algorithm, calling Level 3 BLAS.
 
-    N       (input) INTEGER   
-            The order of the triangular factor U or L.  N >= 0.   
+    Arguments
+    =========
 
-    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)   
-            On entry, the triangular factor U or L.   
-            On exit, if UPLO = 'U', the upper triangle of A is   
-            overwritten with the upper triangle of the product U * U';   
-            if UPLO = 'L', the lower triangle of A is overwritten with   
-            the lower triangle of the product L' * L.   
+    UPLO    (input) CHARACTER*1
+            Specifies whether the triangular factor stored in the array A
 
-    LDA     (input) INTEGER   
-            The leading dimension of the array A.  LDA >= MAX(1,N).   
+            is upper or lower triangular:
+            = 'U':  Upper triangular
+            = 'L':  Lower triangular
 
-    INFO    (output) INTEGER   
-            = 0: successful exit   
-            < 0: if INFO = -k, the k-th argument had an illegal value   
+    N       (input) INTEGER
+            The order of the triangular factor U or L.  N >= 0.
 
-    ===================================================================== 
-  
+    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
+            On entry, the triangular factor U or L.
+            On exit, if UPLO = 'U', the upper triangle of A is
+            overwritten with the upper triangle of the product U * U';
+            if UPLO = 'L', the lower triangle of A is overwritten with
+            the lower triangle of the product L' * L.
+
+    LDA     (input) INTEGER
+            The leading dimension of the array A.  LDA >= MAX(1,N).
+
+    INFO    (output) INTEGER
+            = 0: successful exit
+            < 0: if INFO = -k, the k-th argument had an illegal value
+
+    =====================================================================
 
 
-       Test the input parameters.   
 
-    
-   Parameter adjustments   
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static int c__1 = 1;
     static int c_n1 = -1;
     static double c_b15 = 1.;
-    
+
     /* System generated locals */
     int  i__1, i__2, i__3, i__4;
     /* Local variables */
     static int i;
-    extern /* Subroutine */ int dgemm_(char *, char *, int *, int *, 
-	    int *, double *, double *, int *, double *, 
+    extern /* Subroutine */ int dgemm_(char *, char *, int *, int *,
+	    int *, double *, double *, int *, double *,
 	    int *, double *, double *, int *);
     extern long int lsame_(char *, char *);
-    extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *, 
-	    int *, int *, double *, double *, int *, 
+    extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *,
+	    int *, int *, double *, double *, int *,
 	    double *, int *);
     static long int upper;
-    extern /* Subroutine */ int dsyrk_(char *, char *, int *, int *, 
+    extern /* Subroutine */ int dsyrk_(char *, char *, int *, int *,
 	    double *, double *, int *, double *, double *,
-	     int *), dlauu2_(char *, int *, 
+	     int *), dlauu2_(char *, int *,
 	    double *, int *, int *);
     static int ib, nb;
     extern /* Subroutine */ int xerbla_(char *, int *);
-    extern int ilaenv_(int *, char *, char *, int *, int *, 
+    extern int ilaenv_(int *, char *, char *, int *, int *,
 	    int *, int *, long int, long int);
 
 
@@ -140,15 +140,15 @@
 		i__3 = nb, i__4 = *n - i + 1;
 		ib = MIN(i__3,i__4);
 		i__3 = i - 1;
-		dtrmm_("Right", "Upper", "Transpose", "Non-unit", &i__3, &ib, 
-			&c_b15, &A(i,i), lda, &A(1,i), 
+		dtrmm_("Right", "Upper", "Transpose", "Non-unit", &i__3, &ib,
+			&c_b15, &A(i,i), lda, &A(1,i),
 			lda);
 		dlauu2_("Upper", &ib, &A(i,i), lda, info);
 		if (i + ib <= *n) {
 		    i__3 = i - 1;
 		    i__4 = *n - i - ib + 1;
 		    dgemm_("No transpose", "Transpose", &i__3, &ib, &i__4, &
-			    c_b15, &A(1,i+ib), lda, &A(i,i+ib), lda, &c_b15, &A(1,i), 
+			    c_b15, &A(1,i+ib), lda, &A(i,i+ib), lda, &c_b15, &A(1,i),
 			    lda);
 		    i__3 = *n - i - ib + 1;
 		    dsyrk_("Upper", "No transpose", &ib, &i__3, &c_b15, &A(i,i+ib), lda, &c_b15, &A(i,i), lda);

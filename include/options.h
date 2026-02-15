@@ -16,7 +16,7 @@ typedef struct _options_tag Options;
 
 
 struct _options_tag {
-  /* Booleans for controlling output.  These probably need to 
+  /* Booleans for controlling output.  These probably need to
    * into a different struct.  These need to go into a project
    * output struct.
    */

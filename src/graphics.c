@@ -11,7 +11,7 @@ initGraphicStruct()
    GRAPHICS * g;
 
 
-  /* This is never freed, so we have a pretty big 
+  /* This is never freed, so we have a pretty big
    * memory leak here.  FIXME: Write an initialization
    * function for this struct.
    */
@@ -41,7 +41,7 @@ initGraphicStruct()
 
    //g->initstresses = initStresses;
    //g->freestresses = freeStresses;
-  
+
    return g;
 
 }  /* Close initializeGraphStruct() */
@@ -49,14 +49,14 @@ initGraphicStruct()
 
 
 
-int 
+int
 freeGraphicStruct(GRAPHICS * g)
 {
 
   /* Boy, this is a good way to lose a lot of memory...
    * FIXME: Warn or throw if g is NULL on entry.
    */
-   if (g == NULL)  
+   if (g == NULL)
       return 0;
    //g->freestresses(g);
 

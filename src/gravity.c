@@ -1,11 +1,11 @@
 /*
- * gravity.c 
+ * gravity.c
  *
- * Function to handle the gravity turn on 
- * for DDA code.  The way this works is to 
- * run the code and reset the displacements 
+ * Function to handle the gravity turn on
+ * for DDA code.  The way this works is to
+ * run the code and reset the displacements
  * after every step, while tracking the forces
- * at block contacts.  At the start of an 
+ * at block contacts.  At the start of an
  * analysis, there won't be any forces.  At the
  * end of one delta_t, forces at contacts have
  * increased.  Then the displacements and velo-
@@ -18,7 +18,7 @@
  * is to track the delta_t, so that it can be reset
  * if not converged, the displacement and velocity
  * matrices which have to reset to zero if not
- * converged, and the stress/force matrices, which 
+ * converged, and the stress/force matrices, which
  * have to be checked to see how has changed between
  * iterations.
  *
@@ -64,7 +64,7 @@ copyparams(Gravity * grav, double ** pp, double ** F, int numblocks)
       pp[j][6] = F[j][6];
    }  /* end copyParams */
 
-  /* Add a field to the gravity struct to handle how often 
+  /* Add a field to the gravity struct to handle how often
    * time steps get cut.
    */
    if (!(grav->gravTimeStep%10))
@@ -87,7 +87,7 @@ copyparams(Gravity * grav, double ** pp, double ** F, int numblocks)
 
 
 
-void 
+void
 printGravNormForce(Analysisdata * ad, char * location) {
 
    int i;
@@ -95,12 +95,12 @@ printGravNormForce(Analysisdata * ad, char * location) {
    double ** cnf = ad->gravity->contactFN;
 
 
-   fprintf(fp.gravfile, "\nBegin gravity normal force verification" 
+   fprintf(fp.gravfile, "\nBegin gravity normal force verification"
            " (from %s, timestep %d, iteration %d)\n",
             location, ad->cts, ad->m9);
    for (i=0; i<=n2; i++)
    {
-      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
+      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n",
               i, cnf[i][0], cnf[i][1], cnf[i][2], cnf[i][3]);
    }
    fprintf(fp.gravfile, "End gravity normal forces\n\n");
@@ -108,20 +108,20 @@ printGravNormForce(Analysisdata * ad, char * location) {
 }
 
 
-void 
+void
 printGravShearForce(Analysisdata * ad, char * location) {
 
    int i;
    int n2 = ad->nCurrentContacts;
    double ** csf = ad->gravity->contactFS;
 
-   fprintf(fp.gravfile, "\nBegin gravity shear force verification" 
+   fprintf(fp.gravfile, "\nBegin gravity shear force verification"
            " (from %s, timestep %d, iteration %d)\n",
             location, ad->cts, ad->m9);
 
    for (i=0; i<=n2; i++)
    {
-      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n", 
+      fprintf(fp.gravfile, "contact: %d, %f %f %f %f\n",
               i, csf[i][0], csf[i][1], csf[i][2], csf[i][3]);
    }
    fprintf(fp.gravfile, "End gravity shear forces\n\n");
@@ -138,11 +138,11 @@ computeGravityForce(Gravity * grav, Analysisdata * adn, int n2, int numblocks)
    double ** cfs = grav->contactFS;
    double ** cfn = grav->contactFN;
    double ** pforces = grav->prevforces;
-   double ntol = grav->nforcetolerance; 
-   double stol = grav->sforcetolerance;  
+   double ntol = grav->nforcetolerance;
+   double stol = grav->sforcetolerance;
    double diff, tol;
 
-  /* residual_tol should probably be force tolerance, which is 
+  /* residual_tol should probably be force tolerance, which is
    * initialized elsewhere.
    */
    double residual_tol = grav->residual_tol;
@@ -153,36 +153,36 @@ computeGravityForce(Gravity * grav, Analysisdata * adn, int n2, int numblocks)
 
   /* Temporary write to log file to see what the contacts are doing.
    */
-   fprintf(fp.gravfile,"\nContact forces for grav step %d:\n", 
+   fprintf(fp.gravfile,"\nContact forces for grav step %d:\n",
                       grav->gravTimeStep);
    fprintf(fp.gravfile,"             "
                       "current    previous iter   previous step\n");
 
-   for (j=1;j<=n2;j++) 
+   for (j=1;j<=n2;j++)
    {
          fprintf(fp.gravfile,"normal     %f       %f       %f  (contact %d)\n",
-                         cfn[j][2], cfn[j][1], cfn[j][0], j); 
+                         cfn[j][2], cfn[j][1], cfn[j][0], j);
          fprintf(fp.gravfile,"shear      %f       %f       %f  (contact %d)\n",
                          cfs[j][2], cfs[j][1], cfs[j][0], j);
    }
 
 
-   fprintf(fp.gravfile,"\nContact forces for grav step %d:\n", 
+   fprintf(fp.gravfile,"\nContact forces for grav step %d:\n",
                       grav->gravTimeStep);
    fprintf(fp.gravfile,"             "
                       "current    previous iter   previous step\n");
 
 
-   for (j=1;j<=n2;j++) 
+   for (j=1;j<=n2;j++)
    {
      /* Use named constants for the array indices */
       diff = fabs(cfn[j][2]-cfn[j][0]);
       tol = fabs(ntol*cfn[j][0]);
 
       if (diff > tol)
-      {   
+      {
          fprintf(fp.gravfile,"normal     %f       %f       %f\n",
-                         cfn[j][2], cfn[j][1], cfn[j][0]); 
+                         cfn[j][2], cfn[j][1], cfn[j][0]);
          fprintf(fp.gravfile,"\nfailed normal contact force convergence\n"
                             "(tolerance = %f) at contact %d of %d, continuing gravity turn on\n",
                  ntol, j, n2);
@@ -215,17 +215,17 @@ computeGravityForce(Gravity * grav, Analysisdata * adn, int n2, int numblocks)
    {
       for (i=1;i<=6;i++)
       {
-         if ( (fabs(pforces[j][i]) > grav->residual_tol)  &&  
-                (  
+         if ( (fabs(pforces[j][i]) > grav->residual_tol)  &&
+                (
                   (F[j][i] - pforces[j][i]) > fabs(residual_tol*pforces[j][i])
                 )
             )
          {
             fprintf(fp.gravfile,"\nFailed at %s: current = %.12f previous = %.12f\n",
                                 gconv[i], F[j][i], pforces[j][i]);
-        
-            copyparams(grav,pforces,F,numblocks); 
-            return FALSE; 
+
+            copyparams(grav,pforces,F,numblocks);
+            return FALSE;
          }
       }  /* end for each stress, strain i */
    }  /* end for each block j */
@@ -245,30 +245,30 @@ computeGravityForce(Gravity * grav, Analysisdata * adn, int n2, int numblocks)
 /* When gravity turn on is specified, this function is
  * called at the end of every loop, until the forces,
  * strains and displacements converge, or the maximum
- * number of gravity iterations is reached.  After 
+ * number of gravity iterations is reached.  After
  * force, strain and displacement convergence, the
  * gravityflag member is set to 0, the current time
  * step is set to 0, velocities, displacements and
- * strains (?) are reset to zero.  This enables the 
- * analysis to "start over", with realistic forces 
- * induced by gravity self-loading imposed at the 
- * outset, instead of "ramping" up over the first 
+ * strains (?) are reset to zero.  This enables the
+ * analysis to "start over", with realistic forces
+ * induced by gravity self-loading imposed at the
+ * outset, instead of "ramping" up over the first
  * few time steps.
  */
-/* Most of this may eventually get moved into the 
- * computeGravity function.  For now leave it in the 
+/* Most of this may eventually get moved into the
+ * computeGravity function.  For now leave it in the
  * main loop for debugging convenience.
  */
 /* TODO: Implement Yeung's (1991) open-close 2 steps */
 /* TODO: Implement time step cutting for gravity phase. */
-/* TODO: Move all of the following stuff into the gravity 
- * file, and call a wrapper function if gravity phase is 
+/* TODO: Move all of the following stuff into the gravity
+ * file, and call a wrapper function if gravity phase is
  * requested.
  */
 void
 checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
 
-   ddaboolean converged;  
+   ddaboolean converged;
    char tempstring[100];
 
 
@@ -277,9 +277,9 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
    Analysisdata * ad = (Analysisdata*) adata;
 
 
-  /* WARNING !!! Having this here instead of further down stiffens the 
+  /* WARNING !!! Having this here instead of further down stiffens the
    * system and requires less steps to gravity convergence.
-   * Lets get rid of this for a while, and set the spring stiffness 
+   * Lets get rid of this for a while, and set the spring stiffness
    * to be a constant during the gravity phase.
    */
    initContactSpring(ad);
@@ -290,7 +290,7 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
    if ( (grav->gravTimeStep > grav->gravTurnonLimit)  ||
         (converged == TRUE)  )
    {
-     /* If we get in here, we are done with gravity 
+     /* If we get in here, we are done with gravity
       * for whatever reason.
       */
 
@@ -305,7 +305,7 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
       */
       ad->delta_t = ad->maxtimestep;
 
-     /* Having this here instead of further up softens the 
+     /* Having this here instead of further up softens the
       * system and requires more steps to gravity convergence.
       */
       //initContactSpring(AData);
@@ -316,13 +316,13 @@ checkGravityConvergence(Gravity * grav, void * gdata, void * adata) {
          sprintf(tempstring,"Gravity step limit (%d) reached", grav->gravTurnonLimit);
 
       dda_display_info(tempstring);
-           
+
      /* now free the gravity stuff */
 
    }
 
 
-  /* May have to do a bunch of other stuff in here if gravity is not 
+  /* May have to do a bunch of other stuff in here if gravity is not
    * converged yet.
    */
    else
@@ -346,12 +346,12 @@ initGravity(Gravity * grav, int nBlocks, double delta_t)
    //int n7 = 21*ad->nBlocks + 1;
    int n7 = 21*nBlocks + 1;
 
-  /* gravTimeStep is a time step counter for the gravity 
-   * turn on phase.  
+  /* gravTimeStep is a time step counter for the gravity
+   * turn on phase.
    */
    //if (grav->gravityflag == 1)
    grav->gravTimeStep = 1;
-   //else 
+   //else
    //    grav->gravTimeStep = 0;  /* redundant, default value */
 
   /* Keep the time step values separate as much as possible. */
@@ -374,22 +374,22 @@ initGravity(Gravity * grav, int nBlocks, double delta_t)
 
   /*
    grav->gravTurnonLimit = 5000;
-   grav->nforcetolerance = 0.01;  
-   grav->sforcetolerance = 0.01;  
+   grav->nforcetolerance = 0.01;
+   grav->sforcetolerance = 0.01;
    grav->residual_tol = 0.001;
    */
 
 }  /* close initGravity()  */
 
 
-Gravity * 
+Gravity *
 newGravity() {
 
    Gravity * g;
    g = (Gravity *)malloc(sizeof(Gravity));
    memset((void *)g,0xDA,sizeof(Gravity));
    return g;
-}  
+}
 
 void
 destroyGravity(Gravity * grav) {
@@ -402,7 +402,7 @@ destroyGravity(Gravity * grav) {
    memset((void*)grav,0xDD,sizeof(Gravity));
    free(grav);
    return;
-}  
+}
 
 
 
@@ -410,18 +410,18 @@ int
 reinitDisplacements(Geometrydata * geomdata, Geometrydata * gd)
 {
 
-   /* check to see if size are the same.  They should be 
+   /* check to see if size are the same.  They should be
     * because gd was cloned from geomdata
     */
-    if (gd->vertexsize1 != geomdata->vertexsize1  || 
+    if (gd->vertexsize1 != geomdata->vertexsize1  ||
         gd->vertexsize2 != geomdata->vertexsize2  ||
         gd->vindexsize1 != geomdata->vindexsize1  ||
         gd->vindexsize2 != geomdata->vindexsize2      )
     return 0;  /* uh oh... problems elsewhere */
 
    /* copy arrays  */
-    copy2DDoubMat(gd->vertices, geomdata->vertices, gd->vertexsize1, gd->vertexsize2); 
-    copy2DIntMat(gd->vindex, geomdata->vindex, gd->vindexsize1, gd->vindexsize2); 
+    copy2DDoubMat(gd->vertices, geomdata->vertices, gd->vertexsize1, gd->vertexsize2);
+    copy2DIntMat(gd->vindex, geomdata->vindex, gd->vindexsize1, gd->vindexsize2);
 
     return 1;
 
@@ -433,10 +433,10 @@ reinitPointPositions(Geometrydata * geomdata, Geometrydata * gd)
 {
     int i, j;
 
-   /* check to see if size are the same.  They should be 
+   /* check to see if size are the same.  They should be
     * because gd was cloned from geomdata
     */
-    if (gd->pointsize1 != geomdata->pointsize1  || 
+    if (gd->pointsize1 != geomdata->pointsize1  ||
         gd->pointsize2 != geomdata->pointsize2     )
     return 0;  /* uh oh... problems elsewhere */
 
@@ -455,7 +455,7 @@ reinitPointPositions(Geometrydata * geomdata, Geometrydata * gd)
    }  /*  i  */
 
    /* copy arrays  */
-    copy2DDoubMat(gd->points, geomdata->points, gd->pointsize1, gd->pointsize2); 
+    copy2DDoubMat(gd->points, geomdata->points, gd->pointsize1, gd->pointsize2);
 
     return 1;
 
@@ -468,11 +468,11 @@ cloneGravity(Gravity * grav_in)
    Gravity * grav_out;
 
    grav_out = (Gravity *)malloc(sizeof(Gravity));
-   
+
    memcpy((void*)grav_out,(void*)grav_in, sizeof(Gravity));
-  
-  /* The contact forces arrays are used in the 
-   * gravity turn on phase.  The next is normal 
+
+  /* The contact forces arrays are used in the
+   * gravity turn on phase.  The next is normal
    * forces.
    */
    //ado->contactfnsize1 = adn->contactfnsize1;
@@ -483,7 +483,7 @@ cloneGravity(Gravity * grav_in)
    //ado->contactfssize2 = adn->contactfssize2;
    grav_out->contactFS = clone2DMatDoub(grav_in->contactFS, grav_in->contactfssize1, grav_in->contactfssize2);
   /* Not sure what or why, but prevParams is in Mary's
-   * gravity turn on formulation, so it gets put in 
+   * gravity turn on formulation, so it gets put in
    * here.
    */
    //ado->prevparamsize1 = adn->prevparamsize1;
@@ -506,7 +506,7 @@ cloneGravity(Gravity * grav_in)
 
 
 #if EXTRAGRAVSTUFF
-/* Private functions.  Declare static to keep scope at 
+/* Private functions.  Declare static to keep scope at
  * file level.
  */
 static double computeMaxDisplacement(Geometrydata * gd);
@@ -544,7 +544,7 @@ computeMaxDisplacement(Geometrydata * gd)
 }  /* close computeMaxDisplacement() */
 
 
-/* Cuts the time step to help gravity convergence 
+/* Cuts the time step to help gravity convergence
  */
 static double
 cutTimeStep()

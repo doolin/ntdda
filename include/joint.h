@@ -27,7 +27,7 @@ struct _joint {
 
 
 struct _jointmat {
-  /* Need a union of structs and an 
+  /* Need a union of structs and an
    * enum in here to handle the various types
    * of friction laws.
    */

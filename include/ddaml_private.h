@@ -22,15 +22,15 @@ extern int xmlDoValidityCheckingDefaultValue;
 
 typedef struct _gkwdtab {
 
-  /* text of the keyword        */   
-   char *kwd;		
-  /* Token codes can be used to point at the relevant 
+  /* text of the keyword        */
+   char *kwd;
+  /* Token codes can be used to point at the relevant
    * function pointer in the union.
    */
    enum  tokentype  {node = 0, string, prop} ktok;
    union {
       void (*nodeparse)  (xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur);
-      void (*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );	
+      void (*stringparse)(xmlDocPtr doc, xmlNodePtr cur, int );
       void (*propparse)  (xmlDocPtr doc, xmlNodePtr cur, int );
    } parsefn;
 } KWDTAB;

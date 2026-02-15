@@ -10,7 +10,7 @@
 
 typedef enum _boolean { false = 0, true = 1 } boolean;
 
-/* 
+/*
  * Some tests that need to be performed:
  * mat mult needs to check the multilying
  * by 0 returns a zero matrix, and that
@@ -25,7 +25,7 @@ Datalog * DLog = NULL;
 FILEPOINTERS * fp = NULL;
 
 
-double  I[7][7] = { 
+double  I[7][7] = {
             {1,0,0,0,0,0,0},
             {0,1,0,0,0,0,0},
             {0,0,1,0,0,0,0},
@@ -56,12 +56,12 @@ printmat(double m[7][7], FILE * stream)
 }
 
 
-/* GHS matrix multiplication 
+/* GHS matrix multiplication
  * functions index from 1 to 6 instead of from 0 to 5.
  * This means that we can't rely on having anything at
- * all in the (0,:) row or (:,0) column slots.  
+ * all in the (0,:) row or (:,0) column slots.
  */
-boolean 
+boolean
 equals(double computed[7][7], double true[7][7], double tol)
 {
 
@@ -76,10 +76,10 @@ equals(double computed[7][7], double true[7][7], double tol)
      }
 
   }
- 
-/* There is some sort of problem with this when 
+
+/* There is some sort of problem with this when
  * returning "true".  gcc sqawks.
- */ 
+ */
   return 1;
 }
 
@@ -104,7 +104,7 @@ randomize(double m[7][7])
 }
 
 
-/* Create random entries for a symmetric matrix 
+/* Create random entries for a symmetric matrix
  * overwriting the argument.
  */
 void
@@ -138,7 +138,7 @@ test_multnewnew(FILE * out)
  * we are testing overwrite various bits and pieces
  * of the arguments.
  */
-double qq[7][7] = { 
+double qq[7][7] = {
             {0,1,2,3,4,5,6},
             {0,1,2,3,4,5,6},
             {0,1,2,3,4,5,6},
@@ -160,10 +160,10 @@ double qqqq[7][7] = {
 
   multnewnew(qq,qq);
   //printmat(qq, out);
-   
+
   if (equals(qq,qqqq,0.0000001))
      return true;
-  else 
+  else
      return false;
 
 }
@@ -178,12 +178,12 @@ test_invr(FILE * out)
   double ainv[7][7] = {0};
 
   symrandomize(a);
- /* Make a copy of a because invr overwrites 
+ /* Make a copy of a because invr overwrites
   * both arguments.
   */
-  memcpy(acopy,a,sizeof(a)); 
+  memcpy(acopy,a,sizeof(a));
   invr(ainv,acopy);
- 
+
 /* a should be overwritten, ainv not overwritten */
   multnewnew(ainv,a);
   //printmat(a,out);
@@ -196,8 +196,8 @@ test_invr(FILE * out)
 }
 
 
-boolean 
-test(FILE * out) 
+boolean
+test(FILE * out)
 {
    boolean passed = true;
 
@@ -228,16 +228,16 @@ test(FILE * out)
 
 
 /* FIXME: Remove all the functionality out of this,
- * create a struct that has a member that can run the 
- * test, create a test() method that returns true 
+ * create a struct that has a member that can run the
+ * test, create a test() method that returns true
  * or false, then make a source file to run all of
- * the tests at once, and log to somewhere easy to 
- * find.  Maybe log to an XML file that can be loaded 
+ * the tests at once, and log to somewhere easy to
+ * find.  Maybe log to an XML file that can be loaded
  * into IE and the tree examined.
  */
 
-int 
-main() 
+int
+main()
 {
 
   FILE * out;
@@ -246,9 +246,9 @@ main()
 
    if (test(out))
       fprintf(out,"Passed all unit tests\n");
-   else 
+   else
       fprintf(out,"Failed unit testing\n");
-   
+
 
   return 0;
 

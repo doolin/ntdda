@@ -3,9 +3,9 @@
  * the simulation.  Most of these parameters are related to the
  * contact algorithm or open-close.
  *
- * @todo Split out contact parameters (about 3/4 of them) from the 
+ * @todo Split out contact parameters (about 3/4 of them) from the
  *       open-close parameters, distribute the relevant functions
- *       appropriately, and ultimately make the Constants object 
+ *       appropriately, and ultimately make the Constants object
  *       and these header and source files go away.
  *
  */
@@ -56,7 +56,7 @@ void        constants_print_matlab          (Constants * c,
 
 
 double      constants_get_w0                (Constants * c);
-void        constants_set_w0                (Constants * c, 
+void        constants_set_w0                (Constants * c,
                                              double w0);
 
 
@@ -67,13 +67,13 @@ void        constants_set_shear_norm_ratio  (Constants * c,
 
 
 // was s0, hardwired to 0.0002
-double      constants_get_openclose         (Constants * c);  
+double      constants_get_openclose         (Constants * c);
 void        constants_set_openclose         (Constants * c,
                                              double openclose);
 
 
 // was f0, hardwired to 0.0000002
-double      constants_get_opencriteria      (Constants * c);  
+double      constants_get_opencriteria      (Constants * c);
 void        constants_set_opencriteria      (Constants * c,
                                              double opencriteria);
 

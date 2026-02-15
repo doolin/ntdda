@@ -9,8 +9,8 @@
 
 #include <math.h>
 
-/* Subroutine */ int dger_(int *m, int *n, double *alpha, 
-	double *x, int *incx, double *y, int *incy, 
+/* Subroutine */ int dger_(int *m, int *n, double *alpha,
+	double *x, int *incx, double *y, int *incy,
 	double *a, int *lda)
 {
 
@@ -25,84 +25,84 @@
     extern /* Subroutine */ int xerbla_(char *, int *);
 
 
-/*  Purpose   
-    =======   
+/*  Purpose
+    =======
 
-    DGER   performs the rank 1 operation   
+    DGER   performs the rank 1 operation
 
-       A := alpha*x*y' + A,   
+       A := alpha*x*y' + A,
 
-    where alpha is a scalar, x is an m element vector, y is an n element 
-  
-    vector and A is an m by n matrix.   
+    where alpha is a scalar, x is an m element vector, y is an n element
 
-    Parameters   
-    ==========   
+    vector and A is an m by n matrix.
 
-    M      - INTEGER.   
-             On entry, M specifies the number of rows of the matrix A.   
-             M must be at least zero.   
-             Unchanged on exit.   
+    Parameters
+    ==========
 
-    N      - INTEGER.   
-             On entry, N specifies the number of columns of the matrix A. 
-  
-             N must be at least zero.   
-             Unchanged on exit.   
+    M      - INTEGER.
+             On entry, M specifies the number of rows of the matrix A.
+             M must be at least zero.
+             Unchanged on exit.
 
-    ALPHA  - DOUBLE PRECISION.   
-             On entry, ALPHA specifies the scalar alpha.   
-             Unchanged on exit.   
+    N      - INTEGER.
+             On entry, N specifies the number of columns of the matrix A.
 
-    X      - DOUBLE PRECISION array of dimension at least   
-             ( 1 + ( m - 1 )*ABS( INCX ) ).   
-             Before entry, the incremented array X must contain the m   
-             element vector x.   
-             Unchanged on exit.   
+             N must be at least zero.
+             Unchanged on exit.
 
-    INCX   - INTEGER.   
-             On entry, INCX specifies the increment for the elements of   
-             X. INCX must not be zero.   
-             Unchanged on exit.   
+    ALPHA  - DOUBLE PRECISION.
+             On entry, ALPHA specifies the scalar alpha.
+             Unchanged on exit.
 
-    Y      - DOUBLE PRECISION array of dimension at least   
-             ( 1 + ( n - 1 )*ABS( INCY ) ).   
-             Before entry, the incremented array Y must contain the n   
-             element vector y.   
-             Unchanged on exit.   
+    X      - DOUBLE PRECISION array of dimension at least
+             ( 1 + ( m - 1 )*ABS( INCX ) ).
+             Before entry, the incremented array X must contain the m
+             element vector x.
+             Unchanged on exit.
 
-    INCY   - INTEGER.   
-             On entry, INCY specifies the increment for the elements of   
-             Y. INCY must not be zero.   
-             Unchanged on exit.   
+    INCX   - INTEGER.
+             On entry, INCX specifies the increment for the elements of
+             X. INCX must not be zero.
+             Unchanged on exit.
 
-    A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).   
-             Before entry, the leading m by n part of the array A must   
-             contain the matrix of coefficients. On exit, A is   
-             overwritten by the updated matrix.   
+    Y      - DOUBLE PRECISION array of dimension at least
+             ( 1 + ( n - 1 )*ABS( INCY ) ).
+             Before entry, the incremented array Y must contain the n
+             element vector y.
+             Unchanged on exit.
 
-    LDA    - INTEGER.   
-             On entry, LDA specifies the first dimension of A as declared 
-  
-             in the calling (sub) program. LDA must be at least   
-             MAX( 1, m ).   
-             Unchanged on exit.   
+    INCY   - INTEGER.
+             On entry, INCY specifies the increment for the elements of
+             Y. INCY must not be zero.
+             Unchanged on exit.
 
+    A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+             Before entry, the leading m by n part of the array A must
+             contain the matrix of coefficients. On exit, A is
+             overwritten by the updated matrix.
 
-    Level 2 Blas routine.   
+    LDA    - INTEGER.
+             On entry, LDA specifies the first dimension of A as declared
 
-    -- Written on 22-October-1986.   
-       Jack Dongarra, Argonne National Lab.   
-       Jeremy Du Croz, Nag Central Office.   
-       Sven Hammarling, Nag Central Office.   
-       Richard Hanson, Sandia National Labs.   
+             in the calling (sub) program. LDA must be at least
+             MAX( 1, m ).
+             Unchanged on exit.
 
 
+    Level 2 Blas routine.
 
-       Test the input parameters.   
+    -- Written on 22-October-1986.
+       Jack Dongarra, Argonne National Lab.
+       Jeremy Du Croz, Nag Central Office.
+       Sven Hammarling, Nag Central Office.
+       Richard Hanson, Sandia National Labs.
 
-    
-   Parameter adjustments   
+
+
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
 #define X(I) x[(I)-1]
 #define Y(I) y[(I)-1]
@@ -132,7 +132,7 @@
 	return 0;
     }
 
-/*     Start the operations. In this version the elements of A are   
+/*     Start the operations. In this version the elements of A are
        accessed sequentially with one pass through A. */
 
     if (*incy > 0) {

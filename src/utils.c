@@ -31,10 +31,10 @@
 /**************************************************/
 double sign(double f2)
 {
-   if (f2 > 0) 
+   if (f2 > 0)
       return ( 1.0);
 
-   if (f2 < 0) 
+   if (f2 < 0)
       return (-1.0);
 
    if (f2 == 0)
@@ -47,7 +47,7 @@ double sign(double f2)
 
 
 
-		
+
 #define DIST_PROCEDURE 0
 #if DIST_PROCEDURE
 /**************************************************/
@@ -67,27 +67,27 @@ void dist(void) {
   /* compute distance of p0 to nearst point in p2p3 */
    t1  =  (x1-x2)*(x3-x2) + (yi-y2)*(y3-y2);
    t1 /= ((x3-x2)*(x3-x2) + (y3-y2)*(y3-y2));
-   if (t1 <= 0.0)  
+   if (t1 <= 0.0)
       t1=0;
-   if (t1 >= 1.0)  
+   if (t1 >= 1.0)
       t1=1;
    x4  = x2 + t1*(x3-x2);
    y4  = y2 + t1*(y3-y2);
    d5  = sqrt((x4-x1)*(x4-x1) + (y4-yi)*(y4-yi));
-}  
+}
 #endif
 
 
-/* FIXME: This function should moved to between the analysis 
- * part and the geometry part.  That way it can be cloned 
+/* FIXME: This function should moved to between the analysis
+ * part and the geometry part.  That way it can be cloned
  * when the geometry data is cloned at the start of an analysis.
  */
-void 
+void
 blockNumberOfVertex(Geometrydata * gd)
 {
   /* initiate nn0 as block number index of vertices and u   */
   /* vertices is the vertex matrix, vindex is the indices of vertex
-   * location in vertices, u is vertex angles (?).  nBlocks 
+   * location in vertices, u is vertex angles (?).  nBlocks
    * is the total number of blocks in the problem (?).
    */
    int i1,i2,i,j;
@@ -112,7 +112,7 @@ blockNumberOfVertex(Geometrydata * gd)
 
 
 
-void 
+void
 print2DMat(double mat[7][7], int m, int n, char * location, FILE * fp) {
 
    int i, j;
@@ -126,11 +126,11 @@ print2DMat(double mat[7][7], int m, int n, char * location, FILE * fp) {
       fprintf(fp,"\n");
    }
 
-} 
+}
 
 
 /* Assume that the file pointer is open */
-void 
+void
 print2DArray(double ** mat, int m, int n, FILE * fp, char * location)
 {
    int i, j;
@@ -151,7 +151,7 @@ print2DArray(double ** mat, int m, int n, FILE * fp, char * location)
 }  /* close print2DMat() */
 
 
-void 
+void
 print1DIntArray(int * mat, int n, char * location, FILE * fp) {
    int i;
 
@@ -161,10 +161,10 @@ print1DIntArray(int * mat, int n, char * location, FILE * fp) {
       fprintf(fp,"%d  ", mat[i]);
    }
    fprintf(fp,"\n");
-}  
+}
 
 
-void 
+void
 print1DDoubleArray(double * mat, int n, char * location, FILE * fp) {
    int i;
 
@@ -177,7 +177,7 @@ print1DDoubleArray(double * mat, int n, char * location, FILE * fp) {
    }
 
    fprintf(fp,"\nEnd 1 D Array print\n\n");
-}  
+}
 
 
 
@@ -188,7 +188,7 @@ print1DDoubleArray(double * mat, int n, char * location, FILE * fp) {
  * function.  If so, get rid of this in favor of clone
  * matrix.
  */
-int 
+int
 copy2DDoubMat(double ** mat1, double ** mat2, int n, int m)
 {
    int i, j;
@@ -196,13 +196,13 @@ copy2DDoubMat(double ** mat1, double ** mat2, int n, int m)
    for (i=0; i<n; i++)
       for (j=0; j<m; j++)
          mat1[i][j] = mat2[i][j];
-   
+
    return 1;
 
 }  /*  close copy2DDoubMat() */
 
 
-int 
+int
 copy2DIntMat(int ** mat1, int ** mat2, int n, int m)
 {
    int i, j;
@@ -249,7 +249,7 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
       * in order. Example: 1,2,3,4.  Any out-of-order material type,
       * such as 1,2,3,5, will result in material type 5 being demoted
       * to material type 3.  The reason for this is that the material
-      * types are handled in sequential arrays.  It may be possible 
+      * types are handled in sequential arrays.  It may be possible
       * to over-allocate e0 to handle non-successive material types,
       * but that is a project for the future.  A better implementation
       * would hash the material type under a non-integer key.
@@ -264,21 +264,21 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
       i1 = vindex[i][0];
       e0[i][0] = materialProps[i1][0]; /* density; unit mass */
       //e0[i][1] = materialProps[i1][1]; /* unit weight */
-      /* Unit weight is now set with respect to user specified 
+      /* Unit weight is now set with respect to user specified
        * gravitational acceleration.  The tag needs to be deprecated
        * in the runtime files.
        */
       e0[i][1] = materialProps[i1][0]*gravaccel; /* unit weight */
       e0[i][2] = materialProps[i1][2]; /* Young's modulus */
       e0[i][3] = materialProps[i1][3]; /* Poisson's ratio */
-     /* This is marked as a possible error in Mary's 
+     /* This is marked as a possible error in Mary's
       * annotated code.
       */
      /* \sigma_{11} */
       e0[i][4] = materialProps[i1][4] + (moments[i][3]/moments[i][1])*materialProps[i1][7];
      /* \sigma_{22} */
       e0[i][5] = materialProps[i1][5] + (moments[i][3]/moments[i][1])*materialProps[i1][8];
-     /* \sigma_{12} */ 
+     /* \sigma_{12} */
       e0[i][6] = materialProps[i1][6] + (moments[i][3]/moments[i][1])*materialProps[i1][9];
      /* Current mass */
       //e0[i][7] = materialProps[i1][0]*moments[i][1];
@@ -286,9 +286,9 @@ initBlockProperties(Geometrydata * gd, Analysisdata * ad, double ** e0)
       e0[i][7] = 0;
      /* Damping parameter from Shi 1988 formulation. */
       e0[i][8] = materialProps[i1][13];
-    
-   }  
-}  
+
+   }
+}
 
 
 
@@ -326,13 +326,13 @@ initVelocity(Geometrydata * gd, Analysisdata * ad, double ** v0) {
  */
 void
 initContactSpring(Analysisdata * ad)
-{  
-   int i; 
+{
+   int i;
    int nb = ad->nBlockMats;
    double a1;
    double ** materialProps = ad->materialProps;
 
-/* This is out for the moment because the fixed point 
+/* This is out for the moment because the fixed point
  * penalty is set from the contact spring penalty.
  */
 //   if (ad->contactmethod == penalty)
@@ -344,10 +344,10 @@ initContactSpring(Analysisdata * ad)
         /* That is, set the initial spring stiffness
          * equal to the highest Young's modulus...
          */
-         if (a1 < materialProps[i][2]) 
+         if (a1 < materialProps[i][2])
             a1=materialProps[i][2];
       }  /*  i  */
-     /* then reset it to be 50 times stiffer than the 
+     /* then reset it to be 50 times stiffer than the
       * highest Young's modulus.
       */
       //ad->g0 = 50.0*a1;
@@ -365,21 +365,21 @@ initContactSpring(Analysisdata * ad)
 
 
 
-void allocateAnalysisArrays(Geometrydata * GData, 
-                            int ** kk, 
+void allocateAnalysisArrays(Geometrydata * GData,
+                            int ** kk,
                             int ** k1,
-                            double *** c0, 
+                            double *** c0,
                             //double *** e0,
-                            double *** U, 
-                            int *** n) 
+                            double *** U,
+                            int *** n)
 {
 
   /* k : index of a    2*block contact + 20*nBlocks      */
   /* k : reserved positions for non-zero storage    */
  	/* kk[nBlocks*40+1]                                     */
    __kksize1 = FORTY*GData->nBlocks+1;
-  /* Changed to calloc so that unused entries would be zero. 
-   * This makes it easier for printing out the entries for  
+  /* Changed to calloc so that unused entries would be zero.
+   * This makes it easier for printing out the entries for
    * examination.
    */
   *kk = (int *)calloc(1,sizeof(int)*__kksize1);
@@ -413,20 +413,20 @@ void allocateAnalysisArrays(Geometrydata * GData,
    __nsize2=4;
   *n = IntMat2DGetMem(__c0size1, __c0size2);
 
-}  
+}
 
 
-void 
+void
 
-deallocateAnalysisArrays(int *kk, 
+deallocateAnalysisArrays(int *kk,
 
-                         int *k1, 
-                         double **c0, 
+                         int *k1,
+                         double **c0,
 
-                         //double **e0, 
-                         double **U, 
+                         //double **e0,
+                         double **U,
 
-                         int ** n) 
+                         int ** n)
 {
    extern void freeCGTemp();
 
@@ -448,7 +448,7 @@ deallocateAnalysisArrays(int *kk,
 
    //if (v0)
    //   free2DMat((void **)v0, __v0size1);
-		 
+
 
        //if (moments)
       //free2DMat((void **)moments, __momentsize1);
@@ -460,23 +460,23 @@ deallocateAnalysisArrays(int *kk,
   /* 1D arrays  */
    if (kk)
    {
-      free(kk);  
+      free(kk);
       kk = NULL;
    }
-		 
+
    //if (k3)
    //{
-   //   free(k3);  
+   //   free(k3);
    //   k3 = NULL;
    //}
 
   	if(k1)
    {
-      free(k1);  
+      free(k1);
       k1 = NULL;
    }
 
-}  
+}
 
 
 
@@ -494,6 +494,6 @@ computeMass(double * mass, double ** moments, double ** e0, int numblocks) {
       density = e0[i][0];
       mass[i] = currentarea*thickness*density;
    }
-} 
+}
 
 

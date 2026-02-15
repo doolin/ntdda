@@ -9,7 +9,7 @@
 
 #include <math.h>
 
-/* Subroutine */ int dtrmv_(char *uplo, char *trans, char *diag, int *n, 
+/* Subroutine */ int dtrmv_(char *uplo, char *trans, char *diag, int *n,
 	double *a, int *lda, double *x, int *incx)
 {
 
@@ -27,109 +27,109 @@
     static long int nounit;
 
 
-/*  Purpose   
-    =======   
+/*  Purpose
+    =======
 
-    DTRMV  performs one of the matrix-vector operations   
+    DTRMV  performs one of the matrix-vector operations
 
-       x := A*x,   or   x := A'*x,   
+       x := A*x,   or   x := A'*x,
 
-    where x is an n element vector and  A is an n by n unit, or non-unit, 
-  
-    upper or lower triangular matrix.   
+    where x is an n element vector and  A is an n by n unit, or non-unit,
 
-    Parameters   
-    ==========   
+    upper or lower triangular matrix.
 
-    UPLO   - CHARACTER*1.   
-             On entry, UPLO specifies whether the matrix is an upper or   
-             lower triangular matrix as follows:   
+    Parameters
+    ==========
 
-                UPLO = 'U' or 'u'   A is an upper triangular matrix.   
+    UPLO   - CHARACTER*1.
+             On entry, UPLO specifies whether the matrix is an upper or
+             lower triangular matrix as follows:
 
-                UPLO = 'L' or 'l'   A is a lower triangular matrix.   
+                UPLO = 'U' or 'u'   A is an upper triangular matrix.
 
-             Unchanged on exit.   
+                UPLO = 'L' or 'l'   A is a lower triangular matrix.
 
-    TRANS  - CHARACTER*1.   
-             On entry, TRANS specifies the operation to be performed as   
-             follows:   
+             Unchanged on exit.
 
-                TRANS = 'N' or 'n'   x := A*x.   
+    TRANS  - CHARACTER*1.
+             On entry, TRANS specifies the operation to be performed as
+             follows:
 
-                TRANS = 'T' or 't'   x := A'*x.   
+                TRANS = 'N' or 'n'   x := A*x.
 
-                TRANS = 'C' or 'c'   x := A'*x.   
+                TRANS = 'T' or 't'   x := A'*x.
 
-             Unchanged on exit.   
+                TRANS = 'C' or 'c'   x := A'*x.
 
-    DIAG   - CHARACTER*1.   
-             On entry, DIAG specifies whether or not A is unit   
-             triangular as follows:   
+             Unchanged on exit.
 
-                DIAG = 'U' or 'u'   A is assumed to be unit triangular.   
+    DIAG   - CHARACTER*1.
+             On entry, DIAG specifies whether or not A is unit
+             triangular as follows:
 
-                DIAG = 'N' or 'n'   A is not assumed to be unit   
-                                    triangular.   
+                DIAG = 'U' or 'u'   A is assumed to be unit triangular.
 
-             Unchanged on exit.   
+                DIAG = 'N' or 'n'   A is not assumed to be unit
+                                    triangular.
 
-    N      - INTEGER.   
-             On entry, N specifies the order of the matrix A.   
-             N must be at least zero.   
-             Unchanged on exit.   
+             Unchanged on exit.
 
-    A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).   
-             Before entry with  UPLO = 'U' or 'u', the leading n by n   
-             upper triangular part of the array A must contain the upper 
-  
-             triangular matrix and the strictly lower triangular part of 
-  
-             A is not referenced.   
-             Before entry with UPLO = 'L' or 'l', the leading n by n   
-             lower triangular part of the array A must contain the lower 
-  
-             triangular matrix and the strictly upper triangular part of 
-  
-             A is not referenced.   
-             Note that when  DIAG = 'U' or 'u', the diagonal elements of 
-  
-             A are not referenced either, but are assumed to be unity.   
-             Unchanged on exit.   
+    N      - INTEGER.
+             On entry, N specifies the order of the matrix A.
+             N must be at least zero.
+             Unchanged on exit.
 
-    LDA    - INTEGER.   
-             On entry, LDA specifies the first dimension of A as declared 
-  
-             in the calling (sub) program. LDA must be at least   
-             MAX( 1, n ).   
-             Unchanged on exit.   
+    A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+             Before entry with  UPLO = 'U' or 'u', the leading n by n
+             upper triangular part of the array A must contain the upper
 
-    X      - DOUBLE PRECISION array of dimension at least   
-             ( 1 + ( n - 1 )*ABS( INCX ) ).   
-             Before entry, the incremented array X must contain the n   
-             element vector x. On exit, X is overwritten with the   
-             tranformed vector x.   
+             triangular matrix and the strictly lower triangular part of
 
-    INCX   - INTEGER.   
-             On entry, INCX specifies the increment for the elements of   
-             X. INCX must not be zero.   
-             Unchanged on exit.   
+             A is not referenced.
+             Before entry with UPLO = 'L' or 'l', the leading n by n
+             lower triangular part of the array A must contain the lower
 
+             triangular matrix and the strictly upper triangular part of
 
-    Level 2 Blas routine.   
+             A is not referenced.
+             Note that when  DIAG = 'U' or 'u', the diagonal elements of
 
-    -- Written on 22-October-1986.   
-       Jack Dongarra, Argonne National Lab.   
-       Jeremy Du Croz, Nag Central Office.   
-       Sven Hammarling, Nag Central Office.   
-       Richard Hanson, Sandia National Labs.   
+             A are not referenced either, but are assumed to be unity.
+             Unchanged on exit.
+
+    LDA    - INTEGER.
+             On entry, LDA specifies the first dimension of A as declared
+
+             in the calling (sub) program. LDA must be at least
+             MAX( 1, n ).
+             Unchanged on exit.
+
+    X      - DOUBLE PRECISION array of dimension at least
+             ( 1 + ( n - 1 )*ABS( INCX ) ).
+             Before entry, the incremented array X must contain the n
+             element vector x. On exit, X is overwritten with the
+             tranformed vector x.
+
+    INCX   - INTEGER.
+             On entry, INCX specifies the increment for the elements of
+             X. INCX must not be zero.
+             Unchanged on exit.
 
 
+    Level 2 Blas routine.
 
-       Test the input parameters.   
+    -- Written on 22-October-1986.
+       Jack Dongarra, Argonne National Lab.
+       Jeremy Du Croz, Nag Central Office.
+       Sven Hammarling, Nag Central Office.
+       Richard Hanson, Sandia National Labs.
 
-    
-   Parameter adjustments   
+
+
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
 #define X(I) x[(I)-1]
 
@@ -163,7 +163,7 @@
 
     nounit = lsame_(diag, "N");
 
-/*     Set up the start point in X if the increment is not unity. This   
+/*     Set up the start point in X if the increment is not unity. This
        will be  ( N - 1 )*INCX  too small for descending loops. */
 
     if (*incx <= 0) {
@@ -172,7 +172,7 @@
 	kx = 1;
     }
 
-/*     Start the operations. In this version the elements of A are   
+/*     Start the operations. In this version the elements of A are
        accessed sequentially with one pass through A. */
 
     if (lsame_(trans, "N")) {

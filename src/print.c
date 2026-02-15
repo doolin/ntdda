@@ -1,21 +1,21 @@
-/* print.c 
- * 
+/* print.c
+ *
  * Routine takes a handle to the window, pointer string (?)
- * to a document name (not sure what this means exactly. 
+ * to a document name (not sure what this means exactly.
  * Should be general enough that any routine with a graphics
- * to print can call it.  Any options for the printer or 
+ * to print can call it.  Any options for the printer or
  * graphics are set in a global OPTIONS struct (see dda.h)
- * and should be set before this function is called.  This 
- * function should define a return variable to indicate a 
- * successful call to the printer.  The basic function is 
+ * and should be set before this function is called.  This
+ * function should define a return variable to indicate a
+ * successful call to the printer.  The basic function is
  * to make successive calls to draw blocks, lines and points.
  * Extensions should include drawing scales and borders as
  * options from this routine.
  *
- * The basic functionality of this procedure can be extended 
+ * The basic functionality of this procedure can be extended
  * write a windows metafile to disk instead of writing to the
  * printer.  This can be done by passing in the device context.
- * 
+ *
  * $Author: doolin $
  * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/print.c,v $
@@ -33,7 +33,7 @@
 
 //extern Geometrydata * geomdata;
 
-void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scale_params[4], 
+void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scale_params[4],
                GRAPHICS * g)
 {
 
@@ -54,7 +54,7 @@ void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scal
 	  double scale;
 	  //int i;
 
-	 /* All of this needs to be handled elsewhere, in a separate 
+	 /* All of this needs to be handled elsewhere, in a separate
 	  * routine.  Eventually, windows metafile saving will be able
 	  * to be implemented.
 	  */
@@ -75,7 +75,7 @@ void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scal
 
 	  drawBlocks(pd.hDC, &hBr, g, geomdata);
 
-	  //for(i=0; i<nblo; i++) 
+	  //for(i=0; i<nblo; i++)
    //{
 
       if (showOrig)
@@ -85,8 +85,8 @@ void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scal
       drawJoints(pd.hDC, &printPen, g, geomdata, geomdata->vertices, FALSE);
 
       //} /* end for */
-				
-   if(showOrig) 
+
+   if(showOrig)
       drawPoints(pd.hDC, g, geomdata, geomdata->origpoints);
 	  drawPoints(pd.hDC, g, geomdata, geomdata->points);
 
@@ -97,9 +97,9 @@ void printGeom(HWND hwMain, PSTR szDocName, Geometrydata * geomdata, double scal
 	  EndPage(pd.hDC);
 	  EndDoc(pd.hDC);
 	  DeleteDC(pd.hDC);
-	  if(pd.hDevMode != NULL) 
+	  if(pd.hDevMode != NULL)
       GlobalFree(pd.hDevMode);
-	  if(pd.hDevNames != NULL) 
+	  if(pd.hDevNames != NULL)
       GlobalFree(pd.hDevNames);
 	 /* return(SuccessMessage);  */
 

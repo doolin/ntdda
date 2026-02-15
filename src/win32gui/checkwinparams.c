@@ -6,9 +6,9 @@
 #include <windows.h>
 #include <stdio.h>
 
-void 
+void
 checkRect(HWND parent, RECT * rect)
-{ 
+{
    char rectstring[100];
 
    sprintf(rectstring,"Top: %d\nBottom: %d\nLeft: %d\nRight: %d",

@@ -1,5 +1,5 @@
 
-/*  
+/*
  *  Mohr-Coulomb criteria
  */
 

@@ -30,7 +30,7 @@ allocArray(DDAMatrix * dm, int m, int n)
 
    dm->m = m;
    dm->n = n;
-   
+
    assert ( (m!=0) && (n!=0) );
 
    x = (double **)calloc(n,sizeof(double *));
@@ -43,7 +43,7 @@ allocArray(DDAMatrix * dm, int m, int n)
       x[i] = (double *)calloc(m,sizeof(double));
       //if(x[i] == NULL)
       //   return NULL;
-      //else 
+      //else
          //memset(x[i], 0xDA, m);
    }
 
@@ -62,7 +62,7 @@ freeDDAMatrix(DDAMatrix * dm)
   /* FIXME: Implement an error substructure. */
   /*
    if (array == NULL)
-   { 
+   {
       error ("Null array passed into free2Darray().");
       return;
    }
@@ -75,7 +75,7 @@ freeDDAMatrix(DDAMatrix * dm)
    free(array);
 
    free(dm);
-  
+
    return NULL;
 
 }  /* close freeDDAMatrix() */

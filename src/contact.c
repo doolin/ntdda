@@ -1,7 +1,7 @@
 /*
  * contact.c
  *
- * Handle all the machinery for determining 
+ * Handle all the machinery for determining
  * block contacts.
  *
  */
@@ -20,18 +20,18 @@
 
 static char mess[80];
 
-static void df04(Geometrydata *, Analysisdata *, int *, int *, double **, 
+static void df04(Geometrydata *, Analysisdata *, int *, int *, double **,
                  double **);
-static void df05(Geometrydata *, Analysisdata *, int **, int *, 
+static void df05(Geometrydata *, Analysisdata *, int **, int *,
             int *, int *, double **);
 
 
-static void df07(Geometrydata *, Analysisdata *, int **, int **, 
+static void df07(Geometrydata *, Analysisdata *, int **, int **,
             double **, int *);
 
 /* These used to be globals, then they were passed around as
  * as parameters, now they are static local to this file,
- * next they will moved to the sparse storage file when 
+ * next they will moved to the sparse storage file when
  * df08 gets stripped out of here.
  */
 /*------------------------------------------------*/
@@ -49,7 +49,7 @@ static double ** __angles;
 
 
 
-void 
+void
 initContactTempArrays(int numblocks, int vertexCount)
 {
   /*------------------------------------------------*/
@@ -72,7 +72,7 @@ freeContactTempArrays(void)
 
    if (__k3)
    {
-      free(__k3);  
+      free(__k3);
       __k3 = NULL;
    }
 
@@ -82,14 +82,14 @@ freeContactTempArrays(void)
       __angles = NULL;
    }
 
-}  
+}
 
 
 /**************************************************/
 /* proj: projection of a edge to other edge  0015 */
 /**************************************************/
 /* In other words, compute the actual contact length
- * of one block edge on another.  This function is  
+ * of one block edge on another.  This function is
  * due for a rewrite, should take vertices, etc, and
  * return contact length.  Only called from df07()?
  */
@@ -98,12 +98,12 @@ freeContactTempArrays(void)
 /* v1, v2, v3 are the vertex numbers implicated in
  * this contact.
  */
-/* FIXME: c_length[][2] or c_length[][3] are what gets set for 
+/* FIXME: c_length[][2] or c_length[][3] are what gets set for
  * "return values."  There should be some way of rewriting this
  * function in a much cleaner way.
  */
-void 
-contacts_project_edge(double ** vertices, double domainscale, double **c_length, int *kk, 
+void
+contacts_project_edge(double ** vertices, double domainscale, double **c_length, int *kk,
                       int i, int v1, int v2, int v3, int i4) {
 
    int j;
@@ -125,31 +125,31 @@ contacts_project_edge(double ** vertices, double domainscale, double **c_length,
 
   /* contact position */
   /* FIXME: Replace the constant with a parameter that
-   * can be controlled by the user.  The reason for 
+   * can be controlled by the user.  The reason for
    * using the parameter is to avoid dividing by zero
    * when determining the penetration distance (?).
-   * Also, since there are various tolerances built into 
-   * the contact finding code, this may be partly to 
+   * Also, since there are various tolerances built into
+   * the contact finding code, this may be partly to
    * compensate for those.
    * Add as "MinReflineFactor, min_refline_factor"
    */
-   reflinelength = ((x3-x2)*(x3-x2) + (y3-y2)*(y3-y2) 
+   reflinelength = ((x3-x2)*(x3-x2) + (y3-y2)*(y3-y2)
                  + .000000001*domainscale);  // Probably don't need this factor.
-   
+
   /* Numerator is dot-product */
    s[1] = ((x1-x2)*(x3-x2) + (y1-y2)*(y3-y2))/reflinelength;
 
   /* FIXME: What, exactly, does this mean? */
-   if (kk[i] == 0)  
+   if (kk[i] == 0)
    {
      /* This is the omega parameter given by TCK 1995, Eq. 58(?),
-      * p. 1239.  
+      * p. 1239.
       */
       c_length[i][2] = s[1]; // if contact locked after previous step
    }
 
   /* i4 = 0 => contact is single point only, not edge-edge */
-   if (i4==0) 
+   if (i4==0)
       return;  /* goto pr02;  */
 
   /* Coordinates of second endpoint of contacting edge. */
@@ -164,28 +164,28 @@ contacts_project_edge(double ** vertices, double domainscale, double **c_length,
 
       for (ell=j+1; ell<=4; ell++) {
 
-         if (s[j]  <=  s[ell]) 
+         if (s[j]  <=  s[ell])
             continue;   // in order
         /* Else swap em */
          s[0] = s[j];
          s[j] = s[ell];
          s[ell] = s[0];
-       }  
-   }  
-      
-  /* c_length[i][3] is given as cohesion length in some 
+       }
+   }
+
+  /* c_length[i][3] is given as cohesion length in some
    * previous comments.  The .5 results from having half the
-   * cohesion induced by the current contact, and the other half 
+   * cohesion induced by the current contact, and the other half
    * by the contact of the jth block into the ith block.
    * The sqrt comes from un-normalizing (???).
    */
    c_length[i][3] = .5*(s[3]-s[2])*sqrt(reflinelength);
- 
+
   /* m0[i][2]  = 2; */  /* d */
-  
+
 /* pr02:;  */
 
-}  
+}
 
 
 /* What the code appears to do is to store the vertex angle in
@@ -193,19 +193,19 @@ contacts_project_edge(double ** vertices, double domainscale, double **c_length,
  * by adjacent sides intersecting to form a vertex.
  *
  * Appears that u[][1] stores the angle in standard
- * position, and u[][2] stores the interior angle between the 
+ * position, and u[][2] stores the interior angle between the
  * two sides.
  */
-/* FIXME: This function should go into geometrydata.c and 
+/* FIXME: This function should go into geometrydata.c and
  * be a member of a block class.
  */
 /**************************************************/
 /* angl:                                     0013 */
 /**************************************************/
 /* i  x1  y1  c1  d1  d2  d3  i1  i2  u[][]       */
-void 
+void
 //computeVertexAngles(Geometrydata *bd, double **angles) {
-computeVertexAngles(double **angles, double ** vertices, 
+computeVertexAngles(double **angles, double ** vertices,
                     int ** vindex, int numblocks) {
 
    int block;
@@ -214,7 +214,7 @@ computeVertexAngles(double **angles, double ** vertices,
    double d1, d2, d3;
    double	dd = 3.1415926535/180.0;
 
-  /* i1, i2 local in this function, used to track index of 
+  /* i1, i2 local in this function, used to track index of
    * block vertices (vertices matrix) stored in vindex.
    * i1 and i2 should probably be named "start" and "stop"
    * respectively.
@@ -223,23 +223,23 @@ computeVertexAngles(double **angles, double ** vertices,
    int stopIndex;
    double delta_x;
    double delta_y;
-      
+
   /* Time for some real comments, like what exactly this piece
-   * of code does, why it does it, and where is it referenced 
+   * of code does, why it does it, and where is it referenced
    * in the literature.
    */
    for (block=1; block<=numblocks; block++) {
 
       startIndex=vindex[block][1];
       stopIndex=vindex[block][2];
-         
+
      /* u[j][1]: direction angle of edge (j, j+1), where j and j+1
-      * are vertices taken CCW around each block.  The way this 
+      * are vertices taken CCW around each block.  The way this
       * works is that for n vertices, start with the angle from
       * nth vertex to the first vertex.  The initial angle
-      * (following loop) computes this ray considering the 
-      * origin at the nth vertex and the angle in standard 
-      * position.  TODO: Draw up example in text, derive an 
+      * (following loop) computes this ray considering the
+      * origin at the nth vertex and the angle in standard
+      * position.  TODO: Draw up example in text, derive an
       * algorithm for this.
       */
       for (j=startIndex-1; j<=stopIndex; j++)
@@ -248,19 +248,19 @@ computeVertexAngles(double **angles, double ** vertices,
          delta_x=vertices[j+1][1]-vertices[j][1];
          delta_y=vertices[j+1][2]-vertices[j][2];
         /* Conjecture that the .0000001 mitigates
-         * division by zero, which could be trapped 
-         * if MS implemented IEEE arithmetic.  There is 
+         * division by zero, which could be trapped
+         * if MS implemented IEEE arithmetic.  There is
          * a distinct possibility that an angle very close
          * to 90 could produce an erroneous result, that is,
          * an angle not between 0 and 360 inclusive.
          */
          c1=fabs(delta_x)+.0000001;
          d1=atan(delta_y/c1)/dd;  /* d1 is in degree, dd does the conversion. */
-        /* This is the heart of this algorithm.  
+        /* This is the heart of this algorithm.
          */
-         if (delta_x<0)  
+         if (delta_x<0)
             d1  = 180-d1;
-         if (d1<0)  
+         if (d1<0)
             d1 += 360;
         /* We use an assert to catch any problems that might
          * pop up because of angles close to +- 90.
@@ -275,40 +275,40 @@ computeVertexAngles(double **angles, double ** vertices,
          }
          angles[j][1]=d1;
       }  /*  j  */
-         
+
      /* That is, j = i2 and we store a copy of the first angle
-      * u[i1][1] in the next slot forward: i2+1.  
+      * u[i1][1] in the next slot forward: i2+1.
       */
       angles[stopIndex+1][1]=angles[startIndex][1];
-         
+
      /* u[j][2]: angle j */
-     /* This computations should be moved to inside the 
+     /* This computations should be moved to inside the
       * previous loop.
       */
       for (j=startIndex; j<=stopIndex; j++)
       {
          d1=angles[j][1];
          d2=angles[j-1][1]-180;
-         if (d2 < 0)  
+         if (d2 < 0)
             d2 += 360;
          d3=d2-d1;
-         if (d3 < 0)  
+         if (d3 < 0)
             d3 += 360;
          angles[j][2]=d3;
       }  /*  j  */
-         
+
       angles[startIndex-1][2]=angles[stopIndex][2];
       angles[stopIndex+1][2]=angles[startIndex][2];
    }  /*  block  */
 
-}  
-   
+}
 
 
 
 
-/* 
-   m (contacts) is a an array that tracks vertices 
+
+/*
+   m (contacts) is a an array that tracks vertices
    that are in contact with each other:
              i2
              \    /
@@ -320,21 +320,21 @@ computeVertexAngles(double **angles, double ** vertices,
                \
 */
 /* Contains subfunctions df04, df05, df06, df07.
- * Contact finding takes a list of blocks, finds the 
- * number of vertex-vertex (v-v) or vertex-edge (v-e) contacts 
+ * Contact finding takes a list of blocks, finds the
+ * number of vertex-vertex (v-v) or vertex-edge (v-e) contacts
  * possible in the forthcoming time step, then determines
  * which of those contacts are possible using the corner
  * reference diagram, establishes locks (?), determines
  * length of contact for friction and cohesion computation,
  * then determines the number of block-to-block contacts
- * using the actual v-e/v-v  count (from df05).  Contact 
+ * using the actual v-e/v-v  count (from df05).  Contact
  * finding is described in Shi 1988, Chapter 4, pp. 139-188
- * (for df04, df05, df06, df07).  
+ * (for df04, df05, df06, df07).
  */
-/* FIXME: Try and make c0 go local to this file, and rename 
+/* FIXME: Try and make c0 go local to this file, and rename
  * the other instance of c0 for friction forces.
  */
-void 
+void
 findContacts(Geometrydata * gd, Analysisdata * AData, Contacts * ctacts,
                     int * kk, int * k1, int ** n, double ** c0)
 {
@@ -364,9 +364,9 @@ findContacts(Geometrydata * gd, Analysisdata * AData, Contacts * ctacts,
   /* The "locks" array gets zeroed out in savePreviousContacts() */
    savePreviousContacts(gd,AData,contacts,locks,prevcontacts,contactlength);
    //printM2(m2, " after savePrevContacts");
-  /* Find contacts using distance criteria. This function 
-   * appears to act as a filter for df05, which finds 
-   * using angle criteria.  df04 does set some of the 
+  /* Find contacts using distance criteria. This function
+   * appears to act as a filter for df05, which finds
+   * using angle criteria.  df04 does set some of the
    * array indexing. df04 sets the contact indexing matrix
    * that df05 uses to traverse over each possible contact.
    */
@@ -374,7 +374,7 @@ findContacts(Geometrydata * gd, Analysisdata * AData, Contacts * ctacts,
    //printKK(kk, " df04");
    //printK3(k3, " df04");
   /* Find contacts by angle criteria.  df05 seems to be where
-   * most of the nitty gritty of contact finding actually 
+   * most of the nitty gritty of contact finding actually
    * happens.  This function could actually *return* contacts
    * array.
    */
@@ -382,15 +382,15 @@ findContacts(Geometrydata * gd, Analysisdata * AData, Contacts * ctacts,
 
   /* FIXME: Contact transfer.  What does this mean?
    */
-  /* See section 3.3 of the manifold report (page 39). 
+  /* See section 3.3 of the manifold report (page 39).
    * df06() is now in a file called "transfercontacts.c"
    */
-   df06(gd,AData,contacts, locks, prevcontacts, 
+   df06(gd,AData,contacts, locks, prevcontacts,
         contactindex,contactlength,kk, __k3,nn0);
 
 
-  /* FIXME (add more comments): Contact initialization.  
-   * df07 appears to mostly compute the length of the 
+  /* FIXME (add more comments): Contact initialization.
+   * df07 appears to mostly compute the length of the
    * contacts found in df05, and set the open/close
    * flags also.
    */
@@ -400,38 +400,38 @@ findContacts(Geometrydata * gd, Analysisdata * AData, Contacts * ctacts,
    setInitialLocks(gd, AData, contacts, locks);
 
    //stop = clock();
- 
+
    //assert(stop != start);
 
    //DLog->contact_runtime += (stop - start);
    //if (DLog->contact_runtime == 0)  exit(0);
 
-}  
+}
 
 
 
 
 /* The positions of previous contacts need to be saved.
- * This code used to reside in df04() but was removed in 
+ * This code used to reside in df04() but was removed in
  * the interest of making the code easier to understand.
  * Note that MMM gravity code shows an locks initialization
  * block invoked on the first time step only, but that code
  * did not make it into the Windows version.
  */
 void
-savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m, 
+savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
                      int **locks, int **m2, double **o)
 {
-  /* Save contact positions of previous step  
+  /* Save contact positions of previous step
    * The "m2" array appears to be previous contact
    * positions.
    */
    int i, j;
-  
-  /* If we are in the first time step, do nothing and exit 
-   * this function.  Else, transfer the contacts.  MMM gravity 
+
+  /* If we are in the first time step, do nothing and exit
+   * this function.  Else, transfer the contacts.  MMM gravity
    * code had an extra block in here to initialize locks array
-   * to all zeros for the first time step.  Might be a good 
+   * to all zeros for the first time step.  Might be a good
    * idea to put that back in.
    */
   /* Test run of having the init loops back in.  If this works
@@ -443,7 +443,7 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
    {
      /* Zero out the locks array.
       * FIXME: what is locks and where is it set?
-      * FIXME: If this init loop is needed, unroll it instead of 
+      * FIXME: If this init loop is needed, unroll it instead of
       * making a memset call.
       */
       for (i=1; i<= bd->nContacts; i++)
@@ -453,16 +453,16 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
             locks[i][j]=0;
          }  /*  j  */
       }  /*  i  */
-      
+
       //return; /* do nothing for now */
    }
 #endif
 
-   /* FIXME: Remove the dependence on the gravity time step, 
+   /* FIXME: Remove the dependence on the gravity time step,
     * and then move the return into the previous block.
     */
    //if ( ad->gravity->gravTimeStep == 1 || (ad->currTimeStep == 1 && ad->analysistype >= 0) )
-   //if (ad->currTimeStep == 1) 
+   //if (ad->currTimeStep == 1)
    //   return;
    //else /* not first time step */
    //{
@@ -474,10 +474,10 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
             m2[i][j]=m[i][j];
          }  /*  j  */
       }  /*  i  */
- 
-   
-     /* Save contact displacements of previous step.  
-      * For each contact in previous step... 
+
+
+     /* Save contact displacements of previous step.
+      * For each contact in previous step...
       */
       for (i=1; i<= bd->nContacts; i++)
       {
@@ -486,21 +486,21 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
          o[i][5] = o[i][1];  /* copy of shear movement */
          o[i][6] = o[i][2];  /* copy of copy of contact edge ratio ?/? */
       }  /*  i  */
- 
+
      /* release tension or shear locks:
       * for each contact of previous step,
-      * if contact was not locked at end of previous 
+      * if contact was not locked at end of previous
       * time step, release contact lock.
       */
       for (i=1; i<= bd->nContacts; i++)
       {
-         if (locks[i][2] != 2)  
+         if (locks[i][2] != 2)
             locks[i][0]=0;
       }  /*  i  */
      /* save the number of contacts in the previous step. */
       ad->nPrevContacts=bd->nContacts;
    //}
-    
+
 }  /*  Close savePreviousContacts()  */
 
 
@@ -514,7 +514,7 @@ savePreviousContacts(Geometrydata *bd, Analysisdata *ad, int **m,
 /* FIXME: Remove bbox array from this argument list,
  * make it local to this contact file.
  */
-void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3, 
+void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
           double ** bbox_c0, double ** u) {
 
   /* Loop counters over blocks. */
@@ -530,7 +530,7 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
    double x5, y5, x6, y6;
   /* Distance of segments on iith, jjth blocks */
    double a1, a2;
-  /* Inner products of inner unit normals with vertex to 
+  /* Inner products of inner unit normals with vertex to
    * midpoint vector of adjacent blocks.
    */
    double d1, d2, d3, d4;
@@ -559,9 +559,9 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
   /* d9 : normal penetration distance for contact   */
   /* m6 : number of contact vertices                */
    ad->nCurrentContacts = 0;
-  
-  /* The four level loop should be pretty easy to 
-   * break up the goto statements.  They all seem to be 
+
+  /* The four level loop should be pretty easy to
+   * break up the goto statements.  They all seem to be
    * performing a continue operation.
    */
   /* if two boxes of blocks are near  */
@@ -574,16 +574,16 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
          } // else they overlap...
 
 
-        /* Next, traverse over vertices of the iith and 
+        /* Next, traverse over vertices of the iith and
          * jjth blocks.
          */
          for (i=vindex[ii][1]; i<=vindex[ii][2]; i++) {
 
             for (j=vindex[jj][1]; j<=vindex[jj][2]; j++) {
 
-              /* Construct endpoints of line segments between the 
+              /* Construct endpoints of line segments between the
                * ith-(i+1)th vertex of the iith block,
-               * and the jth and (j+1)th vertex of the 
+               * and the jth and (j+1)th vertex of the
                * jjth block.
                */
                x1 = vertices[i  ][1];
@@ -614,23 +614,23 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
                   /* p56: inner  normal of line 34     */
                   /* p78: vector along     line 34     */
 
-                  /*                       
+                  /*
                    /|\ P56
           \ (x6,y6) |         /
   (x3,y3)  `o-------o------o'  (x4,y4)
-          
+
  (x2,y2)    o-------o-------o  (x1,y1)
            /        |         \
          / (x5,y5) \|/          \
-                       P12 
+                       P12
                    */
-                   
+
                   /* a1 := distance between adjacent vertices on
                    * the iith block.
                    */
                    //a1 = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
                    a1 = compute_length(x1,y1,x2,y2);
-                   p1 = (y1-y2)/a1; // x coord of unit inner normal 
+                   p1 = (y1-y2)/a1; // x coord of unit inner normal
                    p2 = (x2-x1)/a1; // y coord of unit inner normal
                    p3 = (x2-x1)/a1; // x coord of unit vector
                    p4 = (y2-y1)/a1; // y coord of unit vector
@@ -645,7 +645,7 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
                    p7 = (x4-x3)/a2;  // x coord of position vector
                    p8 = (y4-y3)/a2;  // y coord of position vector
 
-                  /* Inner products of inner unit normals with 
+                  /* Inner products of inner unit normals with
                    * vertex to midpoint vectors of adjacent blocks.
                    */
                    d1 = p5*(x1-x6) + p6*(y1-y6);
@@ -661,33 +661,33 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
                    * continue statements.
                    */
                    length_sqd = compute_length_squared(x1,y1,x4,y4);
-                   //if ((x1-x4)*(x1-x4)+(y1-y4)*(y1-y4) <= (d0*d0) || 
-                   if ( length_sqd <= (d0*d0) || 
+                   //if ((x1-x4)*(x1-x4)+(y1-y4)*(y1-y4) <= (d0*d0) ||
+                   if ( length_sqd <= (d0*d0) ||
                           (fabs(d2) > a2/2)  ||  (d1 < -d0 || d1 > d9) ) {
 
                      /* This is at least a dozen lines of duplicated code here. */
                      /* j=v3 concave  v_i-e_j+1 e_j  v_i-e_je_i-j      */
-    
+
                      /* v3 - e21 contact  */
-                     /* vertices 2 and 3 are close together, pt to pt 
+                     /* vertices 2 and 3 are close together, pt to pt
                       * contact possible.
                       */
                      /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
                       length_sqd = compute_length_squared(x2,y2,x3,y3);
-                      //if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2) <= d0*d0) 
-                      if ( length_sqd <= d0*d0) 
-                         continue; 
+                      //if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2) <= d0*d0)
+                      if ( length_sqd <= d0*d0)
+                         continue;
                      /* vertex 3 too far from edge 12 for contact,
                       * where distance measured parallel.
-                      */ 
-                      if (fabs(d4) > a1/2) 
-                         continue; 
+                      */
+                      if (fabs(d4) > a1/2)
+                         continue;
                      /* vertex 3 too far from edge 12 for contact,
                       * where distance is measured normal, or
                       * too much penetration.
                       */
                      /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-                      if (d3 < -d0 || d3>d9) 
+                      if (d3 < -d0 || d3>d9)
                          continue;
 
                      /* Most likely the block and contact info
@@ -706,33 +706,33 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
                       continue;
 
                    }  else  {
-                     
+
                       ad->nCurrentContacts+=1;
                       kk[ad->nCurrentContacts]  = (-1)*i;
                       k3[ad->nCurrentContacts] =      j;
 
                      /* j=v3 concave  v_i-e_j+1 e_j  v_i-e_je_i-j      */
                      /* v3 - e21 contact  */
-                     /* vertices 2 and 3 are close together, pt to pt 
+                     /* vertices 2 and 3 are close together, pt to pt
                       * contact possible.
                       */
                      /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
                       length_sqd = compute_length_squared(x2,y2,x3,y3);
-                      //if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2)<=d0*d0) 
-                      if (length_sqd <= d0*d0) 
+                      //if ((x3-x2)*(x3-x2)+(y3-y2)*(y3-y2)<=d0*d0)
+                      if (length_sqd <= d0*d0)
                          continue;
                      /* vertex 3 too far from edge 12 for contact,
                       * where distance measured parallel.
-                      */ 
-                      if (fabs(d4) > a1/2) 
-                         continue; 
+                      */
+                      if (fabs(d4) > a1/2)
+                         continue;
                      /* vertex 3 too far from edge 12 for contact,
                       * where distance is measured normal, or
                       * too much penetration.
                       */
                      /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-                      if (d3 < -d0 || d3>d9) 
-                         continue; 
+                      if (d3 < -d0 || d3>d9)
+                         continue;
 
                      /* Most likely the block and contact info
                       * is here.
@@ -759,7 +759,7 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
                      * crash this code here on the vaiont file.
                      */
                      k3[ad->nCurrentContacts] = j;
-                     continue; 
+                     continue;
                   }
 
                   ad->nCurrentContacts+=1;
@@ -786,7 +786,7 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
                if (i==vindex[ii][1]) {
                   k3[ad->nCurrentContacts] = vindex[ii][2];
                }
-               continue;  
+               continue;
             }  /*  j  */
          }  /*  i  */
       }  /*  jj */
@@ -798,7 +798,7 @@ void df04(Geometrydata * gd, Analysisdata * ad, int * kk, int * k3,
 /**************************************************/
 /* df05: contact finding by angle criteria        */
 /**************************************************/
-void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3, 
+void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
           int *nn0, double **u)
 {
    int i, i0, i1, i2, i3;
@@ -825,8 +825,8 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
     /* vertex in vindex[][1] vindex[][2] for contact transfer */
      i2=labs(kk[i]);
      j2=k3[i];
-    /* nn0 records which block number a particular vertex 
-     * is associated with. nn0 is initialized in its own 
+    /* nn0 records which block number a particular vertex
+     * is associated with. nn0 is initialized in its own
      * function: blockNumberOfVertex().
      */
      i0=nn0[i2];
@@ -834,47 +834,47 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
 
      i3=i2-1;
 
-     if (i2==vindex[i0][1])  
+     if (i2==vindex[i0][1])
         i3=vindex[i0][2];
 
      j3=j2-1;
 
-     if (j2==vindex[j0][1])  
+     if (j2==vindex[j0][1])
         j3=vindex[j0][2];
 
      i1=i2+1;
 
-     if (i2==vindex[i0][2])  
+     if (i2==vindex[i0][2])
         i1=vindex[i0][1];
 
      j1=j2+1;
 
-     if (j2==vindex[j0][2])  
+     if (j2==vindex[j0][2])
         j1=vindex[j0][1];
-     
+
     /* angle from x to y of i2i1 i2i3 j2j1 j2j3       */
      e[1][1]=u[i2][1];
      e[2][1]=u[i3][1]-180;
      e[3][1]=u[j2][1];
      e[4][1]=u[j3][1]-180;
-   
+
     /* v - e 180 angle j j2j1 j1j2 rotate from x to y */
-     if (kk[i]<0)  
+     if (kk[i]<0)
         e[4][1]=e[3][1]-180;
-   
+
      for (j=1; j<=  4; j++)
      {
-        if (e[j][1]<0)  
+        if (e[j][1]<0)
            e[j][1] += 360;
      }  /*  j  */
-     
-     
+
+
     /* e1 angle i2    e2 angle j2                     */
      e1=e[2][1]-e[1][1];
      e2=e[4][1]-e[3][1];
      if (e1<0)  e1+=360;
      if (e2<0)  e2+=360;
-    
+
     /*------------------------------------------------*/
     /* e3=180 choose i1i2 arrange 2 entrances on i2   */
      e3=e[3][1]-e[1][1];
@@ -884,7 +884,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
      e5=360-e3-e2;
      e6=e3-e1;
 	   /* printf("\ne1 = %f\te2 = %f\te5 = %f\te6 = %f\n", e1, e2, e5, e6); */
-	   
+
     /* angle e1e2 > e3e4 angle penetration check      */
      e[1][2]=e[1][1];
      e[2][2]=e[1][1]+e1;
@@ -892,7 +892,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
      e[4][2]=e[4][1];
      e[0][2]=e[3][1]+0.5*e2;
     /*
-     if (e1>e2) 
+     if (e1>e2)
         goto a502;
      */
      if (e1 <= e2)
@@ -919,15 +919,15 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
         continue;
      if (e[1][2]+h1<e[4][2]+360 && e[4][2]+360<e[2][2]-h1) //goto a501;
         continue;
-     //if (kk[i] > 0) 
+     //if (kk[i] > 0)
      //   goto a503;
      if (kk[i] <= 0)
      {
        /* (GHS: v - e  vertix i2  edge j1j2)             */
        /* m[][0]=0 v-e  m[][0]=1  v-v  m[][6]=-1 v-e     */
        /* m[][4] m[][5] 2 side of i2 for lock legth      */
-       /* If the m array seg faults, check to see if 
-        * reducing the max displacement will reduce the 
+       /* If the m array seg faults, check to see if
+        * reducing the max displacement will reduce the
         * number of contacts.
         */
         nContacts+=1;
@@ -938,9 +938,9 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
         m[nContacts][4]=0;
         m[nContacts][5]=0;
         m[nContacts][6]=0;
-        if (e5<h1)  
+        if (e5<h1)
            m[nContacts][4]=i1;
-        if (e6<h1)  
+        if (e6<h1)
            m[nContacts][5]=i3;
         //goto a501;
         continue;
@@ -948,16 +948,16 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
 
     /* v - v vertex i2  vertex j2      i2<180  j2<180 */
     /* reduce to v-e when adjacent lines are parallel */
- 
+
 //a503:;
       if (e5<h1) //goto a504;
 {
       /*------------------------------------------------*/
       /* contact edge of e5 as entrance  m[][6] >= 0    */
       /* no angle=180  generally no e6 contact          */
- 
+
 //a504:
-     /* Save point/edge contacts.  According to MMM, this 
+     /* Save point/edge contacts.  According to MMM, this
       * is equivalent to a parallel edge/edge contact.
       */
       nContacts+=1;  /* increment the number of contacts */
@@ -976,16 +976,16 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
       m[nContacts][4]=j2; /* contacting vertex */
       m[nContacts][5]=i1; /* endpoint 1 i->i+1 */
       m[nContacts][6]=i2; /* endpoint 2 i->i+1 */
-     /* Add another pt/edge contact if other contact edges 
+     /* Add another pt/edge contact if other contact edges
       * are approximately parallel.
       */
-      if (e6<h1) 
+      if (e6<h1)
       //goto a505;
       {
         /*------------------------------------------------*/
         /* contact edge e6 of as entrance  m[][6] >= 0    */
         /* no angle=180  generally no e5 contact          */
- 
+
 //a505:
          nContacts+=1;
          m[nContacts][0]=0;
@@ -1021,7 +1021,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
      /*------------------------------------------------*/
      /* v - v  i2<180  j2<180                          */
      /* entrance line j1j2 or i1i2   if e3=180 large y */
- 
+
 //a506:
       a1=0.5*e1+e[1][1];
       a2=0.5*e2+e[3][1];
@@ -1033,7 +1033,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
       m[nContacts][2]=j1;
       m[nContacts][3]=j2;
       b1=e[3][1];
-      if ( !(e3<=180-.3*h1 || (e3<=180+.3*h1 && d2>=d1)) ) 
+      if ( !(e3<=180-.3*h1 || (e3<=180+.3*h1 && d2>=d1)) )
          //goto a507;
       {
          m[nContacts][1]=j2;
@@ -1050,7 +1050,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
       m[nContacts][5]=i2;
       m[nContacts][6]=i3;
       b2=e[2][1];
-      if (e4<=180-.3*h1||(e4<=180+.3*h1&&d1>=d2)) 
+      if (e4<=180-.3*h1||(e4<=180+.3*h1&&d1>=d2))
          //goto a508;
       {
 // a508:;
@@ -1085,7 +1085,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
   /* switch m[][j] m[][j+3] contact position change */
    for (i=1; i<= nContacts; i++)
    {
-      if (m[i][0]==1 || m[i][6]==0) 
+      if (m[i][0]==1 || m[i][6]==0)
          //goto a509;
       {
          bd->nContacts = nContacts;
@@ -1099,8 +1099,8 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
       x2 = vertices[i3][1]-vertices[i1][1];
       y2 = vertices[i3][2]-vertices[i1][2];
       d1 = (x1*x2 + y1*y2);
-      if (d1 <= 0) 
-         //goto a509;  
+      if (d1 <= 0)
+         //goto a509;
       {
          bd->nContacts = nContacts;
          continue;   // (why?)
@@ -1125,7 +1125,7 @@ void df05(Geometrydata *bd, Analysisdata *ad, int **m, int *kk, int *k3,
 /**************************************************/
 /* df07: contact initialization                   */
 /**************************************************/
-void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks, 
+void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
           double **c_length, int *kk)
 {
   /* i is index for the contact number. */
@@ -1158,28 +1158,28 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
    //    if (k02 == 1)  printf("--- 7000--- \n");
    for (contact=1; contact<= nContacts; contact++)
    {
-      //if (ad->gravity->gravTimeStep == 1 || (ad->currTimeStep==1 && ad->analysistype >= 0)) // || (ad->gravTimeStep==1)) 
-     /* FIXME: Check to see if this is redundant */      
-      if (ad->cts==1) // && ad->analysistype >= 0) // || (ad->gravTimeStep==1)) 
+      //if (ad->gravity->gravTimeStep == 1 || (ad->currTimeStep==1 && ad->analysistype >= 0)) // || (ad->gravTimeStep==1))
+     /* FIXME: Check to see if this is redundant */
+      if (ad->cts==1) // && ad->analysistype >= 0) // || (ad->gravTimeStep==1))
          locks[contact][0] = 0;   // Tension flag?
 
-      if (contacts[contact][TYPE] ==  VV) 
+      if (contacts[contact][TYPE] ==  VV)
          continue; /* goto a701; */
 
      /* Everything past here is either pt-edge or edge-edge contact.
       * No lengths are associated with v-v contacts.
       */
-      if (contacts[contact][6] ==  0) 
+      if (contacts[contact][6] ==  0)
       {  /* Code below gets duplicated later */
-         if (contacts[contact][4] == 0) 
+         if (contacts[contact][4] == 0)
          {
 
            /* (GHS: original v-e  m[][5]) */
-            if (contacts[contact][5] == 0) 
+            if (contacts[contact][5] == 0)
             {
               /* for case no contact edge   m[i][4]=0 m[i][5]=0 */
                i1 = contacts[contact][1];  // penetrating vertex
-               i2 = contacts[contact][2];  // endpoint 2 of contacted ref line 
+               i2 = contacts[contact][2];  // endpoint 2 of contacted ref line
                i3 = contacts[contact][3];  // endpoint 3 of contacted ref line
                i4 = 0;  // contacted edge is single pt only.
                contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1191,8 +1191,8 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
             i3 = contacts[contact][3];
             i4 = contacts[contact][5];
 
-            //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-            if (ad->cts==1) // && ad->analysistype >= 0))      
+            //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))
+            if (ad->cts==1) // && ad->analysistype >= 0))
                locks[contact][0] = 1;  // Tension?
 
             contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1204,32 +1204,32 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          i3 = contacts[contact][3];
          i4 = contacts[contact][4];
 
-         //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-         if (ad->cts==1)// && ad->analysistype >= 0)      
+         //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))
+         if (ad->cts==1)// && ad->analysistype >= 0)
             locks[contact][0] = 1;
 
          contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;  /* goto a701; */
       }
 
-      if (contacts[contact][6] > 0) 
+      if (contacts[contact][6] > 0)
       {
          i1 = contacts[contact][1];
          i2 = contacts[contact][2];
          i3 = contacts[contact][3];
         /* If we have an edge-edge contact, need the second endpt of
          * edge that is in contact.
-         */ 
-         if (i4==i1) 
+         */
+         if (i4==i1)
             i4 = contacts[contact][6];
-         else 
+         else
             i4 = contacts[contact][5];
 
         /* FIXME: Explain why initial time step does not need length
          * computed.
          */
-         //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-         if (ad->cts==1) // && ad->analysistype >= 0)      
+         //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))
+         if (ad->cts==1) // && ad->analysistype >= 0)
             locks[contact][0] = 1;
 
          contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
@@ -1252,10 +1252,10 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;  /* goto a701; */
       }
-      else 
-      {  
+      else
+      {
         /* (GHS: original v-e  m[][5]) */
-         if (contacts[contact][5] == 0) 
+         if (contacts[contact][5] == 0)
          {
            /* for case no contact edge   m[i][4]=0 m[i][5]=0 */
             i1 = contacts[contact][1];
@@ -1272,13 +1272,13 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
          i4 = contacts[contact][5];
 
         /* FIXME: Explain why the first time step sets this value. */
-         if (ad->cts==1)      
+         if (ad->cts==1)
             locks[contact][0] = 1;
 
          contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
          continue;  /* goto a701; */
       }
-      
+
      /* (GHS: for case no contact edge   m[i][4]=0 m[i][5]=0) */
      /* (GHS: angle<180 v-v e5 e6<h1                  m[][4]) */
      /*  Fall through code.  Might be able to eliminate this */
@@ -1286,29 +1286,29 @@ void df07(Geometrydata *gd, Analysisdata *ad, int **contacts, int **locks,
       i2 = contacts[contact][2];
       i3 = contacts[contact][3];
 
-      if (i4 == i1) 
+      if (i4 == i1)
          i4 = contacts[contact][6];
-      else 
+      else
          i4 = contacts[contact][5];
 
      /* FIXME: Explain why first time step sets this value.  */
-      //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))      
-      if (ad->gravity->gravTimeStep==1 || (ad->cts==1 && ad->analysistype >= 0))      
+      //if (ad->gravity->gravTimeStep==1 || (ad->currTimeStep==1 && ad->analysistype >= 0))
+      if (ad->gravity->gravTimeStep==1 || (ad->cts==1 && ad->analysistype >= 0))
          locks[contact][0] = 1;
 
       contacts_project_edge(vertices,w0,c_length,kk,contact,i1,i2,i3,i4);
 /* a701:; */
    }  /*  i  */
-      
+
 }  /* close df07() */
 
 
 
-/** This function is testable, and can later 
+/** This function is testable, and can later
  * turned into a macro.
  */
-double 
-contact_compute_penetration(const double x1, const double y1, 
+double
+contact_compute_penetration(const double x1, const double y1,
                             const double x2, const double y2,
                             const double x3, const double y3) {
 
@@ -1323,9 +1323,9 @@ contact_compute_penetration(const double x1, const double y1,
 
 
 void
-setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts, 
+setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts,
                 int **locks) {
-   
+
   /* i is index ofr contact loop */
    int contact;  // was i
   /* j is helper index over VE or VV contact */
@@ -1364,10 +1364,10 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts,
   /* for currTimeStep=1 set initial open-close state  currTimeStep=1 */
 
   /*
-   if (  ad->gravity->gravTimeStep > 1   || 
-        (ad->currTimeStep > 1)           || 
-        (ad->currTimeStep == 1           && 
-         ad->analysistype<=0) 
+   if (  ad->gravity->gravTimeStep > 1   ||
+        (ad->currTimeStep > 1)           ||
+        (ad->currTimeStep == 1           &&
+         ad->analysistype<=0)
       )
    */
    if ( ad->cts > 1 || (ad->cts==1  && ad->analysistype == 0) )
@@ -1375,13 +1375,13 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts,
 
    for (contact=1; contact<= nContacts; contact++)
    {
-      if (locks[contact][CURRENT] != LOCKED)  
+      if (locks[contact][CURRENT] != LOCKED)
          locks[contact][CURRENT] = 1;
 
       for (j=0; j<= contacts[contact][TYPE]; j++)
       {
-        /* j1,j2,j3 are the vertex numbers, that is, the 
-         * leading index into the vertex array, for the 
+        /* j1,j2,j3 are the vertex numbers, that is, the
+         * leading index into the vertex array, for the
          * three endpoints associated with a contact.
          */
          ep1 = contacts[contact][j*3+1];
@@ -1402,26 +1402,26 @@ setInitialLocks(Geometrydata * gd, Analysisdata * ad, int **contacts,
          pendist[j+1] = ((x2-x1)*(y3-y1)-(y2-y1)*(x3-x1))/reflinelength;
 
         /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
-         if (pendist[j+1]> openclose*d0 && locks[contact][CURRENT] != LOCKED)  
+         if (pendist[j+1]> openclose*d0 && locks[contact][CURRENT] != LOCKED)
             locks[contact][CURRENT] = OPEN;
       }  /*  j  */
 
       /*------------------------------------------------*/
       /* (GHS: v - e  if close  set locking)            */
-      if (locks[contact][CURRENT] == OPEN) 
+      if (locks[contact][CURRENT] == OPEN)
          continue;  /* goto a707;  */
 
-      if (contacts[contact][TYPE] == VE) 
+      if (contacts[contact][TYPE] == VE)
          locks[contact][CURRENT] = LOCKED;
 
-      if (contacts[contact][TYPE] == VE) 
+      if (contacts[contact][TYPE] == VE)
          continue;  /* goto a707;  */
 
       /*------------------------------------------------*/
       /* (GHS: v - v if close choose shortest distance) */
       locks[contact][CURRENT] = 1;
 
-      if (pendist[1] < pendist[2])  
+      if (pendist[1] < pendist[2])
          locks[contact][CURRENT] = SWAP;
       }  /*  loop over each contact, was i  */
 

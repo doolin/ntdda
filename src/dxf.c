@@ -16,14 +16,14 @@ static double *jx1, *jy1, *jx2, *jy2;
 
 
 
-/** 
- * The process of modularizing code is also 
- * called "refactoring." Do a google search to 
- * find out more about it.  In this case, 
- * the code for parsing out the LINE element 
- * is moved to its own function.  After other 
- * elements are moved to their own functions, 
- * code that is common to all the functions 
+/**
+ * The process of modularizing code is also
+ * called "refactoring." Do a google search to
+ * find out more about it.  In this case,
+ * the code for parsing out the LINE element
+ * is moved to its own function.  After other
+ * elements are moved to their own functions,
+ * code that is common to all the functions
  * can be furthered factored out.
  */
 void
@@ -130,7 +130,7 @@ dxf_read_file (FILE * fp1, char *geofilename)
         * is generally a really bad idea
         * because it makes the code much more
         * difficult to read and understand.
-        * A better way to do this is to use 
+        * A better way to do this is to use
         * static const veriables, or preprocessor
         * #defines.
         */
@@ -171,7 +171,7 @@ dxf_read_file (FILE * fp1, char *geofilename)
     // From this line first, center and second points
     // of an arc will be extracted from dxf
     // and the lines of arc are created with a
-    // simple mathematical source 
+    // simple mathematical source
 
     if (strcmp (str[i], "ARC") == 0) {
       if (strcmp (str[i + 9], "62") == 0) {
@@ -222,7 +222,7 @@ dxf_read_file (FILE * fp1, char *geofilename)
     // From this line first, center and second
     // points of an circle will be extracted from dxf
     // and the lines of arc are created with a
-    // simple mathematical source 
+    // simple mathematical source
     if (strcmp (str[i], "CIRCLE") == 0) {
       if (strcmp (str[i + 9], "62") == 0) {
         ctype = atoi (str[i + 10]) + 1;
@@ -302,10 +302,10 @@ dxf_read_file (FILE * fp1, char *geofilename)
   fclose (fp1);
 
 
-  // From this line the data that extracted from dxf file will be sorted 
+  // From this line the data that extracted from dxf file will be sorted
   // and will be wrote into geo file.
 
-  /** This whole block of output code should go into it's 
+  /** This whole block of output code should go into it's
    * function.  This will make it much easier to extend
    * or replace the code when necessary.
    */
@@ -382,15 +382,15 @@ dxf_read_file (FILE * fp1, char *geofilename)
 
 
 #ifdef STANDALONE
-/** 
- * Standalone version of the dxf reader will translate from 
+/**
+ * Standalone version of the dxf reader will translate from
  * dxf to ddaml from the commandline.
  *
  * Compile in cygwin using:
  * gcc -o dxf  dxf.c -DSTANDALONE -I../include
- * 
+ *
  * Run it like this:
- * ./dxf < infile.dxf 
+ * ./dxf < infile.dxf
  *
  * Code formatted using indent:
  * indent -br -ce -nut dxf.c

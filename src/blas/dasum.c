@@ -20,14 +20,14 @@ double dasum_(int *n, double *dx, int *incx)
     static int nincx, mp1;
 
 
-/*     takes the sum of the absolute values.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 3/93 to return if incx .le. 0.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     takes the sum of the absolute values.
+       jack dongarra, linpack, 3/11/78.
+       modified 3/93 to return if incx .le. 0.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DX(I) dx[(I)-1]
 
@@ -53,7 +53,7 @@ double dasum_(int *n, double *dx, int *incx)
     ret_val = dtemp;
     return ret_val;
 
-/*        code for increment equal to 1   
+/*        code for increment equal to 1
 
 
           clean-up loop */
@@ -76,7 +76,7 @@ L40:
     i__2 = *n;
     for (i = mp1; i <= *n; i += 6) {
 	dtemp = dtemp + (d__1 = DX(i), ABS(d__1)) + (d__2 = DX(i + 1), ABS(
-		d__2)) + (d__3 = DX(i + 2), ABS(d__3)) + (d__4 = DX(i + 3), 
+		d__2)) + (d__3 = DX(i + 2), ABS(d__3)) + (d__4 = DX(i + 3),
 		ABS(d__4)) + (d__5 = DX(i + 4), ABS(d__5)) + (d__6 = DX(i + 5)
 		, ABS(d__6));
 /* L50: */

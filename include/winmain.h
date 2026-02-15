@@ -21,8 +21,8 @@
 
 
 
-/* This should really go into the header file, but it needs 
- * windows.h to work properly.  Change it later.  
+/* This should really go into the header file, but it needs
+ * windows.h to work properly.  Change it later.
  */
 typedef struct tagParamBlock {
    WORD 		wEnvSeg;		  	// usually NULL
@@ -73,7 +73,7 @@ void updateMainMenuA(HWND hwMain, int state);
 void handleOptionsMenu(HWND hwMain, WPARAM wParam, Options * o);
 
 
-/* FIXME: Definitely move this out of this 
+/* FIXME: Definitely move this out of this
  * header file.
  */
 BOOL CALLBACK DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam);

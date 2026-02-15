@@ -1,10 +1,12 @@
 #include "dda.h"
+#ifdef WIN32
 #include "winmain.h"
+#include "resource.h"
+#endif
 #include <stdio.h>
 #include "ddamemory.h"
 #include <assert.h>
 #include <math.h>
-#include "resource.h"
 #include "replay.h"
 
 
@@ -15,6 +17,7 @@ extern Filepaths filepath;
 
 
 
+#ifdef WIN32
 int
 handleResultsViewReplay(HWND hwMain, LPARAM lParam, GRAPHICS * g)
 {
@@ -25,22 +28,22 @@ handleResultsViewReplay(HWND hwMain, LPARAM lParam, GRAPHICS * g)
    dda_display_info(filepath.vfile);
 
    fileBrowse(hwMain, &ofn, szFilter, filepath.vpath, filepath.vfile, "replay");
-                   
-                    
-         
-                   
-                        
-       if( !GetOpenFileName(&ofn) ) 
+
+
+
+
+
+       if( !GetOpenFileName(&ofn) )
        {
           strcpy(filepath.vpath, filepath.oldpath);
           return 0;  // user pressed cancel.
-       }    
+       }
        else // Replay something.
        {
          /* Set up to call the replay function with an arbitrary
-          * replay file.  It is not currently known whether 
-          * the replay file has enough information to do the 
-          * replay without first invoking the appropriate file 
+          * replay file.  It is not currently known whether
+          * the replay file has enough information to do the
+          * replay without first invoking the appropriate file
           * containing the geometry information.  Eliminate all
           * this if possible.
           */
@@ -61,12 +64,13 @@ handleResultsViewReplay(HWND hwMain, LPARAM lParam, GRAPHICS * g)
    return 0;
 
 }  /*  close handleResultsViewReplay() */
+#endif /* WIN32 */
 
-/* There will probably be a few other bits of info 
- * that will written here.  Good place to write 
+/* There will probably be a few other bits of info
+ * that will written here.  Good place to write
  * file info, header comments, etc.
  */
-void 
+void
 initReplayFile(Geometrydata * gd, Analysisdata * ad)
 {
    int i;
@@ -90,7 +94,7 @@ initReplayFile(Geometrydata * gd, Analysisdata * ad)
 
 
   /* material number  block start  block end  index */
-  /* The first (0th) array element should be the block 
+  /* The first (0th) array element should be the block
    * material number.  I don't believe this is currently
    * implemented.  Also, wherever this is determined, there
    * needs to be some argument checking.
@@ -104,7 +108,7 @@ initReplayFile(Geometrydata * gd, Analysisdata * ad)
 
 
 
-/* Do not write any header data!  Just vertices, 
+/* Do not write any header data!  Just vertices,
  * bolts and points.  Should also write time step
  * number, delta t and elapsed time.
  */
@@ -140,11 +144,11 @@ writeReplayFile(Geometrydata * gd, Analysisdata * ad)
       fprintf(fp.replayfile, "%f %f %f\n", gg1[i][7],gg1[i][8],gg1[i][9]);
    }   /* i */
 
-      
+
   /* x  y  of fixed loading measured points         */
    for (i=0; i<= gd->nFPoints+gd->nLPoints+gd->nMPoints; i++)
    {
-    		fprintf(fp.replayfile,"%f %f %f %f \n", 
+    		fprintf(fp.replayfile,"%f %f %f %f \n",
               g[i][0],g[i][1],g[i][2],g[i][3]);
    } /* i */
 }  /* writeReplayFile() */
@@ -154,7 +158,8 @@ writeReplayFile(Geometrydata * gd, Analysisdata * ad)
 /* FIXME: Need to catch a running analysis error and not replay
  * while an analysis is running.
  */
-void 
+#ifdef WIN32
+void
 replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
 
    FILE * rpfile;
@@ -181,7 +186,7 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
 
 	InvalidateRect(hwMain, NULL, TRUE);
    UpdateWindow(hwMain);
-  
+
   /* Open the replay file */
    rpfile = fopen(replayfilename,"r");
 
@@ -193,7 +198,7 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
    */
    assert(rpfile != NULL);
 
-  /* Read the first few lines to get the number of 
+  /* Read the first few lines to get the number of
    * points, blocks, time steps, etc.
    */
    fscanf(rpfile,"%d %d %d %d",&nsteps_saved, &gd->nBlocks,&gd->nBolts,&gd->vertexCount);
@@ -208,11 +213,11 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
    // mmm: this should probably be set somewhere else, but I don't know where
    // is there a file that contains hardwired parameters?
    // Right, this was 150, then changed to 15.  If you do a search over
-   // the whole source on 15, there are about half dozen places it 
-   // shows up.  It is a problem, and it is why all of the point 
+   // the whole source on 15, there are about half dozen places it
+   // shows up.  It is a problem, and it is why all of the point
    // handling stuff needs to go into linked list instead of array.
    gd->maxFixedPointsPerFixedLine = 100; // hardwired
-   gd->pointsize1 = (gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;  
+   gd->pointsize1 = (gd->nFPoints*(gd->maxFixedPointsPerFixedLine+1))+gd->nLPoints+gd->nMPoints+gd->nHPoints+1;
 
    gd->pointsize2 = 6;
    points = DoubMat2DGetMem(gd->pointsize1,gd->pointsize2);
@@ -239,7 +244,7 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
    gdata_rockbolt_init(gd, gd->nBolts);
    rockbolts = gd->rockbolts;
 
-  /* Read in the first time step data, make the clones for 
+  /* Read in the first time step data, make the clones for
    * original geometry.
    */
   /* nBlocks   number of blocks                          */
@@ -253,11 +258,11 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
    * vertices is stored in "slots" of the d matrix.  The
    * following input reads in the material number into the
    * the first position of each slot, followed by the index
-   * of the starting vertex, followed by the index of the 
-   * last unique vertex associated with that block.  The 
+   * of the starting vertex, followed by the index of the
+   * last unique vertex associated with that block.  The
    * "block.in" file repeats the starting index after this,
-   * in position 'block end' +1.  The reason for this is 
-   * explained below.  The block vertices are stored in 
+   * in position 'block end' +1.  The reason for this is
+   * explained below.  The block vertices are stored in
    * CCW order.
    */
 
@@ -272,15 +277,15 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
   /* Grab the time info */
   // fscanf(rpfile,"%d %lf %d", &g->timestep, &g->currenttime, &g->numcontacts);
 
-  /* Loop over the number of time steps reading in 
+  /* Loop over the number of time steps reading in
    * geometry data for the rest of the data.
    */
   /* Suck up the first set of data */
   /* 0:joint material   1:x   2:y  of block vertices */
-  /* The "number of vertices" is stored in vertexCount, but note that 
+  /* The "number of vertices" is stored in vertexCount, but note that
    * this number is more than the actual number of vertices.
    * Each block has one repeated vertex, to "close the loop".
-   * The block vertices are stored in CCW order.  Note that 
+   * The block vertices are stored in CCW order.  Note that
    * each set of block vertices indexed in k0 is followed
    * by a repeat of the first, the three more vertices whose
    * purpose is not known right now.
@@ -290,7 +295,7 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
       fscanf(rpfile,"%lf %lf %lf",
          &vertices[i][0],&vertices[i][1],&vertices[i][2]);
    }  /*  i  */
-   
+
   /* h: x1  y1  x2  y2  nBlocks  n2  e0  t0  f0  of bolt */
   /* nBlocks n2 carry block number        f0 pre-tension */
   /* Bolts are indexed from zero.  This will need to be changed
@@ -312,7 +317,7 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
       fscanf(rpfile,"%lf %lf %lf %lf",
          &points[i][0],&points[i][1],
          &points[i][2],&points[i][3]);
-   }  
+   }
 
 
   /* Now that everything is initialized... */
@@ -331,7 +336,7 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
          fscanf(rpfile,"%lf %lf %lf",
             &vertices[i][0],&vertices[i][1],&vertices[i][2]);
       }  /*  i  */
-   
+
      /* h: x1  y1  x2  y2  nBlocks  n2  e0  t0  f0  of bolt */
      /* nBlocks n2 carry block number        f0 pre-tension */
      /* Bolts are indexed from zero.  This will need to be changed
@@ -356,14 +361,14 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
       }  /*  i  */
 
 
-     /* Make an update call to windows after every read. 
+     /* Make an update call to windows after every read.
       */
 		InvalidateRect(hwMain, NULL, TRUE);
 		UpdateWindow(hwMain);
 
 
    }  /* end for loop over each saved time step */
-				
+
   	//showOrig++;
 	InvalidateRect(hwMain, NULL, TRUE);
 	UpdateWindow(hwMain);
@@ -372,3 +377,4 @@ replay_analysis(HWND hwMain, GRAPHICS * g, char *replayfilename) {
    fclose(rpfile);
 
 }  //  Close replay.
+#endif /* WIN32 */

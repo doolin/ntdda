@@ -1,8 +1,8 @@
 /*
- * header for a testing list view. 
+ * header for a testing list view.
  */
 
-#ifndef STRICT 
+#ifndef STRICT
 #define STRICT
 #endif
 

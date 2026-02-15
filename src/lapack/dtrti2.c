@@ -6,82 +6,82 @@
 /* Subroutine */ int dtrti2_(char *uplo, char *diag, int *n, double *
 	a, int *lda, int *info)
 {
-/*  -- LAPACK routine (version 2.0) --   
-       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
-       Courant Institute, Argonne National Lab, and Rice University   
-       February 29, 1992   
+/*  -- LAPACK routine (version 2.0) --
+       Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
+       Courant Institute, Argonne National Lab, and Rice University
+       February 29, 1992
 
 
-    Purpose   
-    =======   
+    Purpose
+    =======
 
-    DTRTI2 computes the inverse of a real upper or lower triangular   
-    matrix.   
+    DTRTI2 computes the inverse of a real upper or lower triangular
+    matrix.
 
-    This is the Level 2 BLAS version of the algorithm.   
+    This is the Level 2 BLAS version of the algorithm.
 
-    Arguments   
-    =========   
+    Arguments
+    =========
 
-    UPLO    (input) CHARACTER*1   
-            Specifies whether the matrix A is upper or lower triangular. 
-  
-            = 'U':  Upper triangular   
-            = 'L':  Lower triangular   
+    UPLO    (input) CHARACTER*1
+            Specifies whether the matrix A is upper or lower triangular.
 
-    DIAG    (input) CHARACTER*1   
-            Specifies whether or not the matrix A is unit triangular.   
-            = 'N':  Non-unit triangular   
-            = 'U':  Unit triangular   
+            = 'U':  Upper triangular
+            = 'L':  Lower triangular
 
-    N       (input) INTEGER   
-            The order of the matrix A.  N >= 0.   
+    DIAG    (input) CHARACTER*1
+            Specifies whether or not the matrix A is unit triangular.
+            = 'N':  Non-unit triangular
+            = 'U':  Unit triangular
 
-    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)   
-            On entry, the triangular matrix A.  If UPLO = 'U', the   
-            leading n by n upper triangular part of the array A contains 
-  
-            the upper triangular matrix, and the strictly lower   
-            triangular part of A is not referenced.  If UPLO = 'L', the   
-            leading n by n lower triangular part of the array A contains 
-  
-            the lower triangular matrix, and the strictly upper   
-            triangular part of A is not referenced.  If DIAG = 'U', the   
-            diagonal elements of A are also not referenced and are   
-            assumed to be 1.   
+    N       (input) INTEGER
+            The order of the matrix A.  N >= 0.
 
-            On exit, the (triangular) inverse of the original matrix, in 
-  
-            the same storage format.   
+    A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
+            On entry, the triangular matrix A.  If UPLO = 'U', the
+            leading n by n upper triangular part of the array A contains
 
-    LDA     (input) INTEGER   
-            The leading dimension of the array A.  LDA >= MAX(1,N).   
+            the upper triangular matrix, and the strictly lower
+            triangular part of A is not referenced.  If UPLO = 'L', the
+            leading n by n lower triangular part of the array A contains
 
-    INFO    (output) INTEGER   
-            = 0: successful exit   
-            < 0: if INFO = -k, the k-th argument had an illegal value   
+            the lower triangular matrix, and the strictly upper
+            triangular part of A is not referenced.  If DIAG = 'U', the
+            diagonal elements of A are also not referenced and are
+            assumed to be 1.
 
-    ===================================================================== 
-  
+            On exit, the (triangular) inverse of the original matrix, in
+
+            the same storage format.
+
+    LDA     (input) INTEGER
+            The leading dimension of the array A.  LDA >= MAX(1,N).
+
+    INFO    (output) INTEGER
+            = 0: successful exit
+            < 0: if INFO = -k, the k-th argument had an illegal value
+
+    =====================================================================
 
 
-       Test the input parameters.   
 
-    
-   Parameter adjustments   
+       Test the input parameters.
+
+
+   Parameter adjustments
        Function Body */
     /* Table of constant values */
     static int c__1 = 1;
-    
+
     /* System generated locals */
     int  i__1, i__2;
     /* Local variables */
     static int j;
-    extern /* Subroutine */ int dscal_(int *, double *, double *, 
+    extern /* Subroutine */ int dscal_(int *, double *, double *,
 	    int *);
     extern long int lsame_(char *, char *);
     static long int upper;
-    extern /* Subroutine */ int dtrmv_(char *, char *, char *, int *, 
+    extern /* Subroutine */ int dtrmv_(char *, char *, char *, int *,
 	    double *, int *, double *, int *), xerbla_(char *, int *);
     static long int nounit;
     static double ajj;

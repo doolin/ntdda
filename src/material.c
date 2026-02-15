@@ -1,5 +1,5 @@
 
-/** 
+/**
  * Encapsulate the material properties.
  */
 
@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if 0 
+#if 0
 }
 #endif
 
@@ -37,7 +37,7 @@ struct _material {
 
 
 
-Material * 
+Material *
 material_new (int numblocks) {
 
    int i;
@@ -48,7 +48,7 @@ material_new (int numblocks) {
    m->numprops  = numprops;
 
    m->props = (double**)malloc((numblocks+1)*sizeof(double*));
-  
+
    for (i=1; i<=numblocks; i++) {
       m->props[i] = (double*)malloc((numprops+1)*(sizeof(double)));
    }
@@ -59,7 +59,7 @@ material_new (int numblocks) {
 /**
  *  Probably not necessary right now.
  */
-Material * 
+Material *
 material_clone (Material * m_old) {
 
    return NULL;
@@ -67,7 +67,7 @@ material_clone (Material * m_old) {
 }
 
 
-void       
+void
 material_delete (Material * m) {
 
    int i;
@@ -89,7 +89,7 @@ material_get_props(Material * m) {
 
 
 
-void 
+void
 material_validate(int ** vindex, int numblocks, int nb) {
 
    int i;

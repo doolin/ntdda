@@ -5,7 +5,7 @@
 #include "ddadlist.h"
 
 
-int 
+int
 test_ddadlist_new(void) {
 
 
@@ -25,7 +25,7 @@ ddadlist_test(void) {
 }
 
 
-int 
+int
 main() {
 
   ddadlist_test();

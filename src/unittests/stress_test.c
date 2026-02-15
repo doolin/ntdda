@@ -175,22 +175,22 @@ test_zero_strain() {
 
    int passed = 1;
    int testval;
- 
+
    double s1[13] = {0.0};
    double s2[13] = {0.0};
 
    double D[7] = {0.0};
- 
+
    print_header_string(stdout,"Zero strain test");
 
    stress_init_props(s1,2.71, 25.4,1000.0,0.49);
    stress_init_props(s2,2.71, 25.4,1000.0,0.49);
 
    stress_planestress(s1,D);
-  
+
    testval = array_equals_double(s1,s2,0,13);
 
-   if (testval == 0) { 
+   if (testval == 0) {
       fprintf(stdout,"Zero strain failed (plane stress).\n");
       passed = 0;
    } else {
@@ -201,7 +201,7 @@ test_zero_strain() {
 
    testval = array_equals_double(s1,s2,0,13);
 
-   if (testval == 0) { 
+   if (testval == 0) {
       fprintf(stdout,"Zero strain failed (plane strain).\n");
       passed = 0;
    } else {
@@ -213,7 +213,7 @@ test_zero_strain() {
 
 }
 
-int 
+int
 test_stress_equals() {
 
    int passed = 1;
@@ -227,33 +227,33 @@ test_stress_equals() {
    stress_init_all(s1,2.71, 25.4,1000.0,0.49,0,0,0,0,0,0,0,0,0);
 
    s2 = stress_clone(s1);
-   
+
    testval = stress_equals(s1,s2,0.0000001);
 
-   if (testval == 0) { 
+   if (testval == 0) {
       fprintf(stdout,"Stress equals failed.\n");
       passed = 0;
    } else {
       fprintf(stdout,"Stress equals passed.\n");
    }
-   
+
 
    return passed;
 }
 
 
-int 
+int
 test_stress_update(void) {
 
    int passed = 1;
    //int testval;
-   int numblocks = 3; 
+   int numblocks = 3;
 
   /* Permutation vector. */
    int      k1[4] = {0,3,1,2};
    double * D[4]  = {0,0,0,0};
    double * e0[4] = {0,0,0,0};
-   
+
   /* deformations */
    double d1[7], d2[7], d3[7];
   /* blocks */

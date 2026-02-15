@@ -1,6 +1,6 @@
 
 /*
-typedef struct stringtab_tag Stringtable; 
+typedef struct stringtab_tag Stringtable;
 
 struct stringtab_tag {
 

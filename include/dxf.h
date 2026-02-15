@@ -1,5 +1,5 @@
 
-/*  
+/*
  * dxf reading for DDA.
  */
 

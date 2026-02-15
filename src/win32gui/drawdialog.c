@@ -1,18 +1,18 @@
 /* File contains functions to handle the creation and editing
- * of geometry files for DDA.  
+ * of geometry files for DDA.
  *
  * Overall behavior:
  *
  * 1. At the moment, the dialog will save and write to a file
- * any created geometry.  This geometry is not passed by either 
- * pointer to geometry struct or by file name to the calling 
+ * any created geometry.  This geometry is not passed by either
+ * pointer to geometry struct or by file name to the calling
  * program.
  */
 
-/** 
- * TODO list: 
+/**
+ * TODO list:
  *
- * 1. Object scaling needs to be handled on object creation, and 
+ * 1. Object scaling needs to be handled on object creation, and
  * the current object scale needs to be stored to allow rescaling.
  *
  *
@@ -59,7 +59,7 @@ static int gridSp = 10;
 
 #define ID_EDIT     1
 
-/* Bounding box.  Was set in winmain.  Needs to be set 
+/* Bounding box.  Was set in winmain.  Needs to be set
  * here.  See note on DD_GRON.  These are hard-wired
  * WINDOW (logical) COORDINATES!!!
  */
@@ -100,7 +100,7 @@ static HDC hdc;
 extern HPEN drawPen[10];
 
 
-/*  Tuck this into the parameter passed by the 
+/*  Tuck this into the parameter passed by the
  * calling function.
  */
 extern Filepaths filepath;
@@ -306,7 +306,7 @@ distBtwPoints (POINT p1, POINT p2)
 
 
 
-// This routine needs to have an associated ROP 
+// This routine needs to have an associated ROP
 // to redraw the background color when the object
 // is deselected.
 static void                     //travis
@@ -319,7 +319,7 @@ drawBlackSquare (double x, double y, int radius)
   hCurrentBr = GetStockObject (BLACK_BRUSH);
 
   /* Draw a single point.  This could and probably
-   * should be abstracted into a function that can 
+   * should be abstracted into a function that can
    * be called from here and from the drawPoints
    * function.
    */
@@ -392,7 +392,7 @@ redrawJoint (Joint * jp)
   if (jp->is_selected) {
     drawJointHandles (jp);
   }
-} 
+}
 
 
 //Added By Roozbeh
@@ -411,7 +411,7 @@ redrawPoints (DPoint * ptmp)
 }                               /* close redrawPoints *///Added By Roozbeh
 
 
-/* This produces an infinite loop and does not allow the 
+/* This produces an infinite loop and does not allow the
  * drawing dialog box to be initialized correctly.
  * The function is necessary however, to handle window
  * expose events, etc.
@@ -424,7 +424,7 @@ handlePaint(HWND hDlg)
    M_dl_traverse(ptr, jointlist)
    {
         jtmp = ptr->val;
-        redrawJoint(jtmp);          
+        redrawJoint(jtmp);
    }
 
 }  /* close handlePaint() */
@@ -432,7 +432,7 @@ handlePaint(HWND hDlg)
 /*static void              // won't work because hdc finds no valid regions
 handlePaint(HWND hDlg)
 {
-   HDC hdc; 
+   HDC hdc;
    PAINTSTRUCT ps;
    hdc = BeginPaint(hDlg, &ps );
    drawJoints(hdc);
@@ -440,7 +440,7 @@ handlePaint(HWND hDlg)
 }  /* close handlePaint() */
 
 
-static void                     // this works somewhat, because i think redraw joint refers to global hdc 
+static void                     // this works somewhat, because i think redraw joint refers to global hdc
 handlePaint (HWND hDlg)
 {
   HDC hdc;
@@ -479,7 +479,7 @@ handleLButtonDown (HWND hDlg, LPARAM lParam)
   char message[80];
 
   SetCapture (hDlg);
-  /* Get the (x,y) of the pointer when the left 
+  /* Get the (x,y) of the pointer when the left
    * mouse button is pressed.
    */
   ptBegin.x = LOWORD (lParam);
@@ -493,7 +493,7 @@ handleLButtonDown (HWND hDlg, LPARAM lParam)
         if (closetoJoint (jtmp, ptBegin))
           j++;
         if (j == 0)
-          SendMessage (hDlg, WMU_SETSELECTSTATE, (WPARAM) FALSE, 0);    //JointSelected = FALSE;      
+          SendMessage (hDlg, WMU_SETSELECTSTATE, (WPARAM) FALSE, 0);    //JointSelected = FALSE;
 
       }
     } else {
@@ -559,7 +559,7 @@ handleMouseMove (HWND hDlg, LPARAM lParam, WPARAM wParam)
 
       SelectObject (hdc, hCurrentPen);
       if (wParam & MK_LBUTTON) {
-        SetROP2 (hdc, R2_NOT);  //R2_NOT operates on pixels bitwise pen/dest boot each other 
+        SetROP2 (hdc, R2_NOT);  //R2_NOT operates on pixels bitwise pen/dest boot each other
         if (tool == joint) {
           MoveToEx (hdc, ptBegin.x, ptBegin.y, NULL);
           LineTo (hdc, ptOld.x, ptOld.y);
@@ -607,7 +607,7 @@ addJoint (HWND hDlg)
     /* When a joint is first drawn, require it to not be selected */
     newjoint->is_selected = FALSE;
 
-    /* Now add this turkmeister to the tail of the 
+    /* Now add this turkmeister to the tail of the
      * ddadlist type jointlist...
      */
     dl_insert_b (jointlist, (void *) newjoint);
@@ -623,10 +623,10 @@ addJoint (HWND hDlg)
 
 
 
-/* WARNING!!!  This function is not called, nor should it 
- * be until the appropriate drawing and radio button 
+/* WARNING!!!  This function is not called, nor should it
+ * be until the appropriate drawing and radio button
  * handling works correctly.  It is left uncommented
- * to ensure that it compiles correctly while other 
+ * to ensure that it compiles correctly while other
  * issues are getting worked out.
  */
 static void
@@ -700,7 +700,7 @@ handleInit (HWND hDlg, WPARAM wParam, LPARAM lParam)
   SetMapMode (hdc, MM_ISOTROPIC);
 
   /*
-     sprintf(mess, "Dialog top is %d bottom is %d\nDraw top is %d bottom is %d.\n\nClick to continue.", 
+     sprintf(mess, "Dialog top is %d bottom is %d\nDraw top is %d bottom is %d.\n\nClick to continue.",
      winSize.top,winSize.bottom,drawSize.top,drawSize.bottom);
      MessageBox( hDlg, mess, "Geometry: Window Size", MB_ICONINFORMATION );
    */
@@ -726,7 +726,7 @@ handleInit (HWND hDlg, WPARAM wParam, LPARAM lParam)
   SetViewportExtEx (hdc, maxSize, -maxSize, NULL);      /*device units */
 
   /*
-     sprintf(mess, "Viewport origin x is %d y is %d\nExtent x is %d y is %d.\n\nClick to continue.", 
+     sprintf(mess, "Viewport origin x is %d y is %d\nExtent x is %d y is %d.\n\nClick to continue.",
      orig_x,ext_y-orig_y-1,maxSize,-maxSize);
      MessageBox( hDlg, mess, "Geometry: Window Size", MB_ICONINFORMATION );
    */
@@ -770,8 +770,8 @@ void
 handleRockBolts (HWND hDlg)
 {
   //HPEN hCurrentPen;
-  //MessageBox(hDlg, "Rock bolts are not yet implemented", "Rock bolts", MB_OK); 
-  //type = 1; tool=5; hCurrentPen = drawPen[1]; 
+  //MessageBox(hDlg, "Rock bolts are not yet implemented", "Rock bolts", MB_OK);
+  //type = 1; tool=5; hCurrentPen = drawPen[1];
 
 }                               /* close handleRockBolts() */
 
@@ -833,12 +833,12 @@ static void
 handleGridOn (HDC hdc)
 {
   grid = TRUE;
-  /* Ok, the deal here is that the bounding box (llx, lly etc) 
-   * used to declared extern, and the values set elsewhere. 
+  /* Ok, the deal here is that the bounding box (llx, lly etc)
+   * used to declared extern, and the values set elsewhere.
    * We don't want to that anymore.  For now, I have hard wired
    * these in just to make something show up on the screen.
-   * What needs to be done is to compute the values from the 
-   * viewport and geometry scale.  For a new geometry, we can 
+   * What needs to be done is to compute the values from the
+   * viewport and geometry scale.  For a new geometry, we can
    * provide a scale, say from 0:100 in each direction, and
    * have a text widget where the user can overide the scale.
    */
@@ -922,20 +922,20 @@ handleSave (HWND hDlg)
   if (!GetSaveFileName (&ofn)) {
     strcpy (filepath.gpath, filepath.oldpath);
     //break;  // user pressed cancel
-    /* Cannot have a break here. 
-     * WARNING!!!!  I am assuming this should 
+    /* Cannot have a break here.
+     * WARNING!!!!  I am assuming this should
      * pass back as false.
      */
     return FALSE;
   } else {
-    
+
     // The following is some ugly shit that shot
     // through the DDA code.  Leave it alone for
     // now, handle it later.
    /* Open file and save data.
     * If it exists already, delete it.
     */
-    //  FIXME: OpenFile is 16 bit win32.  This code needs to 
+    //  FIXME: OpenFile is 16 bit win32.  This code needs to
     // be changed to use either CreateFile, or better yet,
     // find a way to use fopen.
     if (-1 != OpenFile (filepath.gpath, &of, OF_WRITE))
@@ -946,13 +946,13 @@ handleSave (HWND hDlg)
                   MB_OK | MB_ICONINFORMATION);
       return 0;
     }
-    // We are going to close this here because we want to 
-    // fopen instead, because it is posix compliant and 
+    // We are going to close this here because we want to
+    // fopen instead, because it is posix compliant and
     // CreateFile and OpenFile are MS Windows specific.
     _lclose (hFile);
 
     ////////////////////////////////////////////////
-    ///  Because we grabbing a new struct here, then deleting 
+    ///  Because we grabbing a new struct here, then deleting
     /// it afterwards, we can do cooler stuff here.
     geomstruct = gdata_new ();
 
@@ -965,17 +965,17 @@ handleSave (HWND hDlg)
 
     // We use fopen for posix compliance and the file pointer
     // for convenience.
-    fp = fopen(filepath.gpath, "w+"); 
+    fp = fopen(filepath.gpath, "w+");
     // This call will be replaced shortly.
     geomstruct->dumptofile(geomstruct, fprintf, fp);
-    fclose(fp); 
+    fclose(fp);
 
     gdata_delete (geomstruct);
 
     /* FIXME: These functions are segfaulting. Fix them. */
-    //freeJointList(); 
-    //freePointList(); 
-    //freeBoltList();  
+    //freeJointList();
+    //freePointList();
+    //freeBoltList();
 
     //_lclose (hFile);
     SetClassLong (hDlg, GCL_HCURSOR, (long) LoadCursor (NULL, IDC_ARROW));
@@ -1103,7 +1103,7 @@ drawPoints (HDC hdc)
   dlist_traverse (ptr, pointlist) {
     ptmp = ptr->val;
     SelectObject (hdc, drawPen[1]);
-    /* Select brushes here... first check for fixed 
+    /* Select brushes here... first check for fixed
      * or measured...
      */
     if ((ptmp->type == 0) || (ptmp->type == 1))
@@ -1137,7 +1137,7 @@ addPoint (HWND hDlg)
     hCurrentBr = GetStockObject (WHITE_BRUSH);
 
   /* Draw a single point.  This could and probably
-   * should be abstracted into a function that can 
+   * should be abstracted into a function that can
    * be called from here and from the drawPoints
    * function.
    */
@@ -1199,7 +1199,7 @@ transferPointlistToGeomStruct (Geometrydata * gd, POINTLIST * pointlist)
   POINTLIST *ptr;
   DPoint *ptmp;
 
-  /* The edge-node distance probably ought to 
+  /* The edge-node distance probably ought to
    * be set as a part of the CAD scaling.
    */
   gd->e00 = 0.01;
@@ -1213,9 +1213,9 @@ transferPointlistToGeomStruct (Geometrydata * gd, POINTLIST * pointlist)
   gd->pointsize2 = 9;
   gd->points = DoubMat2DGetMem (gd->pointsize1, gd->pointsize2);
 
-  /* Massive kludgery here induced by the way that the 
+  /* Massive kludgery here induced by the way that the
    * points are ordered in the points array.  The order
-   * and the type are not the same.  The technique is 
+   * and the type are not the same.  The technique is
    * to traverse the list once for each type of point,
    * only storing one type at a time, and in the correct
    * order in the points array.  First up is FIXED:
@@ -1300,7 +1300,7 @@ transferBoltlistToGeomStruct (Geometrydata * gd, Boltlist * boltlist)
 
 
 
-/* We really need to get the physical coordinates from the 
+/* We really need to get the physical coordinates from the
  * device coordinates.
  */
 static DPoint
@@ -1308,7 +1308,7 @@ DPointtoPPoint (HWND hwMain, int xpos, int ypos)
 {
   /* Convenience variables set from Graphics struct. */
   double scale, offsetx, offsety;
-  /* The local device context.  We will set this and release 
+  /* The local device context.  We will set this and release
    * in this function.
    */
   HDC hdc;
@@ -1337,9 +1337,9 @@ DPointtoPPoint (HWND hwMain, int xpos, int ypos)
   int xviewportorg, yviewportorg;
 
   /* Dummy variables for now. */
-  //double scale, offsetx, offsety; 
+  //double scale, offsetx, offsety;
 
-  /* Segfaults if there is nothing to look at. 
+  /* Segfaults if there is nothing to look at.
    * FIXME: Add some error code in here to keep track
    * of whats going on.
    */
@@ -1593,8 +1593,8 @@ handleWMCommand (HWND hDlg, UINT iMessage, LPARAM lParam, WPARAM wParam)
     handleDrawContext (hDlg, lParam, wParam);
     break;
 
-    /* Handles changing grid spacing? 
-     * TODO: Collapse this into a single callable function. 
+    /* Handles changing grid spacing?
+     * TODO: Collapse this into a single callable function.
      */
   case IDC_GRID:
     if (grid) {
@@ -1642,9 +1642,9 @@ DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
     handleInit (hDlg, wParam, lParam);
     break;
 
-    /* FIXME: handlePaint does not work correctly.   
-     * Needs to be fixed before shipping.  As a test 
-     * case, cover, then uncover the dialog. 
+    /* FIXME: handlePaint does not work correctly.
+     * Needs to be fixed before shipping.  As a test
+     * case, cover, then uncover the dialog.
      */
 
   case WM_PAINT:
@@ -1681,7 +1681,7 @@ DrawDlgProc (HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
     freeJointList ();
     break;
 
-    /* Probably should free some memory, etc. before 
+    /* Probably should free some memory, etc. before
      * shutting down.
      */
   default:

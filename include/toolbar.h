@@ -1,4 +1,4 @@
-/* 
+/*
  * prototypes for toolbar handling
  */
 

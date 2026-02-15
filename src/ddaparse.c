@@ -1,6 +1,6 @@
 /*
  * ddaparse.c
- * 
+ *
  * Handles strings of values and attributes returned by
  * libxml parser.
  *
@@ -58,8 +58,8 @@ void handleGjob(gJobPtr cur);
 
 /*  An example main */
   /*
-int 
-main(int argc, char **argv) 
+int
+main(int argc, char **argv)
 {
     int i;
     gJobPtr cur;
@@ -75,8 +75,8 @@ main(int argc, char **argv)
 /*
  * And the code needed to parse it
  */
-personPtr 
-parsePerson(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+personPtr
+parsePerson(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
     personPtr ret = NULL;
 
@@ -109,8 +109,8 @@ DEBUG("parsePerson\n");
 /*
  * and to print it
  */
-void 
-printPerson(personPtr cur) 
+void
+printPerson(personPtr cur)
 {
     if (cur == NULL) return;
     printf("------ Person\n");
@@ -129,8 +129,8 @@ printPerson(personPtr cur)
 /*
  * And the code needed to parse it
  */
-jobPtr 
-parseJob(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur) 
+jobPtr
+parseJob(xmlDocPtr doc, xmlNsPtr ns, xmlNodePtr cur)
 {
     jobPtr ret = NULL;
 
@@ -148,7 +148,7 @@ DEBUG("parseJob\n");
     /* We don't care what the top level element name is */
     cur = cur->childs;
     while (cur != NULL) {
-        
+
         if ((!strcmp(cur->name, "Project")) && (cur->ns == ns)) {
 	    ret->projectID = xmlGetProp(cur, "ID");
 	    if (ret->projectID == NULL) {
@@ -170,8 +170,8 @@ DEBUG("parseJob\n");
 /*
  * and to print it
  */
-void 
-printJob(jobPtr cur) 
+void
+printJob(jobPtr cur)
 {
     int i;
 
@@ -190,7 +190,7 @@ printJob(jobPtr cur)
 
 
 
-gJobPtr parseGjobFile(char *filename) 
+gJobPtr parseGjobFile(char *filename)
 {
     xmlDocPtr doc;
     gJobPtr ret;
@@ -264,8 +264,8 @@ gJobPtr parseGjobFile(char *filename)
     return(ret);
 }
 
-void 
-handleGjob(gJobPtr cur) 
+void
+handleGjob(gJobPtr cur)
 {
     int i;
 

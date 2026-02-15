@@ -1,11 +1,11 @@
-/* 
- * analysisdriver.c 
+/*
+ * analysisdriver.c
  *
  * Drives the dda forward analysis. The functions
- * invoked from this driver comprise the set of 
- * functions from the "df", or "dda forward" 
+ * invoked from this driver comprise the set of
+ * functions from the "df", or "dda forward"
  * written by GHS.
- * 
+ *
  * $Log: analysisdriver.c,v $
  * Revision 1.41  2003/06/10 19:03:21  doolin
  * bolt output file now contains bolt forces.
@@ -183,7 +183,7 @@
  * externs are done.
  *
  * Revision 1.9  2001/08/26 02:15:49  doolin
- * Some minor changes leading up to a major memory overhaul to eliminate externs.  
+ * Some minor changes leading up to a major memory overhaul to eliminate externs.
  * This commit will be tagged as 1.5.126
  *
  * Revision 1.8  2001/08/26 00:21:20  doolin
@@ -239,7 +239,7 @@ FILEPOINTERS fp;
 
 /* @todo: Get rid of FILEPATHS and GRAPHICS.
  */
-int	
+int
 ddanalysis(DDA * dda, Filepaths * filepath) {
 
    Geometrydata * GData = dda_get_geometrydata(dda);
@@ -248,7 +248,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /** Maximum vertex displacement current time step. */
    double md_cts;
 
-  /** Callbacks for really critical stuff, like 
+  /** Callbacks for really critical stuff, like
    * integration, motion, etc.
    */
    TransMap    transmap           = NULL;
@@ -292,7 +292,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /*  u v  or x+u y+v  of vertices in the `vertices'*/
   /* matrix,                                        */
   /* u[vertexCount+1][3]                            */
-  /* WARNING!!!  U is overloaded in df04, df05 for 
+  /* WARNING!!!  U is overloaded in df04, df05 for
    * storing the inside and outside block angles.
    */
   	double **U;
@@ -302,22 +302,22 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /* n : 3 limit of k element number of i row       */
   /* n[nBlocks+1][4]                                */
   /* In other words, n[i][1] stores the location in kk
-   * that has the starting column number (block j) 
+   * that has the starting column number (block j)
    * associated with row i (block i).  n[i][2] contains
    * the total number of columns (contacts) of ith row,
-   * and each column number is stored in successive 
-   * locations in kk.  The diagonal ends up at 
-   * n[i][1]+n[i][2]-1.  But these aren't really column 
+   * and each column number is stored in successive
+   * locations in kk.  The diagonal ends up at
+   * n[i][1]+n[i][2]-1.  But these aren't really column
    * numbers, they are locations in Kij!!!!!  What happens
-   * is that kk stores column number associated with a 
+   * is that kk stores column number associated with a
    * certain value between n[i][1] and n[i][1]+n[i][2]-1,
    * which is used for matching block number in kk.
    * When the block number is matched in kk, the value
    * given from the n[][] matrix is used to extract or
    * insert values into the stiffness matrix K.  That is,
    * n has the index locations in K of various columns,
-   * where the index value is matched against kk.  To extract 
-   * a specific element, traverse a row i in n[][], checking 
+   * where the index value is matched against kk.  To extract
+   * a specific element, traverse a row i in n[][], checking
    * to see whether that element is stored in kk.  If so,
    * the travseral counter from n[][] will match the index
    * for that particular row and column in the stiffness
@@ -326,7 +326,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    int **n;
 
 
-   /** This will of course need to be moved into a more 
+   /** This will of course need to be moved into a more
     * appropriate place.
     */
    if (AData->rotationflag == 1) {
@@ -336,7 +336,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    }
 
 
-   if (AData->planestrainflag == 1) { 
+   if (AData->planestrainflag == 1) {
       boundary_condition = stress_planestrain;
    } else {
       boundary_condition = stress_planestress;
@@ -346,7 +346,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
       transmap = transplacement_linear;
       massmatrix = massmatrix_linear;
       strain_model = strain_linear_elastic;
-   } else { 
+   } else {
       transmap = transplacement_finite;
       massmatrix = massmatrix_finite;
       strain_model = strain_green_lagrange;
@@ -354,10 +354,10 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    }
 
 
-/* The invoking program, whether windows or not, is going to 
+/* The invoking program, whether windows or not, is going to
  * have to grab an AData and send it various signals.  Here,
- * we set the output options directly.  This stuff is not in 
- * compile control because I want to deal with it asap.  And 
+ * we set the output options directly.  This stuff is not in
+ * compile control because I want to deal with it asap.  And
  * I want to get rid of compilecontrol asap.
  */
    //adata_set_output_flag(AData, VERTICES);
@@ -368,17 +368,17 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    //adata_set_output_flag(AData, PENALTYFORCES);
    //adata_set_output_flag(AData, FRICTIONFORCES);
    adata_set_output_flag(AData, BOLTS);
-  /* FIXME: This is a horrible bogosity: moments need to 
+  /* FIXME: This is a horrible bogosity: moments need to
    * be written from the geometry data, not the analysis
-   * data.  
+   * data.
    */
    //adata_set_output_flag(AData, MOMENTS);
 
   /* Allocating arrays in a function removes lots of superfluous
    * code.  Most of this function will disappear in the future.
    */
-   allocateAnalysisArrays(GData, &kk, &k1, &c0, 
-                          //&e0, 
+   allocateAnalysisArrays(GData, &kk, &k1, &c0,
+                          //&e0,
                           &U, &n);
 
 
@@ -393,35 +393,35 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
   /* New contact handling struct */
    CTacts = contacts_new(GData->nBlocks);
 
-  /* Draw some stuff to the screen. */ 
+  /* Draw some stuff to the screen. */
    display(GData, AData);
 
   /* Check to see how the forces look. */
    //printForces(GData, AData->F, k1, "Before main loop");
-      
-/* All this stuff gets put elsewhere at some point in the 
+
+/* All this stuff gets put elsewhere at some point in the
  * future.
  */
-   
+
    if (AData->options & VERTICES && AData->verticesflag) {
 	   for (counter = 1; counter <= GData->nBlocks; counter++) {
 			writeBlockVerticesLog(GData, 0, counter);
 	   } // end for
 	   writeAllBlockVerticesMatrix(GData, AData);
    }  // end if
-   
+
    if (AData->options & BOLTS) {
         //writeBoltLog(GData, AData);
         //writeBoltLog(GData->rockbolts,GData->nBolts, AData->cts, AData->elapsedTime);
         bolt_log_a(GData->rockbolts,GData->nBolts, AData->cts, AData->elapsedTime,(PrintFunc)fprintf,fp.boltlogfile);
 
         writeBoltMatrix(GData, AData);
-   }  
+   }
 
    if (AData->options & MOMENTS)
       writeMoments(GData, AData->cts, AData->nTimeSteps);
 
-  /* If arg 2 is greater than the number of blocks, 
+  /* If arg 2 is greater than the number of blocks,
    * we get a crash.
    */
    //writeBlockStresses(e0,4);
@@ -433,16 +433,16 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
      /* Compute the size of the next time step.
       * FIXME :Give a precis how it it works.
       */
-      computeTimeStep(GData,AData); 
+      computeTimeStep(GData,AData);
      /* Contains subfunctions df04, df05, df06, df07.
-      * Contact finding takes a list of blocks, finds the 
-      * number of vertex-vertex (v-v) or vertex-edge (v-e) contacts 
+      * Contact finding takes a list of blocks, finds the
+      * number of vertex-vertex (v-v) or vertex-edge (v-e) contacts
       * possible in the forthcoming time step, then determines
       * which of those contacts are possible using the corner
       * reference diagram, establishes locks (?), determines
       * length of contact for friction and cohesion computation,
       * then determines the number of block-to-block contacts
-      * using the actual v-e/v-v  count (from df05).  Contact 
+      * using the actual v-e/v-v  count (from df05).  Contact
       * finding is described in Shi 1988, Chapter 4, pp. 139-188
       * (for df04, df05, df06, df07).  Note that U is overloaded
       * here, being used to temporarily store inside and outside
@@ -452,32 +452,32 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
       //printContactLengths(GData, contactlength, "From main loop");
 
      /* Positions of non-zero storage.
-      * Constructing sparse storage (df08) is described 
+      * Constructing sparse storage (df08) is described
       * in Shi 1988, Chapter 5, Section 5.3-8, pp. 199-230.
       */
       sparsestorage(GData,AData, CTacts, kk,k1, GData->nn0,n);
 
-     /* For first time step, get the memory for the 
+     /* For first time step, get the memory for the
       * stiffness matrix.  For all other time steps,
-      * check to see if the number of current block-to-block 
-      * contacts is the same as the previous number of 
+      * check to see if the number of current block-to-block
+      * contacts is the same as the previous number of
       * block-to-block contacts.  If not, reallocate.
       */
-      allocateK(AData); 
+      allocateK(AData);
 
 
      /**************  TEST FROM ABOVE THE DO LOOP  ************/
-     /* k00 controls open/close iteration.  Appears to 
+     /* k00 controls open/close iteration.  Appears to
       * be a flag instead of an incremented value.  k00
-      * is reset when the time step is incremented. This 
+      * is reset when the time step is incremented. This
       * allows tracking values from previous time increments
       * when the time step is cut during an increment.
       */
       AData->k00=0;
 
 
-      /************END TEST ***********************/		   
-      
+      /************END TEST ***********************/
+
       /* (GHS: new time interval   k00=0:locks[i][1]=0 df07) */
 
 
@@ -500,7 +500,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
          assemble(GData,AData,get_locks(CTacts),e0,k1,kk,n,U,transmap);
 
         /* The "classical" DDA derived in GHS 1988 used a forward
-         * difference formulation to integrate over time.  This 
+         * difference formulation to integrate over time.  This
          * code currently uses a forward difference expansion
          * outlined in the 1996 1st DDA Int forum.
          */
@@ -508,14 +508,14 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 
         /* OPEN-CLOSE ITERATION */
          do {       /* the label formerly known as a002: */
-         
+
            /* Add and subtract contact matrices */
             df18(GData, AData, CTacts, kk,k1,c0,n, transmap);
 
-/*  At the last time step, after the first OCI, save the 
+/*  At the last time step, after the first OCI, save the
  * stiffness matrix for spectral examination.
- * The mass matrix is written out elsewhere and has to 
- * be subtracted from the generalized stiffness matrix 
+ * The mass matrix is written out elsewhere and has to
+ * be subtracted from the generalized stiffness matrix
  * here before the eigenvalues are found.
  */
 #if 1
@@ -529,24 +529,24 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
       AData->writemfile = FALSE;
    }
 #endif
-           /** @brief The saveState() function saves a copy of K and F 
+           /** @brief The saveState() function saves a copy of K and F
             * because the solver overwrites both, and the OCI
-            * uses the original stiffness and forcing vectors each 
+            * uses the original stiffness and forcing vectors each
             * OCI trial.  saveState() was moved out of df20().
             *
             * @todo Move the friction vector elsewhere.
-            * The friction vector is added into the forcing 
-            * vector in this function, which is an 
+            * The friction vector is added into the forcing
+            * vector in this function, which is an
             * optimization, but obscures the algorithm.
             * Friction is added to the original forcing vector
-            * after the copy is made, which also needs to be 
+            * after the copy is made, which also needs to be
             * fully explained.
             */
             saveState(AData->K,AData->Kcopy,AData->n3,AData->F,
                       AData->Fcopy,GData->nBlocks,c0);
 
-           /* U = K^{-1}F  df20() and df21() are still called from solve(). 
-            * U is overwritten into F as a result of the LU solver. 
+           /* U = K^{-1}F  df20() and df21() are still called from solve().
+            * U is overwritten into F as a result of the LU solver.
             * Parts of K are overwritten by the factorization.
             */
             solve(AData, AData->K, AData->F,kk,k1,n,GData->nBlocks);
@@ -560,29 +560,29 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
            /* (GHS: Contact judge after iteration.)*/
            /* df22 is where open-close convergence is checked.  To implement
             * augmented lagrangian, there will need to be some code modified
-            * in this function as well.  See Shi 1988, Chapter 4, Section 
+            * in this function as well.  See Shi 1988, Chapter 4, Section
             * 4.3, p. 157 for details.
             */
             df22(GData, AData, CTacts, k1, transmap);
-   
+
            /* displacement ratio and iteration drawing. */
             md_cts = df24(GData, AData, AData->F, k1, transmap, transapply);
-           
+
            /** @brief m9 = -1 means the OCI has converged, so if
             * it hasn't converged, the state of the stiffness and
-            * forcing vector needs to be restored for the next 
+            * forcing vector needs to be restored for the next
             * OCI trial.  restoreState was factored out of df24().
-            */  
+            */
            /* (GHS: recover  a[][]  f[][] after equation solving) */
            /* m9 = -1 means iteration finished               */
             if (AData->m9 != -1) {
                restoreState(AData->K,AData->Kcopy,AData->n3,
                             AData->F,AData->Fcopy,GData->nBlocks);
             }
-            
+
         /* close do-while loop for open-close iteration */
         /* while ( HAVETENPEN && ( AData->iterationcount < MaxOpenCloseCount) ) */
-         }  while (0<(AData->m9)  && (AData->m9)< (8) );          
+         }  while (0<(AData->m9)  && (AData->m9)< (8) );
 
 /******************* PASSED OPEN CLOSE ITERATION **************************/
 
@@ -590,12 +590,12 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
       * recompute time step size or spring stiffness.  Then
       * run the open-close iteration again with new parameters
       */
-      }  while(checkParameters(GData, AData, CTacts, fp.logfile));  
+      }  while(checkParameters(GData, AData, CTacts, fp.logfile));
 
 /******************* PASSED PARAMETER CHECKS ******************************/
 
 
-     /* Compute step displacements.  FIXME: See if this function 
+     /* Compute step displacements.  FIXME: See if this function
       * can be renamed "updateGeometry()".
       */
       df25(GData, AData,k1,e0,U, transmap, transapply, boundary_condition,strain_model );
@@ -603,19 +603,19 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
      /* writeMeasuredPoints must be called after df25().
       * We could remainder arithmetic to save this every
       * n steps, or to not save at all at user request.
-      * This would just cost a conditional. 
+      * This would just cost a conditional.
       * FIXME: Buffer this to be written out after the analysis.
       * FIXME: move to a dda_log_step_data() function.
       */
      /* FIXME: The function has a bottleneck in it somewhere
       * which slows down the initial time step tremendously.
-      * I think it is writing out vertices also, which 
+      * I think it is writing out vertices also, which
       * makes everything really slow.
       */
       if (AData->options & MEASPOINTS) {
          writeMeasuredPoints(GData, AData);
       }
-  
+
       if (AData->options & FIXEDPOINTS)
          writeFixedPoints(GData, AData);
 
@@ -631,7 +631,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 	  if (AData->options & BOLTS) {
         bolt_log_a(GData->rockbolts, GData->nBolts, AData->cts, AData->elapsedTime,(PrintFunc)fprintf,fp.boltlogfile);
 	     writeBoltMatrix(GData, AData);
-      }  
+      }
 
 #if 0
 	   if (AData->options & VERTICES && AData->verticesflag) {
@@ -639,7 +639,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 			   writeBlockVerticesLog(GData, AData->cts, counter);
          }
 	      writeAllBlockVerticesMatrix(GData, AData);
-	   }  
+	   }
 #endif
 
      /* MacLaughlin, 1997: Chapter 3, Section 3, p. 26-30. */
@@ -648,7 +648,7 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
       }
 
 
-     /* Draw some stuff to the screen. */ 
+     /* Draw some stuff to the screen. */
       display(GData, AData);
 
    } /* END OF MAIN ANALYSIS LOOP  */
@@ -657,8 +657,8 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
 
 
   /* All of the post-processing crapola goes in here.
-   * Set up a global struct in a special header file 
-   * with flags for what to emit in post-processing 
+   * Set up a global struct in a special header file
+   * with flags for what to emit in post-processing
    * phase.
    */
    postProcess(GData, AData);
@@ -666,10 +666,10 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    // if (AData->options & VERTICES)
    //   writeBlockVertices(GData, 1);
 
-  /* Everything after here is clean up code.  All memory 
+  /* Everything after here is clean up code.  All memory
    * should be freed, all open files closed. etc etc etc.
    * FIXME: Ram all of the rest of this into a "cleanup"
-   * function as soon as the memory debacle with the 
+   * function as soon as the memory debacle with the
    * geometry data is fixed.
    */
    deallocateAnalysisArrays(kk,
@@ -691,22 +691,22 @@ ddanalysis(DDA * dda, Filepaths * filepath) {
    material_delete(m);
 
   /* This should probably be freed in the calling function. */
-   datalog_delete(DLog); 
+   datalog_delete(DLog);
    contacts_delete(CTacts);
 
-  /* Keep this as the last function call so that there will 
-   * no ambiguity about which files are open.  
+  /* Keep this as the last function call so that there will
+   * no ambiguity about which files are open.
    */
-   closeAnalysisFiles();   
+   closeAnalysisFiles();
 
   /** @brief Eventually, this will return a struct that points at various parts of the
    * analysis.  That way, the analysis only has to be run one time, and all relevant
-   * variables etc can be retained in the struct for further (and faster) 
-   * examination.  What is happening currently is there is 
+   * variables etc can be retained in the struct for further (and faster)
+   * examination.  What is happening currently is there is
    * an extern pointing at it from winmain.
-   */  
-   return TRUE;     
-} 
+   */
+   return TRUE;
+}
 
 
 

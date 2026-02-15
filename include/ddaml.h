@@ -1,5 +1,5 @@
 
-/*  
+/*
  *
  */
 
@@ -17,14 +17,14 @@ extern "C" {
 
 #define LIBXML_STATIC
 
-void ddaml_read_geometry_file  (void * userdata, 
+void ddaml_read_geometry_file  (void * userdata,
                                 char * filename);
 
-void ddaml_read_analysis_file  (void * userdata, 
+void ddaml_read_analysis_file  (void * userdata,
                                 char * filename);
 
-void ddaml_check_document      (void * userdata, //xmlDocPtr doc, 
-                                const char * name_space, 
+void ddaml_check_document      (void * userdata, //xmlDocPtr doc,
+                                const char * name_space,
                                 const char * rootname);
 
 void  (*ddaml_display_warning) (const char * message);

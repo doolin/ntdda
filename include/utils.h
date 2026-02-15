@@ -1,5 +1,5 @@
 
-/**  Most of the functions in here need to be 
+/**  Most of the functions in here need to be
  *  put somewhere else.
  */
 
@@ -19,9 +19,9 @@ double sign         (double);
 
 #if 0
 /** Needs to be fixed to not depend on e0. */
-void   computeMass  (double * mass, 
-                     double ** moments, 
-                     double ** e0, 
+void   computeMass  (double * mass,
+                     double ** moments,
+                     double ** e0,
                      int numblocks);
 #endif
 

@@ -2,7 +2,7 @@
 /*
  * win32utils.h
  *
- * This should eventually be built as a dll for using with 
+ * This should eventually be built as a dll for using with
  * debugging windows apps, etc.
  */
 

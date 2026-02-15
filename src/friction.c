@@ -1,6 +1,6 @@
-/* 
+/*
  * friction.c
- * 
+ *
  * $Author: doolin $
  * $Date: 2003/12/17 23:36:36 $
  * $Source: /cvsroot/dda/ntdda/src/friction.c,v $
@@ -24,30 +24,30 @@
  * will produce spurious results.
  */
 /* BUG BUG BUG BUG
- * This frictional decay function provides 
- * a friction angle based on the value of the 
- * displacement of a measured point.  If there is 
+ * This frictional decay function provides
+ * a friction angle based on the value of the
+ * displacement of a measured point.  If there is
  * no measured point, the call will produce spurious
  * results due to garbage in the over-allocated arrays.
  */
 double
 computeFriction(Geometrydata *gd,  int joint_type)
-{ 
+{
    static double phi;
    double x;
-  /* probably better to dereference this in the calling 
-   * function and pass the array in directly instead of 
+  /* probably better to dereference this in the calling
+   * function and pass the array in directly instead of
    * making multiple dereferences.
    */
    double ** points = gd->points;
-  
+
    double phi0 = 12;
    double phiR = 6;
    double k = 0.01;
-  
+
   /* x, y are the cumulative displacements
-   * FIXME: This next line of code sets the frictional 
-   * decay from the x displacement of the first 
+   * FIXME: This next line of code sets the frictional
+   * decay from the x displacement of the first
    * measured point.  This is hideously fragile,
    * non-extensible, and barely maintainable.
    */
@@ -58,7 +58,7 @@ computeFriction(Geometrydata *gd,  int joint_type)
    */
    x = (fabs(points[gd->nFPoints+gd->nLPoints+1][7]))/cos(30.0*PI/180.0);
 
-  
+
    phi = (phi0-phiR)*(exp(-k*x)) + phiR;
 
    return phi;
@@ -72,15 +72,15 @@ computeFriction(Geometrydata *gd,  int joint_type)
  * file.
  */
 /* BUG BUG BUG BUG
- * DISPDEP compiles in a call (df18 and df22) 
- * to a frictional decay function that provides 
- * a friction angle based on the value of the 
- * displacement of a measured point.  If there is 
+ * DISPDEP compiles in a call (df18 and df22)
+ * to a frictional decay function that provides
+ * a friction angle based on the value of the
+ * displacement of a measured point.  If there is
  * no measured point, the call will produce spurious
  * results due to garbage in the over-allocated arrays.
  */
 double
-computeVFriction(Geometrydata *gd, int units, double mu0) { 
+computeVFriction(Geometrydata *gd, int units, double mu0) {
 
    static double phi;
    double x;
@@ -93,7 +93,7 @@ computeVFriction(Geometrydata *gd, int units, double mu0) {
   /* kinetic friction coefficient */
    double mu_k;
 
-  /* thickness of shearing zone. This is given in Voight 
+  /* thickness of shearing zone. This is given in Voight
    * in meters.  For Vaiont, we need it in feet.
    */
    double h;
@@ -121,19 +121,19 @@ computeVFriction(Geometrydata *gd, int units, double mu0) {
    double Cr;
   /* specific heat of water */
    double Cw;
-   
-  /* cohesion, zero for now, probably always zero in 
+
+  /* cohesion, zero for now, probably always zero in
    * Voight's model
    */
    double cohesion;
 
-  /* probably better to dereference this in the calling 
-   * function and pass the array in directly instead of 
+  /* probably better to dereference this in the calling
+   * function and pass the array in directly instead of
    * making multiple dereferences.
    */
    double ** points = gd->points;
 
-  /* TODO: This is a kludge because `b' does not change 
+  /* TODO: This is a kludge because `b' does not change
    * over the duration of a problem, and could (should)
    * be computed elsewhere as part of an initialization
    * sequence.  Anyway, once b is computed, this code no
@@ -176,27 +176,27 @@ computeVFriction(Geometrydata *gd, int units, double mu0) {
       //fprintf(fp.logfile,"Voight's b value: %.f\n", b);
    }
 
-  /* x, y are the cumulative displacements, which 
+  /* x, y are the cumulative displacements, which
    * computed in ???
    */
   /* Note that this assumes there is only 1 measured point
    * that is important in the problem, and that the x direction
-   * displacement is the total, or at least only displacement 
+   * displacement is the total, or at least only displacement
    * that we care about.
    */
    x = fabs(points[gd->nFPoints+gd->nLPoints+1][7]);
- 
+
    //fprintf(fp.logfile,"Disp x: %lf\n", x);
 
    assert(x>=0);
-  
+
   /* Hardwire from Voight, 1982 */
    b = 0.000187;
 
    lambda = lambda0 + (1-lambda0)*(1-exp(-(b*x)/h));
 
   /* Equation 16 in Voight 1982 */
-   mu_k  = (1-lambda)*tan(PI*mu0/180.0);   
+   mu_k  = (1-lambda)*tan(PI*mu0/180.0);
    //fprintf(fp.logfile,"mu_k: %lf\n", mu_k);
 
    phi = atan(mu_k)*180.0/PI;
@@ -206,5 +206,5 @@ computeVFriction(Geometrydata *gd, int units, double mu0) {
 
    return phi;
 
-}  
+}
 

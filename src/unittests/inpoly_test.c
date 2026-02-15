@@ -15,7 +15,7 @@ test_inpoly(void) {
 }
 
 
-int 
+int
 inpoly_test(void) {
 
   test_inpoly();
@@ -25,7 +25,7 @@ inpoly_test(void) {
 }
 
 
-int 
+int
 main() {
 
   inpoly_test();

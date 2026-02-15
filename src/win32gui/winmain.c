@@ -1,11 +1,11 @@
-/* 
+/*
  * winmain.c
- * 
+ *
  * DDA for Windows NT
- * 
- * This is the main gui message handling code to run the 
+ *
+ * This is the main gui message handling code to run the
  * dda gui interface.
- * 
+ *
  * $Author: rgrayeli $
  * $Date: 2008/04/04 23:45:16 $
  * $Source: /cvsroot/dda/ntdda/src/win32gui/winmain.c,v $
@@ -48,7 +48,7 @@
 #define CALLBACK
 #endif
 /* These are used in a switch statement, to determine
- * the action of WM_PAINT.  
+ * the action of WM_PAINT.
  */
 #define NOTHING 0
 #define LINES 1
@@ -87,9 +87,9 @@ long zoom = 25000;
 
 
 
-/* These set the cursor location on a mouse button down 
- * or mouse button up.  These should be moved into DDA 
- * struct so that the mouse handling can be moved into 
+/* These set the cursor location on a mouse button down
+ * or mouse button up.  These should be moved into DDA
+ * struct so that the mouse handling can be moved into
  * a different file.
  */
 int xcursor;
@@ -98,7 +98,7 @@ int ycursor;
 
 
 
-/* Unfortunately, several variables are better 
+/* Unfortunately, several variables are better
  * handled as externs for the time being.  Later
  * these can be handled in hash tables or something
  * to provide the ability for more than one analysis
@@ -115,9 +115,9 @@ GRAPHICS * g = NULL;
 DWORD dwHTMLCookie;
 
 
-/* handleWMCommand has to be declared here to 
+/* handleWMCommand has to be declared here to
  * avoid namespace collision with the analysis
- * dialog box.  handleMouseMove collides with 
+ * dialog box.  handleMouseMove collides with
  * same in drawdialog().
  */
 /* FIXME: Orthogonalize header files. */
@@ -132,7 +132,7 @@ static void insertNewMainMenuItem(HWND hwMain);
 
 void displayPhysicalCoordinates(HWND hwMain, WPARAM wParam, LPARAM lParam);
 DPoint DPtoPP(HWND hwMain, int xpos, int ypos);
-   
+
 /* Move this to its own header file. */
 int CreateTestPropSheet(HWND hwMain, Analysisdata *);
 
@@ -184,7 +184,7 @@ dda_display_info(const char * message) {
 
 
 
-static void 
+static void
 initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
    HINSTANCE hInst;
@@ -200,11 +200,11 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
    initializePens();
    initializeBrushes();
-   
-  /* FIXME: g is handling lots of things it ought not 
-   * be handling.  The win32 gui control parts need to 
+
+  /* FIXME: g is handling lots of things it ought not
+   * be handling.  The win32 gui control parts need to
    * be abstracted out.
-   */ 
+   */
    g = initGraphicStruct();
 
    statusbar_init(hwMain);
@@ -214,18 +214,18 @@ initializeDDAForWindows(HWND hwMain, WPARAM wParam, LPARAM lParam) {
    toolbar_show();
 
 
-  /* Handle a possible command line argument from 
+  /* Handle a possible command line argument from
    * a file drag and drop.
    */
    if (__argc > 1) {
       handleCommandLine(hwMain, __argc, __argv, &filepath);
    }
-} 
+}
 
 
 
 
-static void 
+static void
 handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
    POINTS mousepos;
@@ -249,9 +249,9 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
    dda_set_xcur(dda,mousepos.x);
    dda_set_ycur(dda,mousepos.y);
 
-  /* There is a serious bug somewhere that allows a null vertex and 
+  /* There is a serious bug somewhere that allows a null vertex and
    * vindex arrays to pass into this block.  Not sure where or why this
-   * is happening. in the meantime, try this instead... 
+   * is happening. in the meantime, try this instead...
    */
    if (dda_get_menu_state(dda) == (GEOM_STATE | FINISHED) ) {
       p = DPtoPP(hwMain, xnew,ynew);
@@ -271,25 +271,25 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
   /* FIXME:  This is a kludgy way to handle this. */
    if (whatToDraw == LINES || whatToDraw == BLOCKS)
    {
-     /* Get the value of LOWORD and HIWORD, print them to a 
-      * temp string, examine the temp string in a 
+     /* Get the value of LOWORD and HIWORD, print them to a
+      * temp string, examine the temp string in a
       * MessageBox.  The idea is to examine to be able
-      * see how these various keys and mouse buttons may 
+      * see how these various keys and mouse buttons may
       * be combined.
       */
       wparamlo = LOWORD(wParam);
       wparamhi = HIWORD(wParam);
       sprintf(mess,"x: %d;  y: %d", wparamlo, wparamhi);
-      switch (wparamlo) 
+      switch (wparamlo)
       {
-         case MK_CONTROL: 
+         case MK_CONTROL:
             break;
 
-         case MK_SHIFT: 
+         case MK_SHIFT:
             break;
 
-         case (MK_LBUTTON+MK_CONTROL): 
-      
+         case (MK_LBUTTON+MK_CONTROL):
+
             deltax = xnew - xcursor;
             deltay = ycursor - ynew;
 
@@ -300,16 +300,16 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 			   UpdateWindow(hwMain);
 
             break;
-       
-        /* WM_RBUTTONUP handles in WMCOMMAND.  
-         * But RBUTTON pressed with a mouse 
+
+        /* WM_RBUTTONUP handles in WMCOMMAND.
+         * But RBUTTON pressed with a mouse
          * move will work here.
          */
          case (MK_LBUTTON+MK_SHIFT):
-           /* Zoom in for up, zoom out for down.  This is 
-            * going to be tricky to catch a good scale to 
+           /* Zoom in for up, zoom out for down.  This is
+            * going to be tricky to catch a good scale to
             * be useful.
-            */            
+            */
             deltay = ycursor - ynew;
             zoom = zoom + deltay;
 
@@ -325,7 +325,7 @@ handleMouseMove(HWND hwMain, WPARAM wParam, LPARAM lParam) {
             //MessageBox(NULL,"c","c",MB_OK);
             break;
 
-         case MK_MBUTTON: 
+         case MK_MBUTTON:
             break;
 
          default:
@@ -436,8 +436,8 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
 			* Up and Dwon button.
 
-         */   
-         case (VK_LEFT): 
+         */
+         case (VK_LEFT):
             xoff = xoff - delta;
             break;
 
@@ -456,8 +456,8 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
 
         /* Zoom in By pressing the Add button.
-         * zoom out By pressing the Subtract button.  
-         */ 
+         * zoom out By pressing the Subtract button.
+         */
          case (VK_ADD):
 			   zoom = (long)floor(zoom*1.2);
 
@@ -473,7 +473,7 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
             break;
 	  }
 
-			   
+
 
      InvalidateRect(hwMain, NULL, TRUE);
 
@@ -493,7 +493,7 @@ handleKeydown(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 #endif
 
    return 0;
-}  
+}
 
 // Added By Roozbeh
 static int
@@ -506,60 +506,60 @@ handleZoomMove(HWND hwMain, int z) {
    if (whatToDraw == LINES || whatToDraw == BLOCKS) {
 
         /* Zoom in By pressing the Add button.
-         * zoom out By pressing the Subtract button.  
-         */ 
-      switch (z) 
+         * zoom out By pressing the Subtract button.
+         */
+      switch (z)
 	  {
- 
-         case (0): 
+
+         case (0):
             zoom = (long)floor(zoom*1.2);
             break;
 
-		 case (1): 
+		 case (1):
             zoom = (long)floor(zoom/1.2);
             break;
 
-         case (2): 
+         case (2):
             zoom = 25000;
             break;
         // handle moving part
-         case (3): 
+         case (3):
             xoff = xoff - delta;  // Added By Roozbeh
             break;
-         case (4): 
+         case (4):
             xoff = xoff + delta;  // Added By Roozbeh
             break;
-         case (5): 
+         case (5):
             yoff = yoff - delta;  // Added By Roozbeh
             break;
-         case (6): 
+         case (6):
             yoff = yoff + delta;  // Added By Roozbeh
             break;
 	  }
 
-		   
+
 	  }
 
      InvalidateRect(hwMain, NULL, TRUE);
      UpdateWindow(hwMain);
 
    return 0;
-}  
+}
 //Added By Roozbeh
 
 
 
-/* Handlers follow, in approximate order of menu entry for 
+/* Handlers follow, in approximate order of menu entry for
  * convenience.
  */
 
 static void
-handleTitle(HWND hwMain) { 
+handleTitle(HWND hwMain) {
 
   /* Just draw it once in lieu of splash screen */
   /* FIXME: Make this a handleSplash function. */
    static int draw = 1;
-           
+
 
    if (draw == 0) {
 
@@ -583,7 +583,7 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
    HWND draw_wnd;
 
 
-   HDC hdc; 
+   HDC hdc;
    PAINTSTRUCT ps;
    RECT rectClient;
    Geometrydata * geomdata;
@@ -609,22 +609,22 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
          g->scale = setScale(draw_wnd, hdc, g, geomdata->scale);
          drawBlocks(hdc, hBr, g, geomdata);
         /* All this code here does is draw outlines of the
-         * blocks in their original position using the dashed 
-         * line pen.  FIXME: replace with a drawOBlocks or 
+         * blocks in their original position using the dashed
+         * line pen.  FIXME: replace with a drawOBlocks or
          * something.
          */
-         if(showOrig) 
+         if(showOrig)
          {
             drawJoints(hdc, screenPen, g, geomdata, geomdata->origvertices, TRUE);
             //drawLines(hdc, screenPen, g->scale, g->offset, g->origblocks[i].jp, g->origblocks[i].nSides, FALSE);
          }
          drawJoints(hdc, screenPen, g, geomdata, geomdata->vertices, FALSE);
          //drawLines(hdc, screenPen, g->scale, g->offset, g->blocks[i].jp, g->blocks[i].nSides, TRUE);
-                  
-        /* BUG: Can't use showOrig until the analysis at least starts to 
+
+        /* BUG: Can't use showOrig until the analysis at least starts to
          * run!
          */
-         if(showOrig) 
+         if(showOrig)
          {
             drawPoints(hdc, g, geomdata, geomdata->origpoints);
 			   drawBolts(hdc, screenPen, geomdata, g, geomdata->origbolts, TRUE);
@@ -635,10 +635,10 @@ handleWinPaint(HWND hwMain, WPARAM wParam, LPARAM lParam, int width, int height)
             drawStresses(hdc, screenPen, geomdata, g);
          break;
 
-      case TITLE:	 	
+      case TITLE:
          handleTitle(hwMain);
 		   break;  // end case title
-				
+
       case NOTHING:
 		default:
          GetClientRect(draw_wnd , &rectClient );
@@ -675,17 +675,17 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
 
    gdata_read_input_file(geomdata,filepath.gfile);
 
-  /* This handles having a bad geometry file.  An alternative 
+  /* This handles having a bad geometry file.  An alternative
    * would be to have it come back to the geometry dialog,
-   * but we would then need to handle the `cancel' button 
+   * but we would then need to handle the `cancel' button
    * event from the dialog.  Smarter than your average bear...
-   */   
+   */
    if (geomdata == NULL)  {
        dda_display_error("Error in geometry file");
        whatToDraw = NOTHING;
 	    InvalidateRect(hwMain, NULL, TRUE);
 		 UpdateWindow(hwMain);
-       return 0;   
+       return 0;
    }
 
    dda_set_geometrydata(dda,geomdata);
@@ -704,10 +704,10 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
 
      /** Nothing wrong with the geometry file, but there
       *  are no blocks defined.
-      *  FIXME: Define this case as an error, and move the 
-      *  code for handling it into the geometry cutting 
+      *  FIXME: Define this case as an error, and move the
+      *  code for handling it into the geometry cutting
       *  functions.
-      */      
+      */
       whatToDraw = NOTHING;
 		filepath.gfile[0] = '\0';
 		//sprintf(mainWinTitle, "%s for Windows 95/NT", (LPSTR) szAppName);
@@ -722,8 +722,8 @@ handleGeomApply(HWND hwMain, double scale_params[]) {
    InvalidateRect(hwMain, NULL, TRUE);
    UpdateWindow(hwMain);
 
-	return 0; 
-}  
+	return 0;
+}
 
 
 
@@ -741,7 +741,7 @@ handleGeomDraw(HWND hwMain)
 
 	hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
-  /* See the man page on the DrawBox function.  The "DRAWDLG" parameter is 
+  /* See the man page on the DrawBox function.  The "DRAWDLG" parameter is
    * specified in the resource file (?).
    */
 	if(DialogBoxParam(hInst, "DRAWDLG", hwMain, (DLGPROC)DrawDlgProc, (LPARAM)12 ) )
@@ -753,7 +753,7 @@ handleGeomDraw(HWND hwMain)
 
 
    }
-	
+
 }  /* close handleGeometryDraw() */
 
 
@@ -766,14 +766,14 @@ handleGeometryDialog(HWND hwMain, LPARAM lParam)
   /* FIXME: GEtWindowsWord, MakeProcInstance are obsolete. */
 	hInst = (HINSTANCE) GetWindowWord(hwMain, GWL_HINSTANCE);
 	DialogBoxParam(hInst, "GEOMDLG1", hwMain, (DLGPROC)GeomDlgProc, (LPARAM)0);
-   
+
   /* After we get back from the dialog box, we need to reset the current
    * display.  Just to test, comment out the following line, then hit
    * a subsystem that tries to display on the main window.
    */
    //iface->setdisplay((unsigned int)hwMain);
 
-   if(filepath.gfile[0] != '\0') 
+   if(filepath.gfile[0] != '\0')
    {
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, filepath.gfile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
@@ -781,7 +781,7 @@ handleGeometryDialog(HWND hwMain, LPARAM lParam)
       set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
 
 
-      if (strcmp(filepath.gfile, filepath.oldfile) != 0 && MessageBox(hwMain, "Apply geometry?", "GEOMETRY", MB_YESNO) == IDYES) 
+      if (strcmp(filepath.gfile, filepath.oldfile) != 0 && MessageBox(hwMain, "Apply geometry?", "GEOMETRY", MB_YESNO) == IDYES)
       {
          SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
       }
@@ -789,7 +789,7 @@ handleGeometryDialog(HWND hwMain, LPARAM lParam)
 } /* close handleGeometryDialog() */
 
 
-static int 
+static int
 handleGeomBrowse(HWND hwMain, LPARAM lParam)
 {
 
@@ -799,12 +799,12 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
 
    LPCTSTR szFilter[] = {"Geometry files (*.geo)\0*.geo\0All files (*.*)\0*.*\0\0"};
    fileBrowse(hwMain, &ofn, szFilter, filepath.gpath, filepath.gfile, "geo");
-   if( !GetOpenFileName(&ofn) ) 
+   if( !GetOpenFileName(&ofn) )
    {
       strcpy(filepath.gpath, filepath.oldpath);
       return 0;  /* user pressed cancel */
-   } 
-   else 
+   }
+   else
    {
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s", (LPSTR) szAppName, (LPSTR) filepath.gfile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
@@ -813,7 +813,7 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
 
       dda_set_menu_state(dda,GEOM_STATE);
 
-     /* Initialize the path. Note that the .geo file is already loaded into 
+     /* Initialize the path. Note that the .geo file is already loaded into
       * the struct, so it doesn't have to be reloaded.
       */
       strcpy(temp, filepath.gfile);
@@ -822,7 +822,7 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
 //      dda_set_output_directory("output", sizeof("output")); //Disabled By Roozbeh
 
       switch (MessageBox( hwMain,"Edit geometry data before applying?","Geometry", MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2 ) )
-      {   
+      {
          case IDCANCEL:
 			   return 0;
 
@@ -830,7 +830,7 @@ handleGeomBrowse(HWND hwMain, LPARAM lParam)
             SendMessage(hwMain, WM_COMMAND, GEOM_VE, lParam);
             return 0;
 
-        /* This is currently falling through but it would be much 
+        /* This is currently falling through but it would be much
          * better to send a geom apply message back through the loop.
          */
          case IDNO:  /* fall through to apply!!  */
@@ -861,11 +861,11 @@ handleGeomPrintGraphics(HWND hwMain)
 
 	//hInst = (HINSTANCE) GetWindowWord(hwMain, GWL_HINSTANCE);
 	//lpfnDlgProc = (DLGPROC) MakeProcInstance( (FARPROC)UnitDlgProc, hInst);
-	//if (!DialogBox(hInst, "UNITDLG", hwMain, (DLGPROC)lpfnDlgProc)) 
-	if (!DialogBox(hInst, "UNITDLG", hwMain, (DLGPROC)UnitDlgProc)) 
+	//if (!DialogBox(hInst, "UNITDLG", hwMain, (DLGPROC)lpfnDlgProc))
+	if (!DialogBox(hInst, "UNITDLG", hwMain, (DLGPROC)UnitDlgProc))
       return 0;
-  /* FIXME: &geomdata->nPoints should be passed by 
-   * value instead of reference b/c it is not changed in 
+  /* FIXME: &geomdata->nPoints should be passed by
+   * value instead of reference b/c it is not changed in
    * the printGeom function.
    */
 	printGeom(hwMain, szDocName, geomdata, geomdata->scale, g);
@@ -879,35 +879,35 @@ handleGeomPrintGraphics(HWND hwMain)
 
 /*******************  ANALYSIS HANDLERS  *****************/
 
-static int 
+static int
 handleAnalBrowse(HWND hwMain, LPARAM lParam)
 {
    OPENFILENAME ofn;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
 
 	LPCTSTR szFilter[] = {"Analysis files (*.ana)\0*.ana\0All files (*.*)\0*.*\0\0"};
-                 
+
    fileBrowse(hwMain, &ofn, szFilter, filepath.apath, filepath.afile, "ana");
-       
-  /* save intervals for time steps should be in the 
+
+  /* save intervals for time steps should be in the
    * Analysisdata struct instead of sitting out here as
-   * naked extern.  For now the code save ever time 
+   * naked extern.  For now the code save ever time
    * interval.  Alternate implementations can be considered
    * when the code is a bit more stable.
    */
   /*
    tsSaveInterval = 1;
    */
-   if( !GetOpenFileName(&ofn) ) 
+   if( !GetOpenFileName(&ofn) )
    {
       strcpy(filepath.apath, filepath.oldpath);
 		return 0;  // user pressed cancel
-   } 
-   else 
+   }
+   else
    {
 
 
-      // TODO: Find a way to handle both Geometry and Analysis files 
+      // TODO: Find a way to handle both Geometry and Analysis files
 
       // with a titlebar call.
 
@@ -937,7 +937,7 @@ handleAnalBrowse(HWND hwMain, LPARAM lParam)
             default:
             return 0;
       } // end switch
-			
+
 
    } // end if
 
@@ -946,7 +946,7 @@ handleAnalBrowse(HWND hwMain, LPARAM lParam)
 } /* close handleAnalBrowse() */
 
 
-static int 
+static int
 handleAnalRun(HWND hwMain) {
 
    int retval;
@@ -973,28 +973,28 @@ handleAnalRun(HWND hwMain) {
    adata_read_input_file(ad,filepath.afile,0,0,0);
 
    /* So I really need to grab the analysis struct before calling
-    * so that all the initialization can be done...  
+    * so that all the initialization can be done...
     */
    retval = ddanalysis(dda, &filepath);
 
-  /* FIXME: Check retval for error codes.  Here we set the 
+  /* FIXME: Check retval for error codes.  Here we set the
    * analysis data pointer to NULL so that further menu stuff
    * like "abort" does not cause segfaults.  This should work
-   * b/c the data pointed to by ad has been freed in the 
+   * b/c the data pointed to by ad has been freed in the
    * analysis function.
    */
    //ad = NULL;
 
-  /* This handles having a bad geometry file.  An alternative 
+  /* This handles having a bad geometry file.  An alternative
    * would be to have it come back to the geometry dialog,
-   * but we would then need to handle the `cancel' button 
+   * but we would then need to handle the `cancel' button
    * event from the dialog.  Smarter than your average bear...
    */
-   if (!retval) 
-   {  
+   if (!retval)
+   {
       InvalidateRect(hwMain, NULL, TRUE);
       UpdateWindow(hwMain);
-     /* FIXME: remember what this was supposed to do and 
+     /* FIXME: remember what this was supposed to do and
       * make sure it is doing it.
       */
       return 0;  /* maybe not so smart... */
@@ -1003,8 +1003,8 @@ handleAnalRun(HWND hwMain) {
    dda_set_menu_state(dda,ANA_STATE | FINISHED);
    toolbar_set_state(ANA_STATE | FINISHED);
 
-  /* showOrig is a global int masquerading as a boolean. */   
-   showOrig = TRUE;  
+  /* showOrig is a global int masquerading as a boolean. */
+   showOrig = TRUE;
    whatToDraw = BLOCKS;
   /* FALSE for openGL, TRUE for win32??? */
    InvalidateRect(hwMain, NULL, TRUE);
@@ -1012,14 +1012,14 @@ handleAnalRun(HWND hwMain) {
 	//sprintf(mess, "Analysis completed successfully.\n\nClick to continue.");
 	//MessageBox( hwMain, mess, "Analysis", MB_ICONINFORMATION );
   /* Commenting out shwOrig handles redrawing for window
-   * repaints after minimizing etc.  It will have to be reset 
+   * repaints after minimizing etc.  It will have to be reset
    * to FALSE somewhere else otherwise it will produce a seg fault
    * from trying to draw non-existent original geometry.
    */
    showOrig = FALSE;
 
   /* end case anal_run  <- This comment wouldn't pass the
-   * Australian net censorship laws against "profane and 
+   * Australian net censorship laws against "profane and
    * suggestive language".
    */
    return 0;
@@ -1027,7 +1027,7 @@ handleAnalRun(HWND hwMain) {
 }  /* close handleAnalRun() */
 
 
-static int 
+static int
 handleAnalNew(HWND hwMain, LPARAM lParam)
 {
    HINSTANCE hInst;
@@ -1046,7 +1046,7 @@ handleAnalNew(HWND hwMain, LPARAM lParam)
    set_mainwindow_titlebar(hwMain, "Geometry",filepath.gfile);
 
 
-   if (!DialogBoxParam(hInst, "ANALDLG2", hwMain, (DLGPROC)AnalDlgProc,(LPARAM)geomdata )) 
+   if (!DialogBoxParam(hInst, "ANALDLG2", hwMain, (DLGPROC)AnalDlgProc,(LPARAM)geomdata ))
    {
 	   strcpy(filepath.afile, filepath.oldfile);
    }
@@ -1059,7 +1059,7 @@ handleAnalNew(HWND hwMain, LPARAM lParam)
 
       set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile);
 
-      if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES) 
+      if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES)
       {
          SendMessage(hwMain, WM_COMMAND, ANAL_RUN, lParam);
       }
@@ -1092,10 +1092,10 @@ handleAnalEditDialog(HWND hwMain, LPARAM lParam)
       //sprintf(mainWinTitle, "%s for Windows 95/NT  ---  Geometry = %s, Analysis File = %s", LPSTR) szAppName, filepath.gfile, filepath.afile);
       //SetWindowText(hwMain, (LPCTSTR) mainWinTitle);
 
-      set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile); 
+      set_mainwindow_titlebar(hwMain, "Analysis",filepath.afile);
 
 
-      if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES) 
+      if (MessageBox(hwMain, "Run analysis?", "ANALYSIS", MB_YESNO) == IDYES)
       {
          SendMessage(hwMain, WM_COMMAND, ANAL_RUN, lParam);
       }
@@ -1109,7 +1109,7 @@ handleAnalEditDialog(HWND hwMain, LPARAM lParam)
 
 static int
 handleResultViewText(HWND hwMain)
-{   
+{
   /* This may need to be declared static.
    */
    OPENFILENAME ofn;
@@ -1117,18 +1117,18 @@ handleResultViewText(HWND hwMain)
 
    LPCSTR szFilter[] = {"Results files (*.txt)\0*.txt\0All files (*.*)\0*.*\0\0"};
    fileBrowse(hwMain, &ofn, szFilter, filepath.vpath, filepath.vfile, "txt");
-					
-	if( !GetOpenFileName(&ofn) ) 
+
+	if( !GetOpenFileName(&ofn) )
    {
 	   strcpy(filepath.vpath, filepath.oldpath);
 		return 0;  // user pressed cancel.
-   }  
-   else 
+   }
+   else
    {
 	   sprintf(mess, " %s", filepath.vfile);
 	   sprintf(filepath.vfile, "%s", mess);
 	   loadNotepad(&pb, mess);
-   }				
+   }
 
    return 1;
 
@@ -1146,11 +1146,11 @@ handleResultsPrintGraphics(HWND hwMain, LPARAM lParam)
 
 	hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
-	if (!DialogBoxParam(hInst, "UNITDLG", hwMain, (DLGPROC)UnitDlgProc,(LPARAM)0)) 
+	if (!DialogBoxParam(hInst, "UNITDLG", hwMain, (DLGPROC)UnitDlgProc,(LPARAM)0))
       return 0;
 
-  /* FIXME: &geomdata->nPoints should be passed by value 
-   * instead of by reference b/c printGeom doesn't change 
+  /* FIXME: &geomdata->nPoints should be passed by value
+   * instead of by reference b/c printGeom doesn't change
    * the value.
    */
    printGeom(hwMain, szDocName, geomdata, geomdata->scale, g);
@@ -1165,10 +1165,10 @@ void
 handleMainAbout(HWND hwMain) {
 
 
-   char about[1024];		    		
+   char about[1024];
    char aText[9][256] = {ABOUT};
 
-   sprintf(about, "%s\n%s%s%s\n%s\n%s%s%s", aText[0], aText[1], aText[2], 
+   sprintf(about, "%s\n%s%s%s\n%s\n%s%s%s", aText[0], aText[1], aText[2],
    aText[3], aText[4], aText[5],  aText[6], aText[7]);
   	MessageBox( hwMain, about, "DDA for Windows", MB_OK | MB_ICONINFORMATION);
 
@@ -1183,7 +1183,7 @@ handleMainAbout(HWND hwMain) {
 /* This should be renamed to invokeTextEditor()
  * or something similar.
  */
-void 
+void
 loadNotepad(PARAMBLOCK *pb, char * mess)
 {
 	WORD wCmdShow[2];
@@ -1224,17 +1224,17 @@ handleAPWEDGE(HWND hwMain)
 
 
 /* These two functions (LButtonDown and RButtonDown set
- * the global variables xcursor, ycursor.  This captures 
- * the current point of the cursor for use in scrolling 
- * and zooming.  Don't need wParam right now, but possibly 
+ * the global variables xcursor, ycursor.  This captures
+ * the current point of the cursor for use in scrolling
+ * and zooming.  Don't need wParam right now, but possibly
  * later.
  */
-static void 
+static void
 handleLButtonDown(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
 
    POINTS mousepos;
-   
+
    mousepos = MAKEPOINTS(lParam);
    xcursor = mousepos.x;
    ycursor = mousepos.y;
@@ -1243,7 +1243,7 @@ handleLButtonDown(HWND hwMain, WPARAM wParam, LPARAM lParam)
 }  /* close handleLButtonDown() */
 
 
-static void 
+static void
 handleRButtonDown(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
    POINTS mousepos;
@@ -1255,7 +1255,7 @@ handleRButtonDown(HWND hwMain, WPARAM wParam, LPARAM lParam)
 }  /* close handleRButtonDown() */
 
 
-static void 
+static void
 handlePauseAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
 
@@ -1266,14 +1266,14 @@ handlePauseAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 /* If a running analysis needs to be stopped, for whatever
- * reason, using the Analysis->Abort menu entry will stop 
+ * reason, using the Analysis->Abort menu entry will stop
  * the analysis and write out the results at the stopped
  * time step.
  */
-/* FIXME: Make this a private function of the analysis 
+/* FIXME: Make this a private function of the analysis
  * data structure, then have the windows call invoke it.
  */
-static void 
+static void
 handleAbortAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
    DDA * dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
@@ -1283,15 +1283,15 @@ handleAbortAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
    * running, just send it back.  This is kludge to compensate
    * for bad menu item enablng.
    */
-   
+
    if (ad == NULL)
       return;
-   
+
 
    ad->abort(ad);
 
 
-  /* FIXME: Here is a good place to disable some menu 
+  /* FIXME: Here is a good place to disable some menu
    * items.
    */
 
@@ -1299,7 +1299,7 @@ handleAbortAnalysis(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-static void 
+static void
 handleGeomCancel(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
 
@@ -1314,7 +1314,7 @@ handleGeomCancel(HWND hwMain, WPARAM wParam, LPARAM lParam)
  *
  * @todo Move popup code somewhere else.
  */
-static void 
+static void
 handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
    HMENU hmenu, hpopupmenu;
@@ -1344,7 +1344,7 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
 		   EnableMenuItem(hpopupmenu, POPUP_REPLAY,   MF_BYCOMMAND | MF_GRAYED);
 		   EnableMenuItem(hpopupmenu, POPUP_ABORT,    MF_BYCOMMAND | MF_GRAYED);
          break;
-      
+
       case (ANA_STATE | READY_STATE):
 			EnableMenuItem(hpopupmenu, ANAL_EDITPARAMD, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(hpopupmenu, ANAL_EDITPARAMN, MF_BYCOMMAND | MF_ENABLED);
@@ -1370,7 +1370,7 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    pt.x = xcursor;
    pt.y = ycursor;
-   
+
    ClientToScreen(hwMain, &pt);
    TrackPopupMenu(hpopupmenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, hwMain, NULL);
    DestroyMenu(hmenu);
@@ -1380,31 +1380,31 @@ handleRButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-static void 
+static void
 handleLButtonUp(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
    int wparamlo, wparamhi;
 
    wparamlo = LOWORD(wParam);
    wparamhi = HIWORD(wParam);
-   switch (wparamlo) 
+   switch (wparamlo)
    {
-      case MK_CONTROL: 
+      case MK_CONTROL:
          //displayBlockNumber(hwMain, wParam, lParam);
          break;
 
-      case MK_SHIFT: 
+      case MK_SHIFT:
          //displayPhysicalCoordinates(hwMain, wParam, lParam);
          break;
 
-      case (MK_CONTROL+MK_SHIFT): 
+      case (MK_CONTROL+MK_SHIFT):
          deleteBlockNumber(hwMain, wParam, lParam);
          break;
 
       case (MK_LBUTTON+MK_SHIFT):
          break;
 
-      case MK_MBUTTON: 
+      case MK_MBUTTON:
          break;
 
       default:
@@ -1430,7 +1430,7 @@ displayPhysicalCoordinates(HWND hwMain, WPARAM wParam, LPARAM lParam)
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
-  /* Segfaults if there is nothing to look at. 
+  /* Segfaults if there is nothing to look at.
    * FIXME: Add some error code in here to keep track
    * of whats going on.
    */
@@ -1446,7 +1446,7 @@ displayPhysicalCoordinates(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-/* We really need to get the physical coordinates from the 
+/* We really need to get the physical coordinates from the
  * device coordinates.
  */
 DPoint
@@ -1454,7 +1454,7 @@ DPtoPP(HWND hwMain, int xpos, int ypos)
 {
   /* Convenience variables set from Graphics struct. */
    double scale, offsetx, offsety;
-  /* The local device context.  We will set this and release 
+  /* The local device context.  We will set this and release
    * in this function.
    */
    HDC hdc;
@@ -1482,7 +1482,7 @@ DPtoPP(HWND hwMain, int xpos, int ypos)
   /* Origin of viewport (device) coordinates. */
    int xviewportorg, yviewportorg;
 
-  /* Segfaults if there is nothing to look at. 
+  /* Segfaults if there is nothing to look at.
    * FIXME: Add some error code in here to keep track
    * of whats going on.
    */
@@ -1517,7 +1517,7 @@ DPtoPP(HWND hwMain, int xpos, int ypos)
   /* Convert the window size to logical units. */
    DPtoLP(hdc, (LPPOINT) &vprect, 2);
    xwindowext = vprect.right;
-   ywindowext = -vprect.top;  
+   ywindowext = -vprect.top;
 
   /* For this particular function, I need the current
    * cursor position.
@@ -1546,7 +1546,7 @@ DPtoPP(HWND hwMain, int xpos, int ypos)
 
 
 
-static void 
+static void
 displayBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
   /* Temporary, prints into messagebox */
@@ -1557,7 +1557,7 @@ displayBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
-  /* Segfaults if there is nothing to look at. 
+  /* Segfaults if there is nothing to look at.
    * FIXME: Add some error code in here to keep track
    * of whats going on.
    */
@@ -1575,11 +1575,11 @@ displayBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 }  /* displayBlockNumber() */
 
 
-/* FIXME: Points associated with a given block will have to be 
+/* FIXME: Points associated with a given block will have to be
  * removed when the block is removed, otherwise bad segfaults
  * when an analysis is run sans the points.
  */
-static void 
+static void
 deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
   /* Temporary, prints into messagebox */
@@ -1590,7 +1590,7 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
 
-  /* Segfaults if there is nothing to look at. 
+  /* Segfaults if there is nothing to look at.
    * FIXME: Add some error code in here to keep track
    * of whats going on.
    */
@@ -1609,7 +1609,7 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
    geomdata->deleteblock(geomdata, blocknum);
 
-   
+
    statusbar_update_geometry(geomdata->nBlocks);
 
    InvalidateRect(hwMain, NULL, TRUE);
@@ -1618,14 +1618,14 @@ deleteBlockNumber(HWND hwMain, WPARAM wParam, LPARAM lParam)
 }  /* deleteBlockNumber() */
 
 
-static void 
+static void
 handleWMSize(HWND hwMain, WPARAM wParam, LPARAM lParam) {
 
    statusbar_resize();
    toolbar_resize();
-}  
+}
 
-		  
+
 LRESULT
 handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
 {
@@ -1655,13 +1655,13 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
    hInst = (HINSTANCE) GetWindowLong(hwMain, GWL_HINSTANCE);
 
    lpToolTipText = (LPTOOLTIPTEXT)(lParam);
- 
-   if(lpToolTipText->hdr.code == TTN_NEEDTEXT  && 
+
+   if(lpToolTipText->hdr.code == TTN_NEEDTEXT  &&
       dda_get_tooltipvis(dda) == 1)
    {
      /* FIXME: Set up a winprint function */
       //fprintf(wintest,"From MsgNotify, tool tip ID: %d\n",lpToolTipText->hdr.idFrom);
-     /* GAAK.  Uses the actual #defined value instead of tool tip id 
+     /* GAAK.  Uses the actual #defined value instead of tool tip id
       * number.  Nasty.
       */
       switch(lpToolTipText->hdr.idFrom)
@@ -1697,7 +1697,7 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
          case TOOLBAR_ZOOMOUT:
             lpToolTipText->lpszText = ttt[7];
             break;
-         
+
 		case TOOLBAR_ZOOMBACK:
             lpToolTipText->lpszText = ttt[8];  //Added by Roozbeh
             break;
@@ -1723,7 +1723,7 @@ handleWMNotify(HWND hwMain, WPARAM wParam, LPARAM lParam)
       }  /* End switch over tool bar tool tip notify */
 
    }  /* End If NEED TOOL TIP TEXT */
- 
+
    return 0;
 
 
@@ -1742,7 +1742,7 @@ handle_toggle(DDA * dda,
    if (get_toggle(dda)) {
 
       set_toggle(dda,FALSE);
-     /* Very kludgy.  This should send a message to get 
+     /* Very kludgy.  This should send a message to get
       * the current text of the menu item.
       */
       ModifyMenu(hSubMenu, wParam, MF_BYCOMMAND | MF_UNCHECKED,wParam, menuchars);
@@ -1756,8 +1756,8 @@ handle_toggle(DDA * dda,
 
 
 
-/* Toggles the view state of tool bar, status bar, etc. 
- * FIXME: All this stuff needs to go into the menu handling 
+/* Toggles the view state of tool bar, status bar, etc.
+ * FIXME: All this stuff needs to go into the menu handling
  * function for WM_INITMENUPOPUP.
  */
 static void
@@ -1766,7 +1766,7 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
    HMENU hMainMenu, hSubMenu;
    int submenuposition;
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
-            
+
    hMainMenu = GetMenu(hwMain);
 
    submenuposition = findSubMenuPosition(hMainMenu, VIEW_TBAR);
@@ -1783,7 +1783,7 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
          handle_toggle(dda,wParam,dda_set_statusbarvis,
                        dda_get_statusbarvis,hSubMenu,"&Status Bar");
          break;
-     
+
       case VIEW_POPUP:
          handle_toggle(dda,wParam,dda_set_popupvis,
                        dda_get_popupvis,hSubMenu,"&Enable Pop-up");
@@ -1792,7 +1792,7 @@ handleViewToggles(HWND hwMain, WPARAM wParam, LPARAM lParam)
       case VIEW_TOOLTIPS:
          handle_toggle(dda,wParam,dda_set_tooltipvis,
                        dda_get_tooltipvis,hSubMenu,"T&ool Tips");
-         break;      
+         break;
 
       default:
          break;
@@ -1817,7 +1817,7 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
    DDA * dda = (DDA *)GetWindowLong(hwMain,GWL_USERDATA);
    Geometrydata * geomdata = dda_get_geometrydata(dda);
 
-   hdcmain = GetDC(hwMain);  
+   hdcmain = GetDC(hwMain);
    GetClientRect(hwMain, &mfrect);
 
    //displayWindowRect(hwMain, wParam, lParam);
@@ -1829,7 +1829,7 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
    if(!mfdc)
       showlasterror(GetLastError());
 #endif
-    
+
    g->scale = setScale(hwMain, mfdc, g, geomdata->scale);
    //drawBlocks(mfdc, hBr, g, geomdata);
    if(showOrig) {
@@ -1849,9 +1849,9 @@ handleMetafile(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
 
 
-// This subroutine is wrote by Roozbeh to read the .dxf 
+// This subroutine is wrote by Roozbeh to read the .dxf
 // format and to create the .geo format
-int 
+int
 handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
 {
    FILE *fp1;
@@ -1869,15 +1869,15 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    if(!GetOpenFileName(&ofn)) {
       strcpy(filepath.gpath, filepath.oldpath);
       return 0;  /* user pressed cancel */
-   } 
+   }
 
-   
+
 
    set_mainwindow_titlebar(hwMain,"DXF",filepath.gfile);
 
    dda_set_menu_state(dda,GEOM_STATE);
 
-  /* Initialize the path. Note that the .dxf file is already loaded into 
+  /* Initialize the path. Note that the .dxf file is already loaded into
    * the struct, so it doesn't have to be reloaded.
    */
    strcpy(temp, filepath.gfile);
@@ -1891,9 +1891,9 @@ handleDxfBrowse(HWND hwMain, LPARAM lParam) //Added by Roozbeh
    // WARNING: This overwrites the name of the currently open file fp1!
    strcpy (filepath.gfile, strcat (filepath.rootname, ".geo"));
    dxf_read_file(fp1,filepath.gfile);
-     
 
-   // Send message to GeomApply to have geometry automatically loaded.         
+
+   // Send message to GeomApply to have geometry automatically loaded.
 
    SendMessage(hwMain, WM_COMMAND, GEOM_APPLY, lParam);
 
@@ -1939,7 +1939,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
       case MENU_HELPINDEX:
       case GEOM_BROWSE:
          handleGeomBrowse(hwMain, lParam);
-         break;  
+         break;
 
 		case GEOM_APPLY:
          handleGeomApply(hwMain,geomdata->scale);
@@ -1986,7 +1986,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
 
       case  ANAL_BROWSE :
          handleAnalBrowse(hwMain, lParam);
-         break; 
+         break;
 
 		case ANAL_RUN:
          handleAnalRun(hwMain);
@@ -2000,14 +2000,14 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
          handlePauseAnalysis(hwMain, wParam, lParam);
          break;
 
-     /* FIXME:  This is broken.  Not sure why.  Probably has do to with 
+     /* FIXME:  This is broken.  Not sure why.  Probably has do to with
       * new file formats or new data structs.
       */
     	case ANAL_NEW:
          handleAnalNew(hwMain, lParam);
 			break;
 
-      case ANAL_EDITBLX:  
+      case ANAL_EDITBLX:
 		   sprintf(mess, " block.in");
 			loadNotepad(&pb, mess);
 		  	break;
@@ -2021,13 +2021,13 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
 			loadNotepad(&pb, mess);
 			break;
 
-      case AD_TESTPROP:   
+      case AD_TESTPROP:
          CreateTestPropSheet(hwMain, ad);
          break;
 
 		case RES_VTXT:
         /* TODO: Check and see whether the return value
-         * needs to be trapped. 
+         * needs to be trapped.
          */
          handleResultViewText(hwMain);
   			break;
@@ -2035,7 +2035,7 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
      /*  This is just a bit kludgy, but it ought to work. */
       case RES_VGRF:
         /* TODO: Check and see whether the return value
-         * needs to be trapped. 
+         * needs to be trapped.
          */
          handleResultsViewReplay(hwMain, lParam,g);
          break;
@@ -2043,23 +2043,23 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
 	  	case RES_REPLAY:
          replay_analysis(hwMain,g,filepath.replayfile);
 	  	  	break;
-                
+
      /* Most of this is going to get passed to the printing routine
       * that takes care of printing the geometry.  It will need to pass
-      * a reference to the window and a title string szDocName which can 
-		* be set here.  
+      * a reference to the window and a title string szDocName which can
+		* be set here.
       */
 		case RES_PGRF:
         /* TODO: Check and see whether the return value
-         * needs to be trapped. 
+         * needs to be trapped.
          */
          handleResultsPrintGraphics(hwMain, lParam);
 	  		break;
- 
+
       case DEMO_TSLOPE:
          break;
 
-      case DEMO_ARS:   
+      case DEMO_ARS:
          //CreateTestPropSheet(hwMain, hInst);
          //handleARS(hwMain);
          break;
@@ -2153,8 +2153,8 @@ handleWMCommand(HWND hwMain, WPARAM wParam, LPARAM lParam)
 /* WndProc handles messages from the top level window
  * only, sending everything to handler functions.
  */
-LRESULT CALLBACK 
-WndProc (HWND hwMain, UINT message, 
+LRESULT CALLBACK
+WndProc (HWND hwMain, UINT message,
                           WPARAM wParam, LPARAM lParam)
 {
    static DLGPROC lpfnDlgProc;
@@ -2167,9 +2167,9 @@ WndProc (HWND hwMain, UINT message,
 
    GetClientRect(hwMain, &winSize);
   /* Size of the main window*/
-   width= -(winSize.left-winSize.right); 
+   width= -(winSize.left-winSize.right);
    height= -(winSize.top-winSize.bottom);
- 
+
    dda = (DDA *)GetWindowLong(hwMain, GWL_USERDATA);
 
 
@@ -2198,13 +2198,13 @@ WndProc (HWND hwMain, UINT message,
 
 	  case WM_COMMAND:
          return(handleWMCommand(hwMain, wParam, lParam));
-   		  
+
       case WM_DROPFILES:
          handleDropFiles(hwMain, wParam, lParam, &filepath);
          break;
 
       case WM_INITMENUPOPUP:
-        /* At some point the information contained in 
+        /* At some point the information contained in
          * Rector and Newcomer, page 888, will be handled
          * here to set the state of all the menus.
          * Also, change name to handleWMInitMenuPopup()
@@ -2215,16 +2215,16 @@ WndProc (HWND hwMain, UINT message,
 
 
       case WM_MENUSELECT:
-        /* There needs to be a state variable here to track 
+        /* There needs to be a state variable here to track
          * callbacks for handling dynamically loaded menu
-         * items.  This is pretty nasty stuff.  See page 
+         * items.  This is pretty nasty stuff.  See page
          * 892 in Rector and Newcomer.
          */
          menuflags = HIWORD(wParam);
          if ( (menuflags & MF_POPUP) && (menuflags != 0xFFFF)) {
             menu_item_number = LOWORD(wParam);
-         } 
-         break; 
+         }
+         break;
 
       case WM_MOUSEMOVE:
          handleMouseMove(hwMain, wParam, lParam);
@@ -2238,7 +2238,7 @@ WndProc (HWND hwMain, UINT message,
          handleLButtonDown(hwMain, wParam, lParam);
          break;
 
-      case WM_RBUTTONDOWN: 
+      case WM_RBUTTONDOWN:
          handleRButtonDown(hwMain, wParam, lParam);
          break;
 
@@ -2255,7 +2255,7 @@ WndProc (HWND hwMain, UINT message,
          break;
 
       case WM_QUIT:
-         HtmlHelp(NULL,NULL,HH_UNINITIALIZE,(DWORD)&dwHTMLCookie); 
+         HtmlHelp(NULL,NULL,HH_UNINITIALIZE,(DWORD)&dwHTMLCookie);
          break;
 
       case WM_DESTROY:
@@ -2270,7 +2270,7 @@ WndProc (HWND hwMain, UINT message,
 
 
 
-HWND 
+HWND
 createDDAMainWindow(HINSTANCE hInstance)
 {
    HWND hddawin;
@@ -2278,14 +2278,14 @@ createDDAMainWindow(HINSTANCE hInstance)
 
    GetWindowRect(GetDesktopWindow(), &desktoprect);
 
-   hddawin = CreateWindowEx(WS_EX_ACCEPTFILES, 
-                           szAppName, 
+   hddawin = CreateWindowEx(WS_EX_ACCEPTFILES,
+                           szAppName,
 
                            szAppName,
-                           WS_OVERLAPPEDWINDOW    | 
+                           WS_OVERLAPPEDWINDOW    |
                            WS_CLIPCHILDREN,
-	 	                     (desktoprect.right  / 2) - (800  / 2), 
-                           (desktoprect.bottom / 2) - (600 / 2), 
+	 	                     (desktoprect.right  / 2) - (800  / 2),
+                           (desktoprect.bottom / 2) - (600 / 2),
                            800, 600,  // use these values for centering window
 	 	                     NULL, NULL, hInstance, NULL);
 
@@ -2306,7 +2306,7 @@ registerDDAMainWindowClass(HINSTANCE hInstance)
 
   /* Since we don't specify the device context (DC),
    * the DDA window class uses a "common" DC by default.
-   * See page 221 of Rector and Newcomer for DC info. 
+   * See page 221 of Rector and Newcomer for DC info.
    */
    wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
    wndclass.lpfnWndProc   = (WNDPROC)WndProc ;
@@ -2324,13 +2324,13 @@ registerDDAMainWindowClass(HINSTANCE hInstance)
 }  /* close registerDDAMainWindowClass() */
 
 
-int WINAPI 
-WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+int WINAPI
+WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					               LPSTR lpszCmd, int nCmdShow)
 {
    HWND        hwMain;
    MSG         msg;
-   HANDLE      hAccel;	
+   HANDLE      hAccel;
    int checkval;
 
    /* Move this code to the WM_CREATE or initializeDDA
@@ -2339,7 +2339,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
    DDA * dda = dda_new();
 
   /* FIXME: Add code to uninitialize */
-   HtmlHelp(NULL,NULL,HH_INITIALIZE,(DWORD)&dwHTMLCookie); 
+   HtmlHelp(NULL,NULL,HH_INITIALIZE,(DWORD)&dwHTMLCookie);
 
    //memset(&dda,0xDA,sizeof(DDA));
 
@@ -2352,14 +2352,14 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
    /* This dissappears when I get the callback figured out. */
    mainwindow = hwMain;
 
-  /* Move this stuff into the dda.ini file,which 
+  /* Move this stuff into the dda.ini file,which
    * should be read in the initialization function.
    */
    dda_set_toolbarvis(dda,TRUE);
    dda_set_statusbarvis(dda,TRUE);
    dda_set_popupvis(dda,TRUE);
    dda_set_tooltipvis(dda,TRUE);
-   dda_set_menu_state(dda,READY_STATE);   
+   dda_set_menu_state(dda,READY_STATE);
    checkval = SetWindowLong(hwMain,GWL_USERDATA,(LONG)dda);
 
 
@@ -2370,9 +2370,9 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
       if (!TranslateAccelerator(msg.hwnd,hAccel,&msg)) {
          TranslateMessage (&msg);
          DispatchMessage (&msg);
-      } 
+      }
 
-   }  
+   }
 
    return msg.wParam;
 

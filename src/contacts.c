@@ -25,8 +25,8 @@ struct _contacts {
   /*------------------------------------------------*/
   /* m2: 1-6 i1 j1 j2 j1 i1 i2     0 joint material */
   /* m2[nBlocks*11+1][7]                            */
-  /* m2 is a copy of the index to previous contacts 
-   * (see savePrevContacts) 
+  /* m2 is a copy of the index to previous contacts
+   * (see savePrevContacts)
    */
    int prevcontactsize1, prevcontactsize2;
    int ** prevcontacts;
@@ -47,9 +47,9 @@ struct _contacts {
 
 
 
-/* These are currently toted around the place for no 
+/* These are currently toted around the place for no
  * good reason.  They are global, no sense to be local
- * else they would be moved into the _C struct.  They 
+ * else they would be moved into the _C struct.  They
  * can be set from an initial function, then used at will
  * in methods for _C.
  */
@@ -62,15 +62,15 @@ static double shear_norm_ratio;
 /* This will be how the new contacts work. */
 struct _C {
 
-  /* This may need to be typedefed in the header so that 
+  /* This may need to be typedefed in the header so that
    * the value can be passed in with a function.
    */
    enum {vertex_edge, vertex_vertex} contact_type;
 
-   /* These will point into the vertex arrays. 
-    * The contents of the vertex arrays should not be 
+   /* These will point into the vertex arrays.
+    * The contents of the vertex arrays should not be
     * modified directly, just use these to assign values
-    * to temporary variables in df22() 
+    * to temporary variables in df22()
     */
    double *x1, *y1, *x2, *y2, *x3, *y3;
 
@@ -81,21 +81,21 @@ struct _C {
 
    double contact_length;
 
-  /* these dist variables are probably the 
+  /* these dist variables are probably the
    * normal and shear "displacements".
    */
    double pen_dist;
    double shear_dist;
    double cohesion_length;
 
-  /* These "strength" parameters have to be set 
+  /* These "strength" parameters have to be set
    * somewhere, possibly in the contact code.
    */
    double phi;
    double cohesion;
    double tstrength;
 
-  /* If the contact is a vertex_vertex contact, we have to 
+  /* If the contact is a vertex_vertex contact, we have to
    * check which vertex penetrates the most.  If the second
    * vertex penetrates more than the first vertex, then the
    * "reorder" member needs to be non-zero.  Else it is zero
@@ -132,7 +132,7 @@ struct _C {
   /* Shear reaction generated at contact */
    double shearforce;
 
-  /* Not yet implemented... we need these for setting the 
+  /* Not yet implemented... we need these for setting the
    * global stiffness and force matrices.
    */
    //Block * block_i, block_j;
@@ -148,7 +148,7 @@ get_contacts(Contacts * c)
 }  /* close get_contacts() */
 
 
-int ** 
+int **
 get_locks(Contacts * c)
 {
    return c->locks;
@@ -164,7 +164,7 @@ get_contact_index(Contacts * c)
 }  /*  close get_contact_index() */
 
 
-double ** 
+double **
 get_contact_lengths(Contacts * c)
 {
    return c->contactlength;
@@ -181,46 +181,46 @@ get_previous_contacts(Contacts * c)
 
 
 
-/** d0 is contact distance parameter derived from a 
- * user controlled value read from the analysis input 
+/** d0 is contact distance parameter derived from a
+ * user controlled value read from the analysis input
  * file (g2), and initialized in the "initializeStuff"
- * function.  c0 appears to be a square that completely 
- * encloses each block.  The following 4 lines appear to 
+ * function.  c0 appears to be a square that completely
+ * encloses each block.  The following 4 lines appear to
  * implement determination of contact by distance
- * given by Equation 4.3 in Shi, 1993, p. 82.  
+ * given by Equation 4.3 in Shi, 1993, p. 82.
  * Basically, if the bounding boxes of blocks i and j
  * do not overlap, no contact, check next block.
  *
- * @param d0 the maximum displacement possible for a given 
+ * @param d0 the maximum displacement possible for a given
  *  time step and velocity.
  *
  * @return 1 if there is an overlap, 0 if no overlap.
  *
  */
-int 
+int
 contacts_bbox_overlap(double ** bbox_c0, int ii, int jj, double d0) {
 
   /* d0 \equiv 2\rho in dissertation p. 142, figure 4.2, p. 143 */
   /* (GHS: c0[][] xl xu yl yu)   */
 
   /* xu_i < xl_j */
-   if (bbox_c0[ii][2]+d0 < bbox_c0[jj][1]) { 
-      return 0; 
+   if (bbox_c0[ii][2]+d0 < bbox_c0[jj][1]) {
+      return 0;
    }
 
-  /* xu_j < xl_i */   
-   if (bbox_c0[jj][2]+d0 < bbox_c0[ii][1]) { 
-      return 0; 
+  /* xu_j < xl_i */
+   if (bbox_c0[jj][2]+d0 < bbox_c0[ii][1]) {
+      return 0;
    }
 
   /* yu_i < yl_j */
    if (bbox_c0[ii][4]+d0 < bbox_c0[jj][3]) {
-      return 0; 
+      return 0;
    }
 
   /* yu_j < yl_i */
    if (bbox_c0[jj][4]+d0 < bbox_c0[ii][3]) {
-      return 0;   
+      return 0;
    }
 
    return 1;  /** overlaps */
@@ -228,15 +228,15 @@ contacts_bbox_overlap(double ** bbox_c0, int ii, int jj, double d0) {
 }
 
 /* (GHS: c0[][] xl xu yl yu)   */
-/* What c0 does is find a box that 
+/* What c0 does is find a box that
  * completely encloses each block.  This is used
- * in conjunction with the next block of code to 
- * determine whether 2 blocks are close enough to 
+ * in conjunction with the next block of code to
+ * determine whether 2 blocks are close enough to
  * investigate a contact relationship.
  */
 /** FIXME: Write a unit test for this. */
 void
-contacts_compute_bboxen(double ** bbox_c0,double ** vertices, 
+contacts_compute_bboxen(double ** bbox_c0,double ** vertices,
                         int numblocks, int ** vindex) {
 
    int i,j;
@@ -246,15 +246,15 @@ contacts_compute_bboxen(double ** bbox_c0,double ** vertices,
 
       startIndex = vindex[i][1];
       stopIndex  = vindex[i][2];
- 
+
       bbox_c0[i][1] = vertices[startIndex][1];
       bbox_c0[i][2] = vertices[startIndex][1];
       bbox_c0[i][3] = vertices[startIndex][2];
       bbox_c0[i][4] = vertices[startIndex][2];
 
      /* j is probably a vertex counter. */
-      for (j=startIndex; j<= stopIndex; j++) { 
-         
+      for (j=startIndex; j<= stopIndex; j++) {
+
         /* (GHS: c0[][] xl xu yl yu)   */
         /* find lower x */
          if (bbox_c0[i][1] > vertices[j][1]) {
@@ -275,14 +275,14 @@ contacts_compute_bboxen(double ** bbox_c0,double ** vertices,
          if (bbox_c0[i][4] < vertices[j][2]) {
             bbox_c0[i][4] = vertices[j][2];
          }
-      } 
-   }  
+      }
+   }
 }
 
 
 
 
-/** These two functions probably need to go somewhere else. 
+/** These two functions probably need to go somewhere else.
  * Move 'em into utils after that gets cleaned up.
  */
 double
@@ -345,7 +345,7 @@ static void init_contact_index(Contacts * c, int nblocks)
 
 }  /* close init_contact_index() */
 
-static free_contact_index(Contacts * c)
+static void free_contact_index(Contacts * c)
 {
 
    int m = c->contactindexsize1;
@@ -364,7 +364,7 @@ static void init_contact_length(Contacts * c, int nblocks)
 }  /* init_contact_length() */
 
 
-static void free_contact_length(Contacts * c) 
+static void free_contact_length(Contacts * c)
 {
    int m = c->contactlengthsize1;
    int n = c->contactlengthsize2;
@@ -383,8 +383,8 @@ init_previous_contacts(Contacts * c, int nblocks)
 }  /* close init_previous_contacts() */
 
 
-static void 
-free_previous_contacts(Contacts * c) 
+static void
+free_previous_contacts(Contacts * c)
 {
    int m = c->prevcontactsize1;
    int n = c->prevcontactsize2;
@@ -414,7 +414,7 @@ contacts_new(int nblocks) {
 }
 
 
-void 
+void
 contacts_delete(Contacts * c) {
 
    free_contacts(c);
@@ -426,7 +426,7 @@ contacts_delete(Contacts * c) {
 #if _DEBUG
    memset((void *)c, 0xdd, sizeof(Contacts));
 #endif
-} 
+}
 
 
 /*  Taken mostly from manifold tech report, p. 109 */
@@ -440,7 +440,7 @@ updateLockState(C * c)
             c->current_state = open;
          else if (fabs(c->shearforce) > fabs(c->normalforce)*tan(c->phi))
             c->current_state = sliding;
-         else 
+         else
             c->current_state = locked;
          break;
 
@@ -452,7 +452,7 @@ updateLockState(C * c)
          */
          else if (sign(c->shear_dist) == -sign(c->shearforce))
             c->current_state = sliding;
-         else 
+         else
             c->current_state = locked;
          break;
 
@@ -461,8 +461,8 @@ updateLockState(C * c)
             c->current_state = open;
          else if (fabs(c->shearforce) > fabs(c->normalforce)*tan(c->phi))
             c->current_state = sliding;
-         else 
-            c->current_state = locked;      
+         else
+            c->current_state = locked;
          break;
 
       default:
