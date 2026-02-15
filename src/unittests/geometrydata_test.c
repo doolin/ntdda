@@ -4,22 +4,10 @@
 
 FILEPOINTERS fp;
 
-
-
-void
-dda_display_error(const char * error) {
-
-}
-
-void
-dda_display_warning(const char * warning) {
-
-}
-
 void
 ddaml_read_geometry_file(void * userdata, char * filename) {
-
-
+  (void)userdata;
+  (void)filename;
 }
 
 

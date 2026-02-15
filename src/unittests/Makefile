@@ -7,8 +7,7 @@
 # dependencies very nicely.
 
 
-CFLAGS = -g -Wall -DSTANDALONE
-
+CFLAGS = -g -Wall -DSTANDALONE -I../../include -I../../stubs
 BIN = ./bin
 
 ALL_TESTS_SOURCE =  ../functions.c     \
@@ -34,63 +33,74 @@ GDATA_SOURCE =  ../inpoly.c         \
                 ../geometrydata.c   \
                 ../ddafile.c        \
                 ../ddamemory.c      \
-                ../geomreader.c
+                ../geomreader.c     \
+                ../dda.c            \
+                ../../stubs/stubs.c
 
 
 OBJECTS =                    \
            matmulttest       \
-	   loadpointtest     \
+           loadpointtest     \
            stress_test       \
-	   material_test     \
+           material_test     \
            bolttest          \
            inpoly_test       \
            ddadlist_test     \
            constants_test    \
-	   all_tests
+           geometrydata_test \
+           analysisdata_test \
+           all_tests
 
 
-all: $(OBJECTS)
+all: $(BIN) $(OBJECTS)
+
+$(BIN):
+	mkdir -p $(BIN)
 
 
 
 all_tests: all_tests.c
-	gcc -Wall -g -o $(BIN)/all_tests all_tests.c $(ALL_TESTS_SOURCE) -I../../include -lm
+	gcc $(CFLAGS) -DALL_TESTS -o $(BIN)/all_tests all_tests.c $(ALL_TESTS_SOURCE) -lm
 
 ddadlist_test: ddadlist_test.c ../ddadlist.c
-	gcc $(FLAGS) -o  $(BIN)/ddadlist_test ddadlist_test.c ../ddadlist.c  -I../../include
+	gcc $(CFLAGS) -o $(BIN)/ddadlist_test ddadlist_test.c ../ddadlist.c
 
 geometrydata_test: geometrydata_test.c
-	gcc $(CFLAGS)  -o  $(BIN)/geometrydata_test geometrydata_test.c  $(GDATA_SOURCE)  -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/geometrydata_test geometrydata_test.c $(GDATA_SOURCE) -lm
 
 analysisdata_test: analysisdata_test.c
-	gcc $(CFLAGS)  -o  $(BIN)/analysisdata_test analysisdata_test.c  $(ADATA_SOURCE)  -I ../../include -lm
-
+	gcc $(CFLAGS) -o $(BIN)/analysisdata_test analysisdata_test.c $(ADATA_SOURCE) ../../stubs/stubs.c -lm
 
 material_test: material_test.c
-	gcc $(CFLAGS)  -o  $(BIN)/material_test material_test.c ../material.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/material_test material_test.c ../material.c ../ddadlist.c ../ddamemory.c -lm
 
 bolttest: bolttest.c
-	gcc $(CFLAGS)  -o  $(BIN)/bolttest bolttest.c ../bolt.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/bolttest bolttest.c ../bolt.c ../ddadlist.c ../ddamemory.c -lm
 
 stress_test: stress_test.c ../stress.c
-	gcc $(CFLAGS)  -o  $(BIN)/stress_test stress_test.c ../stress.c  ../mohrcoulomb.c -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/stress_test stress_test.c ../stress.c ../mohrcoulomb.c -lm
 
 inpoly_test: inpoly_test.c ../inpoly.c
-	gcc $(CFLAGS)  -o  $(BIN)/inpoly_test inpoly_test.c ../inpoly.c  -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/inpoly_test inpoly_test.c ../inpoly.c -lm
 
 constants_test: constants_test.c ../constants.c
-	gcc $(CFLAGS)  -o  $(BIN)/constants_test constants_test.c ../constants.c  unittest.c -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/constants_test constants_test.c ../constants.c unittest.c -lm
 
 loadpointtest: loadpointtest.c
-	gcc $(CFLAGS)  -o  $(BIN)/loadpointtest loadpointtest.c ../loadpoint.c  ../ddadlist.c ../ddamemory.c  -I ../../include -lm
+	gcc $(CFLAGS) -o $(BIN)/loadpointtest loadpointtest.c ../loadpoint.c ../ddadlist.c ../ddamemory.c -lm
 
-
-matmulttest:
-	gcc -o  $(BIN)/matmulttest matmulttest.c ../ghssolver.c ../ddamemory.c  -I ../../include -lm
+matmulttest: matmulttest.c
+	gcc $(CFLAGS) -o $(BIN)/matmulttest matmulttest.c ../ghssolver.c ../ddamemory.c -lm
 
 # target is broken, won't link
 contacttest:
 	gcc -o  $(BIN)/contacttest contacttest.c ../contacts.c ../ddamemory.c ../utils.c -I ../../include -lm
 
+test: all
+	@echo "Running unit tests..."
+	@for t in $(OBJECTS); do \
+	  echo "=== bin/$$t ===" && ./$(BIN)/$$t 2>&1 || true; \
+	done
+
 clean:
-	rm -f *.exe *~  *.stackdump $(OBJECTS)
+	rm -rf $(BIN) *.exe *~ *.stackdump

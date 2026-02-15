@@ -510,7 +510,7 @@ bolt_test(void) {
 
 
 
-#ifdef STANDALONE
+#if defined(STANDALONE) && !defined(ALL_TESTS)
 int
 main(int argc, char ** argv) {
 

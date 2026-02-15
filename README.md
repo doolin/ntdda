@@ -9,8 +9,30 @@
 - **~209** C source and header files
 - **`include/`** – Headers for analysis, geometry, contacts, stress, materials, bolts, joints, DXF import, XML parsing
 - **`resources/`** – Icons, bitmaps (earthquake, rockbolt, geometry, etc.)
-- **`Makefile`** – Minimal (mostly `clean` target)
+- **`src/Makefile`** – Builds `libdda.a` static library
+- **`src/unittests/Makefile`** – Unit tests
 - **`winclean.bat`** – Windows build helper
+
+---
+
+## Building
+
+### Numerical library (macOS / POSIX)
+
+```bash
+cd src && make
+```
+
+Produces `libdda.a`—the DDA numerical core without BLAS/LAPACK or Win32 GUI. Requires libxml2.
+
+### Unit tests
+
+```bash
+cd src/unittests && make
+make test   # run all tests
+```
+
+Tests: constants, bolt, ddadlist, inpoly, material, stress, loadpoint, matmult, geometrydata, analysisdata, all_tests.
 
 ---
 
