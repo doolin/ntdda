@@ -9,26 +9,38 @@
 - **~209** C source and header files
 - **`include/`** – Headers for analysis, geometry, contacts, stress, materials, bolts, joints, DXF import, XML parsing
 - **`resources/`** – Icons, bitmaps (earthquake, rockbolt, geometry, etc.)
-- **`src/Makefile`** – Builds `libdda.a` static library
-- **`src/unittests/Makefile`** – Unit tests
+- **`src/`** – Numerical core; `platform/stubs` (non-Win32), `platform/win32` (Win32 GUI)
+- **`tests/unit/`** – Unit tests
+- **`src/Makefile`** – Builds `libdda.a` (legacy, kept)
+- **`tests/unit/Makefile`** – Unit tests (legacy, kept)
+- **`CMakeLists.txt`** – CMake build (recommended)
 - **`winclean.bat`** – Windows build helper
 
 ---
 
 ## Building
 
-### Numerical library (macOS / POSIX)
+### CMake (recommended)
 
+```bash
+mkdir build && cd build
+cmake ..
+make
+ctest   # run unit tests
+```
+
+Produces `libdda.a` and unit test binaries. Requires libxml2.
+
+### Legacy Makefiles
+
+**Numerical library:**
 ```bash
 cd src && make
 ```
 
-Produces `libdda.a`—the DDA numerical core without BLAS/LAPACK or Win32 GUI. Requires libxml2.
-
-### Unit tests
-
+**Unit tests:**
 ```bash
-cd src/unittests && make
+cd tests/unit && make
 make test   # run all tests
 ```
 

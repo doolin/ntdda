@@ -41,6 +41,9 @@ Dox/
 # Library build
 .obj/
 
+# CMake out-of-tree build
+build/
+
 # Unit test binaries
 bolttest
 contacttest

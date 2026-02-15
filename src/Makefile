@@ -7,7 +7,7 @@
 
 CC = gcc
 AR = ar
-CFLAGS = -g -Wall -O2 -I../include -I../stubs
+CFLAGS = -g -Wall -O2 -I../include -Iplatform/stubs
 ARFLAGS = rcs
 
 # Do not define WIN32 - enables non-GUI code paths
@@ -63,7 +63,7 @@ SRCS = \
 	graphics.c
 
 # Stub implementations for statusbar/toolbar (replaces win32gui versions)
-STUB_SRCS = ../stubs/stubs.c
+STUB_SRCS = platform/stubs/stubs.c
 
 OBJS = $(addprefix $(OBJDIR)/,$(SRCS:.c=.o))
 STUB_OBJS = $(OBJDIR)/stubs.o
@@ -76,7 +76,7 @@ $(LIB): $(OBJS) $(STUB_OBJS)
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/stubs.o: ../stubs/stubs.c | $(OBJDIR)
+$(OBJDIR)/stubs.o: platform/stubs/stubs.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR):
