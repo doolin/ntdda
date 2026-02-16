@@ -324,12 +324,20 @@ extern "C" {
     pub fn dda_set_analysisdata(dda: *mut DDA, ad: *mut Analysisdata);
 
     pub fn gdata_new() -> *mut Geometrydata;
-    pub fn gdata_delete(gd: *mut Geometrydata);
     pub fn gdata_read_input_file(gd: *mut Geometrydata, filename: *mut c_char);
+    // gdata_delete exists in C but is unsafe to call after ddacut() — it tries
+    // to free2DMat on arrays that geometryToReturn() reallocated, and has a
+    // known FIXME about memory overwrites. Kept here for reference; do not use
+    // until the C-side lifecycle is better understood.
+    #[allow(dead_code)]
+    pub fn gdata_delete(gd: *mut Geometrydata);
 
     pub fn ddacut(gd: *mut Geometrydata);
 
     pub fn adata_new() -> *mut Analysisdata;
+    // Same concern as gdata_delete — adata_delete's safety after ddanalysis()
+    // has not been verified. Kept for future use.
+    #[allow(dead_code)]
     pub fn adata_delete(ad: *mut Analysisdata);
     pub fn adata_read_input_file(
         ad: *mut Analysisdata,
