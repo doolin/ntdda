@@ -56,6 +56,10 @@ html, body, #root {
   cursor: default;
 }
 
+.toolbar-spacer {
+  flex: 1;
+}
+
 .toggle {
   display: flex;
   align-items: center;

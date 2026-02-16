@@ -100,3 +100,12 @@ pub fn get_replay_info(state: State<AppState>) -> Result<ReplayInfo, String> {
     let engine = state.engine.lock().map_err(|e| e.to_string())?;
     engine.get_replay_info()
 }
+
+#[tauri::command]
+pub fn quit_app(state: State<AppState>, app_handle: tauri::AppHandle) {
+    // Drop the engine (runs DdaEngine::drop → dda_delete) before exiting
+    if let Ok(mut engine) = state.engine.lock() {
+        engine.shutdown();
+    }
+    app_handle.exit(0);
+}

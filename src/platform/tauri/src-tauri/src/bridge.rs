@@ -383,6 +383,20 @@ impl DdaEngine {
             .ok_or_else(|| format!("Frame {} out of range (have {})", index, replay.frames.len()))
     }
 
+    /// Explicit cleanup: free the C DDA engine and null the pointer.
+    pub fn shutdown(&mut self) {
+        if !self.dda.is_null() {
+            eprintln!("[ntdda] shutdown: calling dda_delete");
+            unsafe {
+                ffi::dda_delete(self.dda);
+            }
+            self.dda = std::ptr::null_mut();
+        }
+        self.replay = None;
+        self.scene = None;
+        self.original_scene = None;
+    }
+
     /// Get replay info without full frame data.
     pub fn get_replay_info(&self) -> Result<ReplayInfo, String> {
         let replay = self.replay.as_ref().ok_or("No replay data loaded")?;

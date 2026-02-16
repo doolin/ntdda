@@ -152,6 +152,10 @@ function App() {
         <button onClick={() => setReplayActive(true)} disabled={!canReplay}>
           Replay
         </button>
+        <span className="toolbar-spacer" />
+        <button onClick={() => cmd.quitApp()}>
+          Quit
+        </button>
         {phase === "Finished" && originalScene && !replayActive && (
           <label className="toggle">
             <input

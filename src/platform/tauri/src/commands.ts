@@ -42,3 +42,7 @@ export async function getReplayFrame(index: number): Promise<SceneData> {
 export async function getReplayInfo(): Promise<ReplayInfo> {
   return invoke<ReplayInfo>("get_replay_info");
 }
+
+export async function quitApp(): Promise<void> {
+  return invoke<void>("quit_app");
+}

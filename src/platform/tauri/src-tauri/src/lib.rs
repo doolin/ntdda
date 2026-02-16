@@ -71,6 +71,7 @@ pub fn run() {
             commands::load_replay,
             commands::get_replay_frame,
             commands::get_replay_info,
+            commands::quit_app,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
