@@ -264,7 +264,7 @@ int main(int argc, char **argv)
     }
 
     /* 7. Check output artifacts exist */
-    if (file_exists("pushblock.replay")) {
+    if (file_exists("output/pushblock.replay")) {
         fprintf(stderr, "  replay file: exists\n");
     } else {
         fprintf(stderr, "  replay file: MISSING\n");

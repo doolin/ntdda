@@ -148,9 +148,17 @@ openAnalysisFiles(Filepaths * filepath) {
    getcwd(cwdbuf,BUFSIZE);
    dda_set_output_directory("output",sizeof("output"));
    strncpy(outdir,cwdbuf,sizeof(cwdbuf));
+#ifdef WIN32
    strncat(outdir,"\\",sizeof("\\"));
+#else
+   strncat(outdir,"/",sizeof("/"));
+#endif
    strncat(outdir,"output",sizeof("output"));
+#ifdef WIN32
    strncat(outdir,"\\",sizeof("\\"));
+#else
+   strncat(outdir,"/",sizeof("/"));
+#endif
    strcat(outdir, filepath->rootname);
    // This part is added by Roozbeh to copy all
    //output files into "Output" folder

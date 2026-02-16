@@ -23,37 +23,81 @@
 ### CMake (recommended)
 
 ```bash
-mkdir build && cd build
-cmake ..
-make
-ctest   # run unit tests
+cmake -B build
+cmake --build build
 ```
 
 Produces `libdda.a` and unit test binaries. Requires libxml2.
 
 ### Legacy Makefiles
 
-**Numerical library:**
 ```bash
-cd src && make
+cd src && make          # build libdda.a
+cd tests/unit && make   # build unit tests
+make test               # run all tests
 ```
 
-**Unit tests:**
+---
+
+## Testing
+
+### C Unit Tests (CTest)
+
+Run all C tests from the build directory:
+
 ```bash
-cd tests/unit && make
-make test   # run all tests
+cmake -B build
+cmake --build build
+ctest --test-dir build
 ```
 
-Tests: constants, bolt, ddadlist, inpoly, material, stress, loadpoint, matmult, geometrydata, analysisdata, all_tests.
+Individual tests can also be run directly:
 
-### Tauri (Rust) Tests
+```bash
+./build/tests/unit/constants_test
+./build/tests/unit/geometrydata_test
+./build/tests/unit/inpoly_test
+# etc.
+```
+
+Tests: constants, geometrydata, analysisdata, bolttest, ddadlist, inpoly, material, stress, loadpoint, matmult, all_tests.
+
+Note: `analysisdata_test` and `bolttest` have pre-existing failures.
+
+### C Integration Test (pipeline_test)
+
+Exercises the full DDA pipeline: XML parsing, ddacut, analysis loading, ddanalysis, and file output.
+Requires geometry and analysis fixture files as arguments:
+
+```bash
+./build/tests/unit/pipeline_test \
+  tests/fixtures/pushblock.geo \
+  tests/fixtures/pushblock.ana
+```
+
+CTest runs this automatically with the correct paths. Output artifacts are written to an `output/` subdirectory next to the geometry file (e.g., `tests/fixtures/output/`).
+
+Test fixtures in `tests/fixtures/` are private test data, separate from `examples/` which ships with the product. Generated output files in `tests/fixtures/output/` are git-ignored.
+
+### Rust Tests (Tauri)
 
 ```bash
 cd src/platform/tauri/src-tauri
 cargo test
 ```
 
-Tests: struct layout validation (geometrydata, analysisdata, filepaths) and pushblock integration test.
+Tests: struct layout validation (geometrydata, analysisdata, filepaths) and pushblock full-pipeline integration test.
+
+### Test Coverage (C)
+
+Uses CMake with LLVM source-based coverage (`-fprofile-instr-generate -fcoverage-mapping`).
+Requires Apple clang and Xcode command line tools (`xcrun llvm-profdata`, `xcrun llvm-cov`).
+
+```bash
+bash scripts/c-coverage.sh
+```
+
+Builds in `build-coverage/`, runs 10 tests (9 unit + pipeline integration), generates report at `coverage-report/c/index.html`.
 
 ### Test Coverage (Rust)
 
@@ -65,7 +109,7 @@ cargo install cargo-llvm-cov
 cd src/platform/tauri/src-tauri
 LLVM_COV=/opt/homebrew/opt/llvm/bin/llvm-cov \
 LLVM_PROFDATA=/opt/homebrew/opt/llvm/bin/llvm-profdata \
-cargo llvm-cov --html --output-dir ../../coverage-report
+cargo llvm-cov --html --output-dir ../../../../coverage-report/html
 ```
 
 Open the report: `coverage-report/html/index.html`
@@ -76,17 +120,6 @@ LLVM_COV=/opt/homebrew/opt/llvm/bin/llvm-cov \
 LLVM_PROFDATA=/opt/homebrew/opt/llvm/bin/llvm-profdata \
 cargo llvm-cov
 ```
-
-### Test Coverage (C)
-
-Uses CMake with LLVM source-based coverage (`-fprofile-instr-generate -fcoverage-mapping`).
-Requires Apple clang and Xcode command line tools (`xcrun llvm-profdata`, `xcrun llvm-cov`).
-
-```bash
-bash scripts/c-coverage.sh
-```
-
-Builds in `build-coverage/`, runs 9 unit tests, generates report at `coverage-report/c/index.html`.
 
 ---
 
