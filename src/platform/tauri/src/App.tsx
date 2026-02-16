@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import * as cmd from "./commands";
 import type { AppPhase, SceneData, AnalysisState } from "./types";
 import Viewport from "./Viewport";
+import ReplayControls from "./ReplayControls";
 import "./App.css";
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [originalScene, setOriginalScene] = useState<SceneData | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisState | null>(null);
   const [showOriginal, setShowOriginal] = useState(false);
+  const [replayActive, setReplayActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -99,19 +101,31 @@ function App() {
     }
   }
 
-  const canOpenGeo = !busy && phase !== "Running";
+  const handleReplayFrame = useCallback((frameScene: SceneData) => {
+    setScene(frameScene);
+  }, []);
+
+  const handleReplayClose = useCallback(() => {
+    setReplayActive(false);
+    // Restore final analysis scene
+    cmd.getScene().then(s => { if (s) setScene(s); });
+  }, []);
+
+  const canOpenGeo = !busy && phase !== "Running" && !replayActive;
   const canApply =
-    !busy &&
+    !busy && !replayActive &&
     (phase === "GeometryLoaded" || phase === "GeometryCut" ||
      phase === "AnalysisLoaded" || phase === "Finished");
   const canOpenAna =
-    !busy &&
+    !busy && !replayActive &&
     (phase === "GeometryCut" || phase === "AnalysisLoaded" || phase === "Finished");
   const canRun =
-    !busy && (phase === "AnalysisLoaded" || phase === "Finished");
+    !busy && !replayActive && (phase === "AnalysisLoaded" || phase === "Finished");
+  const canReplay = !busy && !replayActive && phase === "Finished";
 
   let statusText = "Ready";
-  if (phase === "GeometryLoaded") statusText = "Geometry loaded";
+  if (replayActive) statusText = "Replay";
+  else if (phase === "GeometryLoaded") statusText = "Geometry loaded";
   else if (phase === "GeometryCut") statusText = "Geometry applied";
   else if (phase === "AnalysisLoaded") statusText = "Analysis loaded";
   else if (phase === "Running") statusText = "Running...";
@@ -135,7 +149,10 @@ function App() {
         <button onClick={handleRunAnalysis} disabled={!canRun}>
           Run
         </button>
-        {phase === "Finished" && originalScene && (
+        <button onClick={() => setReplayActive(true)} disabled={!canReplay}>
+          Replay
+        </button>
+        {phase === "Finished" && originalScene && !replayActive && (
           <label className="toggle">
             <input
               type="checkbox"
@@ -154,6 +171,13 @@ function App() {
           showOriginal={showOriginal}
         />
       </div>
+
+      {replayActive && (
+        <ReplayControls
+          onFrame={handleReplayFrame}
+          onClose={handleReplayClose}
+        />
+      )}
 
       <div className="statusbar">
         <span className="status-left">{statusText}</span>

@@ -2061,6 +2061,7 @@ name = "ntdda"
 version = "0.1.0"
 dependencies = [
  "cc",
+ "libc",
  "serde",
  "serde_json",
  "tauri",

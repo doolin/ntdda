@@ -1,6 +1,6 @@
 //! Tauri IPC command handlers.
 
-use crate::bridge::{AnalysisState, AppPhase, DdaEngine, SceneData};
+use crate::bridge::{AnalysisState, AppPhase, DdaEngine, ReplayInfo, SceneData};
 use serde::Serialize;
 use std::sync::Mutex;
 use tauri::State;
@@ -81,4 +81,22 @@ pub fn run_analysis(state: State<AppState>) -> Result<AnalysisResponse, String> 
 pub fn get_scene(state: State<AppState>) -> Result<Option<SceneData>, String> {
     let engine = state.engine.lock().map_err(|e| e.to_string())?;
     Ok(engine.get_scene().cloned())
+}
+
+#[tauri::command]
+pub fn load_replay(state: State<AppState>) -> Result<ReplayInfo, String> {
+    let mut engine = state.engine.lock().map_err(|e| e.to_string())?;
+    engine.load_replay()
+}
+
+#[tauri::command]
+pub fn get_replay_frame(state: State<AppState>, index: usize) -> Result<SceneData, String> {
+    let engine = state.engine.lock().map_err(|e| e.to_string())?;
+    engine.get_replay_frame(index)
+}
+
+#[tauri::command]
+pub fn get_replay_info(state: State<AppState>) -> Result<ReplayInfo, String> {
+    let engine = state.engine.lock().map_err(|e| e.to_string())?;
+    engine.get_replay_info()
 }

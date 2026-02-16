@@ -106,6 +106,50 @@ html, body, #root {
   text-align: right;
 }
 
+.replay-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #d8e8f0;
+  border-top: 1px solid #b0c4d0;
+  min-height: 32px;
+  font-size: 12px;
+}
+
+.replay-controls button {
+  padding: 3px 8px;
+  font-size: 12px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.replay-controls button:hover {
+  background: #ddd;
+}
+
+.replay-slider {
+  flex: 1;
+  min-width: 100px;
+}
+
+.replay-frame-counter {
+  min-width: 80px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-speed {
+  min-width: 32px;
+  text-align: center;
+}
+
+.replay-error {
+  color: #d32f2f;
+}
+
 .error-toast {
   position: fixed;
   bottom: 32px;

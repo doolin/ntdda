@@ -63,3 +63,9 @@ export interface AnalysisResponse {
   original_scene: SceneData | null;
   analysis: AnalysisState;
 }
+
+export interface ReplayInfo {
+  num_frames: number;
+  num_blocks: number;
+  num_bolts: number;
+}

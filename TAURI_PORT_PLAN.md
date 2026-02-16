@@ -79,10 +79,12 @@ Mitigations:
 
 ---
 
-## Stage 1: Load, Run, View
+## Stage 1: Load, Run, View — COMPLETE
 
 Goal: open geometry and analysis files, run DDA, view results.
 Replaces the core workflow without the interactive drawing editor.
+**Status**: All items complete. Geometry loads, ddacut runs, analysis loads,
+ddanalysis runs (500 timesteps in ~13ms), results display on Canvas 2D.
 
 ### Win32 workflow being replicated
 
@@ -240,37 +242,48 @@ Replaces the core workflow without the interactive drawing editor.
 
 ---
 
-## Stage 2: Interactive Editing and Full Feature Parity
+## Stage 2: Feature Development
 
-Deferred. See detailed breakdown below. Will not start until Stage 1 is
-complete and working.
+Stage 1 complete. Stage 2 is broken into independent parts (2a–2d), developed
+in priority order chosen by user.
 
-### 2.1 Geometry drawing editor
+### 2a: Geometry drawing editor (deferred)
 - [ ] Tool palette: select, joint (8 types), fixed/measured/load/hole point, bolt
 - [ ] Click-to-place on canvas, grid snap
 - [ ] Undo (remove last element)
 - [ ] Save/load .geo files
+- NOTE: No C editing API exists. Must build entirely in Rust/TypeScript
+  using in-memory lists (matching Win32 drawdialog.c approach), then
+  serialize to .geo format.
 
-### 2.2 Analysis parameter editor (tabbed panel, 9 tabs)
+### 2b: Analysis parameter editor (deferred)
 - [ ] Flags, timestep, joint materials, block materials, load points,
       contact, bolts, gravity, seismic
 - [ ] Save/load .ana files
 
-### 2.3 Enhanced visualization
-- [ ] Stress directions, centroid trajectories, block areas, measured points
+### 2c: Enhanced visualization + replay
 
-### 2.4 Cursor interaction
+#### 2c-1: Replay animation — COMPLETE
+- [x] Parse `.replay` file (header + per-timestep vertex/bolt/point data)
+- [x] Rust: `replay.rs` parser, Tauri commands (load_replay, get_replay_frame, get_replay_info)
+- [x] TS: `ReplayControls.tsx` — play/pause/stop, frame slider, speed (1x/2x/5x/10x)
+- [x] Integrate into App.tsx — "Replay" button enabled after Finished phase
+- [x] Show Original overlay available during replay
+
+#### 2c-2: Visualization overlays
+- [ ] Parse MATLAB output files (`*_meas.m`, `*_moments.m`, `*_stress.m`)
+- [ ] Centroid trajectories (purple polylines across timesteps)
+- [ ] Principal stress directions (cross-hairs at block centroids)
+- [ ] Measured point tracking (displacement trails)
+- [ ] Toggle checkboxes in toolbar
+
+### 2d: Cursor interaction (deferred)
 - [ ] Block-under-cursor hit testing, coordinate display, click-to-select
 
-### 2.5 Replay/animation
-- [ ] Read replay file, step-through controls, animate deformation
-- [ ] NOTE: without modifying C code, we cannot add dda_step().
-      Replay must work from saved output files, not live stepping.
-
-### 2.6 Export
+### 2e: Export (deferred)
 - [ ] SVG/PNG screenshot, DXF geometry export, CSV results export
 
-### 2.7 Polish
+### 2f: Polish (deferred)
 - [ ] macOS menu bar, keyboard shortcuts, drag-drop, recent files
 
 ---

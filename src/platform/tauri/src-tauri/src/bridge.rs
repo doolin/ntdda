@@ -4,6 +4,7 @@
 //! for loading files, running analysis, and extracting scene data.
 
 use crate::ffi;
+use crate::replay::{self, ReplayData};
 use serde::Serialize;
 use std::ffi::CString;
 use std::path::Path;
@@ -57,6 +58,13 @@ pub struct AnalysisState {
     pub converged: bool,
 }
 
+#[derive(Serialize, Clone, Debug)]
+pub struct ReplayInfo {
+    pub num_frames: usize,
+    pub num_blocks: usize,
+    pub num_bolts: usize,
+}
+
 /// Application phase tracking the DDA workflow state machine.
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub enum AppPhase {
@@ -76,6 +84,7 @@ pub struct DdaEngine {
     scene: Option<SceneData>,
     original_scene: Option<SceneData>,
     geo_dir: Option<std::path::PathBuf>,
+    replay: Option<ReplayData>,
 }
 
 // SAFETY: DDA engine is only accessed from one thread at a time
@@ -99,6 +108,7 @@ impl DdaEngine {
             scene: None,
             original_scene: None,
             geo_dir: None,
+            replay: None,
         }
     }
 
@@ -293,6 +303,16 @@ impl DdaEngine {
             let _ = std::env::set_current_dir(dir);
         }
 
+        // Pre-flight checks: verify GData and AData are non-null
+        let gd_check = unsafe { ffi::dda_get_geometrydata(self.dda) };
+        let ad_check = unsafe { ffi::dda_get_analysisdata(self.dda) };
+        if gd_check.is_null() {
+            return Err("GData is null — geometry not loaded or lost".into());
+        }
+        if ad_check.is_null() {
+            return Err("AData is null — analysis not loaded or lost".into());
+        }
+
         eprintln!("[ntdda] calling ddanalysis...");
         let result = unsafe { ffi::ddanalysis(self.dda, &mut *self.filepaths) };
         eprintln!("[ntdda] ddanalysis returned: {}", result);
@@ -323,6 +343,54 @@ impl DdaEngine {
     /// Get the original (pre-analysis) scene for overlay.
     pub fn get_original_scene(&self) -> Option<&SceneData> {
         self.original_scene.as_ref()
+    }
+
+    /// Load and parse the replay file written by ddanalysis.
+    pub fn load_replay(&mut self) -> Result<ReplayInfo, String> {
+        if self.phase != AppPhase::Finished {
+            return Err(format!("Cannot load replay in phase {:?}", self.phase));
+        }
+
+        // Get replay file path from filepaths struct
+        let replay_path_str = c_buf_to_string(&self.filepaths.replayfile);
+        eprintln!("[ntdda] loading replay from: {}", replay_path_str);
+
+        let replay_path = Path::new(&replay_path_str);
+        if !replay_path.exists() {
+            return Err(format!("Replay file not found: {}", replay_path_str));
+        }
+
+        let data = replay::parse_replay_file(replay_path)?;
+        let info = ReplayInfo {
+            num_frames: data.frames.len(),
+            num_blocks: data.num_blocks,
+            num_bolts: data.num_bolts,
+        };
+        self.replay = Some(data);
+        Ok(info)
+    }
+
+    /// Get scene data for a specific replay frame.
+    pub fn get_replay_frame(&self, index: usize) -> Result<SceneData, String> {
+        let replay = self.replay.as_ref().ok_or("No replay data loaded")?;
+        let bbox = self
+            .original_scene
+            .as_ref()
+            .map(|s| s.bbox)
+            .unwrap_or([0.0, 1.0, 0.0, 1.0]);
+        replay
+            .frame_to_scene(index, bbox)
+            .ok_or_else(|| format!("Frame {} out of range (have {})", index, replay.frames.len()))
+    }
+
+    /// Get replay info without full frame data.
+    pub fn get_replay_info(&self) -> Result<ReplayInfo, String> {
+        let replay = self.replay.as_ref().ok_or("No replay data loaded")?;
+        Ok(ReplayInfo {
+            num_frames: replay.frames.len(),
+            num_blocks: replay.num_blocks,
+            num_bolts: replay.num_bolts,
+        })
     }
 
     /// Extract scene data from the current Geometrydata.

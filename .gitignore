@@ -32,6 +32,8 @@ Debug/
 *~
 # Visual Studio crash recovery temp files
 .!*!*
+# Claude Code local settings
+.claude/settings.local.json
 
 # Tauri
 src/platform/tauri/src-tauri*

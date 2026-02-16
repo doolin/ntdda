@@ -14,7 +14,8 @@
       "Bash(nm:*)",
       "Read(//Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk/usr/include/**)",
       "Bash(clang:*)",
-      "Bash(npx tauri build:*)"
+      "Bash(npx tauri build:*)",
+      "Bash(cargo clean:*)"
     ]
   }
 }

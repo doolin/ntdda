@@ -4,6 +4,7 @@ import type {
   SceneResponse,
   AnalysisResponse,
   SceneData,
+  ReplayInfo,
 } from "./types";
 
 export async function getPhase(): Promise<PhaseResponse> {
@@ -28,4 +29,16 @@ export async function runAnalysis(): Promise<AnalysisResponse> {
 
 export async function getScene(): Promise<SceneData | null> {
   return invoke<SceneData | null>("get_scene");
+}
+
+export async function loadReplay(): Promise<ReplayInfo> {
+  return invoke<ReplayInfo>("load_replay");
+}
+
+export async function getReplayFrame(index: number): Promise<SceneData> {
+  return invoke<SceneData>("get_replay_frame", { index });
+}
+
+export async function getReplayInfo(): Promise<ReplayInfo> {
+  return invoke<ReplayInfo>("get_replay_info");
 }
