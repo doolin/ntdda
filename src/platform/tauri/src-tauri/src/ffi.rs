@@ -1,0 +1,630 @@
+//! FFI bindings to libdda.
+//!
+//! Mirrors C struct layouts via #[repr(C)] for direct field access.
+//! Validated against the C compiler's sizeof/offsetof via probe.c.
+
+use std::os::raw::{c_char, c_double, c_int, c_uint, c_void};
+
+// Opaque types — we only hold pointers, never inspect internals
+pub enum DDA {}
+pub enum DList {}
+pub enum Loadpoint {}
+pub enum TimeHistory {}
+pub enum Constants {}
+pub enum Gravity {}
+
+// Function pointer types matching C typedefs
+pub type DisplayFunc = Option<unsafe extern "C" fn(*const c_char)>;
+
+/// Mirrors `struct _geo_data_tag` from geometrydata.h.
+/// Field order and types must match the C layout exactly.
+#[repr(C)]
+pub struct Geometrydata {
+    pub display_warning: DisplayFunc,
+    pub display_error: DisplayFunc,
+
+    pub index: c_int,
+    pub blocksize: c_int,
+
+    pub e00: c_double,
+    pub n_joints: c_int,
+    pub n_boundary_lines: c_int,
+    pub n_mat_lines: c_int,
+    pub n_bolts: c_int,
+    pub n_f_points: c_int,
+    pub max_fixed_points_per_fixed_line: c_int,
+    pub n_l_points: c_int,
+    pub n_m_points: c_int,
+    pub n_h_points: c_int,
+    pub n_s_points: c_int,
+    pub n_points: c_int,
+    pub n_pore_pres: c_int,
+    pub n_wtable: c_int,
+    pub n_intersection_points: c_int,
+    pub n_contacts: c_int,
+    pub point_count: c_int,
+    pub n_blocks: c_int,
+    pub vertex_count: c_int,
+    pub n2: c_int,
+    pub n3: c_int,
+
+    pub scale: [c_double; 4],
+    pub w0: c_double,
+
+    pub pointsize1: c_int,
+    pub pointsize2: c_int,
+    pub points: *mut *mut c_double,
+    pub prevpoints: *mut *mut c_double,
+    pub origpoints: *mut *mut c_double,
+
+    pub fpoints: *mut DList,
+    pub lpoints: *mut DList,
+    pub mpoints: *mut DList,
+    pub hpoints: *mut DList,
+    pub dirpoints: *mut DList,
+    pub dispoints: *mut DList,
+    pub seispoints: *mut DList,
+
+    pub jointsize1: c_int,
+    pub jointsize2: c_int,
+    pub joints: *mut *mut c_double,
+
+    pub matlinesize1: c_int,
+    pub matlinesize2: c_int,
+    pub matlines: *mut *mut c_double,
+
+    pub rockboltsize1: c_int,
+    pub rockboltsize2: c_int,
+    pub rockbolts: *mut *mut c_double,
+    pub origbolts: *mut *mut c_double,
+    pub max_segments_per_bolt: c_int,
+
+    pub vertexsize1: c_int,
+    pub vertexsize2: c_int,
+    pub vertices: *mut *mut c_double,
+    pub origvertices: *mut *mut c_double,
+
+    pub vindexsize1: c_int,
+    pub vindexsize2: c_int,
+    pub vindex: *mut *mut c_int,
+
+    pub nn0size: c_int,
+    pub nn0: *mut c_int,
+
+    pub porepressize1: c_int,
+    pub porepressize2: c_int,
+    pub porepres: *mut *mut c_double,
+
+    pub wtablesize1: c_int,
+    pub wtablesize2: c_int,
+    pub watertable: *mut *mut c_double,
+
+    pub momentsize1: c_int,
+    pub momentsize2: c_int,
+    pub moments: *mut *mut c_double,
+
+    pub origareasize: c_int,
+    pub origarea: *mut c_double,
+
+    pub origdensitysize: c_int,
+    pub origdensity: *mut c_double,
+
+    // Function pointers at the end of the struct
+    pub compute_bbox: Option<unsafe extern "C" fn(*mut Geometrydata)>,
+    pub deleteblock: Option<unsafe extern "C" fn(*mut Geometrydata, c_int)>,
+    pub deletepoint: Option<unsafe extern "C" fn(*mut Geometrydata, c_int)>,
+    pub dumptofile: Option<
+        unsafe extern "C" fn(
+            *mut Geometrydata,
+            Option<unsafe extern "C" fn(*mut c_void, *const c_char, ...) -> c_int>,
+            *mut c_void,
+        ),
+    >,
+}
+
+/// Mirrors `struct _analysisdata_tag` from analysisdata.h.
+/// Field order and types must match the C layout exactly.
+#[repr(C)]
+pub struct Analysisdata {
+    pub options: c_uint,
+
+    pub display_warning: DisplayFunc,
+    pub display_error: DisplayFunc,
+
+    pub is_running: c_int,
+    pub is_paused: c_int,
+
+    pub index: c_int,
+    pub blocksize: c_int,
+
+    pub rotationflag: c_int, // ddaboolean = int
+    pub gravityflag: c_int,
+    pub autotimestepflag: c_int,
+    pub autopenaltyflag: c_int,
+    pub planestrainflag: c_int,
+    pub verticesflag: c_int,
+
+    pub writemfile: c_int,
+    pub analysistype: c_int,
+    pub pfactor: c_double,
+
+    // enums — C enums are int-sized
+    pub rotationtype: c_int,
+    pub solvetype: c_int,
+    pub contactmethod: c_int,
+    pub frictionlaw: c_int,
+    pub units: c_int,
+    pub fileformat: c_int,
+
+    pub k5size1: c_int,
+    pub k5size2: c_int,
+    pub tindex: *mut *mut c_int,
+
+    pub loadpoints: *mut Loadpoint,
+    pub timehistory: *mut TimeHistory,
+
+    pub mu: c_double,
+
+    pub point_count: c_int,
+    pub n_l_points: c_int,
+
+    pub csize1: c_int,
+    pub csize2: c_int,
+    pub c: *mut *mut c_double,
+
+    pub timedepsize1: c_int,
+    pub timedepsize2: c_int,
+    pub n_td_points: c_int,
+    pub time_deps: *mut *mut c_double,
+
+    pub materialpropsize1: c_int,
+    pub materialpropsize2: c_int,
+    pub material_props: *mut *mut c_double,
+
+    pub phicohesionsize1: c_int,
+    pub phicohesionsize2: c_int,
+    pub phi_cohesion: *mut *mut c_double,
+
+    pub boltmatsize1: c_int,
+    pub boltmatsize2: c_int,
+    pub boltmats: *mut *mut c_double,
+
+    pub globaltimesize1: c_int,
+    pub globaltimesize2: c_int,
+    pub global_time: *mut *mut c_double,
+
+    pub gravaccel: c_double,
+    pub gravity: *mut Gravity,
+
+    pub ksize1: c_int,
+    pub ksize2: c_int,
+    pub k: *mut *mut c_double,
+    pub kcopy: *mut *mut c_double,
+
+    pub fsize1: c_int,
+    pub fsize2: c_int,
+    pub f: *mut *mut c_double,
+    pub fcopy: *mut *mut c_double,
+
+    pub abortedtimestep: c_int,
+    pub n_time_steps: c_int,
+    pub n_block_mats: c_int,
+    pub n_joint_mats: c_int,
+    pub n_bolt_mats: c_int,
+
+    pub contactpenalty: c_double,
+    pub g0initial: c_double,
+    pub contact_damping: c_double,
+
+    pub springstiffsize: c_int,
+    pub springstiffness: *mut c_double,
+
+    pub maxtimestep: c_double,
+    pub max_delta_t: c_double,
+    pub min_delta_t: c_double,
+    pub maxdisplacement: c_double,
+
+    pub f_point_spring: c_double,
+    pub joint_normal_spring: c_double,
+
+    pub nt: c_int,
+    pub n3: c_int,
+    pub w6: c_double,
+    pub n_current_contacts: c_int,
+    pub n_prev_contacts: c_int,
+    pub n_bolt_contacts: c_int,
+    pub m9: c_int,
+    pub oc_converged: c_int,
+    pub oc_count: c_int,
+    pub oc_limit: c_int,
+    pub n9: c_int,
+    pub k00: c_int,
+    pub nn00: c_int,
+
+    pub avg_area: *mut c_double,
+    pub avgareasize: c_int,
+
+    pub cts: c_int,
+    pub elapsed_time: c_double,
+    pub ts_save_interval: c_int,
+    pub save_time_step: c_int,
+    pub extra_iteration: c_int,
+    pub delta_t: c_double,
+
+    pub constants: *mut Constants,
+    pub initialconstants: *mut Constants,
+
+    // Function pointers at the end
+    pub abort_fn: Option<unsafe extern "C" fn(*mut Analysisdata)>,
+    pub newanalysis: Option<unsafe extern "C" fn() -> *mut Analysisdata>,
+    pub validate: Option<unsafe extern "C" fn()>,
+    pub deletematerial: Option<unsafe extern "C" fn(*mut Analysisdata, c_int)>,
+    pub free_fn: Option<unsafe extern "C" fn(*mut Analysisdata)>,
+}
+
+/// Mirrors `struct _filepath_tag` from ddafile.h.
+/// Each field is a char[256] buffer.
+pub const FNAME_BUFSIZE: usize = 256;
+
+#[repr(C)]
+pub struct Filepaths {
+    pub gpath: [c_char; FNAME_BUFSIZE],
+    pub path: [c_char; FNAME_BUFSIZE],
+    pub apath: [c_char; FNAME_BUFSIZE],
+    pub vpath: [c_char; FNAME_BUFSIZE],
+    pub oldpath: [c_char; FNAME_BUFSIZE],
+    pub gfile: [c_char; FNAME_BUFSIZE],
+    pub afile: [c_char; FNAME_BUFSIZE],
+    pub vfile: [c_char; FNAME_BUFSIZE],
+    pub oldfile: [c_char; FNAME_BUFSIZE],
+    pub resfile: [c_char; FNAME_BUFSIZE],
+    pub replayfile: [c_char; FNAME_BUFSIZE],
+    pub logfile: [c_char; FNAME_BUFSIZE],
+    pub errorfile: [c_char; FNAME_BUFSIZE],
+    pub blockfile: [c_char; FNAME_BUFSIZE],
+    pub measfile: [c_char; FNAME_BUFSIZE],
+    pub porefile: [c_char; FNAME_BUFSIZE],
+    pub timefile: [c_char; FNAME_BUFSIZE],
+    pub parfile: [c_char; FNAME_BUFSIZE],
+    pub momentfile: [c_char; FNAME_BUFSIZE],
+    pub massfile: [c_char; FNAME_BUFSIZE],
+    pub gravfile: [c_char; FNAME_BUFSIZE],
+    pub htmlfile: [c_char; FNAME_BUFSIZE],
+    pub datafile: [c_char; FNAME_BUFSIZE],
+    pub gnuplotfile: [c_char; FNAME_BUFSIZE],
+    pub spyfile1: [c_char; FNAME_BUFSIZE],
+    pub spyfile2: [c_char; FNAME_BUFSIZE],
+    pub mfile: [c_char; FNAME_BUFSIZE],
+    pub dfile: [c_char; FNAME_BUFSIZE],
+    pub eqfile: [c_char; FNAME_BUFSIZE],
+    pub fpointfile: [c_char; FNAME_BUFSIZE],
+    pub cforce: [c_char; FNAME_BUFSIZE],
+    pub fforce: [c_char; FNAME_BUFSIZE],
+    pub stressfile: [c_char; FNAME_BUFSIZE],
+    pub boltfile: [c_char; FNAME_BUFSIZE],
+    pub boltlogfile: [c_char; FNAME_BUFSIZE],
+    pub vertexfile: [c_char; FNAME_BUFSIZE],
+    pub vertexlogfile: [c_char; FNAME_BUFSIZE],
+    pub rootname: [c_char; FNAME_BUFSIZE],
+}
+
+// Display callback functions from stubs.c
+extern "C" {
+    pub fn dda_display_error(message: *const c_char);
+    pub fn dda_display_warning(message: *const c_char);
+}
+
+// Extern C functions from libdda
+extern "C" {
+    pub fn dda_new() -> *mut DDA;
+    pub fn dda_delete(dda: *mut DDA);
+    pub fn dda_run(dda: *mut DDA) -> c_int;
+    pub fn dda_get_geometrydata(dda: *mut DDA) -> *mut Geometrydata;
+    pub fn dda_set_geometrydata(dda: *mut DDA, gd: *mut Geometrydata);
+    pub fn dda_get_analysisdata(dda: *mut DDA) -> *mut Analysisdata;
+    pub fn dda_set_analysisdata(dda: *mut DDA, ad: *mut Analysisdata);
+    pub fn dda_get_menu_state(dda: *mut DDA) -> c_int;
+    pub fn dda_set_menu_state(dda: *mut DDA, state: c_int);
+
+    pub fn gdata_new() -> *mut Geometrydata;
+    pub fn gdata_delete(gd: *mut Geometrydata);
+    pub fn gdata_read_input_file(gd: *mut Geometrydata, filename: *mut c_char);
+    pub fn gdata_get_number_of_blocks(gd: *mut Geometrydata) -> c_int;
+
+    pub fn ddacut(gd: *mut Geometrydata);
+
+    pub fn adata_new() -> *mut Analysisdata;
+    pub fn adata_delete(ad: *mut Analysisdata);
+    pub fn adata_read_input_file(
+        ad: *mut Analysisdata,
+        filename: *mut c_char,
+        numfixedpoints: c_int,
+        pointcount: c_int,
+        numloadpoints: c_int,
+    );
+
+    pub fn ddanalysis(dda: *mut DDA, fp: *mut Filepaths) -> c_int;
+    pub fn initFilePaths(fp: *mut Filepaths);
+}
+
+// Probe functions from probe.c for validating struct layouts
+extern "C" {
+    pub fn probe_sizeof_geometrydata() -> usize;
+    pub fn probe_offsetof_gd_display_warning() -> usize;
+    pub fn probe_offsetof_gd_display_error() -> usize;
+    pub fn probe_offsetof_gd_index() -> usize;
+    pub fn probe_offsetof_gd_blocksize() -> usize;
+    pub fn probe_offsetof_gd_e00() -> usize;
+    pub fn probe_offsetof_gd_nJoints() -> usize;
+    pub fn probe_offsetof_gd_nBolts() -> usize;
+    pub fn probe_offsetof_gd_nFPoints() -> usize;
+    pub fn probe_offsetof_gd_nLPoints() -> usize;
+    pub fn probe_offsetof_gd_nMPoints() -> usize;
+    pub fn probe_offsetof_gd_nHPoints() -> usize;
+    pub fn probe_offsetof_gd_nBlocks() -> usize;
+    pub fn probe_offsetof_gd_vertexCount() -> usize;
+    pub fn probe_offsetof_gd_scale() -> usize;
+    pub fn probe_offsetof_gd_w0() -> usize;
+    pub fn probe_offsetof_gd_pointsize1() -> usize;
+    pub fn probe_offsetof_gd_pointsize2() -> usize;
+    pub fn probe_offsetof_gd_points() -> usize;
+    pub fn probe_offsetof_gd_jointsize1() -> usize;
+    pub fn probe_offsetof_gd_joints() -> usize;
+    pub fn probe_offsetof_gd_rockboltsize1() -> usize;
+    pub fn probe_offsetof_gd_rockbolts() -> usize;
+    pub fn probe_offsetof_gd_vertexsize1() -> usize;
+    pub fn probe_offsetof_gd_vertices() -> usize;
+    pub fn probe_offsetof_gd_vindexsize1() -> usize;
+    pub fn probe_offsetof_gd_vindex() -> usize;
+    pub fn probe_offsetof_gd_pointCount() -> usize;
+    pub fn probe_offsetof_gd_nPoints() -> usize;
+
+    pub fn probe_sizeof_analysisdata() -> usize;
+    pub fn probe_offsetof_ad_options() -> usize;
+    pub fn probe_offsetof_ad_isRunning() -> usize;
+    pub fn probe_offsetof_ad_nTimeSteps() -> usize;
+    pub fn probe_offsetof_ad_nCurrentContacts() -> usize;
+    pub fn probe_offsetof_ad_m9() -> usize;
+    pub fn probe_offsetof_ad_OCConverged() -> usize;
+    pub fn probe_offsetof_ad_cts() -> usize;
+    pub fn probe_offsetof_ad_elapsedTime() -> usize;
+    pub fn probe_offsetof_ad_delta_t() -> usize;
+
+    pub fn probe_sizeof_filepaths() -> usize;
+    pub fn probe_offsetof_fp_gfile() -> usize;
+    pub fn probe_offsetof_fp_afile() -> usize;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::mem::{offset_of, size_of};
+
+    #[test]
+    fn geometrydata_layout_matches_c() {
+        unsafe {
+            assert_eq!(
+                size_of::<Geometrydata>(),
+                probe_sizeof_geometrydata(),
+                "Geometrydata sizeof mismatch"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, display_warning),
+                probe_offsetof_gd_display_warning(),
+                "display_warning offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, display_error),
+                probe_offsetof_gd_display_error(),
+                "display_error offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, index),
+                probe_offsetof_gd_index(),
+                "index offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, blocksize),
+                probe_offsetof_gd_blocksize(),
+                "blocksize offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, e00),
+                probe_offsetof_gd_e00(),
+                "e00 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_joints),
+                probe_offsetof_gd_nJoints(),
+                "nJoints offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_bolts),
+                probe_offsetof_gd_nBolts(),
+                "nBolts offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_f_points),
+                probe_offsetof_gd_nFPoints(),
+                "nFPoints offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_l_points),
+                probe_offsetof_gd_nLPoints(),
+                "nLPoints offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_m_points),
+                probe_offsetof_gd_nMPoints(),
+                "nMPoints offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_h_points),
+                probe_offsetof_gd_nHPoints(),
+                "nHPoints offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_blocks),
+                probe_offsetof_gd_nBlocks(),
+                "nBlocks offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, vertex_count),
+                probe_offsetof_gd_vertexCount(),
+                "vertexCount offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, scale),
+                probe_offsetof_gd_scale(),
+                "scale offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, w0),
+                probe_offsetof_gd_w0(),
+                "w0 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, pointsize1),
+                probe_offsetof_gd_pointsize1(),
+                "pointsize1 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, pointsize2),
+                probe_offsetof_gd_pointsize2(),
+                "pointsize2 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, points),
+                probe_offsetof_gd_points(),
+                "points offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, jointsize1),
+                probe_offsetof_gd_jointsize1(),
+                "jointsize1 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, joints),
+                probe_offsetof_gd_joints(),
+                "joints offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, rockboltsize1),
+                probe_offsetof_gd_rockboltsize1(),
+                "rockboltsize1 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, rockbolts),
+                probe_offsetof_gd_rockbolts(),
+                "rockbolts offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, vertexsize1),
+                probe_offsetof_gd_vertexsize1(),
+                "vertexsize1 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, vertices),
+                probe_offsetof_gd_vertices(),
+                "vertices offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, vindexsize1),
+                probe_offsetof_gd_vindexsize1(),
+                "vindexsize1 offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, vindex),
+                probe_offsetof_gd_vindex(),
+                "vindex offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, point_count),
+                probe_offsetof_gd_pointCount(),
+                "pointCount offset"
+            );
+            assert_eq!(
+                offset_of!(Geometrydata, n_points),
+                probe_offsetof_gd_nPoints(),
+                "nPoints offset"
+            );
+        }
+    }
+
+    #[test]
+    fn analysisdata_layout_matches_c() {
+        unsafe {
+            assert_eq!(
+                size_of::<Analysisdata>(),
+                probe_sizeof_analysisdata(),
+                "Analysisdata sizeof mismatch"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, options),
+                probe_offsetof_ad_options(),
+                "options offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, is_running),
+                probe_offsetof_ad_isRunning(),
+                "isRunning offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, n_time_steps),
+                probe_offsetof_ad_nTimeSteps(),
+                "nTimeSteps offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, n_current_contacts),
+                probe_offsetof_ad_nCurrentContacts(),
+                "nCurrentContacts offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, m9),
+                probe_offsetof_ad_m9(),
+                "m9 offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, oc_converged),
+                probe_offsetof_ad_OCConverged(),
+                "OCConverged offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, cts),
+                probe_offsetof_ad_cts(),
+                "cts offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, elapsed_time),
+                probe_offsetof_ad_elapsedTime(),
+                "elapsedTime offset"
+            );
+            assert_eq!(
+                offset_of!(Analysisdata, delta_t),
+                probe_offsetof_ad_delta_t(),
+                "delta_t offset"
+            );
+        }
+    }
+
+    #[test]
+    fn filepaths_layout_matches_c() {
+        unsafe {
+            assert_eq!(
+                size_of::<Filepaths>(),
+                probe_sizeof_filepaths(),
+                "Filepaths sizeof mismatch"
+            );
+            assert_eq!(
+                offset_of!(Filepaths, gfile),
+                probe_offsetof_fp_gfile(),
+                "gfile offset"
+            );
+            assert_eq!(
+                offset_of!(Filepaths, afile),
+                probe_offsetof_fp_afile(),
+                "afile offset"
+            );
+        }
+    }
+}

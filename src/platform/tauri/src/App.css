@@ -1,0 +1,122 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #e0e0e0;
+  border-bottom: 1px solid #ccc;
+  min-height: 36px;
+}
+
+.app-title {
+  font-weight: 600;
+  margin-right: 12px;
+}
+
+.toolbar button {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.toolbar button:hover:not(:disabled) {
+  background: #ddd;
+}
+
+.toolbar button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+.viewport {
+  flex: 1;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.viewport canvas {
+  display: block;
+  cursor: grab;
+}
+
+.viewport canvas:active {
+  cursor: grabbing;
+}
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: #e0e0e0;
+  border-top: 1px solid #ccc;
+  min-height: 24px;
+  font-size: 12px;
+  gap: 16px;
+}
+
+.status-left {
+  flex: 1;
+}
+
+.status-center {
+  flex: 1;
+  text-align: center;
+}
+
+.status-right {
+  flex: 1;
+  text-align: right;
+}
+
+.error-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d32f2f;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  max-width: 80%;
+  z-index: 100;
+}

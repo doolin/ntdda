@@ -1,0 +1,31 @@
+import { invoke } from "@tauri-apps/api/core";
+import type {
+  PhaseResponse,
+  SceneResponse,
+  AnalysisResponse,
+  SceneData,
+} from "./types";
+
+export async function getPhase(): Promise<PhaseResponse> {
+  return invoke<PhaseResponse>("get_phase");
+}
+
+export async function openGeometry(path: string): Promise<PhaseResponse> {
+  return invoke<PhaseResponse>("open_geometry", { path });
+}
+
+export async function applyGeometry(): Promise<SceneResponse> {
+  return invoke<SceneResponse>("apply_geometry");
+}
+
+export async function openAnalysis(path: string): Promise<PhaseResponse> {
+  return invoke<PhaseResponse>("open_analysis", { path });
+}
+
+export async function runAnalysis(): Promise<AnalysisResponse> {
+  return invoke<AnalysisResponse>("run_analysis");
+}
+
+export async function getScene(): Promise<SceneData | null> {
+  return invoke<SceneData | null>("get_scene");
+}
