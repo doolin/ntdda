@@ -49,6 +49,7 @@ set(LIBDDA_SRCS
   transfercontact.c
   utils.c
   graphics.c
+  datalog.c
 )
 
 add_library(dda STATIC ${LIBDDA_SRCS} platform/stubs/stubs.c)

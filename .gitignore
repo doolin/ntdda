@@ -65,4 +65,5 @@ all_tests
 ddadlist_test
 geometrydata_test
 analysisdata_test
+pipeline_test
 

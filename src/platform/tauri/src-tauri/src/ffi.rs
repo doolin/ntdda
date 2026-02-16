@@ -630,8 +630,8 @@ mod tests {
             .parent().unwrap()  // src/platform/
             .parent().unwrap()  // src/
             .parent().unwrap(); // repo root
-        let geo_path = repo_root.join("examples/loadpoint/pushblock.geo");
-        let ana_path = repo_root.join("examples/loadpoint/pushblock.ana");
+        let geo_path = repo_root.join("tests/fixtures/pushblock.geo");
+        let ana_path = repo_root.join("tests/fixtures/pushblock.ana");
         assert!(geo_path.exists(), "pushblock.geo not found at {:?}", geo_path);
         assert!(ana_path.exists(), "pushblock.ana not found at {:?}", ana_path);
 

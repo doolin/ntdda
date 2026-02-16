@@ -23,6 +23,7 @@ TESTS=(
   loadpointtest
   matmulttest
   all_tests
+  pipeline_test
 )
 
 echo "=== C Coverage: configure ==="
@@ -45,7 +46,15 @@ for test in "${TESTS[@]}"; do
     continue
   fi
   echo -n "  $test ... "
-  LLVM_PROFILE_FILE="$PROFDATA_DIR/${test}-%p.profraw" "$binary" > /dev/null 2>&1 && echo "ok" || echo "FAIL (ignored)"
+  # pipeline_test needs geo/ana file paths as arguments
+  if [ "$test" = "pipeline_test" ]; then
+    LLVM_PROFILE_FILE="$PROFDATA_DIR/${test}-%p.profraw" "$binary" \
+      "$REPO_ROOT/tests/fixtures/pushblock.geo" \
+      "$REPO_ROOT/tests/fixtures/pushblock.ana" \
+      > /dev/null 2>&1 && echo "ok" || echo "FAIL (ignored)"
+  else
+    LLVM_PROFILE_FILE="$PROFDATA_DIR/${test}-%p.profraw" "$binary" > /dev/null 2>&1 && echo "ok" || echo "FAIL (ignored)"
+  fi
   BINARIES+=("$binary")
 done
 
