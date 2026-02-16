@@ -30,6 +30,8 @@ Debug/
 
 # Editor and temp files
 *~
+# Visual Studio crash recovery temp files
+.!*!*
 
 # Documentation
 dox_warnings
