@@ -23,6 +23,7 @@ TESTS=(
   loadpointtest
   matmulttest
   all_tests
+  ddafile_test
   pipeline_test
 )
 
