@@ -616,6 +616,121 @@ mod tests {
         }
     }
 
+    /// Full pipeline test: load geometry, ddacut, load analysis, ddanalysis.
+    /// Uses the pushblock example files from the repo.
+    #[test]
+    fn pushblock_analysis_runs_without_crash() {
+        use std::ffi::CString;
+        use std::path::Path;
+
+        // Locate example files relative to the Cargo.toml (src-tauri/)
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let repo_root = Path::new(manifest_dir)
+            .parent().unwrap()  // src/platform/tauri/
+            .parent().unwrap()  // src/platform/
+            .parent().unwrap()  // src/
+            .parent().unwrap(); // repo root
+        let geo_path = repo_root.join("examples/loadpoint/pushblock.geo");
+        let ana_path = repo_root.join("examples/loadpoint/pushblock.ana");
+        assert!(geo_path.exists(), "pushblock.geo not found at {:?}", geo_path);
+        assert!(ana_path.exists(), "pushblock.ana not found at {:?}", ana_path);
+
+        unsafe {
+            // 1. Create DDA engine
+            let dda = dda_new();
+            assert!(!dda.is_null(), "dda_new returned null");
+
+            // 2. Load geometry
+            let gd = gdata_new();
+            assert!(!gd.is_null(), "gdata_new returned null");
+            (*gd).display_error = Some(dda_display_error);
+            (*gd).display_warning = Some(dda_display_warning);
+
+            let c_geo = CString::new(geo_path.to_str().unwrap()).unwrap();
+            gdata_read_input_file(gd, c_geo.as_ptr() as *mut _);
+            dda_set_geometrydata(dda, gd);
+
+            assert!((*gd).n_joints > 0, "no joints after reading geometry");
+
+            // 3. ddacut
+            // CWD must be writable (for cut.log, pnp.log)
+            let prev_dir = std::env::current_dir().ok();
+            let geo_dir = geo_path.parent().unwrap();
+            let _ = std::env::set_current_dir(geo_dir);
+
+            ddacut(gd);
+
+            assert!((*gd).n_blocks > 0, "no blocks after ddacut");
+            assert!(!(*gd).moments.is_null(), "moments is NULL after ddacut");
+            assert!(!(*gd).vertices.is_null(), "vertices is NULL after ddacut");
+            assert!(!(*gd).vindex.is_null(), "vindex is NULL after ddacut");
+
+            // 4. Load analysis
+            let ad = adata_new();
+            assert!(!ad.is_null(), "adata_new returned null");
+            (*ad).display_error = Some(dda_display_error);
+            (*ad).display_warning = Some(dda_display_warning);
+
+            let c_ana = CString::new(ana_path.to_str().unwrap()).unwrap();
+            adata_read_input_file(
+                ad,
+                c_ana.as_ptr() as *mut _,
+                (*gd).n_f_points,
+                (*gd).point_count,
+                (*gd).n_l_points,
+            );
+            dda_set_analysisdata(dda, ad);
+
+            assert!((*ad).n_time_steps > 0, "no timesteps after reading analysis");
+
+            // 5. Set up filepaths (rootname required by openAnalysisFiles)
+            let mut fp: Filepaths = std::mem::zeroed();
+            initFilePaths(&mut fp);
+            // Copy geo and ana paths
+            let geo_bytes = geo_path.to_str().unwrap().as_bytes();
+            let ana_bytes = ana_path.to_str().unwrap().as_bytes();
+            for (i, &b) in geo_bytes.iter().enumerate().take(FNAME_BUFSIZE - 1) {
+                fp.gfile[i] = b as c_char;
+            }
+            for (i, &b) in ana_bytes.iter().enumerate().take(FNAME_BUFSIZE - 1) {
+                fp.afile[i] = b as c_char;
+            }
+            // rootname = file stem without extension
+            let stem = ana_path.file_stem().unwrap().to_str().unwrap();
+            for (i, &b) in stem.as_bytes().iter().enumerate().take(FNAME_BUFSIZE - 1) {
+                fp.rootname[i] = b as c_char;
+            }
+
+            // 6. Dump state before analysis
+            eprintln!("[test] gd ptr={:p}", gd);
+            eprintln!("[test] gd.nBlocks={} nFPoints={} nLPoints={} nMPoints={} nHPoints={} nPoints={} pointCount={}",
+                (*gd).n_blocks, (*gd).n_f_points, (*gd).n_l_points,
+                (*gd).n_m_points, (*gd).n_h_points, (*gd).n_points, (*gd).point_count);
+            eprintln!("[test] gd.moments={:p} momentsize1={} momentsize2={}",
+                (*gd).moments, (*gd).momentsize1, (*gd).momentsize2);
+            eprintln!("[test] gd.points={:p} pointsize1={} pointsize2={}",
+                (*gd).points, (*gd).pointsize1, (*gd).pointsize2);
+            eprintln!("[test] gd.vertices={:p} vindex={:p}", (*gd).vertices, (*gd).vindex);
+            eprintln!("[test] ad ptr={:p}", ad);
+            eprintln!("[test] ad.nTimeSteps={} delta_t={}", (*ad).n_time_steps, (*ad).delta_t);
+
+            // Run analysis
+            let result = ddanalysis(dda, &mut fp);
+            assert_eq!(result, 1, "ddanalysis should return 1 (TRUE) on success");
+
+            // 7. Verify post-analysis state
+            assert!((*ad).cts > 0, "no timesteps completed");
+
+            // Restore CWD
+            if let Some(dir) = prev_dir {
+                let _ = std::env::set_current_dir(dir);
+            }
+
+            // 8. Cleanup
+            dda_delete(dda);
+        }
+    }
+
     #[test]
     fn filepaths_layout_matches_c() {
         unsafe {
