@@ -188,6 +188,16 @@ impl DdaEngine {
         }
         eprintln!("[ntdda] ddacut returned");
 
+        // Fix point-to-block assignments.  The C crr() function uses
+        // srand(2)/rand() with `e1 = rand()/2048.0`, which assumes
+        // Win32's RAND_MAX of 32767.  On macOS RAND_MAX is 2^31-1,
+        // making e1 >> 1, so sqrt(1 - e1²) = NaN and every point is
+        // classified "outside all blocks".  We redo the assignment in
+        // Rust with a deterministic ray-cast that doesn't use rand().
+        unsafe {
+            fix_point_block_assignments(&*gd);
+        }
+
         // Restore previous directory
         if let Some(dir) = prev_dir {
             let _ = std::env::set_current_dir(dir);
@@ -589,6 +599,112 @@ impl Drop for DdaEngine {
             }
         }
     }
+}
+
+/// Fix point-to-block assignments after ddacut().
+///
+/// The C `crr()` point-in-polygon function uses `e1 = rand()/2048.0` to
+/// pick a ray direction, assuming Win32's RAND_MAX of 32767.  On macOS
+/// RAND_MAX is 2^31-1, so `e1` is ~16 instead of ~0.02, making
+/// `sqrt(1 - e1²)` produce NaN.  NaN comparisons always return false,
+/// so every edge counts as an intersection and every point is classified
+/// as "outside all blocks" (points[i][3] = 0).
+///
+/// This function redoes the assignment using a standard ray-casting
+/// algorithm with a fixed horizontal ray (no randomness needed).
+pub(crate) unsafe fn fix_point_block_assignments(gd: &ffi::Geometrydata) {
+    let n_points = (gd.n_f_points + gd.n_l_points + gd.n_m_points) as usize;
+    let n_blocks = gd.n_blocks as usize;
+
+    if n_points == 0 || n_blocks == 0 || gd.points.is_null() || gd.vertices.is_null() || gd.vindex.is_null() {
+        return;
+    }
+
+    let mut fixed_count = 0;
+
+    for i in 1..=n_points {
+        let pt_row = *gd.points.add(i);
+        if pt_row.is_null() {
+            continue;
+        }
+        let px = *pt_row.add(1);
+        let py = *pt_row.add(2);
+        let current_block = *pt_row.add(3) as i32;
+
+        // Only fix points that weren't assigned (block = 0)
+        if current_block != 0 {
+            continue;
+        }
+
+        for block in 1..=n_blocks {
+            let vi_row = *gd.vindex.add(block);
+            if vi_row.is_null() {
+                continue;
+            }
+            let j0 = *vi_row.add(1) as usize; // start vertex index
+            let j1 = *vi_row.add(2) as usize; // end vertex index
+
+            if point_in_polygon(gd, px, py, j0, j1) {
+                *pt_row.add(3) = block as f64;
+                fixed_count += 1;
+                break;
+            }
+        }
+    }
+
+    if fixed_count > 0 {
+        eprintln!(
+            "[ntdda] fix_point_block_assignments: reassigned {} of {} points",
+            fixed_count, n_points
+        );
+    }
+}
+
+/// Ray-casting point-in-polygon test using a horizontal ray (positive x).
+///
+/// Vertices are stored in gd.vertices[j0..=j1] (1-based, Fortran style).
+/// The polygon is closed: edge from vertex j1 back to vertex j0.
+/// Returns true if the point (px, py) is inside the polygon.
+unsafe fn point_in_polygon(
+    gd: &ffi::Geometrydata,
+    px: f64,
+    py: f64,
+    j0: usize,
+    j1: usize,
+) -> bool {
+    let mut crossings = 0;
+    let n_verts = j1 - j0 + 1;
+
+    for k in 0..n_verts {
+        let i_curr = j0 + k;
+        // Next vertex wraps: after j1 comes j0
+        let i_next = if k + 1 < n_verts { j0 + k + 1 } else { j0 };
+
+        let v_curr = *gd.vertices.add(i_curr);
+        let v_next = *gd.vertices.add(i_next);
+        if v_curr.is_null() || v_next.is_null() {
+            continue;
+        }
+
+        let y1 = *v_curr.add(2);
+        let y2 = *v_next.add(2);
+
+        // Edge must straddle the horizontal line y = py
+        if (y1 <= py && y2 > py) || (y2 <= py && y1 > py) {
+            // Compute x-coordinate of intersection: linear interpolation
+            let x1 = *v_curr.add(1);
+            let x2 = *v_next.add(1);
+            let t = (py - y1) / (y2 - y1);
+            let x_intersect = x1 + t * (x2 - x1);
+
+            if px < x_intersect {
+                crossings += 1;
+            }
+        }
+    }
+
+    // Odd number of crossings = inside
+    crossings % 2 == 1
 }
 
 /// Compute bounding box from block vertex data as a fallback.

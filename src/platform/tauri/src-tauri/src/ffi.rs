@@ -660,6 +660,11 @@ mod tests {
 
             ddacut(gd);
 
+            // Fix macOS rand()/RAND_MAX bug: crr() misclassifies all points
+            // as "outside" because rand()/2048.0 overflows on macOS.
+            // See bridge.rs for full explanation.
+            crate::bridge::fix_point_block_assignments(&*gd);
+
             assert!((*gd).n_blocks > 0, "no blocks after ddacut");
             assert!(!(*gd).moments.is_null(), "moments is NULL after ddacut");
             assert!(!(*gd).vertices.is_null(), "vertices is NULL after ddacut");

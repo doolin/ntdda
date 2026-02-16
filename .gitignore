@@ -37,6 +37,7 @@ Debug/
 
 # Tauri
 src/platform/tauri/src-tauri*
+coverage-report/*
 
 # Documentation
 dox_warnings
