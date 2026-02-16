@@ -318,18 +318,14 @@ extern "C" {
 extern "C" {
     pub fn dda_new() -> *mut DDA;
     pub fn dda_delete(dda: *mut DDA);
-    pub fn dda_run(dda: *mut DDA) -> c_int;
     pub fn dda_get_geometrydata(dda: *mut DDA) -> *mut Geometrydata;
     pub fn dda_set_geometrydata(dda: *mut DDA, gd: *mut Geometrydata);
     pub fn dda_get_analysisdata(dda: *mut DDA) -> *mut Analysisdata;
     pub fn dda_set_analysisdata(dda: *mut DDA, ad: *mut Analysisdata);
-    pub fn dda_get_menu_state(dda: *mut DDA) -> c_int;
-    pub fn dda_set_menu_state(dda: *mut DDA, state: c_int);
 
     pub fn gdata_new() -> *mut Geometrydata;
     pub fn gdata_delete(gd: *mut Geometrydata);
     pub fn gdata_read_input_file(gd: *mut Geometrydata, filename: *mut c_char);
-    pub fn gdata_get_number_of_blocks(gd: *mut Geometrydata) -> c_int;
 
     pub fn ddacut(gd: *mut Geometrydata);
 
