@@ -347,7 +347,12 @@ extern "C" {
     pub fn initFilePaths(fp: *mut Filepaths);
 }
 
-// Probe functions from probe.c for validating struct layouts
+// Probe functions from probe.c — validate that Rust #[repr(C)] struct mirrors
+// match the C compiler's actual layout (sizeof and offsetof for every field).
+// Gated behind #[cfg(test)] because these are only called from layout validation
+// tests below. Without this gate, rustc warns about 42 unused functions in
+// non-test builds. See: https://doc.rust-lang.org/reference/conditional-compilation.html
+#[cfg(test)]
 extern "C" {
     pub fn probe_sizeof_geometrydata() -> usize;
     pub fn probe_offsetof_gd_display_warning() -> usize;
