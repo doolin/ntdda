@@ -46,6 +46,37 @@ make test   # run all tests
 
 Tests: constants, bolt, ddadlist, inpoly, material, stress, loadpoint, matmult, geometrydata, analysisdata, all_tests.
 
+### Tauri (Rust) Tests
+
+```bash
+cd src/platform/tauri/src-tauri
+cargo test
+```
+
+Tests: struct layout validation (geometrydata, analysisdata, filepaths) and pushblock integration test.
+
+### Test Coverage (Rust)
+
+Requires `cargo-llvm-cov` and Homebrew LLVM:
+
+```bash
+cargo install cargo-llvm-cov
+
+cd src/platform/tauri/src-tauri
+LLVM_COV=/opt/homebrew/opt/llvm/bin/llvm-cov \
+LLVM_PROFDATA=/opt/homebrew/opt/llvm/bin/llvm-profdata \
+cargo llvm-cov --html --output-dir ../../coverage-report
+```
+
+Open the report: `coverage-report/html/index.html`
+
+Text summary (no HTML):
+```bash
+LLVM_COV=/opt/homebrew/opt/llvm/bin/llvm-cov \
+LLVM_PROFDATA=/opt/homebrew/opt/llvm/bin/llvm-profdata \
+cargo llvm-cov
+```
+
 ---
 
 ## Technical Details
