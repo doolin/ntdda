@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(npx vite build:*)",
+      "Bash(cargo build:*)",
+      "Bash(pkg-config:*)",
+      "Bash(ls:*)",
+      "Bash(xml2-config:*)",
+      "Bash(cargo test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run tauri:*)"
+    ]
+  }
+}

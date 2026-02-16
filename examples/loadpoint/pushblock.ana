@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE DDA SYSTEM "analysis.dtd">
+<Berkeley:DDA xmlns:Berkeley="http://www.tsoft.com/~bdoolin/dda">
+<!-- Bogus comment to keep ddaml tree-stripping
+     from seg faulting on bad child node. -->
+
+<Analysis type="dynamic">
+
+  <Analysistype type="dynamic"/>
+  <Rotation type="linear"/>
+  <Gravity flag="no">
+   Gravity parameters are currently hardwired.
+  </Gravity>
+
+  <Autotimestep flag="no"/>
+  <Autopenalty flag="no" pfactor="50.0"/>
+  <Planestrain flag="no"/>
+  <Numtimesteps timesteps="500"/>
+  <Maxtimestep maxtimestep="0.010000"/>
+  <OCLimit maxopenclose="8"/>
+  <Maxdisplacement maxdisplacement="0.025000"/>
+  <Saveinterval step="1"/>
+   <!-- These used to be hard-wired into the
+        DDA source code.  Not currently used -->
+  <AConstants>
+      <Openclose value="0.000200"/>
+      <Opencriteria value="0.0000002"/>
+      <NormSpringPen value="0.0004"/>
+      <AngleOverlap value="3.0"/>
+      <ShearNormRatio value="2.5"/>
+  </AConstants>
+
+  <Blockmaterial  type="1">
+	<Unitmass> 18.000000 </Unitmass>
+	<Unitweight> 176.5800 </Unitweight>
+	<Youngsmod> 3000000.000000 </Youngsmod>
+	<Poissonratio> 0.2000 </Poissonratio>
+	<Damping>0.0</Damping>
+	<Istress> 0.0000 0.000000  0.000000 </Istress>
+	<Ivelocity> 0.000000  0.000000  0.000000 </Ivelocity>
+	<Istrain> 0.000000  0.000000  0.000000 </Istrain>
+  </Blockmaterial>
+
+  <Jointproperties type="1">
+	<Friction> 0.00</Friction>
+	<Cohesion> 0.00</Cohesion>
+	<Tensile> 0.00</Tensile>
+  </Jointproperties>
+   
+  <Loadpointlist>
+	<Loadpoint numpoints = "2">
+	0 5000 500;
+          5 5000 500;       
+	</Loadpoint>	
+  </Loadpointlist>
+
+</Analysis>
+
+   
+</Berkeley:DDA>

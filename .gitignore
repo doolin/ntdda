@@ -33,6 +33,9 @@ Debug/
 # Visual Studio crash recovery temp files
 .!*!*
 
+# Tauri
+src/platform/tauri/src-tauri*
+
 # Documentation
 dox_warnings
 Dox/
@@ -58,3 +61,4 @@ all_tests
 ddadlist_test
 geometrydata_test
 analysisdata_test
+
