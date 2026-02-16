@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import * as cmd from "./commands";
 import type { AppPhase, SceneData, AnalysisState } from "./types";
@@ -17,6 +17,26 @@ function App() {
   const [busy, setBusy] = useState(false);
 
   const clearError = () => setError(null);
+
+  // Auto-load and apply geometry file passed via -g flag or NTDDA_GEO env var
+  useEffect(() => {
+    cmd.getStartupFile().then(async (path) => {
+      if (!path) return;
+      try {
+        setBusy(true);
+        const loadResp = await cmd.openGeometry(path);
+        setPhase(loadResp.phase);
+        const applyResp = await cmd.applyGeometry();
+        setPhase(applyResp.phase);
+        setScene(applyResp.scene);
+        setOriginalScene(applyResp.scene);
+      } catch (e) {
+        setError(String(e));
+      } finally {
+        setBusy(false);
+      }
+    });
+  }, []);
 
   async function handleOpenGeometry() {
     clearError();

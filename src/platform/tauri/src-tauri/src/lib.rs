@@ -55,11 +55,66 @@ extern "C" fn crash_handler(sig: libc::c_int, info: *mut libc::siginfo_t, _ctx: 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     install_crash_handler();
+
+    // Startup geometry file: -g <path> flag or NTDDA_GEO env var
+    let startup_file = {
+        let mut geo_path: Option<String> = None;
+
+        // Check CLI: -g <path>
+        let args: Vec<String> = std::env::args().collect();
+        let mut i = 1;
+        while i < args.len() {
+            if args[i] == "-g" {
+                geo_path = args.get(i + 1).cloned();
+                break;
+            }
+            i += 1;
+        }
+
+        // Fallback: NTDDA_GEO env var (convenient for `tauri dev`)
+        // The env var is resolved at the shell level, so it should be an
+        // absolute path. Use NTDDA_GEO_DIR to help resolve relative paths
+        // when the binary CWD differs from the user's shell CWD.
+        if geo_path.is_none() {
+            geo_path = std::env::var("NTDDA_GEO").ok().map(|p| {
+                if std::path::Path::new(&p).is_absolute() {
+                    p
+                } else if let Ok(dir) = std::env::var("NTDDA_GEO_DIR") {
+                    format!("{}/{}", dir, p)
+                } else {
+                    p
+                }
+            });
+        }
+
+        // Validate the path exists
+        geo_path.and_then(|p| {
+            let path = std::path::Path::new(&p);
+            if path.exists() {
+                match path.canonicalize() {
+                    Ok(abs) => {
+                        let s = abs.to_string_lossy().into_owned();
+                        eprintln!("[ntdda] startup geometry: {}", s);
+                        Some(s)
+                    }
+                    Err(_) => {
+                        eprintln!("[ntdda] startup geometry: {}", p);
+                        Some(p)
+                    }
+                }
+            } else {
+                eprintln!("[ntdda] FATAL: startup geometry not found: {}", p);
+                std::process::exit(1);
+            }
+        })
+    };
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState {
             engine: std::sync::Mutex::new(bridge::DdaEngine::new()),
+            startup_file,
         })
         .invoke_handler(tauri::generate_handler![
             commands::get_phase,
@@ -71,6 +126,7 @@ pub fn run() {
             commands::load_replay,
             commands::get_replay_frame,
             commands::get_replay_info,
+            commands::get_startup_file,
             commands::quit_app,
         ])
         .run(tauri::generate_context!())

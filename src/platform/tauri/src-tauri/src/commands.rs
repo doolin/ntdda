@@ -7,6 +7,7 @@ use tauri::State;
 
 pub struct AppState {
     pub engine: Mutex<DdaEngine>,
+    pub startup_file: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -99,6 +100,11 @@ pub fn get_replay_frame(state: State<AppState>, index: usize) -> Result<SceneDat
 pub fn get_replay_info(state: State<AppState>) -> Result<ReplayInfo, String> {
     let engine = state.engine.lock().map_err(|e| e.to_string())?;
     engine.get_replay_info()
+}
+
+#[tauri::command]
+pub fn get_startup_file(state: State<AppState>) -> Option<String> {
+    state.startup_file.clone()
 }
 
 #[tauri::command]

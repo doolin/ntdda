@@ -43,6 +43,10 @@ export async function getReplayInfo(): Promise<ReplayInfo> {
   return invoke<ReplayInfo>("get_replay_info");
 }
 
+export async function getStartupFile(): Promise<string | null> {
+  return invoke<string | null>("get_startup_file");
+}
+
 export async function quitApp(): Promise<void> {
   return invoke<void>("quit_app");
 }
