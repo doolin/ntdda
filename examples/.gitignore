@@ -1,0 +1,30 @@
+# Combined from dev/, dev/fixedlines/, dev/landslidekinematics/
+*.m
+ddaml
+*.err
+*.log
+*.gnu
+*.grav
+*.por
+*.spy*
+*.par
+*.html
+*~
+*.eps
+
+# DDA build/output artifacts (from clean.bat)
+*.res
+*.blk
+Ws_ftp.log
+*.disp
+*.grf
+*.meas
+*.time
+*.rand
+*.area
+*.replay
+block.in
+*.dat
+*.png
+*.fig
+*.cut

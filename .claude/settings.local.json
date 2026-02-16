@@ -10,7 +10,11 @@
       "Bash(xml2-config:*)",
       "Bash(cargo test:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run tauri:*)"
+      "Bash(npm run tauri:*)",
+      "Bash(nm:*)",
+      "Read(//Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk/usr/include/**)",
+      "Bash(clang:*)",
+      "Bash(npx tauri build:*)"
     ]
   }
 }

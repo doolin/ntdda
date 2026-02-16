@@ -209,6 +209,8 @@ impl DdaEngine {
 
     /// Load an analysis file (.ana or .xml).
     pub fn load_analysis(&mut self, path: &str) -> Result<(), String> {
+        eprintln!("[ntdda] load_analysis: {}", path);
+
         if self.phase != AppPhase::GeometryCut
             && self.phase != AppPhase::AnalysisLoaded
             && self.phase != AppPhase::Finished
@@ -228,21 +230,31 @@ impl DdaEngine {
         let (n_f_points, point_count, n_l_points) = unsafe {
             ((*gd).n_f_points, (*gd).point_count, (*gd).n_l_points)
         };
+        eprintln!(
+            "[ntdda] geometry counts: n_f_points={}, point_count={}, n_l_points={}",
+            n_f_points, point_count, n_l_points
+        );
 
         let ad = unsafe { ffi::adata_new() };
         if ad.is_null() {
             return Err("adata_new() returned null".into());
         }
+        eprintln!("[ntdda] adata_new() ok, setting display callbacks...");
 
         // Set display callbacks before reading
         unsafe {
             (*ad).display_error = Some(ffi::dda_display_error);
             (*ad).display_warning = Some(ffi::dda_display_warning);
         }
+        eprintln!("[ntdda] display callbacks set, calling adata_read_input_file...");
 
         let c_path = CString::new(path).map_err(|e| e.to_string())?;
         unsafe {
             ffi::adata_read_input_file(ad, c_path.as_ptr() as *mut _, n_f_points, point_count, n_l_points);
+        }
+        eprintln!("[ntdda] adata_read_input_file returned, setting on DDA...");
+
+        unsafe {
             ffi::dda_set_analysisdata(self.dda, ad);
         }
 
@@ -250,6 +262,7 @@ impl DdaEngine {
         copy_path_to_buf(path, &mut self.filepaths.afile);
 
         self.phase = AppPhase::AnalysisLoaded;
+        eprintln!("[ntdda] analysis loaded successfully");
         Ok(())
     }
 
@@ -264,9 +277,34 @@ impl DdaEngine {
 
         self.phase = AppPhase::Running;
 
+        // Set rootname from the analysis file (stem without extension).
+        // openAnalysisFiles() in ddafile.c uses rootname to construct output paths.
+        let afile = c_buf_to_string(&self.filepaths.afile);
+        if let Some(stem) = Path::new(&afile).file_stem().and_then(|s| s.to_str()) {
+            copy_path_to_buf(stem, &mut self.filepaths.rootname);
+            eprintln!("[ntdda] rootname set to: {}", stem);
+        }
+
+        // Change CWD to geo directory — ddanalysis opens output files relative to CWD.
+        // openAnalysisFiles() calls getcwd() and dda_set_output_directory("output").
+        let prev_dir = std::env::current_dir().ok();
+        if let Some(ref dir) = self.geo_dir {
+            eprintln!("[ntdda] chdir to {:?} for ddanalysis", dir);
+            let _ = std::env::set_current_dir(dir);
+        }
+
+        eprintln!("[ntdda] calling ddanalysis...");
         let result = unsafe { ffi::ddanalysis(self.dda, &mut *self.filepaths) };
-        if result != 0 {
-            return Err(format!("ddanalysis returned error code {}", result));
+        eprintln!("[ntdda] ddanalysis returned: {}", result);
+
+        // Restore previous directory
+        if let Some(dir) = prev_dir {
+            let _ = std::env::set_current_dir(dir);
+        }
+
+        // ddanalysis() returns TRUE (1) on success
+        if result == 0 {
+            return Err("ddanalysis returned 0 (failure)".into());
         }
 
         let scene = self.extract_scene()?;
@@ -496,4 +534,14 @@ fn copy_path_to_buf(path: &str, buf: &mut [std::os::raw::c_char; ffi::FNAME_BUFS
         buf[i] = bytes[i] as std::os::raw::c_char;
     }
     buf[len] = 0;
+}
+
+/// Read a C char buffer into a Rust String (up to first NUL).
+fn c_buf_to_string(buf: &[std::os::raw::c_char; ffi::FNAME_BUFSIZE]) -> String {
+    let bytes: Vec<u8> = buf
+        .iter()
+        .take_while(|&&c| c != 0)
+        .map(|&c| c as u8)
+        .collect();
+    String::from_utf8_lossy(&bytes).into_owned()
 }
