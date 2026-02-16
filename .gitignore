@@ -51,6 +51,7 @@ Dox/
 
 # CMake out-of-tree build
 build/
+build-coverage/
 
 # Unit test binaries
 bolttest

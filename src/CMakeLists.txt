@@ -62,3 +62,8 @@ target_link_libraries(dda PUBLIC LibXml2::LibXml2)
 
 # Do not define WIN32 - enables non-GUI code paths
 target_compile_definitions(dda PRIVATE LIBXML_STATIC)
+
+if(ENABLE_COVERAGE)
+  target_compile_options(dda PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+  target_link_options(dda PRIVATE -fprofile-instr-generate)
+endif()

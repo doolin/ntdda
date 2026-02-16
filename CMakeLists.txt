@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD 99)
 
 # Out-of-tree build recommended: mkdir build && cd build && cmake .. && make
 option(BUILD_TESTS "Build unit tests" ON)
+option(ENABLE_COVERAGE "Build with LLVM source-based coverage" OFF)
 
 add_subdirectory(src)
 

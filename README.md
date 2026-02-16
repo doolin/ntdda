@@ -77,6 +77,17 @@ LLVM_PROFDATA=/opt/homebrew/opt/llvm/bin/llvm-profdata \
 cargo llvm-cov
 ```
 
+### Test Coverage (C)
+
+Uses CMake with LLVM source-based coverage (`-fprofile-instr-generate -fcoverage-mapping`).
+Requires Apple clang and Xcode command line tools (`xcrun llvm-profdata`, `xcrun llvm-cov`).
+
+```bash
+bash scripts/c-coverage.sh
+```
+
+Builds in `build-coverage/`, runs 9 unit tests, generates report at `coverage-report/c/index.html`.
+
 ---
 
 ## Technical Details

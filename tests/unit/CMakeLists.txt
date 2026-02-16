@@ -110,6 +110,15 @@ target_link_libraries(all_tests PRIVATE dda)
 target_compile_definitions(all_tests PRIVATE STANDALONE ALL_TESTS)
 target_link_libraries(all_tests PRIVATE m)
 
+if(ENABLE_COVERAGE)
+  foreach(test_target constants_test geometrydata_test analysisdata_test
+          bolttest ddadlist_test inpoly_test material_test stress_test
+          loadpointtest matmulttest all_tests)
+    target_compile_options(${test_target} PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+    target_link_options(${test_target} PRIVATE -fprofile-instr-generate)
+  endforeach()
+endif()
+
 # CTest integration
 enable_testing()
 add_test(NAME constants_test COMMAND constants_test)
