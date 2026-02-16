@@ -18,24 +18,30 @@ function App() {
 
   const clearError = () => setError(null);
 
-  // Auto-load and apply geometry file passed via -g flag or NTDDA_GEO env var
+  // Auto-load and apply geometry file passed via -g flag or NTDDA_GEO env var.
+  // The abort flag guards against React StrictMode double-firing in dev mode,
+  // which would run ddacut() twice on the same geometry and corrupt point data.
   useEffect(() => {
+    let aborted = false;
     cmd.getStartupFile().then(async (path) => {
-      if (!path) return;
+      if (!path || aborted) return;
       try {
         setBusy(true);
         const loadResp = await cmd.openGeometry(path);
+        if (aborted) return;
         setPhase(loadResp.phase);
         const applyResp = await cmd.applyGeometry();
+        if (aborted) return;
         setPhase(applyResp.phase);
         setScene(applyResp.scene);
         setOriginalScene(applyResp.scene);
       } catch (e) {
-        setError(String(e));
+        if (!aborted) setError(String(e));
       } finally {
-        setBusy(false);
+        if (!aborted) setBusy(false);
       }
     });
+    return () => { aborted = true; };
   }, []);
 
   async function handleOpenGeometry() {
