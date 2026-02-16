@@ -26,6 +26,8 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 #include "ddafile.h"
 
@@ -74,6 +76,15 @@ static void poison_next_malloc(size_t size)
 static int file_exists(const char *path)
 {
     return access(path, F_OK) == 0;
+}
+
+/* Write content to a temporary file.  Caller must unlink when done. */
+static void write_tmp_file(const char *path, const char *content)
+{
+    FILE *f = fopen(path, "w");
+    assert(f != NULL);
+    fputs(content, f);
+    fclose(f);
 }
 
 /* ------------------------------------------------------------------ */
@@ -273,6 +284,99 @@ int main(void)
         } else {
             fprintf(stderr, "  fopen returned NULL\n");
         }
+    }
+
+
+    /* ============================================================
+     * ddafile_get_type() branch coverage.
+     *
+     * The function has three branches (lines 104, 108, 112):
+     *   104: magicnum == NULL   (first line is all whitespace)
+     *   108: strncmp "<?..."    (XML format → return ddaml)
+     *   112: strncmp "#!0xDDA"  (extended format → return extended)
+     *   116: fallthrough        (original format → return original)
+     *
+     * The XML path (ddaml) is already covered by pipeline_test.
+     * We add tests for the other three paths here.
+     * ============================================================ */
+
+    /* ---- Test 5: ddafile_get_type returns 'extended' ---- */
+    fprintf(stderr, "\n--- Test 5: ddafile_get_type extended format ---\n");
+    {
+        const char *tmp = "_ddafile_test_extended.tmp";
+        write_tmp_file(tmp, "#!0xDDA-v1.5 some data\n");
+
+        int result = ddafile_get_type((char *)tmp);
+        fprintf(stderr, "  result = %d (expected extended=%d)\n", result, extended);
+
+        if (result == extended) {
+            fprintf(stderr, "  OK: extended format detected\n");
+        } else {
+            fprintf(stderr, "  FAIL: wrong type returned\n");
+            passed = 0;
+        }
+        unlink(tmp);
+    }
+
+
+    /* ---- Test 6: ddafile_get_type returns 'original' ---- */
+    fprintf(stderr, "\n--- Test 6: ddafile_get_type original format ---\n");
+    {
+        const char *tmp = "_ddafile_test_original.tmp";
+        write_tmp_file(tmp, "6 7 3 2 1\nsome old-format data\n");
+
+        int result = ddafile_get_type((char *)tmp);
+        fprintf(stderr, "  result = %d (expected original=%d)\n", result, original);
+
+        if (result == original) {
+            fprintf(stderr, "  OK: original format detected\n");
+        } else {
+            fprintf(stderr, "  FAIL: wrong type returned\n");
+            passed = 0;
+        }
+        unlink(tmp);
+    }
+
+
+    /* ---- Test 7: ddafile_get_type NULL magicnum crashes ---- */
+    fprintf(stderr, "\n--- Test 7: ddafile_get_type NULL magicnum (crash) ---\n");
+    {
+        /*
+         * Bug 4: When the first line contains only whitespace, strtok()
+         * returns NULL.  The code calls dda_display_error() but does NOT
+         * return — it falls through to strncmp(NULL, "<?", 2) which is
+         * a NULL pointer dereference.
+         *
+         * We verify this crashes by running it in a fork'd child process.
+         */
+        const char *tmp = "_ddafile_test_empty.tmp";
+        write_tmp_file(tmp, "   \n");
+
+        pid_t pid = fork();
+        if (pid == 0) {
+            /* Child: this should crash (SIGSEGV or SIGBUS) */
+            ddafile_get_type((char *)tmp);
+            /* If we get here, the bug was somehow not triggered */
+            _exit(99);
+        }
+
+        /* Parent: wait for child and check how it died */
+        int status;
+        waitpid(pid, &status, 0);
+
+        if (WIFSIGNALED(status)) {
+            int sig = WTERMSIG(status);
+            fprintf(stderr, "  BUG CONFIRMED: child killed by signal %d (%s)\n",
+                    sig, strsignal(sig));
+            fprintf(stderr, "  Missing return after dda_display_error at line 105\n");
+            fprintf(stderr, "  Falls through to strncmp(NULL, ...) → crash\n");
+        } else if (WIFEXITED(status) && WEXITSTATUS(status) == 99) {
+            fprintf(stderr, "  UNEXPECTED: no crash (bug not triggered)\n");
+            passed = 0;
+        } else {
+            fprintf(stderr, "  Child exited with status %d\n", WEXITSTATUS(status));
+        }
+        unlink(tmp);
     }
 
 
