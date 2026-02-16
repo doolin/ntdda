@@ -4,6 +4,149 @@
  * match ddafile.h header.  Then this stuff can be
  * abstracted into something a lot more useful.
  */
+
+/* ================================================================
+ * ADR: ddafile.c — File Utility Layer
+ * Status: documenting current state and required changes
+ * ================================================================
+ *
+ * WHAT THIS FILE IS SUPPOSED TO DO
+ *
+ * Provide all file I/O management for DDA: identify input file
+ * formats, construct output paths from a rootname, and open/close
+ * the ~25 output streams that an analysis run produces.
+ *
+ * There are two independent APIs here that were never reconciled:
+ *
+ *   1. DDAFile — An opaque per-file handle (struct _ddafile).
+ *      Intended to encapsulate filename + FILE* as a pair.
+ *      Never completed; never called from production code.
+ *
+ *   2. Filepaths + FILEPOINTERS — Parallel structs defined in
+ *      ddafile.h.  Filepaths carries 37 char[256] path buffers;
+ *      FILEPOINTERS carries the corresponding FILE* handles.
+ *      Both are accessed as extern globals.  This is the API that
+ *      the analysis engine actually uses.
+ *
+ * The original intent (line 176, commented-out call) was to replace
+ * the repetitive strcpy/strcat/fopen blocks in openAnalysisFiles()
+ * with calls to ddafile_open_file().  This was never finished.
+ *
+ *
+ * KNOWN BUGS (confirmed by ddafile_test.c)
+ *
+ * Bug 1 — ddafile_new() ignores the filename parameter.
+ *   malloc allocates the struct but never copies the filename in.
+ *   The filename field contains uninitialized heap memory (visible
+ *   as 0xDA when pre-poisoned in tests).
+ *
+ * Bug 2 — ddafile_new_open() calls fopen() on the garbage filename
+ *   from Bug 1.  The intended file is never created.
+ *
+ * Bug 3 — ddafile_open_file() uses sizeof(rootname) which evaluates
+ *   to sizeof(char*) = 8, not the string length.  Only 8 bytes are
+ *   copied.  The second strncpy overwrites the first (should be
+ *   strncat).  The initializer {'0'} sets byte 0 to ASCII 0x30, not
+ *   the intended '\0'.
+ *
+ * Bug 4 — ddafile_get_type() calls dda_display_error() when the
+ *   magic number is NULL but does not return.  Execution falls
+ *   through to strncmp(NULL, ...) which is a NULL dereference.
+ *
+ * Bug 5 — openAnalysisFiles() does not check any fopen() return
+ *   values.  If the output directory doesn't exist or isn't
+ *   writable, every FILE* in FILEPOINTERS is NULL.  Subsequent
+ *   fprintf/fclose calls on NULL FILE* are undefined behavior.
+ *
+ * Bug 6 — The `rootname` field is documented as "the entire path"
+ *   (line 78 of ddafile.h), making the name misleading.  On Win32
+ *   it is set via strtok(filename, ".") which also breaks on
+ *   filenames with multiple dots (e.g., "model.v2.ana").
+ *
+ *
+ * WHAT NEEDS TO CHANGE
+ *
+ * 1. Finish or remove DDAFile.
+ *
+ *   The opaque-handle design is sound.  If kept, the constructor
+ *   must copy the filename (strncpy + null-terminate), the
+ *   destructor should poison with 0xDD then free, and the open
+ *   function should check fopen's return value.  If not kept,
+ *   delete the dead code (ddafile_new, ddafile_new_open,
+ *   ddafile_open_file) so it doesn't mislead future readers.
+ *
+ * 2. Separate path construction from file opening.
+ *
+ *   openAnalysisFiles() currently does three things in one pass:
+ *   constructs paths, creates the output directory, and opens every
+ *   file.  The existing FIXME at line 127 calls this out.  Split
+ *   into:
+ *     a) initOutputPaths(Filepaths *fp, const char *outdir)
+ *        Pure computation.  Constructs all output paths from outdir
+ *        + rootname + extension.  Easily testable in isolation.
+ *     b) openOutputFiles(Filepaths *fp, FILEPOINTERS *fptrs)
+ *        Opens the files.  Checks each fopen; returns error count.
+ *
+ * 3. Use snprintf for all path construction.
+ *
+ *   Replace the strcpy/strcat chains with:
+ *     snprintf(fp->replayfile, FNAME_BUFSIZE, "%s/%s.replay",
+ *              outdir, fp->rootname);
+ *   This provides bounds checking in a single call and eliminates
+ *   the temp[256] intermediate buffer (which itself is a truncation
+ *   risk when outdir + rootname + extension exceeds 255 bytes).
+ *
+ * 4. Add a portable path_join helper.
+ *
+ *   A small function that appends a path separator between
+ *   components, choosing '/' or '\\' via #ifdef.  Replaces the
+ *   repeated #ifdef WIN32 / strncat blocks with:
+ *     path_join(outdir, BUFSIZE, cwdbuf, "output");
+ *   This is what dda_set_output_directory() in dda.c already does
+ *   inline; factor it out so every caller benefits.
+ *
+ * 5. Eliminate extern globals for file handles.
+ *
+ *   FILEPOINTERS is declared extern in openAnalysisFiles() and
+ *   closeAnalysisFiles(), coupling this module to a global defined
+ *   elsewhere (combineddf.c).  Instead, pass FILEPOINTERS* as a
+ *   parameter.  This makes the code testable without global state,
+ *   and makes the data flow explicit in the call chain.
+ *
+ * 6. Fix ddafile_get_type error handling.
+ *
+ *   Replace the assert() calls with error returns so the function
+ *   is usable in non-debug builds.  After the NULL magicnum check,
+ *   return an error value (or a new enum member like `filetype_error`)
+ *   instead of falling through.  Let the caller decide how to report
+ *   the error.
+ *
+ * 7. Consider table-driven file registration.
+ *
+ *   The 25 repetitive strcpy/strcat/fopen blocks could be replaced
+ *   by iterating over a descriptor table:
+ *
+ *     struct output_desc {
+ *         const char *suffix;
+ *         size_t      path_offset;   // offsetof into Filepaths
+ *         size_t      fp_offset;     // offsetof into FILEPOINTERS
+ *         const char *header;        // e.g. "contactforces = [\n"
+ *         const char *trailer;       // e.g. "];\n"
+ *     };
+ *
+ *   This consolidates the open, close, and path construction logic
+ *   into a single loop, making it trivial to add or remove output
+ *   files.
+ *
+ * 8. Increase FNAME_BUFSIZE.
+ *
+ *   256 bytes is too small for modern paths.  PATH_MAX is 1024 on
+ *   macOS and 4096 on Linux.  FNAME_BUFSIZE should be at least 1024,
+ *   or dynamically allocated.  The temp[256] local in
+ *   openAnalysisFiles() should match or be eliminated in favor of
+ *   snprintf directly into the Filepaths field.
+ *
+ * ================================================================ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
