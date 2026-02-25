@@ -23,6 +23,10 @@ Remaining work after restructure and CMake addition.
 - [ ] Fix ddadlist.c deprecated non-prototype function definitions
 - [ ] Fix ddamemory.c pointer-to-int cast warnings
 
+## Roadmap
+
+- [ ] Integrate SQLite3 for input, output, and experiment management
+
 ## Documentation
 
 - [ ] Update README with CMake build instructions
